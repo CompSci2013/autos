@@ -1,0 +1,255 @@
+<div class="picker-container">
+  <div class="picker-header">
+    <h4>Manufacturer + Model</h4>
+
+    <!-- Search Box -->
+    <div class="search-box">
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchChange()"
+        placeholder="Search manufacturer or model..."
+        class="search-input"
+      />
+    </div>
+
+    <!-- Visible Rows Dropdown -->
+    <div class="page-size-control">
+      <label for="pageSize">Show:</label>
+      <select
+        id="pageSize"
+        [(ngModel)]="pageSize"
+        (ngModelChange)="onPageSizeChange()"
+        class="page-size-select"
+      >
+        <option *ngFor="let option of visibleRowOptions" [value]="option">
+          {{ option }} rows
+        </option>
+      </select>
+      <span class="total-info"
+        >of {{ filteredGroups.length }} manufacturers</span
+      >
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <p>Loading vehicle combinations...</p>
+  </div>
+
+  <!-- Nested Table -->
+  <div *ngIf="!loading" class="table-wrapper">
+    <div class="table-scroll-wrapper">
+      <nz-table
+        #manufacturerTable
+        [nzData]="visibleGroups"
+        [nzShowPagination]="false"
+        [nzFrontPagination]="false"
+        nzSize="middle"
+      >
+        <thead>
+          <tr>
+            <th nzWidth="40px">
+              <!-- Select All Checkbox -->
+              <label
+                nz-checkbox
+                [nzIndeterminate]="someVisibleSelected"
+                [nzChecked]="allVisibleSelected"
+                (nzCheckedChange)="
+                  allVisibleSelected ? deselectAll() : selectAll()
+                "
+                title="{{
+                  allVisibleSelected
+                    ? 'Deselect all visible'
+                    : 'Select all visible'
+                }}"
+              >
+              </label>
+            </th>
+            <th>Manufacturer</th>
+            <th nzWidth="100px">Count</th>
+            <th nzWidth="40px"></th>
+            <!-- Expand -->
+          </tr>
+        </thead>
+        <tbody>
+          <ng-template ngFor let-group [ngForOf]="manufacturerTable.data">
+            <!-- Parent Row -->
+            <tr>
+              <td>
+                <label
+                  nz-checkbox
+                  [nzIndeterminate]="
+                    getParentCheckboxState(group.manufacturer) ===
+                    'indeterminate'
+                  "
+                  [nzChecked]="
+                    getParentCheckboxState(group.manufacturer) === 'checked'
+                  "
+                  (nzCheckedChange)="
+                    onParentCheckboxChange(group.manufacturer, $event)
+                  "
+                >
+                </label>
+              </td>
+              <td>{{ group.manufacturer }}</td>
+              <td class="count-cell">{{ group.totalCount }}</td>
+              <td
+                [nzExpand]="group.expanded"
+                (nzExpandChange)="onExpandChange(group.manufacturer, $event)"
+              ></td>
+            </tr>
+
+            <!-- Child Table (Expanded Models) -->
+            <tr [nzExpand]="group.expanded">
+              <td colspan="4" style="padding: 0; background: #f9f9f9">
+                <nz-table
+                  [nzData]="group.models"
+                  [nzShowPagination]="false"
+                  nzSize="small"
+                >
+                  <tbody>
+                    <tr *ngFor="let model of group.models">
+                      <td nzWidth="40px"></td>
+                      <!-- Indent spacing -->
+                      <td nzWidth="40px">
+                        <label
+                          nz-checkbox
+                          [nzChecked]="
+                            isModelSelected(group.manufacturer, model.model)
+                          "
+                          (nzCheckedChange)="
+                            onChildCheckboxChange(
+                              group.manufacturer,
+                              model.model,
+                              $event
+                            )
+                          "
+                        >
+                        </label>
+                      </td>
+                      <td>{{ model.model }}</td>
+                      <td nzWidth="100px" class="count-cell">
+                        {{ model.count }}
+                      </td>
+                      <td nzWidth="40px"></td>
+                      <!-- Align with parent expand column -->
+                    </tr>
+                  </tbody>
+                </nz-table>
+              </td>
+            </tr>
+          </ng-template>
+        </tbody>
+      </nz-table>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="pagination-controls" *ngIf="totalPages > 1">
+      <button
+        type="button"
+        class="btn-page"
+        (click)="previousPage()"
+        [disabled]="!hasPreviousPage"
+      >
+        ‹ Prev
+      </button>
+
+      <div class="page-numbers">
+        <button
+          *ngFor="let page of pageNumbers"
+          type="button"
+          class="btn-page-num"
+          [class.active]="page === currentPage"
+          [disabled]="page === -1"
+          (click)="goToPage(page)"
+        >
+          <span *ngIf="page > 0">{{ page }}</span>
+          <span *ngIf="page === -1">...</span>
+        </button>
+      </div>
+
+      <button
+        type="button"
+        class="btn-page"
+        (click)="nextPage()"
+        [disabled]="!hasNextPage"
+      >
+        Next ›
+      </button>
+    </div>
+  </div>
+
+  <!-- Selected Items (Hierarchical Chips) -->
+  <div class="chips-section">
+    <div class="chips-label">Selected ({{ selectedChips.length }}):</div>
+    <div class="chips-container">
+      <div *ngIf="selectedChips.length === 0" class="no-selections">
+        No selections
+      </div>
+      <!-- Hierarchical chip display -->
+      <ng-container *ngFor="let group of groupedChips; let i = index">
+        <!-- Separator line between groups -->
+        <hr *ngIf="i > 0" class="chip-separator" />
+
+        <!-- Group wrapper for manufacturer + models -->
+        <div class="chip-group">
+          <!-- Parent chip: Manufacturer with count -->
+          <div class="chip chip-parent">
+            <span class="chip-text">
+              {{ group.manufacturer }}
+              <span class="chip-badge">({{ group.count }})</span>
+            </span>
+            <button
+              type="button"
+              class="chip-remove"
+              (click)="removeManufacturerChip(group.manufacturer)"
+              [attr.aria-label]="
+                'Remove all ' + group.manufacturer + ' selections'
+              "
+              title="Remove all {{ group.manufacturer }} models"
+            >
+              ×
+            </button>
+          </div>
+          <!-- Child chips: Individual models -->
+          <div *ngFor="let model of group.models" class="chip chip-child">
+            <span class="chip-text">{{ model }}</span>
+            <button
+              type="button"
+              class="chip-remove"
+              (click)="
+                removeChip({ manufacturer: group.manufacturer, model: model })
+              "
+              [attr.aria-label]="'Remove ' + group.manufacturer + ' - ' + model"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="actions-section">
+    <button
+      type="button"
+      class="btn btn-primary"
+      (click)="onApply()"
+      [disabled]="selectedChips.length === 0"
+      nz-tooltip
+      nzTooltipTitle="Logs selected manufacturer-model combinations to browser console (MVP)"
+    >
+      Apply ({{ selectedChips.length }})
+    </button>
+    <button
+      type="button"
+      class="btn btn-secondary"
+      (click)="onClear()"
+      [disabled]="selectedChips.length === 0"
+    >
+      Clear
+    </button>
+  </div>
+</div>

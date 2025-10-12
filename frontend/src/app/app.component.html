@@ -1,4 +1,10 @@
-<!-- NG-ZORRO -->
-<a href="https://github.com/NG-ZORRO/ng-zorro-antd" target="_blank" style="display: flex;align-items: center;justify-content: center;height: 100%;width: 100%;">
-  <img height="300" src="https://img.alicdn.com/tfs/TB1X.qJJgHqK1RjSZFgXXa7JXXa-89-131.svg">
-</a>
+<div style="padding: 2rem; max-width: 1200px; margin: 0 auto;">
+  <h1>AUTOS - Vehicle Picker (MVP)</h1>
+  <p style="color: #666; margin-bottom: 2rem;">
+    Select manufacturer-model combinations. Apply button logs to browser console.
+  </p>
+  
+  <app-manufacturer-model-table-picker
+    (selectionChange)="onSelectionChange($event)"
+  ></app-manufacturer-model-table-picker>
+</div>

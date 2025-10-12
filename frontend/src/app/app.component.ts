@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { ManufacturerModelSelection } from './models';
 
 @Component({
   selector: 'app-root',
@@ -6,5 +7,10 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'autos';
+  title = 'AUTOS';
+
+  onSelectionChange(selections: ManufacturerModelSelection[]): void {
+    console.log('Selected manufacturer-model combinations:', selections);
+    console.log(`Total selections: ${selections.length}`);
+  }
 }
