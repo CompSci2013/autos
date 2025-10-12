@@ -51,8 +51,9 @@ export class ManufacturerModelTablePickerComponent
   loadData(): void {
     this.loading = true;
 
+    // FIXED: Changed size from 10000 to 100 (backend max is 100)
     this.subscription = this.apiService
-      .getManufacturerModelCombinations(1, 10000, '')
+      .getManufacturerModelCombinations(1, 100, '')
       .subscribe({
         next: (response) => {
           // Flatten the hierarchical response into rows
