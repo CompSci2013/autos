@@ -37,11 +37,11 @@
     <p>Loading vehicle combinations...</p>
   </div>
 
-  <!-- Nested Table -->
+  <!-- Table -->
   <div *ngIf="!loading" class="table-wrapper">
     <div class="table-scroll-wrapper">
       <nz-table
-        #manufacturerTable
+        #vehicleTable
         [nzData]="visibleGroups"
         [nzShowPagination]="false"
         [nzFrontPagination]="false"
@@ -49,34 +49,76 @@
       >
         <thead>
           <tr>
-            <th nzWidth="40px">
-              <!-- Select All Checkbox -->
-              <label
-                nz-checkbox
-                [nzIndeterminate]="someVisibleSelected"
-                [nzChecked]="allVisibleSelected"
-                (nzCheckedChange)="
-                  allVisibleSelected ? deselectAll() : selectAll()
-                "
-                title="{{
-                  allVisibleSelected
-                    ? 'Deselect all visible'
-                    : 'Select all visible'
-                }}"
-              >
-              </label>
-            </th>
             <th>Manufacturer</th>
+            <th>Model</th>
             <th nzWidth="100px">Count</th>
-            <th nzWidth="40px"></th>
-            <!-- Expand -->
           </tr>
         </thead>
         <tbody>
-          <ng-template ngFor let-group [ngForOf]="manufacturerTable.data">
-            <!-- Parent Row -->
-            <tr>
-              <td>
+          <ng-container *ngFor="let group of vehicleTable.data">
+            <!-- EXPANDED VIEW -->
+            <ng-container *ngIf="group.expanded">
+              <tr
+                *ngFor="let model of group.models; let first = first"
+                class="expanded-row"
+              >
+                <!-- Manufacturer cell (with rowspan on first row) -->
+                <td
+                  *ngIf="first"
+                  [attr.rowspan]="group.models.length"
+                  class="manufacturer-cell clickable"
+                  (click)="toggleManufacturer(group.manufacturer)"
+                >
+                  <label
+                    nz-checkbox
+                    [nzIndeterminate]="
+                      getParentCheckboxState(group.manufacturer) ===
+                      'indeterminate'
+                    "
+                    [nzChecked]="
+                      getParentCheckboxState(group.manufacturer) === 'checked'
+                    "
+                    (nzCheckedChange)="
+                      onParentCheckboxChange(group.manufacturer, $event)
+                    "
+                    (click)="$event.stopPropagation()"
+                  >
+                    <strong>{{ group.manufacturer }}</strong>
+                  </label>
+                  <div class="collapse-hint">(click to collapse)</div>
+                </td>
+
+                <!-- Model cell -->
+                <td class="model-cell">
+                  <label
+                    nz-checkbox
+                    [nzChecked]="
+                      isModelSelected(group.manufacturer, model.model)
+                    "
+                    (nzCheckedChange)="
+                      onChildCheckboxChange(
+                        group.manufacturer,
+                        model.model,
+                        $event
+                      )
+                    "
+                  >
+                    {{ model.model }}
+                  </label>
+                </td>
+
+                <!-- Count cell -->
+                <td class="count-cell">{{ model.count }}</td>
+              </tr>
+            </ng-container>
+
+            <!-- COLLAPSED VIEW -->
+            <tr
+              *ngIf="!group.expanded"
+              class="collapsed-row clickable"
+              (click)="toggleManufacturer(group.manufacturer)"
+            >
+              <td colspan="3">
                 <label
                   nz-checkbox
                   [nzIndeterminate]="
@@ -89,57 +131,17 @@
                   (nzCheckedChange)="
                     onParentCheckboxChange(group.manufacturer, $event)
                   "
+                  (click)="$event.stopPropagation()"
                 >
+                  <strong>{{ group.manufacturer }}</strong>
                 </label>
-              </td>
-              <td>{{ group.manufacturer }}</td>
-              <td class="count-cell">{{ group.totalCount }}</td>
-              <td
-                [nzExpand]="group.expanded"
-                (nzExpandChange)="onExpandChange(group.manufacturer, $event)"
-              ></td>
-            </tr>
-
-            <!-- Child Table (Expanded Models) -->
-            <tr [nzExpand]="group.expanded">
-              <td colspan="4" style="padding: 0; background: #f9f9f9">
-                <nz-table
-                  [nzData]="group.models"
-                  [nzShowPagination]="false"
-                  nzSize="small"
-                >
-                  <tbody>
-                    <tr *ngFor="let model of group.models">
-                      <td nzWidth="40px"></td>
-                      <!-- Indent spacing -->
-                      <td nzWidth="40px">
-                        <label
-                          nz-checkbox
-                          [nzChecked]="
-                            isModelSelected(group.manufacturer, model.model)
-                          "
-                          (nzCheckedChange)="
-                            onChildCheckboxChange(
-                              group.manufacturer,
-                              model.model,
-                              $event
-                            )
-                          "
-                        >
-                        </label>
-                      </td>
-                      <td>{{ model.model }}</td>
-                      <td nzWidth="100px" class="count-cell">
-                        {{ model.count }}
-                      </td>
-                      <td nzWidth="40px"></td>
-                      <!-- Align with parent expand column -->
-                    </tr>
-                  </tbody>
-                </nz-table>
+                <span class="selection-info">
+                  ({{ group.models.length }} models, 
+                  {{ getSelectedModelCount(group.manufacturer) }} selected)
+                </span>
               </td>
             </tr>
-          </ng-template>
+          </ng-container>
         </tbody>
       </nz-table>
     </div>
@@ -187,14 +189,9 @@
       <div *ngIf="selectedChips.length === 0" class="no-selections">
         No selections
       </div>
-      <!-- Hierarchical chip display -->
       <ng-container *ngFor="let group of groupedChips; let i = index">
-        <!-- Separator line between groups -->
         <hr *ngIf="i > 0" class="chip-separator" />
-
-        <!-- Group wrapper for manufacturer + models -->
         <div class="chip-group">
-          <!-- Parent chip: Manufacturer with count -->
           <div class="chip chip-parent">
             <span class="chip-text">
               {{ group.manufacturer }}
@@ -204,15 +201,11 @@
               type="button"
               class="chip-remove"
               (click)="removeManufacturerChip(group.manufacturer)"
-              [attr.aria-label]="
-                'Remove all ' + group.manufacturer + ' selections'
-              "
               title="Remove all {{ group.manufacturer }} models"
             >
               ×
             </button>
           </div>
-          <!-- Child chips: Individual models -->
           <div *ngFor="let model of group.models" class="chip chip-child">
             <span class="chip-text">{{ model }}</span>
             <button
@@ -221,7 +214,6 @@
               (click)="
                 removeChip({ manufacturer: group.manufacturer, model: model })
               "
-              [attr.aria-label]="'Remove ' + group.manufacturer + ' - ' + model"
             >
               ×
             </button>

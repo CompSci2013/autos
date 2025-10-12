@@ -51,7 +51,6 @@ export class ManufacturerModelTablePickerComponent
   loadData(): void {
     this.loading = true;
 
-    // FIXED: Changed size from 10000 to 100 (backend max is 100)
     this.subscription = this.apiService
       .getManufacturerModelCombinations(1, 100, '')
       .subscribe({
@@ -96,7 +95,7 @@ export class ManufacturerModelTablePickerComponent
           manufacturer: row.manufacturer,
           totalCount: 0,
           models: [],
-          expanded: false,
+          expanded: true, // CHANGED: Default to expanded
         });
       }
 
@@ -132,6 +131,14 @@ export class ManufacturerModelTablePickerComponent
     return group ? group.models : [];
   }
 
+  // NEW: Get selected model count for a manufacturer
+  getSelectedModelCount(manufacturer: string): number {
+    const models = this.getModelsForManufacturer(manufacturer);
+    return models.filter((m) =>
+      this.selectedRows.has(`${manufacturer}|${m.model}`)
+    ).length;
+  }
+
   onParentCheckboxChange(manufacturer: string, checked: boolean): void {
     const models = this.getModelsForManufacturer(manufacturer);
 
@@ -162,12 +169,13 @@ export class ManufacturerModelTablePickerComponent
     return this.selectedRows.has(`${manufacturer}|${model}`);
   }
 
-  onExpandChange(manufacturer: string, expanded: boolean): void {
+  // CHANGED: Toggle collapse/expand
+  toggleManufacturer(manufacturer: string): void {
     const group = this.filteredGroups.find(
       (g) => g.manufacturer === manufacturer
     );
     if (group) {
-      group.expanded = expanded;
+      group.expanded = !group.expanded;
     }
   }
 
