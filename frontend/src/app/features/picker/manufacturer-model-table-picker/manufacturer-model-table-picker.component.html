@@ -13,22 +13,45 @@
       />
     </div>
 
-    <!-- Visible Rows Dropdown -->
-    <div class="page-size-control">
-      <label for="pageSize">Show:</label>
-      <select
-        id="pageSize"
-        [(ngModel)]="pageSize"
-        (ngModelChange)="onPageSizeChange()"
-        class="page-size-select"
-      >
-        <option *ngFor="let option of visibleRowOptions" [value]="option">
-          {{ option }} rows
-        </option>
-      </select>
-      <span class="total-info"
-        >of {{ filteredGroups.length }} manufacturers</span
-      >
+    <!-- Controls Row: Page Size + Expand/Collapse -->
+    <div class="controls-row">
+      <!-- Visible Rows Dropdown -->
+      <div class="page-size-control">
+        <label for="pageSize">Show:</label>
+        <select
+          id="pageSize"
+          [(ngModel)]="pageSize"
+          (ngModelChange)="onPageSizeChange()"
+          class="page-size-select"
+        >
+          <option *ngFor="let option of visibleRowOptions" [value]="option">
+            {{ option }} rows
+          </option>
+        </select>
+        <span class="total-info"
+          >of {{ filteredGroups.length }} manufacturers</span
+        >
+      </div>
+
+      <!-- Expand/Collapse All Controls -->
+      <div class="expand-controls">
+        <button
+          type="button"
+          class="btn-expand"
+          (click)="expandAll()"
+          title="Expand all manufacturers"
+        >
+          Expand All
+        </button>
+        <button
+          type="button"
+          class="btn-collapse"
+          (click)="collapseAll()"
+          title="Collapse all manufacturers"
+        >
+          Collapse All
+        </button>
+      </div>
     </div>
   </div>
 
@@ -51,7 +74,6 @@
           <tr>
             <th>Manufacturer</th>
             <th>Model</th>
-            <th nzWidth="100px">Count</th>
           </tr>
         </thead>
         <tbody>
@@ -59,7 +81,7 @@
             <!-- COLLAPSED STATE: Single row for this manufacturer -->
             <ng-container *ngIf="!group.expanded">
               <tr class="collapsed-row clickable">
-                <td colspan="3" (click)="toggleManufacturer(group.manufacturer)">
+                <td colspan="2" (click)="toggleManufacturer(group.manufacturer)">
                   <div class="collapsed-content">
                     <label
                       nz-checkbox
@@ -134,9 +156,6 @@
                     {{ model.model }}
                   </label>
                 </td>
-
-                <!-- Count cell -->
-                <td class="count-cell">{{ model.count }}</td>
               </tr>
             </ng-container>
           </ng-container>

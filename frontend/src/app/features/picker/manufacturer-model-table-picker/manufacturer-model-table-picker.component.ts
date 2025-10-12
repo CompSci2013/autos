@@ -37,8 +37,8 @@ export class ManufacturerModelTablePickerComponent
   selectedRows = new Set<string>();
 
   currentPage: number = 1;
-  pageSize: number = 20;
-  visibleRowOptions = [10, 20, 50];
+  pageSize: number = 10;
+  visibleRowOptions = [5, 10, 20, 50];
   searchTerm: string = '';
   loading: boolean = false;
 
@@ -221,6 +221,7 @@ export class ManufacturerModelTablePickerComponent
     return this.selectedRows.has(`${manufacturer}|${model}`);
   }
 
+
   toggleManufacturer(manufacturer: string): void {
     const group = this.filteredGroups.find(
       (g) => g.manufacturer === manufacturer
@@ -228,6 +229,20 @@ export class ManufacturerModelTablePickerComponent
     if (group) {
       group.expanded = !group.expanded;
     }
+  }
+
+  // NEW: Expand all manufacturers
+  expandAll(): void {
+    this.filteredGroups.forEach((group) => {
+      group.expanded = true;
+    });
+  }
+
+  // NEW: Collapse all manufacturers
+  collapseAll(): void {
+    this.filteredGroups.forEach((group) => {
+      group.expanded = false;
+    });
   }
 
   selectAll(): void {
