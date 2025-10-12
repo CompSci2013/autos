@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: autos-backend
+  namespace: autos
+  labels:
+    app: autos-backend
+    tier: backend
+spec:
+  type: ClusterIP
+  selector:
+    app: autos-backend
+  ports:
+  - port: 3000
+    targetPort: 3000
+    protocol: TCP
+    name: http
