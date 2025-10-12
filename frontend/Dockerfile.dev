@@ -1,0 +1,16 @@
+FROM node:18-alpine
+
+# Install Angular CLI 14
+RUN npm install -g @angular/cli@14
+
+# Set working directory
+WORKDIR /app
+
+# Install basic dependencies for Angular
+RUN apk add --no-cache git
+
+# Expose development server port
+EXPOSE 4200
+
+# Keep container running and allow interactive development
+CMD ["tail", "-f", "/dev/null"]
