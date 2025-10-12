@@ -21,7 +21,7 @@ spec:
         kubernetes.io/hostname: thor
       containers:
       - name: frontend
-        image: localhost/autos-frontend:v1.0.0
+        image: localhost/autos-frontend:dev
         imagePullPolicy: Never
         ports:
         - containerPort: 80
@@ -44,8 +44,8 @@ spec:
           failureThreshold: 3
         resources:
           requests:
-            memory: "128Mi"
-            cpu: "100m"
+            memory: "64Mi"
+            cpu: "50m"
           limits:
-            memory: "256Mi"
-            cpu: "500m"
+            memory: "128Mi"
+            cpu: "200m"

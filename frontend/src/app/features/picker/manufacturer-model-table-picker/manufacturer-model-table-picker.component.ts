@@ -4,6 +4,9 @@ import {
   Output,
   EventEmitter,
   OnDestroy,
+  Input,
+  OnChanges,
+  SimpleChanges,
 } from '@angular/core';
 import { ApiService } from '../../../services/api.service';
 import { Subscription } from 'rxjs';
@@ -20,9 +23,13 @@ import {
   styleUrls: ['./manufacturer-model-table-picker.component.scss'],
 })
 export class ManufacturerModelTablePickerComponent
-  implements OnInit, OnDestroy
+  implements OnInit, OnDestroy, OnChanges
 {
   @Output() selectionChange = new EventEmitter<ManufacturerModelSelection[]>();
+
+  // NEW: Inputs for URL-first state management
+  @Input() clearTrigger: number = 0;
+  @Input() initialSelections: ManufacturerModelSelection[] = [];
 
   allRows: PickerRow[] = [];
   manufacturerGroups: ManufacturerGroup[] = [];
@@ -36,6 +43,7 @@ export class ManufacturerModelTablePickerComponent
   loading: boolean = false;
 
   private subscription?: Subscription;
+  private lastClearTrigger: number = 0;
 
   constructor(private apiService: ApiService) {}
 
@@ -44,8 +52,49 @@ export class ManufacturerModelTablePickerComponent
     this.loadPageSizePreference();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    // Handle clear trigger (parent commanding "clear now")
+    if (changes['clearTrigger'] && !changes['clearTrigger'].firstChange) {
+      const newValue = changes['clearTrigger'].currentValue;
+      if (newValue !== this.lastClearTrigger) {
+        this.lastClearTrigger = newValue;
+        this.selectedRows.clear();
+      }
+    }
+
+    // Handle initial selections (hydration from URL)
+    if (changes['initialSelections']) {
+      this.hydrateSelections();
+    }
+  }
+
   ngOnDestroy(): void {
     this.subscription?.unsubscribe();
+  }
+
+  /**
+   * Hydrate selections from initialSelections input
+   * Called when URL state changes (browser navigation, refresh, deep link)
+   * CRITICAL: Must be called AFTER data is loaded
+   */
+  private hydrateSelections(): void {
+    // Clear existing selections first (idempotent operation)
+    this.selectedRows.clear();
+
+    // If no initial selections provided, nothing to hydrate
+    if (!this.initialSelections || this.initialSelections.length === 0) {
+      return;
+    }
+
+    // Add each selection to the Set
+    this.initialSelections.forEach((selection) => {
+      const key = `${selection.manufacturer}|${selection.model}`;
+      this.selectedRows.add(key);
+    });
+
+    console.log(
+      `Hydrated ${this.initialSelections.length} selections from URL state`
+    );
   }
 
   loadData(): void {
@@ -78,6 +127,10 @@ export class ManufacturerModelTablePickerComponent
           this.manufacturerGroups = this.groupByManufacturer(this.allRows);
           this.applyFilter();
           this.loading = false;
+
+          // CRITICAL: Hydrate selections AFTER data is loaded
+          // This ensures checkboxes exist before trying to select them
+          this.hydrateSelections();
         },
         error: (error) => {
           console.error('Failed to load combinations:', error);
@@ -95,7 +148,7 @@ export class ManufacturerModelTablePickerComponent
           manufacturer: row.manufacturer,
           totalCount: 0,
           models: [],
-          expanded: true, // CHANGED: Default to expanded
+          expanded: false, // Default to collapsed
         });
       }
 
@@ -131,7 +184,6 @@ export class ManufacturerModelTablePickerComponent
     return group ? group.models : [];
   }
 
-  // NEW: Get selected model count for a manufacturer
   getSelectedModelCount(manufacturer: string): number {
     const models = this.getModelsForManufacturer(manufacturer);
     return models.filter((m) =>
@@ -169,7 +221,6 @@ export class ManufacturerModelTablePickerComponent
     return this.selectedRows.has(`${manufacturer}|${model}`);
   }
 
-  // CHANGED: Toggle collapse/expand
   toggleManufacturer(manufacturer: string): void {
     const group = this.filteredGroups.find(
       (g) => g.manufacturer === manufacturer
@@ -364,6 +415,45 @@ export class ManufacturerModelTablePickerComponent
   onClear(): void {
     this.selectedRows.clear();
     this.onApply();
+  }
+
+  /**
+   * CRITICAL: Generate flat table data for NG-ZORRO table
+   * This getter is what [nzData] binds to in the template
+   * Converts hierarchical manufacturer groups into displayable rows
+   */
+  get tableData(): any[] {
+    const data: any[] = [];
+
+    this.visibleGroups.forEach((group) => {
+      if (group.expanded) {
+        // Expanded: show each model as separate row
+        group.models.forEach((model) => {
+          data.push({
+            manufacturer: group.manufacturer,
+            model: model.model,
+            count: model.count,
+            isExpanded: true,
+            isCollapsed: false,
+            modelCount: group.models.length,
+            selectedCount: this.getSelectedModelCount(group.manufacturer),
+          });
+        });
+      } else {
+        // Collapsed: show single manufacturer summary row
+        data.push({
+          manufacturer: group.manufacturer,
+          model: '',
+          count: group.totalCount,
+          isExpanded: false,
+          isCollapsed: true,
+          modelCount: group.models.length,
+          selectedCount: this.getSelectedModelCount(group.manufacturer),
+        });
+      }
+    });
+
+    return data;
   }
 
   private loadPageSizePreference(): void {

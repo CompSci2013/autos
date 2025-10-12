@@ -16,11 +16,13 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 
 // Feature components
 import { ManufacturerModelTablePickerComponent } from './features/picker/manufacturer-model-table-picker/manufacturer-model-table-picker.component';
+import { DiscoverComponent } from './features/discover/discover.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    ManufacturerModelTablePickerComponent
+    ManufacturerModelTablePickerComponent,
+    DiscoverComponent
   ],
   imports: [
     BrowserModule,
