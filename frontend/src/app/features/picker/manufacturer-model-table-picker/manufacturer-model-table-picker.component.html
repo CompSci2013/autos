@@ -56,36 +56,64 @@
         </thead>
         <tbody>
           <ng-container *ngFor="let group of vehicleTable.data">
-            <!-- EXPANDED VIEW -->
+            <!-- COLLAPSED STATE: Single row for this manufacturer -->
+            <ng-container *ngIf="!group.expanded">
+              <tr class="collapsed-row clickable">
+                <td colspan="3" (click)="toggleManufacturer(group.manufacturer)">
+                  <div class="collapsed-content">
+                    <label
+                      nz-checkbox
+                      [nzIndeterminate]="
+                        getParentCheckboxState(group.manufacturer) ===
+                        'indeterminate'
+                      "
+                      [nzChecked]="
+                        getParentCheckboxState(group.manufacturer) === 'checked'
+                      "
+                      (nzCheckedChange)="
+                        onParentCheckboxChange(group.manufacturer, $event)
+                      "
+                      (click)="$event.stopPropagation()"
+                    >
+                      <strong>{{ group.manufacturer }}</strong>
+                    </label>
+                    <span class="selection-info">
+                      ({{ group.models.length }} models,
+                      {{ getSelectedModelCount(group.manufacturer) }} selected)
+                    </span>
+                    <span class="expand-icon">[+]</span>
+                  </div>
+                </td>
+              </tr>
+            </ng-container>
+
+            <!-- EXPANDED STATE: One row per model (manufacturer repeats) -->
             <ng-container *ngIf="group.expanded">
               <tr
-                *ngFor="let model of group.models; let first = first"
+                *ngFor="let model of group.models"
                 class="expanded-row"
               >
-                <!-- Manufacturer cell (with rowspan on first row) -->
-                <td
-                  *ngIf="first"
-                  [attr.rowspan]="group.models.length"
-                  class="manufacturer-cell clickable"
-                  (click)="toggleManufacturer(group.manufacturer)"
-                >
-                  <label
-                    nz-checkbox
-                    [nzIndeterminate]="
-                      getParentCheckboxState(group.manufacturer) ===
-                      'indeterminate'
-                    "
-                    [nzChecked]="
-                      getParentCheckboxState(group.manufacturer) === 'checked'
-                    "
-                    (nzCheckedChange)="
-                      onParentCheckboxChange(group.manufacturer, $event)
-                    "
-                    (click)="$event.stopPropagation()"
-                  >
-                    <strong>{{ group.manufacturer }}</strong>
-                  </label>
-                  <div class="collapse-hint">(click to collapse)</div>
+                <!-- Manufacturer cell (repeats on every model row for sorting) -->
+                <td class="manufacturer-cell clickable" (click)="toggleManufacturer(group.manufacturer)">
+                  <div class="manufacturer-content">
+                    <label
+                      nz-checkbox
+                      [nzIndeterminate]="
+                        getParentCheckboxState(group.manufacturer) ===
+                        'indeterminate'
+                      "
+                      [nzChecked]="
+                        getParentCheckboxState(group.manufacturer) === 'checked'
+                      "
+                      (nzCheckedChange)="
+                        onParentCheckboxChange(group.manufacturer, $event)
+                      "
+                      (click)="$event.stopPropagation()"
+                    >
+                      <strong>{{ group.manufacturer }}</strong>
+                    </label>
+                    <span class="collapse-icon">[−]</span>
+                  </div>
                 </td>
 
                 <!-- Model cell -->
@@ -111,36 +139,6 @@
                 <td class="count-cell">{{ model.count }}</td>
               </tr>
             </ng-container>
-
-            <!-- COLLAPSED VIEW -->
-            <tr
-              *ngIf="!group.expanded"
-              class="collapsed-row clickable"
-              (click)="toggleManufacturer(group.manufacturer)"
-            >
-              <td colspan="3">
-                <label
-                  nz-checkbox
-                  [nzIndeterminate]="
-                    getParentCheckboxState(group.manufacturer) ===
-                    'indeterminate'
-                  "
-                  [nzChecked]="
-                    getParentCheckboxState(group.manufacturer) === 'checked'
-                  "
-                  (nzCheckedChange)="
-                    onParentCheckboxChange(group.manufacturer, $event)
-                  "
-                  (click)="$event.stopPropagation()"
-                >
-                  <strong>{{ group.manufacturer }}</strong>
-                </label>
-                <span class="selection-info">
-                  ({{ group.models.length }} models, 
-                  {{ getSelectedModelCount(group.manufacturer) }} selected)
-                </span>
-              </td>
-            </tr>
           </ng-container>
         </tbody>
       </nz-table>
