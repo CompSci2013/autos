@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: autos-frontend
+  namespace: autos
+  labels:
+    app: autos-frontend
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: autos-frontend
+  template:
+    metadata:
+      labels:
+        app: autos-frontend
+        tier: frontend
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: thor
+      containers:
+      - name: frontend
+        image: localhost/autos-frontend:v1.0.0
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 80
+          name: http
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"

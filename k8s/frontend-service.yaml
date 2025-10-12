@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: autos-frontend
+  namespace: autos
+  labels:
+    app: autos-frontend
+    tier: frontend
+spec:
+  type: ClusterIP
+  selector:
+    app: autos-frontend
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+    name: http
