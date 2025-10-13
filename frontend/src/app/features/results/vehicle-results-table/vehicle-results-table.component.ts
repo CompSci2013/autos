@@ -352,4 +352,17 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
   isLoadingInstances(vehicleId: string): boolean {
     return this.loadingInstances.has(vehicleId);
   }
+
+  getTitleStatusColor(status: string): string {
+    const statusColors: { [key: string]: string } = {
+      'Clean': 'green',
+      'Salvage': 'red',
+      'Rebuilt': 'orange',
+      'Lemon': 'red',
+      'Flood': 'red',
+      'Theft Recovery': 'orange',
+      'Junk': 'red'
+    };
+    return statusColors[status] || 'default';
+  }
 }

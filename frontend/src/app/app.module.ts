@@ -16,6 +16,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { NzRateModule } from 'ng-zorro-antd/rate';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 
 // Feature components
@@ -44,6 +45,7 @@ import { VehicleResultsTableComponent } from './features/results/vehicle-results
     NzEmptyModule,
     NzTagModule,
     NzSpinModule,
+    NzRateModule,
     NzAlertModule
   ],
   providers: [
