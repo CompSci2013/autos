@@ -39,10 +39,15 @@
       *ngIf="!loading && !error && results.length > 0"
       #resultsTable
       [nzData]="filteredResults"
-      [nzFrontPagination]="true"
-      [nzPageSize]="20"
+      [nzFrontPagination]="false"
+      [nzTotal]="total"
+      [nzPageIndex]="currentPage"
+      [nzPageSize]="pageSize"
       [nzShowSizeChanger]="true"
       [nzPageSizeOptions]="[10, 20, 50, 100]"
+      (nzPageIndexChange)="onPageChange($event)"
+      (nzPageSizeChange)="onPageSizeChange($event)"
+      [nzScroll]="{y: '500px'}"
       nzSize="middle"
       nzBordered>
       
