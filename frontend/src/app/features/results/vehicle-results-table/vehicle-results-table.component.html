@@ -1,0 +1,74 @@
+<div class="results-table-container">
+  <!-- Header with count -->
+  <div class="results-header" *ngIf="!loading && results.length > 0">
+    <h3>Vehicle Details</h3>
+    <span class="results-count">{{ total }} total results</span>
+  </div>
+
+  <!-- Loading State -->
+  <nz-spin [nzSpinning]="loading" nzTip="Loading vehicle details...">
+    
+    <!-- Error State -->
+    <nz-alert
+      *ngIf="error"
+      nzType="error"
+      [nzMessage]="error"
+      nzShowIcon
+      nzCloseable
+      (nzOnClose)="error = null"
+      class="error-alert">
+    </nz-alert>
+
+    <!-- Empty State -->
+    <nz-empty
+      *ngIf="!loading && !error && results.length === 0"
+      nzNotFoundContent="No vehicles selected. Use the picker above to select manufacturer-model combinations."
+      class="empty-state">
+    </nz-empty>
+
+    <!-- Results Table -->
+    <nz-table
+      *ngIf="!loading && !error && results.length > 0"
+      #resultsTable
+      [nzData]="results"
+      [nzFrontPagination]="false"
+      [nzTotal]="total"
+      [nzPageSize]="pageSize"
+      [nzPageIndex]="currentPage"
+      (nzPageIndexChange)="onPageChange($event)"
+      (nzPageSizeChange)="onPageSizeChange($event)"
+      [nzShowSizeChanger]="true"
+      [nzPageSizeOptions]="[10, 20, 50, 100]"
+      nzSize="middle"
+      nzBordered>
+      
+      <thead>
+        <tr>
+          <th nzWidth="150px">Manufacturer</th>
+          <th nzWidth="150px">Model</th>
+          <th nzWidth="80px">Year</th>
+          <th nzWidth="120px">Body Class</th>
+          <th nzWidth="150px">Data Source</th>
+          <th>Vehicle ID</th>
+        </tr>
+      </thead>
+      
+      <tbody>
+        <tr *ngFor="let vehicle of resultsTable.data">
+          <td>{{ vehicle.manufacturer }}</td>
+          <td>{{ vehicle.model }}</td>
+          <td>{{ vehicle.year }}</td>
+          <td>{{ vehicle.body_class || 'N/A' }}</td>
+          <td>
+            <nz-tag [nzColor]="vehicle.data_source === 'nhtsa_vpic_large_sample' ? 'blue' : 'default'">
+              {{ vehicle.data_source }}
+            </nz-tag>
+          </td>
+          <td>
+            <small class="vehicle-id">{{ vehicle.vehicle_id }}</small>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </nz-spin>
+</div>

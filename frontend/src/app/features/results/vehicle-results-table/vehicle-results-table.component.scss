@@ -1,0 +1,77 @@
+.results-table-container {
+  margin-top: 24px;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e8e8e8;
+
+  h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #262626;
+  }
+
+  .results-count {
+    font-size: 14px;
+    color: #8c8c8c;
+  }
+}
+
+.error-alert {
+  margin-bottom: 16px;
+}
+
+.empty-state {
+  padding: 60px 20px;
+}
+
+.vehicle-id {
+  font-family: 'Courier New', monospace;
+  color: #595959;
+  font-size: 12px;
+}
+
+// Table styling overrides
+::ng-deep {
+  .results-table-container {
+    nz-table {
+      thead {
+        th {
+          background-color: #fafafa;
+          font-weight: 600;
+          color: #262626;
+        }
+      }
+
+      tbody {
+        tr {
+          transition: background-color 0.2s;
+
+          &:hover {
+            background-color: #f5f5f5;
+          }
+        }
+
+        td {
+          vertical-align: middle;
+        }
+      }
+    }
+
+    // Pagination styling
+    nz-pagination {
+      margin-top: 16px;
+      text-align: right;
+    }
+  }
+}

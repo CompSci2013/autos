@@ -13,16 +13,22 @@ import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzEmptyModule } from 'ng-zorro-antd/empty';
+import { NzTagModule } from 'ng-zorro-antd/tag';
+import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { NzAlertModule } from 'ng-zorro-antd/alert';
 
 // Feature components
 import { ManufacturerModelTablePickerComponent } from './features/picker/manufacturer-model-table-picker/manufacturer-model-table-picker.component';
 import { DiscoverComponent } from './features/discover/discover.component';
+import { VehicleResultsTableComponent } from './features/results/vehicle-results-table/vehicle-results-table.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ManufacturerModelTablePickerComponent,
-    DiscoverComponent
+    DiscoverComponent,
+    VehicleResultsTableComponent
   ],
   imports: [
     BrowserModule,
@@ -34,7 +40,11 @@ import { DiscoverComponent } from './features/discover/discover.component';
     NzTableModule,
     NzCheckboxModule,
     NzToolTipModule,
-    NzIconModule
+    NzIconModule,
+    NzEmptyModule,
+    NzTagModule,
+    NzSpinModule,
+    NzAlertModule
   ],
   providers: [
     { provide: NZ_I18N, useValue: en_US }

@@ -28,24 +28,7 @@
       </app-manufacturer-model-table-picker>
     </div>
 
-    <!-- Results Section (Placeholder for Phase 3) -->
-    <div class="results-section" *ngIf="hasActiveFilters">
-      <div class="results-placeholder">
-        <h3>Search Results</h3>
-        <p>
-          Selected: <strong>{{ selectionCount }}</strong> manufacturer-model
-          combinations
-        </p>
-        <p class="note">
-          <em>Results display will be implemented in Phase 3</em>
-        </p>
-
-        <!-- Debug: Show URL params -->
-        <div class="debug-info">
-          <strong>URL Parameters:</strong>
-          <pre>{{ currentFilters | json }}</pre>
-        </div>
-      </div>
-    </div>
+    <!-- Vehicle Results Table -->
+    <app-vehicle-results-table></app-vehicle-results-table>
   </div>
 </div>

@@ -119,6 +119,74 @@ async function getManufacturerModelCombinations(options = {}) {
   }
 }
 
+/**
+ * Get detailed vehicle records for specific manufacturer-model combinations
+ * @param {Object} options - Query options
+ * @param {Array} options.modelCombos - Array of {manufacturer, model} objects
+ * @param {number} options.page - Page number (1-indexed)
+ * @param {number} options.size - Results per page
+ * @returns {Object} - Paginated vehicle detail records
+ */
+async function getVehicleDetails(options = {}) {
+  const {
+    modelCombos = [],
+    page = 1,
+    size = 20
+  } = options;
+
+  try {
+    // Build boolean query with should clauses for each manufacturer-model pair
+    const shouldClauses = modelCombos.map(combo => ({
+      bool: {
+        must: [
+          { term: { 'manufacturer.keyword': combo.manufacturer } },
+          { term: { 'model.keyword': combo.model } }
+        ]
+      }
+    }));
+
+    // Calculate pagination
+    const from = (page - 1) * size;
+
+    // Execute search query
+    const response = await esClient.search({
+      index: ELASTICSEARCH_INDEX,
+      from: from,
+      size: size,
+      query: {
+        bool: {
+          should: shouldClauses,
+          minimum_should_match: 1
+        }
+      },
+      sort: [
+        { 'manufacturer.keyword': { order: 'asc' } },
+        { 'model.keyword': { order: 'asc' } },
+        { 'year': { order: 'desc' } }
+      ]
+    });
+
+    // Extract hits
+    const results = response.hits.hits.map(hit => hit._source);
+
+    return {
+      total: response.hits.total.value,
+      page: parseInt(page),
+      size: parseInt(size),
+      totalPages: Math.ceil(response.hits.total.value / size),
+      query: {
+        modelCombos: modelCombos
+      },
+      results: results
+    };
+
+  } catch (error) {
+    console.error('Elasticsearch vehicle details query error:', error);
+    throw new Error(`Failed to fetch vehicle details: ${error.message}`);
+  }
+}
+
 module.exports = {
-  getManufacturerModelCombinations
+  getManufacturerModelCombinations,
+  getVehicleDetails
 };
