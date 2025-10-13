@@ -122,3 +122,68 @@ module.exports = {
   getManufacturerModelCombinationsHandler,
   getVehicleDetailsHandler
 };
+/**
+ * Controller for vehicle instances (VIN-level data) endpoint
+ * GET /api/v1/vehicles/:vehicleId/instances
+ */
+const VINGenerator = require('../utils/vinGenerator');
+
+async function getVehicleInstancesHandler(req, res, next) {
+  try {
+    const { vehicleId } = req.params;
+    const { count = 8 } = req.query;
+
+    // Validate count parameter
+    const instanceCount = parseInt(count);
+    if (instanceCount < 1 || instanceCount > 20) {
+      return res.status(400).json({
+        error: 'Invalid count parameter',
+        message: 'count must be between 1 and 20'
+      });
+    }
+
+    // Fetch the vehicle specification from Elasticsearch
+    const { esClient, ELASTICSEARCH_INDEX } = require('../config/elasticsearch');
+    
+    const response = await esClient.search({
+      index: ELASTICSEARCH_INDEX,
+      query: {
+        term: { 'vehicle_id': vehicleId }
+      },
+      size: 1
+    });
+
+    if (response.hits.hits.length === 0) {
+      return res.status(404).json({
+        error: 'Vehicle not found',
+        message: `No vehicle found with ID: ${vehicleId}`
+      });
+    }
+
+    const vehicleData = response.hits.hits[0]._source;
+
+    // Generate synthetic VIN instances
+    const instances = VINGenerator.generateInstances(vehicleData, instanceCount);
+
+    // Return response
+    res.json({
+      vehicle_id: vehicleData.vehicle_id,
+      manufacturer: vehicleData.manufacturer,
+      model: vehicleData.model,
+      year: vehicleData.year,
+      body_class: vehicleData.body_class,
+      instance_count: instances.length,
+      instances
+    });
+
+  } catch (error) {
+    console.error('Controller error (instances):', error);
+    next(error);
+  }
+}
+
+module.exports = {
+  getManufacturerModelCombinationsHandler,
+  getVehicleDetailsHandler,
+  getVehicleInstancesHandler
+};

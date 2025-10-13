@@ -1,8 +1,16 @@
 <div class="results-table-container">
-  <!-- Header with count -->
+  <!-- Header with count and clear filters -->
   <div class="results-header" *ngIf="!loading && results.length > 0">
-    <h3>Vehicle Details</h3>
-    <span class="results-count">{{ total }} total results</span>
+    <div class="header-left">
+      <h3>Vehicle Details</h3>
+      <span class="results-count">{{ filteredResults.length }} of {{ total }} results</span>
+    </div>
+    <button 
+      *ngIf="manufacturerFilter || modelFilter || yearMinFilter || yearMaxFilter || bodyClassFilter || dataSourceFilter"
+      class="btn-clear-filters"
+      (click)="clearAllFilters()">
+      Clear Filters
+    </button>
   </div>
 
   <!-- Loading State -->
@@ -30,13 +38,9 @@
     <nz-table
       *ngIf="!loading && !error && results.length > 0"
       #resultsTable
-      [nzData]="results"
-      [nzFrontPagination]="false"
-      [nzTotal]="total"
-      [nzPageSize]="pageSize"
-      [nzPageIndex]="currentPage"
-      (nzPageIndexChange)="onPageChange($event)"
-      (nzPageSizeChange)="onPageSizeChange($event)"
+      [nzData]="filteredResults"
+      [nzFrontPagination]="true"
+      [nzPageSize]="20"
       [nzShowSizeChanger]="true"
       [nzPageSizeOptions]="[10, 20, 50, 100]"
       nzSize="middle"
@@ -44,12 +48,101 @@
       
       <thead>
         <tr>
-          <th nzWidth="150px">Manufacturer</th>
-          <th nzWidth="150px">Model</th>
-          <th nzWidth="80px">Year</th>
-          <th nzWidth="120px">Body Class</th>
-          <th nzWidth="150px">Data Source</th>
+          <th 
+            nzWidth="180px"
+            [nzSortFn]="true"
+            (nzSortOrderChange)="onSort('manufacturer')"
+            [nzSortOrder]="sortColumn === 'manufacturer' ? sortDirection : null">
+            Manufacturer
+          </th>
+          <th 
+            nzWidth="180px"
+            [nzSortFn]="true"
+            (nzSortOrderChange)="onSort('model')"
+            [nzSortOrder]="sortColumn === 'model' ? sortDirection : null">
+            Model
+          </th>
+          <th 
+            nzWidth="120px"
+            [nzSortFn]="true"
+            (nzSortOrderChange)="onSort('year')"
+            [nzSortOrder]="sortColumn === 'year' ? sortDirection : null">
+            Year
+          </th>
+          <th 
+            nzWidth="150px"
+            [nzSortFn]="true"
+            (nzSortOrderChange)="onSort('body_class')"
+            [nzSortOrder]="sortColumn === 'body_class' ? sortDirection : null">
+            Body Class
+          </th>
+          <th 
+            nzWidth="180px"
+            [nzSortFn]="true"
+            (nzSortOrderChange)="onSort('data_source')"
+            [nzSortOrder]="sortColumn === 'data_source' ? sortDirection : null">
+            Data Source
+          </th>
           <th>Vehicle ID</th>
+        </tr>
+        <tr class="filter-row">
+          <th>
+            <input
+              nz-input
+              placeholder="Filter..."
+              [value]="manufacturerFilter"
+              (input)="onManufacturerFilterChange($any($event.target).value)"
+              class="filter-input"
+            />
+          </th>
+          <th>
+            <input
+              nz-input
+              placeholder="Filter..."
+              [value]="modelFilter"
+              (input)="onModelFilterChange($any($event.target).value)"
+              class="filter-input"
+            />
+          </th>
+          <th>
+            <div class="year-filter">
+              <input
+                nz-input
+                placeholder="Min"
+                type="number"
+                [value]="yearMinFilter"
+                (input)="onYearMinFilterChange($any($event.target).value)"
+                class="filter-input year-input"
+              />
+              <input
+                nz-input
+                placeholder="Max"
+                type="number"
+                [value]="yearMaxFilter"
+                (input)="onYearMaxFilterChange($any($event.target).value)"
+                class="filter-input year-input"
+              />
+            </div>
+          </th>
+          <th>
+            <input
+              nz-input
+              placeholder="Filter..."
+              [value]="bodyClassFilter"
+              (input)="onBodyClassFilterChange($any($event.target).value)"
+              class="filter-input"
+            />
+          </th>
+          <th>
+            <input
+              nz-input
+              placeholder="Filter..."
+              [value]="dataSourceFilter"
+              (input)="onDataSourceFilterChange($any($event.target).value)"
+              class="filter-input"
+            />
+          </th>
+          <th></th>
         </tr>
       </thead>
       

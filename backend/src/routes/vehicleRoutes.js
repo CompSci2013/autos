@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const { 
   getManufacturerModelCombinationsHandler,
-  getVehicleDetailsHandler 
+  getVehicleDetailsHandler,
+  getVehicleInstancesHandler
 } = require('../controllers/vehicleController');
 
 /**
@@ -19,14 +20,25 @@ router.get('/manufacturer-model-combinations', getManufacturerModelCombinationsH
 
 /**
  * GET /api/v1/vehicles/details
- * Returns detailed vehicle records for selected manufacturer-model combinations
+ * Returns paginated vehicle specification records based on selected models
  * 
  * Query parameters:
- *   - models: Comma-separated manufacturer:model pairs (REQUIRED)
- *             Example: models=Ford:F-150,Chevrolet:Corvette
+ *   - models: Comma-separated manufacturer:model pairs (e.g., Ford:F-150,Chevrolet:Corvette)
  *   - page: Page number (default: 1)
  *   - size: Results per page (default: 20, max: 100)
  */
 router.get('/vehicles/details', getVehicleDetailsHandler);
+
+/**
+ * GET /api/v1/vehicles/:vehicleId/instances
+ * Returns synthetic VIN-level data for a specific vehicle specification
+ * 
+ * Path parameters:
+ *   - vehicleId: Vehicle specification ID (e.g., nhtsa-ford-mustang-1967)
+ * 
+ * Query parameters:
+ *   - count: Number of VIN instances to generate (default: 8, max: 20)
+ */
+router.get('/vehicles/:vehicleId/instances', getVehicleInstancesHandler);
 
 module.exports = router;

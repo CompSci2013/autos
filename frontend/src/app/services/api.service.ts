@@ -67,3 +67,19 @@ export class ApiService {
     );
   }
 }
+  /**
+   * Get VIN-level instances for a specific vehicle
+   * Maps to backend: GET /api/v1/vehicles/:vehicleId/instances
+   */
+  getVehicleInstances(
+    vehicleId: string,
+    count: number = 8
+  ): Observable<VehicleInstancesResponse> {
+    let params = new HttpParams().set('count', count.toString());
+
+    return this.http.get<VehicleInstancesResponse>(
+      `${this.apiUrl}/vehicles/${vehicleId}/instances`,
+      { params }
+    );
+  }
+}
