@@ -3,7 +3,7 @@ import { Subject } from 'rxjs';
 import { takeUntil, distinctUntilChanged, debounceTime } from 'rxjs/operators';
 import { StateManagementService } from '../../../core/services/state-management.service';
 import { ApiService } from '../../../services/api.service';
-import { VehicleResult, VehicleDetailsResponse } from '../../../models';
+import { VehicleResult, VehicleDetailsResponse, VehicleInstance } from '../../../models';
 
 @Component({
   selector: 'app-vehicle-results-table',
@@ -35,6 +35,11 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
   sortColumn: string | null = null;
   sortDirection: 'asc' | 'desc' | null = null;
 
+  // Expandable rows (NEW)
+  expandSet = new Set<string>();
+  expandedRowInstances = new Map<string, VehicleInstance[]>();
+  loadingInstances = new Set<string>();
+
   // Filter subjects for debouncing
   private manufacturerFilterSubject = new Subject<string>();
   private modelFilterSubject = new Subject<string>();
@@ -50,7 +55,6 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // Subscribe to filters from state (which comes from URL)
     this.stateService.filters$.pipe(
       takeUntil(this.destroy$),
       distinctUntilChanged((prev, curr) => {
@@ -64,7 +68,6 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Setup debounced filter subscriptions
     this.setupFilterDebouncing();
   }
 
@@ -73,11 +76,7 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  /**
-   * Setup debounced filtering for text inputs
-   */
   private setupFilterDebouncing(): void {
-    // Manufacturer filter
     this.manufacturerFilterSubject.pipe(
       takeUntil(this.destroy$),
       debounceTime(300)
@@ -86,7 +85,6 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
       this.applyFilters();
     });
 
-    // Model filter
     this.modelFilterSubject.pipe(
       takeUntil(this.destroy$),
       debounceTime(300)
@@ -95,7 +93,6 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
       this.applyFilters();
     });
 
-    // Body class filter
     this.bodyClassFilterSubject.pipe(
       takeUntil(this.destroy$),
       debounceTime(300)
@@ -104,7 +101,6 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
       this.applyFilters();
     });
 
-    // Data source filter
     this.dataSourceFilterSubject.pipe(
       takeUntil(this.destroy$),
       debounceTime(300)
@@ -114,9 +110,6 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Fetch vehicle details from backend
-   */
   private fetchVehicleDetails(
     modelCombos: Array<{ manufacturer: string; model: string }>,
     page: number,
@@ -125,7 +118,12 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.error = null;
 
-    this.apiService.getVehicleDetails(modelCombos, page, size).pipe(
+    // Convert to string format expected by API
+    const modelsParam = modelCombos
+      .map(c => `${c.manufacturer}:${c.model}`)
+      .join(',');
+
+    this.apiService.getVehicleDetails(modelsParam, page, size).pipe(
       takeUntil(this.destroy$)
     ).subscribe({
       next: (response: VehicleDetailsResponse) => {
@@ -136,7 +134,6 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
         this.totalPages = response.totalPages;
         this.loading = false;
         
-        // Apply any active filters
         this.applyFilters();
       },
       error: (error) => {
@@ -148,13 +145,9 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Apply client-side filters and sorting
-   */
   private applyFilters(): void {
     let filtered = [...this.results];
 
-    // Manufacturer filter
     if (this.manufacturerFilter) {
       const search = this.manufacturerFilter.toLowerCase();
       filtered = filtered.filter(v => 
@@ -162,7 +155,6 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
       );
     }
 
-    // Model filter
     if (this.modelFilter) {
       const search = this.modelFilter.toLowerCase();
       filtered = filtered.filter(v => 
@@ -170,7 +162,6 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
       );
     }
 
-    // Year range filter
     if (this.yearMinFilter !== null) {
       filtered = filtered.filter(v => v.year >= this.yearMinFilter!);
     }
@@ -178,7 +169,6 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
       filtered = filtered.filter(v => v.year <= this.yearMaxFilter!);
     }
 
-    // Body class filter
     if (this.bodyClassFilter) {
       const search = this.bodyClassFilter.toLowerCase();
       filtered = filtered.filter(v => 
@@ -186,7 +176,6 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
       );
     }
 
-    // Data source filter
     if (this.dataSourceFilter) {
       const search = this.dataSourceFilter.toLowerCase();
       filtered = filtered.filter(v => 
@@ -194,7 +183,6 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
       );
     }
 
-    // Apply sorting if active
     if (this.sortColumn && this.sortDirection) {
       filtered = this.sortData(filtered, this.sortColumn, this.sortDirection);
     }
@@ -202,9 +190,6 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
     this.filteredResults = filtered;
   }
 
-  /**
-   * Sort data by column
-   */
   private sortData(data: VehicleResult[], column: string, direction: 'asc' | 'desc'): VehicleResult[] {
     return data.sort((a, b) => {
       let aVal: any;
@@ -241,23 +226,17 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Handle column sort
-   */
   onSort(column: string): void {
     if (this.sortColumn === column) {
-      // Toggle direction
       if (this.sortDirection === 'asc') {
         this.sortDirection = 'desc';
       } else if (this.sortDirection === 'desc') {
-        // Clear sort
         this.sortColumn = null;
         this.sortDirection = null;
       } else {
         this.sortDirection = 'asc';
       }
     } else {
-      // New column sort
       this.sortColumn = column;
       this.sortDirection = 'asc';
     }
@@ -265,9 +244,6 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
     this.applyFilters();
   }
 
-  /**
-   * Filter change handlers (emit to subjects for debouncing)
-   */
   onManufacturerFilterChange(value: string): void {
     this.manufacturerFilterSubject.next(value);
   }
@@ -294,9 +270,6 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
     this.dataSourceFilterSubject.next(value);
   }
 
-  /**
-   * Clear results when no selections
-   */
   private clearResults(): void {
     this.results = [];
     this.filteredResults = [];
@@ -307,9 +280,6 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
     this.error = null;
   }
 
-  /**
-   * Clear all filters
-   */
   clearAllFilters(): void {
     this.manufacturerFilter = '';
     this.modelFilter = '';
@@ -322,9 +292,6 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
     this.applyFilters();
   }
 
-  /**
-   * Handle pagination
-   */
   onPageChange(page: number): void {
     this.stateService.filters$.pipe(
       takeUntil(this.destroy$)
@@ -335,9 +302,6 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Handle page size change
-   */
   onPageSizeChange(size: number): void {
     this.pageSize = size;
     
@@ -348,5 +312,44 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
         this.fetchVehicleDetails(filters.modelCombos, 1, size);
       }
     });
+  }
+
+  // NEW: Expandable row methods
+  onExpandChange(vehicleId: string, expanded: boolean): void {
+    if (expanded) {
+      this.expandSet.add(vehicleId);
+      
+      if (!this.expandedRowInstances.has(vehicleId)) {
+        this.loadVehicleInstances(vehicleId);
+      }
+    } else {
+      this.expandSet.delete(vehicleId);
+    }
+  }
+
+  private loadVehicleInstances(vehicleId: string): void {
+    this.loadingInstances.add(vehicleId);
+
+    this.apiService
+      .getVehicleInstances(vehicleId, 8)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.expandedRowInstances.set(vehicleId, response.instances);
+          this.loadingInstances.delete(vehicleId);
+        },
+        error: (err) => {
+          console.error('Error loading VIN instances:', err);
+          this.loadingInstances.delete(vehicleId);
+        }
+      });
+  }
+
+  getInstances(vehicleId: string): VehicleInstance[] {
+    return this.expandedRowInstances.get(vehicleId) || [];
+  }
+
+  isLoadingInstances(vehicleId: string): boolean {
+    return this.loadingInstances.has(vehicleId);
   }
 }
