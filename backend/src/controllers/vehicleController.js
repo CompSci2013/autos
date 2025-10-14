@@ -50,6 +50,14 @@ async function getManufacturerModelCombinationsHandler(req, res, next) {
  *   - models: Comma-separated manufacturer:model pairs (e.g., "Ford:F-150,Chevrolet:Corvette")
  *   - page: Page number (default: 1)
  *   - size: Results per page (default: 20, max: 100)
+ *   - manufacturer: Filter by manufacturer (optional)
+ *   - model: Filter by model (optional)
+ *   - yearMin: Filter by minimum year (optional)
+ *   - yearMax: Filter by maximum year (optional)
+ *   - bodyClass: Filter by body class (optional)
+ *   - dataSource: Filter by data source (optional)
+ *   - sortBy: Field to sort by (optional: manufacturer, model, year, body_class, data_source)
+ *   - sortOrder: Sort order (optional: asc, desc; default: asc)
  */
 async function getVehicleDetailsHandler(req, res, next) {
   try {
@@ -57,7 +65,15 @@ async function getVehicleDetailsHandler(req, res, next) {
     const {
       models = '',
       page = 1,
-      size = 20
+      size = 20,
+      manufacturer = '',
+      model = '',
+      yearMin = '',
+      yearMax = '',
+      bodyClass = '',
+      dataSource = '',
+      sortBy = '',
+      sortOrder = 'asc'
     } = req.query;
 
     // Validate models parameter
@@ -70,15 +86,15 @@ async function getVehicleDetailsHandler(req, res, next) {
 
     // Parse models parameter into array of {manufacturer, model} objects
     const modelCombos = models.split(',').map(combo => {
-      const [manufacturer, model] = combo.split(':');
+      const [mfr, mdl] = combo.split(':');
       
-      if (!manufacturer || !model) {
+      if (!mfr || !mdl) {
         throw new Error(`Invalid model format: "${combo}". Expected format: "Manufacturer:Model"`);
       }
       
       return {
-        manufacturer: manufacturer.trim(),
-        model: model.trim()
+        manufacturer: mfr.trim(),
+        model: mdl.trim()
       };
     });
 
@@ -93,11 +109,39 @@ async function getVehicleDetailsHandler(req, res, next) {
       });
     }
 
+    // Validate sort parameters
+    const validSortFields = ['manufacturer', 'model', 'year', 'body_class', 'data_source'];
+    if (sortBy && !validSortFields.includes(sortBy)) {
+      return res.status(400).json({
+        error: 'Invalid sort parameter',
+        message: `sortBy must be one of: ${validSortFields.join(', ')}`
+      });
+    }
+
+    if (sortOrder && !['asc', 'desc'].includes(sortOrder)) {
+      return res.status(400).json({
+        error: 'Invalid sort order',
+        message: 'sortOrder must be either "asc" or "desc"'
+      });
+    }
+
+    // Build filters object
+    const filters = {};
+    if (manufacturer) filters.manufacturer = manufacturer.trim();
+    if (model) filters.model = model.trim();
+    if (yearMin) filters.yearMin = parseInt(yearMin);
+    if (yearMax) filters.yearMax = parseInt(yearMax);
+    if (bodyClass) filters.bodyClass = bodyClass.trim();
+    if (dataSource) filters.dataSource = dataSource.trim();
+
     // Call service to get vehicle details
     const result = await getVehicleDetails({
       modelCombos,
       page: pageNum,
-      size: sizeNum
+      size: sizeNum,
+      filters,
+      sortBy: sortBy || null,
+      sortOrder: sortOrder || 'asc'
     });
 
     // Return successful response
@@ -118,10 +162,6 @@ async function getVehicleDetailsHandler(req, res, next) {
   }
 }
 
-module.exports = {
-  getManufacturerModelCombinationsHandler,
-  getVehicleDetailsHandler
-};
 /**
  * Controller for vehicle instances (VIN-level data) endpoint
  * GET /api/v1/vehicles/:vehicleId/instances

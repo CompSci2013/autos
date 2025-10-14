@@ -34,12 +34,52 @@ export class ApiService {
   getVehicleDetails(
     models: string,
     page: number = 1,
-    size: number = 20
+    size: number = 20,
+    filters?: {
+      manufacturer?: string;
+      model?: string;
+      yearMin?: number;
+      yearMax?: number;
+      bodyClass?: string;
+      dataSource?: string;
+    },
+    sortBy?: string,
+    sortOrder?: 'asc' | 'desc'
   ): Observable<VehicleDetailsResponse> {
     let params = new HttpParams()
       .set('models', models)
       .set('page', page.toString())
       .set('size', size.toString());
+
+    // Add filter parameters if provided
+    if (filters) {
+      if (filters.manufacturer) {
+        params = params.set('manufacturer', filters.manufacturer);
+      }
+      if (filters.model) {
+        params = params.set('model', filters.model);
+      }
+      if (filters.yearMin !== undefined) {
+        params = params.set('yearMin', filters.yearMin.toString());
+      }
+      if (filters.yearMax !== undefined) {
+        params = params.set('yearMax', filters.yearMax.toString());
+      }
+      if (filters.bodyClass) {
+        params = params.set('bodyClass', filters.bodyClass);
+      }
+      if (filters.dataSource) {
+        params = params.set('dataSource', filters.dataSource);
+      }
+    }
+
+    // Add sort parameters if provided
+    if (sortBy) {
+      params = params.set('sortBy', sortBy);
+    }
+    if (sortOrder) {
+      params = params.set('sortOrder', sortOrder);
+    }
 
     return this.http.get<VehicleDetailsResponse>(
       `${this.apiUrl}/vehicles/details`,

@@ -13,7 +13,6 @@ import { VehicleResult, VehicleDetailsResponse, VehicleInstance } from '../../..
 export class VehicleResultsTableComponent implements OnInit, OnDestroy {
   // Data
   results: VehicleResult[] = [];
-  filteredResults: VehicleResult[] = [];
   total = 0;
   currentPage = 1;
   pageSize = 20;
@@ -21,9 +20,10 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
 
   // UI State
   loading = false;
+  isFilteringOrSorting = false; // NEW: Track if current operation is filter/sort
   error: string | null = null;
 
-  // Column filters
+  // Column filters (for server-side filtering)
   manufacturerFilter = '';
   modelFilter = '';
   yearMinFilter: number | null = null;
@@ -31,11 +31,11 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
   bodyClassFilter = '';
   dataSourceFilter = '';
 
-  // Sorting
+  // Sorting (for server-side sorting)
   sortColumn: string | null = null;
   sortDirection: 'asc' | 'desc' | null = null;
 
-  // Expandable rows (NEW)
+  // Expandable rows
   expandSet = new Set<string>();
   expandedRowInstances = new Map<string, VehicleInstance[]>();
   loadingInstances = new Set<string>();
@@ -48,6 +48,7 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
 
   // Subscription management
   private destroy$ = new Subject<void>();
+  private currentModelCombos: Array<{ manufacturer: string; model: string }> = [];
 
   constructor(
     private stateService: StateManagementService,
@@ -62,7 +63,8 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
       })
     ).subscribe(filters => {
       if (filters.modelCombos && filters.modelCombos.length > 0) {
-        this.fetchVehicleDetails(filters.modelCombos, 1, this.pageSize);
+        this.currentModelCombos = filters.modelCombos;
+        this.fetchVehicleDetails(1, false); // Initial load, not filtering
       } else {
         this.clearResults();
       }
@@ -79,51 +81,79 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
   private setupFilterDebouncing(): void {
     this.manufacturerFilterSubject.pipe(
       takeUntil(this.destroy$),
-      debounceTime(300)
+      debounceTime(800)
     ).subscribe(value => {
       this.manufacturerFilter = value;
-      this.applyFilters();
+      this.fetchVehicleDetails(1, true); // Filtering operation
     });
 
     this.modelFilterSubject.pipe(
       takeUntil(this.destroy$),
-      debounceTime(300)
+      debounceTime(800)
     ).subscribe(value => {
       this.modelFilter = value;
-      this.applyFilters();
+      this.fetchVehicleDetails(1, true); // Filtering operation
     });
 
     this.bodyClassFilterSubject.pipe(
       takeUntil(this.destroy$),
-      debounceTime(300)
+      debounceTime(800)
     ).subscribe(value => {
       this.bodyClassFilter = value;
-      this.applyFilters();
+      this.fetchVehicleDetails(1, true); // Filtering operation
     });
 
     this.dataSourceFilterSubject.pipe(
       takeUntil(this.destroy$),
-      debounceTime(300)
+      debounceTime(800)
     ).subscribe(value => {
       this.dataSourceFilter = value;
-      this.applyFilters();
+      this.fetchVehicleDetails(1, true); // Filtering operation
     });
   }
 
-  private fetchVehicleDetails(
-    modelCombos: Array<{ manufacturer: string; model: string }>,
-    page: number,
-    size: number
-  ): void {
+  private fetchVehicleDetails(page: number, isFilterOrSort: boolean = false): void {
+    if (!this.currentModelCombos || this.currentModelCombos.length === 0) {
+      return;
+    }
+
     this.loading = true;
+    this.isFilteringOrSorting = isFilterOrSort; // NEW: Set flag
     this.error = null;
 
     // Convert to string format expected by API
-    const modelsParam = modelCombos
+    const modelsParam = this.currentModelCombos
       .map(c => `${c.manufacturer}:${c.model}`)
       .join(',');
 
-    this.apiService.getVehicleDetails(modelsParam, page, size).pipe(
+    // Build filters object
+    const filters: any = {};
+    if (this.manufacturerFilter) filters.manufacturer = this.manufacturerFilter;
+    if (this.modelFilter) filters.model = this.modelFilter;
+    if (this.yearMinFilter !== null) filters.yearMin = this.yearMinFilter;
+    if (this.yearMaxFilter !== null) filters.yearMax = this.yearMaxFilter;
+    if (this.bodyClassFilter) filters.bodyClass = this.bodyClassFilter;
+    if (this.dataSourceFilter) filters.dataSource = this.dataSourceFilter;
+
+    // Map frontend column names to backend field names
+    const sortByMap: { [key: string]: string } = {
+      'manufacturer': 'manufacturer',
+      'model': 'model',
+      'year': 'year',
+      'body_class': 'body_class',
+      'data_source': 'data_source'
+    };
+
+    const sortBy = this.sortColumn ? sortByMap[this.sortColumn] : undefined;
+
+    this.apiService.getVehicleDetails(
+      modelsParam,
+      page,
+      this.pageSize,
+      Object.keys(filters).length > 0 ? filters : undefined,
+      sortBy,
+      this.sortDirection || undefined
+    ).pipe(
       takeUntil(this.destroy$)
     ).subscribe({
       next: (response: VehicleDetailsResponse) => {
@@ -133,96 +163,15 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
         this.pageSize = response.size;
         this.totalPages = response.totalPages;
         this.loading = false;
-        
-        this.applyFilters();
+        this.isFilteringOrSorting = false; // NEW: Reset flag
       },
       error: (error) => {
         console.error('Failed to fetch vehicle details:', error);
         this.error = 'Failed to load vehicle details. Please try again.';
         this.loading = false;
+        this.isFilteringOrSorting = false; // NEW: Reset flag
         this.clearResults();
       }
-    });
-  }
-
-  private applyFilters(): void {
-    let filtered = [...this.results];
-
-    if (this.manufacturerFilter) {
-      const search = this.manufacturerFilter.toLowerCase();
-      filtered = filtered.filter(v => 
-        v.manufacturer.toLowerCase().includes(search)
-      );
-    }
-
-    if (this.modelFilter) {
-      const search = this.modelFilter.toLowerCase();
-      filtered = filtered.filter(v => 
-        v.model.toLowerCase().includes(search)
-      );
-    }
-
-    if (this.yearMinFilter !== null) {
-      filtered = filtered.filter(v => v.year >= this.yearMinFilter!);
-    }
-    if (this.yearMaxFilter !== null) {
-      filtered = filtered.filter(v => v.year <= this.yearMaxFilter!);
-    }
-
-    if (this.bodyClassFilter) {
-      const search = this.bodyClassFilter.toLowerCase();
-      filtered = filtered.filter(v => 
-        (v.body_class || '').toLowerCase().includes(search)
-      );
-    }
-
-    if (this.dataSourceFilter) {
-      const search = this.dataSourceFilter.toLowerCase();
-      filtered = filtered.filter(v => 
-        v.data_source.toLowerCase().includes(search)
-      );
-    }
-
-    if (this.sortColumn && this.sortDirection) {
-      filtered = this.sortData(filtered, this.sortColumn, this.sortDirection);
-    }
-
-    this.filteredResults = filtered;
-  }
-
-  private sortData(data: VehicleResult[], column: string, direction: 'asc' | 'desc'): VehicleResult[] {
-    return data.sort((a, b) => {
-      let aVal: any;
-      let bVal: any;
-
-      switch (column) {
-        case 'manufacturer':
-          aVal = a.manufacturer;
-          bVal = b.manufacturer;
-          break;
-        case 'model':
-          aVal = a.model;
-          bVal = b.model;
-          break;
-        case 'year':
-          aVal = a.year;
-          bVal = b.year;
-          break;
-        case 'body_class':
-          aVal = a.body_class || '';
-          bVal = b.body_class || '';
-          break;
-        case 'data_source':
-          aVal = a.data_source;
-          bVal = b.data_source;
-          break;
-        default:
-          return 0;
-      }
-
-      if (aVal < bVal) return direction === 'asc' ? -1 : 1;
-      if (aVal > bVal) return direction === 'asc' ? 1 : -1;
-      return 0;
     });
   }
 
@@ -241,7 +190,7 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
       this.sortDirection = 'asc';
     }
 
-    this.applyFilters();
+    this.fetchVehicleDetails(1, true); // Sorting operation
   }
 
   onManufacturerFilterChange(value: string): void {
@@ -254,12 +203,12 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
 
   onYearMinFilterChange(value: string): void {
     this.yearMinFilter = value ? parseInt(value, 10) : null;
-    this.applyFilters();
+    this.fetchVehicleDetails(1, true); // Filtering operation
   }
 
   onYearMaxFilterChange(value: string): void {
     this.yearMaxFilter = value ? parseInt(value, 10) : null;
-    this.applyFilters();
+    this.fetchVehicleDetails(1, true); // Filtering operation
   }
 
   onBodyClassFilterChange(value: string): void {
@@ -272,11 +221,11 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
 
   private clearResults(): void {
     this.results = [];
-    this.filteredResults = [];
     this.total = 0;
     this.currentPage = 1;
     this.totalPages = 0;
     this.loading = false;
+    this.isFilteringOrSorting = false; // NEW: Reset flag
     this.error = null;
   }
 
@@ -289,32 +238,19 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
     this.dataSourceFilter = '';
     this.sortColumn = null;
     this.sortDirection = null;
-    this.applyFilters();
+    this.fetchVehicleDetails(1, true); // Filtering operation
   }
 
   onPageChange(page: number): void {
-    this.stateService.filters$.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(filters => {
-      if (filters.modelCombos && filters.modelCombos.length > 0) {
-        this.fetchVehicleDetails(filters.modelCombos, page, this.pageSize);
-      }
-    });
+    this.fetchVehicleDetails(page, false); // Pagination is not filtering
   }
 
   onPageSizeChange(size: number): void {
     this.pageSize = size;
-    
-    this.stateService.filters$.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(filters => {
-      if (filters.modelCombos && filters.modelCombos.length > 0) {
-        this.fetchVehicleDetails(filters.modelCombos, 1, size);
-      }
-    });
+    this.fetchVehicleDetails(1, false); // Page size change is not filtering
   }
 
-  // NEW: Expandable row methods
+  // Expandable row methods
   onExpandChange(vehicleId: string, expanded: boolean): void {
     if (expanded) {
       this.expandSet.add(vehicleId);
@@ -364,5 +300,9 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
       'Junk': 'red'
     };
     return statusColors[status] || 'default';
+  }
+
+  trackByVehicleId(index: number, vehicle: VehicleResult): string {
+    return vehicle.vehicle_id;
   }
 }

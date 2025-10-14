@@ -3,7 +3,7 @@
   <div class="results-header" *ngIf="!loading && results.length > 0">
     <div class="header-left">
       <h3>Vehicle Details</h3>
-      <span class="results-count">{{ filteredResults.length }} of {{ total }} results</span>
+      <span class="results-count">{{ results.length }} of {{ total }} results</span>
     </div>
     <button 
       *ngIf="manufacturerFilter || modelFilter || yearMinFilter || yearMaxFilter || bodyClassFilter || dataSourceFilter"
@@ -13,8 +13,8 @@
     </button>
   </div>
 
-  <!-- Loading State -->
-  <nz-spin [nzSpinning]="loading" nzTip="Loading vehicle details...">
+  <!-- Loading State - ONLY show spinner when NOT filtering/sorting -->
+  <nz-spin [nzSpinning]="loading && !isFilteringOrSorting" nzTip="Loading vehicle details...">
     
     <!-- Error State -->
     <nz-alert
@@ -36,9 +36,9 @@
 
     <!-- Results Table -->
     <nz-table
-      *ngIf="!loading && !error && results.length > 0"
+      *ngIf="!error && results.length > 0"
       #resultsTable
-      [nzData]="filteredResults"
+      [nzData]="results"
       [nzFrontPagination]="false"
       [nzTotal]="total"
       [nzPageIndex]="currentPage"
@@ -154,7 +154,7 @@
       </thead>
       
       <tbody>
-        <ng-container *ngFor="let vehicle of resultsTable.data">
+        <ng-container *ngFor="let vehicle of resultsTable.data; trackBy: trackByVehicleId">
           <tr>
             <td 
               [nzExpand]="expandSet.has(vehicle.vehicle_id)"

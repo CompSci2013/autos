@@ -14,6 +14,12 @@
   padding-bottom: 12px;
   border-bottom: 1px solid #e8e8e8;
 
+  .header-left {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+
   h3 {
     margin: 0;
     font-size: 18px;
@@ -24,6 +30,22 @@
   .results-count {
     font-size: 14px;
     color: #8c8c8c;
+  }
+
+  .btn-clear-filters {
+    padding: 6px 16px;
+    background: #ffffff;
+    color: #1890ff;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+
+    &:hover {
+      color: #40a9ff;
+      border-color: #40a9ff;
+    }
   }
 }
 
@@ -39,6 +61,45 @@
   font-family: 'Courier New', monospace;
   color: #595959;
   font-size: 12px;
+}
+
+// Filter row and input styling (from Transportation)
+.filter-row {
+  background: #f8f9fa;
+
+  th {
+    padding: 0.5rem !important;
+    vertical-align: middle;
+  }
+}
+
+.filter-input {
+  width: 100%;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.85rem;
+  border: 1px solid #ced4da;
+  border-radius: 3px;
+
+  &:focus {
+    outline: none;
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+  }
+
+  &::placeholder {
+    color: #adb5bd;
+    font-size: 0.8rem;
+  }
+}
+
+.year-filter {
+  display: flex;
+  gap: 2%;
+  width: 100%;
+
+  .year-input {
+    width: 48%;
+  }
 }
 
 // Table styling overrides
