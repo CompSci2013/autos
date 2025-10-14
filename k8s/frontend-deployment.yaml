@@ -6,6 +6,7 @@ metadata:
   labels:
     app: autos-frontend
     tier: frontend
+    version: prod
 spec:
   replicas: 2
   selector:
@@ -16,12 +17,13 @@ spec:
       labels:
         app: autos-frontend
         tier: frontend
+        version: prod
     spec:
       nodeSelector:
         kubernetes.io/hostname: thor
       containers:
       - name: frontend
-        image: localhost/autos-frontend:dev
+        image: localhost/autos-frontend:prod
         imagePullPolicy: Never
         ports:
         - containerPort: 80

@@ -1,434 +1,797 @@
-# AUTOS Developer Environment Guide
+# AUTOS Development Environment Setup Procedure
+
+**Document Version:** 2.0  
+**Date:** 2025-10-14  
+**Purpose:** Clean procedure to tear down and rebuild AUTOS development environment from scratch
+
+---
 
 ## Overview
 
-This guide documents how to set up and run the AUTOS frontend development environment using Podman containers. The dev environment provides hot-reload Angular development with all dependencies pre-installed.
+This document provides verified steps to:
+1. Remove all existing AUTOS containers and images
+2. Rebuild and deploy the backend to Kubernetes
+3. Verify backend deployment
+4. Build both frontend images (dev and production)
+5. Deploy production frontend to Kubernetes
+6. Set up frontend dev container for ongoing development
+7. Verify complete application stack
+
+**Prerequisites:**
+- K3s cluster running with Traefik ingress
+- Elasticsearch service available at `elasticsearch.data.svc.cluster.local:9200`
+- AUTOS namespace exists in Kubernetes
+- Podman installed for container builds
+- kubectl configured for cluster access
 
 ---
 
-## Prerequisites
+## Phase 1: Complete Cleanup
 
-- Podman installed on host system (Thor)
-- AUTOS project cloned to `/home/odin/projects/autos`
-- Network access to backend API and Elasticsearch
+### Step 1: Stop and Remove All AUTOS Containers
+
+**Server:** Thor
+
+```bash
+cd /home/odin/projects/autos
+podman stop autos-backend-dev autos-frontend-dev
+podman rm autos-backend-dev autos-frontend-dev
+```
+
+**Expected Output:** Container names confirming removal (SIGKILL warnings are normal)
 
 ---
 
-## Frontend Dev Container Setup
+### Step 2: Remove All AUTOS Images from Podman
+
+**Server:** Thor
+
+```bash
+cd /home/odin/projects/autos
+podman images | grep autos
+```
+
+**Note:** Record all image names and tags shown
+
+```bash
+# Remove all listed images (example command, adjust to your images)
+podman rmi localhost/autos-backend:v1.2.5 localhost/autos-frontend:dev localhost/autos-frontend:prod
+```
+
+**Expected Output:** "Untagged" and "Deleted" messages for each image
+
+---
+
+### Step 3: Remove All AUTOS Images from K3s
+
+**Server:** Thor
+
+```bash
+cd /home/odin/projects/autos
+sudo k3s ctr images list | grep autos
+```
+
+**Note:** Record all image names shown
+
+```bash
+# Remove all listed images (example command, adjust to your images)
+sudo k3s ctr images rm localhost/autos-backend:v1.2.5 localhost/autos-frontend:prod
+```
+
+**Expected Output:** Image names confirming removal
+
+---
+
+### Step 4: Verify Complete Cleanup
+
+**Server:** Thor
+
+```bash
+# Verify no autos images in K3s
+sudo k3s ctr images list | grep autos
+# Expected: No output
+
+# Verify no autos images in Podman
+podman images | grep autos
+# Expected: No output
+```
+
+---
+
+### Step 5: Scale Down Kubernetes Deployments
+
+**Server:** Thor
+
+```bash
+cd /home/odin/projects/autos
+kubectl scale deployment autos-backend autos-frontend --replicas=0 -n autos
+kubectl get pods -n autos
+```
+
+**Expected Output:** "No resources found in autos namespace"
+
+---
+
+### Step 6: Remove Old Tar Archives
+
+**Server:** Thor
+
+```bash
+# Backend directory
+cd /home/odin/projects/autos/backend
+ls -lh *.tar 2>/dev/null
+rm *.tar 2>/dev/null
+
+# Frontend directory
+cd /home/odin/projects/autos/frontend
+ls -lh *.tar 2>/dev/null
+rm *.tar 2>/dev/null
+```
+
+**Expected Output:** "No tar files found" when re-listing
+
+---
+
+## Phase 2: Rebuild and Deploy Backend
+
+### Step 7: Build Backend Image
+
+**Server:** Thor
+
+```bash
+cd /home/odin/projects/autos/backend
+podman build -t localhost/autos-backend:v1.2.5 .
+```
+
+**Expected Output:** 
+- "STEP 1/7" through "STEP 7/7"
+- "Successfully tagged localhost/autos-backend:v1.2.5"
+- Final image hash
+
+**Build Time:** ~1-2 minutes with clean cache
+
+---
+
+### Step 8: Export Backend Image
+
+**Server:** Thor
+
+```bash
+cd /home/odin/projects/autos/backend
+podman save localhost/autos-backend:v1.2.5 -o autos-backend-v1.2.5.tar
+```
+
+**Expected Output:** 
+- "Copying blob" messages
+- "Copying config" message
+- "Writing manifest to image destination"
+
+---
+
+### Step 9: Import Backend Image to K3s
+
+**Server:** Thor
+
+```bash
+cd /home/odin/projects/autos/backend
+sudo k3s ctr images import autos-backend-v1.2.5.tar
+```
+
+**Expected Output:** 
+- "localhost/autos-backend:v1.2.5 saved"
+- Import completion with timing
+
+---
+
+### Step 10: Verify Backend Image in K3s
+
+**Server:** Thor
+
+```bash
+sudo k3s ctr images list | grep autos-backend
+```
+
+**Expected Output:** One line showing `localhost/autos-backend:v1.2.5` with size ~157 MiB
+
+---
+
+### Step 11: Scale Up Backend Deployment
+
+**Server:** Thor
+
+```bash
+cd /home/odin/projects/autos
+kubectl scale deployment autos-backend --replicas=2 -n autos
+```
+
+**Expected Output:** "deployment.apps/autos-backend scaled"
+
+---
+
+### Step 12: Watch Backend Pods Start
+
+**Server:** Thor
+
+```bash
+kubectl get pods -n autos -w
+```
+
+**Expected Output:** 
+- Two pods transitioning to "1/1 Running" status
+- Press `Ctrl+C` once both are running
+
+**Startup Time:** ~10-30 seconds
+
+---
+
+### Step 13: Verify Backend Health
+
+**Server:** Thor
+
+```bash
+# Test internal health endpoint
+kubectl run -n autos curl-test --image=curlimages/curl:latest --rm -it --restart=Never -- curl http://autos-backend:3000/health
+```
+
+**Expected Output:** 
+```json
+{"status":"ok","service":"autos-backend","timestamp":"2025-10-14T..."}
+```
+
+---
+
+### Step 14: Verify Backend API Through Ingress
+
+**Server:** Thor
+
+```bash
+curl http://autos.minilab/api/v1/manufacturer-model-combinations?size=2 | jq
+```
+
+**Expected Output:** 
+- JSON response with manufacturer-model data
+- HTTP 200 status
+- Data array with results
+
+**This confirms:**
+- ✓ Backend pods are running
+- ✓ Backend connects to Elasticsearch
+- ✓ Ingress routing is working
+- ✓ API endpoints are functional
+
+---
+
+## Phase 3: Build and Deploy Production Frontend
+
+### Step 15: Build Frontend Production Image
+
+**Server:** Thor
+
+```bash
+cd /home/odin/projects/autos/frontend
+podman build -f Dockerfile.prod -t localhost/autos-frontend:prod .
+```
+
+**Expected Output:** 
+- Multi-stage build process (Node.js → nginx)
+- "Successfully tagged localhost/autos-frontend:prod"
+
+**Build Time:** ~2-5 minutes depending on cache
+
+---
+
+### Step 16: Export Frontend Production Image
+
+**Server:** Thor
+
+```bash
+cd /home/odin/projects/autos/frontend
+podman save localhost/autos-frontend:prod -o autos-frontend-prod.tar
+```
+
+**Expected Output:** 
+- "Copying blob" messages
+- "Copying config" message
+- "Writing manifest to image destination"
+
+---
+
+### Step 17: Import Frontend Image to K3s
+
+**Server:** Thor
+
+```bash
+cd /home/odin/projects/autos/frontend
+sudo k3s ctr images import autos-frontend-prod.tar
+```
+
+**Expected Output:** 
+- "unpacking" messages
+- "localhost/autos-frontend:prod saved"
+
+---
+
+### Step 18: Verify Frontend Image in K3s
+
+**Server:** Thor
+
+```bash
+sudo k3s ctr images list | grep autos-frontend
+```
+
+**Expected Output:** Line showing `localhost/autos-frontend:prod` with size ~52-53 MiB
+
+---
+
+### Step 19: Update Frontend Deployment Manifest
+
+**Server:** Thor
+
+```bash
+cd /home/odin/projects/autos/k8s
+nano frontend-deployment.yaml
+```
+
+**Change Required:**
+Find line ~22:
+```yaml
+        image: localhost/autos-frontend:dev
+```
+
+Change to:
+```yaml
+        image: localhost/autos-frontend:prod
+```
+
+**Save:** `Ctrl+O`, `Enter`, `Ctrl+X`
+
+---
+
+### Step 20: Deploy Frontend to Kubernetes
+
+**Server:** Thor
+
+```bash
+cd /home/odin/projects/autos/k8s
+kubectl apply -f frontend-deployment.yaml
+```
+
+**Expected Output:** "deployment.apps/autos-frontend configured"
+
+---
+
+### Step 21: Scale Up Frontend Deployment
+
+**Server:** Thor
+
+```bash
+cd /home/odin/projects/autos
+kubectl scale deployment autos-frontend --replicas=2 -n autos
+```
+
+**Expected Output:** "deployment.apps/autos-frontend scaled"
+
+---
+
+### Step 22: Watch Frontend Pods Start
+
+**Server:** Thor
+
+```bash
+kubectl get pods -n autos -w
+```
+
+**Expected Output:** 
+- Two frontend pods transitioning to "1/1 Running" status
+- Press `Ctrl+C` once both are running
+
+**Startup Time:** ~10-30 seconds
+
+---
+
+### Step 23: Verify Production Application
+
+**Server:** Thor
+
+```bash
+# Check all pods are running
+kubectl get pods -n autos
+
+# Test API through production ingress
+curl -s http://autos.minilab/api/v1/manufacturer-model-combinations?size=2 | jq '.data[0]'
+
+# Access frontend in browser
+firefox http://autos.minilab
+```
+
+**Expected Output:** 
+- 4 pods running (2 backend, 2 frontend)
+- JSON response from API
+- Frontend displays vehicle picker table
+
+---
+
+### Step 24: Clean Up Frontend Tar Archive
+
+**Server:** Thor
+
+```bash
+cd /home/odin/projects/autos/frontend
+rm autos-frontend-prod.tar
+```
+
+---
+
+## Phase 4: Set Up Frontend Development Container
+
+### Step 25: Build Frontend Dev Image
+
+**Server:** Thor
+
+```bash
+cd /home/odin/projects/autos/frontend
+podman build -f Dockerfile.dev -t localhost/autos-frontend:dev .
+```
+
+**Expected Output:** 
+- Build process installing Angular CLI
+- "Successfully tagged localhost/autos-frontend:dev"
+
+**Build Time:** ~1-3 minutes depending on cache
+
+**Note:** This image stays in Podman only, not deployed to K3s
+
+---
+
+### Step 26: Start Frontend Dev Container
+
+**Server:** Thor
+
+```bash
+cd /home/odin/projects/autos/frontend
+podman run -d --name autos-frontend-dev --network host -v /home/odin/projects/autos/frontend:/app:z -w /app localhost/autos-frontend:dev
+```
+
+**Expected Output:** Container ID hash (64 characters)
+
+---
+
+### Step 27: Verify Dev Container is Running
+
+**Server:** Thor
+
+```bash
+podman ps | grep autos-frontend-dev
+```
+
+**Expected Output:** Line showing container status "Up" with `autos-frontend-dev` name
+
+---
+
+### Step 28: Start Angular Dev Server
+
+**Server:** Thor
+
+```bash
+podman exec -it autos-frontend-dev npm start -- --host 0.0.0.0 --port 4200
+```
+
+**Expected Output:** 
+- npm package installation messages (if first run)
+- Angular CLI compilation output
+- "✔ Browser application bundle generation complete"
+- "** Angular Live Development Server is listening on 0.0.0.0:4200 **"
+- Either successful compilation or list of compilation errors
+
+**Note:** Compilation errors indicate code issues to be fixed, not environment setup problems.
+
+**Access Points:**
+- **Dev Server:** http://localhost:4200 or http://thor:4200
+- **Production App:** http://autos.minilab
+
+---
+
+## Verification Checklist
+
+After completing all steps, verify:
+
+- [ ] No old autos containers: `podman ps -a | grep autos` (only dev container)
+- [ ] Dev image in Podman: `podman images | grep autos-frontend:dev`
+- [ ] Backend image in K3s: `sudo k3s ctr images list | grep autos-backend`
+- [ ] Frontend prod image in K3s: `sudo k3s ctr images list | grep autos-frontend:prod`
+- [ ] Two backend pods running: `kubectl get pods -n autos | grep backend`
+- [ ] Two frontend pods running: `kubectl get pods -n autos | grep frontend`
+- [ ] Backend health check passes: `curl http://autos.minilab/api/health`
+- [ ] Backend API responds: `curl http://autos.minilab/api/v1/manufacturer-model-combinations?size=1`
+- [ ] Production frontend accessible: http://autos.minilab
+- [ ] Dev container running: `podman ps | grep autos-frontend-dev`
+- [ ] Angular dev server compiles: Shows compilation output
+- [ ] Dev frontend accessible: http://localhost:4200
+
+---
+
+## Access Points Summary
+
+After successful setup:
+
+**Production (Kubernetes Deployment):**
+- **Frontend:** http://autos.minilab
+- **Backend API:** http://autos.minilab/api/v1/...
+- **Backend Health:** http://autos.minilab/api/health
+
+**Development (Local Podman):**
+- **Dev Frontend:** http://localhost:4200 or http://thor:4200
+- **Backend (via proxy):** http://localhost:3000 (when using dev frontend)
+
+**Direct Services (Internal):**
+- **Backend Service:** http://autos-backend.autos.svc.cluster.local:3000
+- **Frontend Service:** http://autos-frontend.autos.svc.cluster.local:80
+- **Elasticsearch:** http://elasticsearch.data.svc.cluster.local:9200
+
+---
+
+## Key Configuration Details
+
+### Backend Environment Variables
+Located in: `k8s/backend-deployment.yaml`
+```yaml
+ELASTICSEARCH_URL: http://elasticsearch.data.svc.cluster.local:9200
+ELASTICSEARCH_INDEX: autos-unified
+NODE_ENV: production
+PORT: 3000
+```
+
+### Frontend Development Container
+- **Image:** `localhost/autos-frontend:dev`
+- **Base:** node:18-alpine
+- **Volume Mount:** `/home/odin/projects/autos/frontend:/app:z` (SELinux compatible)
+- **Network:** host (access backend at localhost:3000)
+- **Working Directory:** /app
+- **Stay-Alive Command:** `tail -f /dev/null`
+- **Purpose:** Hot module reloading for rapid development
+
+### Frontend Production Container
+- **Image:** `localhost/autos-frontend:prod`
+- **Base:** Multi-stage (node:18-alpine → nginx:alpine)
+- **Purpose:** Compiled Angular app served by nginx
+- **Deployment:** Kubernetes pods with ClusterIP service
+- **Routing:** Ingress routes `/` to frontend, `/api` to backend
+
+### Ingress Routing
+```yaml
+Host: autos.minilab
+Routes:
+  /api → autos-backend:3000
+  /    → autos-frontend:80
+```
+
+---
+
+## Development Workflows After Setup
+
+### Daily Frontend Development
+
+**Start Development Session:**
+```bash
+# 1. Verify production backend is running
+kubectl get pods -n autos | grep backend
+
+# 2. Start dev container (if not already running)
+cd /home/odin/projects/autos/frontend
+podman run -d --name autos-frontend-dev --network host \
+  -v /home/odin/projects/autos/frontend:/app:z -w /app \
+  localhost/autos-frontend:dev
+
+# 3. Start Angular dev server
+podman exec -it autos-frontend-dev npm start -- --host 0.0.0.0 --port 4200
+
+# 4. Edit files in VS Code (Remote-SSH)
+# Watch terminal for automatic recompilation
+
+# 5. Test at http://localhost:4200
+```
+
+**End Development Session:**
+```bash
+# Stop dev server: Ctrl+C in terminal
+
+# Optional: Remove dev container
+podman stop autos-frontend-dev
+podman rm autos-frontend-dev
+```
+
+### Deploy Frontend Changes to Production
+
+**After completing development work:**
+```bash
+# 1. Build new production image
+cd /home/odin/projects/autos/frontend
+podman build -f Dockerfile.prod -t localhost/autos-frontend:prod-v2 .
+
+# 2. Export and import to K3s
+podman save localhost/autos-frontend:prod-v2 -o autos-frontend-prod-v2.tar
+sudo k3s ctr images import autos-frontend-prod-v2.tar
+
+# 3. Update deployment manifest
+cd /home/odin/projects/autos/k8s
+nano frontend-deployment.yaml
+# Change image tag to :prod-v2
+
+# 4. Apply changes
+kubectl apply -f frontend-deployment.yaml
+
+# 5. Watch rollout
+kubectl rollout status deployment/autos-frontend -n autos
+
+# 6. Verify
+kubectl get pods -n autos
+curl http://autos.minilab/api/v1/manufacturer-model-combinations?size=1
+firefox http://autos.minilab
+```
+
+### Backend Development
+
+**Make changes and deploy:**
+```bash
+# 1. Edit code
+cd /home/odin/projects/autos/backend/src
+
+# 2. Build new image
+cd /home/odin/projects/autos/backend
+podman build -t localhost/autos-backend:v1.2.6 .
+
+# 3. Export and import
+podman save localhost/autos-backend:v1.2.6 -o autos-backend-v1.2.6.tar
+sudo k3s ctr images import autos-backend-v1.2.6.tar
+
+# 4. Update deployment
+cd /home/odin/projects/autos/k8s
+nano backend-deployment.yaml
+# Change image tag to :v1.2.6
+kubectl apply -f backend-deployment.yaml
+
+# 5. Verify
+kubectl rollout status deployment/autos-backend -n autos
+curl http://autos.minilab/api/health
+```
+
+---
+
+## Troubleshooting
+
+### Frontend Production Pods Not Starting
+
+**Symptom:**
+```bash
+kubectl get pods -n autos
+# autos-frontend-xxxxx   0/1   ErrImageNeverPull   0   2m
+```
+
+**Cause:** Image not in K3s containerd
+
+**Solution:**
+```bash
+# Verify image exists
+sudo k3s ctr images list | grep autos-frontend
+
+# If missing, rebuild and import
+cd /home/odin/projects/autos/frontend
+podman build -f Dockerfile.prod -t localhost/autos-frontend:prod .
+podman save localhost/autos-frontend:prod -o autos-frontend-prod.tar
+sudo k3s ctr images import autos-frontend-prod.tar
+
+# Restart deployment
+kubectl rollout restart deployment/autos-frontend -n autos
+```
+
+### Dev Container Exits Immediately
+
+**Symptom:**
+```bash
+podman ps | grep autos-frontend-dev
+# No output
+```
+
+**Solution:**
+```bash
+# Check logs
+podman logs autos-frontend-dev
+
+# Remove and restart
+podman rm autos-frontend-dev
+podman run -d --name autos-frontend-dev --network host \
+  -v /home/odin/projects/autos/frontend:/app:z -w /app \
+  localhost/autos-frontend:dev
+
+# Verify
+podman ps | grep autos-frontend-dev
+```
+
+### Permission Denied in Dev Container
+
+**Symptom:**
+```bash
+podman exec -it autos-frontend-dev npm start
+# Error: EACCES: permission denied
+```
+
+**Cause:** Missing `:z` flag on volume mount
+
+**Solution:**
+```bash
+# Restart container with proper SELinux context
+podman stop autos-frontend-dev
+podman rm autos-frontend-dev
+podman run -d --name autos-frontend-dev --network host \
+  -v /home/odin/projects/autos/frontend:/app:z \
+  -w /app localhost/autos-frontend:dev
+```
+
+### Backend Cannot Connect to Elasticsearch
+
+**Symptom:**
+```bash
+kubectl logs -n autos deployment/autos-backend
+# Connection refused errors
+```
+
+**Solution:**
+```bash
+# Check Elasticsearch status
+kubectl get pods -n data | grep elasticsearch
+
+# Test connectivity
+kubectl exec -n autos deployment/autos-backend -- \
+  curl -s http://elasticsearch.data.svc.cluster.local:9200/_cluster/health
+```
+
+### Wrong Image Used in Deployment
+
+**Symptom:**
+Frontend deployment using `:dev` instead of `:prod`
+
+**Solution:**
+```bash
+# Edit deployment manifest
+cd /home/odin/projects/autos/k8s
+nano frontend-deployment.yaml
+# Change: image: localhost/autos-frontend:prod
+
+# Apply changes
+kubectl apply -f frontend-deployment.yaml
+```
+
+---
+
+## Notes
 
 ### Image Architecture
+- **Backend:** Always runs in Kubernetes (never in Podman for dev)
+- **Frontend Dev:** Runs in Podman with volume mounts (HMR workflow)
+- **Frontend Prod:** Runs in Kubernetes (compiled static files + nginx)
 
-The dev container uses a **Node.js 18 Alpine** base image with Angular CLI 14 pre-installed. It's designed as a long-running container where you exec commands interactively.
+### Image Stores
+- **Podman:** User-level rootless image store
+- **K3s:** System-level containerd store (requires sudo)
+- **No sharing:** Must export/import tar files between stores
 
-**Dockerfile:** `/home/odin/projects/autos/frontend/Dockerfile.dev`
+### Volume Mounts
+- **Always use `:z` flag:** Required for SELinux systems
+- **Working directory:** Set with `-w /app` for convenience
+- **Host networking:** Use `--network host` for dev container
 
-```dockerfile
-FROM node:18-alpine
-RUN npm install -g @angular/cli@14
-WORKDIR /app
-RUN apk add --no-cache git
-EXPOSE 4200
-CMD ["tail", "-f", "/dev/null"]
-```
+### Development vs Production
+- **Development:** Edit → Save → HMR reload (seconds)
+- **Production:** Edit → Build → Export → Import → Deploy (minutes)
+- **Test both:** Ensure changes work in production build
 
-**Key Design Decision:** The CMD is `tail -f /dev/null` which keeps the container alive indefinitely. This allows you to exec into the container multiple times and run different commands without the container exiting.
-
----
-
-## Building the Dev Image
-
-### Step 1: Navigate to Frontend Directory
-
-```bash
-cd /home/odin/projects/autos/frontend
-```
-
-### Step 2: Build Dev Image (No Cache)
-
-```bash
-podman build --no-cache -f Dockerfile.dev -t localhost/autos-frontend:dev .
-```
-
-**Flags Explained:**
-- `--no-cache` - Force fresh build, don't use cached layers
-- `-f Dockerfile.dev` - Use dev Dockerfile (not production Dockerfile)
-- `-t localhost/autos-frontend:dev` - Tag as `dev` for easy reference
-- `.` - Build context is current directory
-
-**Build Time:** ~2-3 minutes (downloads Node.js, installs Angular CLI)
-
-**Expected Output:**
-```
-STEP 1/6: FROM node:18-alpine
-STEP 2/6: RUN npm install -g @angular/cli@14
-...
-Successfully tagged localhost/autos-frontend:dev
-```
+### Clean Between Sessions
+- **Remove tar files:** Clean up after imports
+- **Prune unused images:** `podman image prune` periodically
+- **Stop dev containers:** When not actively developing
 
 ---
 
-## Starting the Dev Container
-
-### Step 3: Start Container in Detached Mode
-
-```bash
-podman run -d \
-  --name autos-frontend-dev \
-  --network host \
-  -v /home/odin/projects/autos/frontend:/app:z \
-  -w /app \
-  localhost/autos-frontend:dev
-```
-
-**Flags Explained:**
-- `-d` - Detached mode (runs in background)
-- `--name autos-frontend-dev` - Container name for easy reference
-- `--network host` - Use host networking (access to backend on localhost)
-- `-v /home/odin/projects/autos/frontend:/app:z` - Mount frontend dir with SELinux context
-- `-w /app` - Set working directory to `/app`
-- `localhost/autos-frontend:dev` - The image we built
-
-**Volume Mount Important:** The `:z` flag is **required** on SELinux systems (like RHEL/Fedora) to allow the container to read/write the mounted directory.
-
-**Expected Output:**
-```
-96eb09c502172e926cac01c08b562354b08a2d81847b92277ba8bb2e9609af5a
-```
-(Container ID hash)
-
----
-
-## Running Angular Dev Server
-
-### Step 4: Exec into Container and Start ng serve
-
-```bash
-podman exec -it autos-frontend-dev npm start -- --host 0.0.0.0 --port 4200
-```
-
-**Flags Explained:**
-- `podman exec` - Execute command in running container
-- `-it` - Interactive terminal (see output, can Ctrl+C to stop)
-- `autos-frontend-dev` - Target container name
-- `npm start` - Runs `ng serve` (defined in package.json)
-- `-- --host 0.0.0.0` - Make dev server accessible from host
-- `--port 4200` - Explicit port (default, but clear)
-
-**Expected Output:**
-```
-✔ Browser application bundle generation complete.
-Initial Chunk Files | Names   |  Raw Size
-main.js             | main    | 119.74 kB | 
-...
-✔ Compiled successfully.
-** Angular Live Development Server is listening on 0.0.0.0:4200 **
-```
-
-**Access the App:** http://localhost:4200 or http://thor:4200
-
----
-
-## Development Workflow
-
-### Hot Reload
-
-The dev server watches for file changes. When you edit files on the host at `/home/odin/projects/autos/frontend/src`, the container automatically detects changes and recompiles.
-
-**Example:**
-1. Edit `src/app/app.component.ts` in VS Code on Thor
-2. Save the file
-3. Watch terminal - shows recompilation
-4. Browser auto-refreshes (if using Chrome DevTools LiveReload)
-
-### Stopping ng serve
-
-Press `Ctrl+C` in the terminal where `ng serve` is running. This stops the dev server but **keeps the container running**.
-
-### Restarting ng serve
-
-Since the container is still running, just exec the command again:
-
-```bash
-podman exec -it autos-frontend-dev npm start -- --host 0.0.0.0 --port 4200
-```
-
-### Accessing Container Shell
-
-If you need to run other commands (install packages, generate components, etc.):
-
-```bash
-podman exec -it autos-frontend-dev /bin/sh
-```
-
-**Inside the shell:**
-```sh
-/app # ng generate component features/my-component
-/app # npm install lodash
-/app # exit
-```
-
----
-
-## Stopping and Cleaning Up
-
-### Stop ng serve (if running)
-
-Press `Ctrl+C` in the terminal
-
-### Stop the Container
-
-```bash
-podman stop autos-frontend-dev
-```
-
-### Remove the Container
-
-```bash
-podman rm autos-frontend-dev
-```
-
-### Remove the Image (if rebuilding)
-
-```bash
-podman rmi localhost/autos-frontend:dev
-```
-
----
-
-## Common Issues and Solutions
-
-### Issue: "Error: name is already in use"
-
-**Symptom:**
-```
-Error: creating container storage: the container name "autos-frontend-dev" is already in use
-```
-
-**Solution:**
-```bash
-podman rm -f autos-frontend-dev
-```
-
-Then retry the `podman run` command.
-
----
-
-### Issue: "can only create exec sessions on running containers"
-
-**Symptom:**
-```
-Error: can only create exec sessions on running containers: container state improper
-```
-
-**Cause:** Container exited unexpectedly.
-
-**Solution:**
-Check if container is running:
-```bash
-podman ps | grep autos-frontend-dev
-```
-
-If not listed, check all containers:
-```bash
-podman ps -a | grep autos-frontend-dev
-```
-
-If status shows "Exited", check logs:
-```bash
-podman logs autos-frontend-dev
-```
-
-Then remove and restart:
-```bash
-podman rm autos-frontend-dev
-podman run -d ... (start command from Step 3)
-```
-
----
-
-### Issue: Image appears to be nginx instead of Node.js
-
-**Symptom:**
-```
-/docker-entrypoint.sh: exec: line 47: npm: not found
-```
-or
-```
-nginx: [emerg] host not found in upstream...
-```
-
-**Cause:** The `:dev` tag was applied to the wrong image (production nginx image instead of dev Node.js image).
-
-**Solution:**
-1. Remove any containers using the image:
-   ```bash
-   podman rm -f autos-frontend-dev
-   ```
-
-2. Remove the wrong image:
-   ```bash
-   podman rmi localhost/autos-frontend:dev
-   ```
-
-3. Rebuild correctly:
-   ```bash
-   podman build --no-cache -f Dockerfile.dev -t localhost/autos-frontend:dev .
-   ```
-
----
-
-### Issue: Permission denied on mounted volume
-
-**Symptom:**
-```
-Error: EACCES: permission denied, open '/app/package.json'
-```
-
-**Cause:** SELinux context issue with volume mount.
-
-**Solution:** Ensure you're using the `:z` flag in the volume mount:
-```bash
--v /home/odin/projects/autos/frontend:/app:z
-```
-
-The `:z` tells Podman to relabel the files for container access on SELinux systems.
-
----
-
-## Quick Reference Commands
-
-### Full Startup Sequence
-
-```bash
-# 1. Navigate to frontend directory
-cd /home/odin/projects/autos/frontend
-
-# 2. Start container (detached)
-podman run -d \
-  --name autos-frontend-dev \
-  --network host \
-  -v /home/odin/projects/autos/frontend:/app:z \
-  -w /app \
-  localhost/autos-frontend:dev
-
-# 3. Start Angular dev server (interactive)
-podman exec -it autos-frontend-dev npm start -- --host 0.0.0.0 --port 4200
-```
-
-### Check Container Status
-
-```bash
-podman ps | grep autos-frontend-dev
-```
-
-### View Live Logs
-
-```bash
-podman logs -f autos-frontend-dev
-```
-
-### Run Angular CLI Commands
-
-```bash
-# Generate component
-podman exec -it autos-frontend-dev ng generate component features/my-component
-
-# Install npm package
-podman exec -it autos-frontend-dev npm install package-name
-
-# Run tests
-podman exec -it autos-frontend-dev npm test
-```
-
-### Complete Cleanup
-
-```bash
-# Stop ng serve (Ctrl+C if running)
-# Stop and remove container
-podman stop autos-frontend-dev
-podman rm autos-frontend-dev
-
-# Optional: Remove image (if rebuilding)
-podman rmi localhost/autos-frontend:dev
-```
-
----
-
-## Architecture Notes
-
-### Why Not Auto-Start ng serve?
-
-The Dockerfile.dev uses `CMD ["tail", "-f", "/dev/null"]` instead of `CMD ["npm", "start"]` for these reasons:
-
-1. **Flexibility:** Allows running different commands (ng test, ng build, npm install, etc.)
-2. **Interactive Development:** See compilation output in your terminal, not hidden in container logs
-3. **Multiple Sessions:** Can exec multiple shells into the same running container
-4. **Easy Restart:** Stop and restart ng serve without recreating container
-
-### Network Configuration
-
-Uses `--network host` which means:
-- Container shares host's network stack
-- Can access `localhost:3000` (backend API)
-- Can access `thor:30398` (Elasticsearch NodePort)
-- Dev server accessible at `localhost:4200` from host
-
-Alternative would be custom bridge network, but host networking is simpler for dev.
-
----
-
-## Integration with VS Code
-
-### Editing Files
-
-Files are mounted from the host, so you can:
-- Edit in VS Code on Thor via Remote SSH
-- Edit in vim/nano on Thor filesystem
-- Changes are immediately visible to the container
-
-### Terminal Integration
-
-In VS Code, you can open a terminal and run the exec commands directly:
-```bash
-podman exec -it autos-frontend-dev npm start -- --host 0.0.0.0 --port 4200
-```
-
-The output appears in your VS Code terminal window.
-
----
-
-## Production vs Development Images
-
-### Development Image (Dockerfile.dev)
-- **Base:** node:18-alpine
-- **Contains:** Angular CLI, git, npm
-- **Purpose:** Interactive development with hot-reload
-- **Size:** ~200 MB
-- **Command:** `tail -f /dev/null` (stays alive for exec)
-
-### Production Image (Dockerfile or Dockerfile.prod)
-- **Base:** nginx:alpine
-- **Contains:** Only built static files
-- **Purpose:** Serve compiled app in production
-- **Size:** ~55 MB
-- **Command:** nginx (web server)
-
-**Never confuse the two!** Development needs Node.js, production needs nginx.
-
----
-
-## Next Steps
-
-After setting up the dev environment:
-
-1. Verify build succeeds without errors
-2. Access http://localhost:4200 in browser
-3. Make a small change to verify hot-reload works
-4. Proceed with component development
-
-For backend development, see `backend/README.md` (to be created).
-
----
-
-**Last Updated:** October 13, 2025  
-**Tested On:** Thor (RHEL 9.4, Podman 4.9.4, K3s 1.30)
+**Document maintained by:** odin + Claude  
+**Last verified:** 2025-10-14  
+**Next review:** After significant infrastructure changes

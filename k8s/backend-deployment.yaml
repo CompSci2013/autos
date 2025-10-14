@@ -6,6 +6,7 @@ metadata:
   labels:
     app: autos-backend
     tier: backend
+    version: v1.2.5
 spec:
   replicas: 2
   selector:
@@ -16,6 +17,7 @@ spec:
       labels:
         app: autos-backend
         tier: backend
+        version: v1.2.5
     spec:
       nodeSelector:
         kubernetes.io/hostname: thor
@@ -33,6 +35,8 @@ spec:
           value: "autos-unified"
         - name: NODE_ENV
           value: "production"
+        - name: PORT
+          value: "3000"
         livenessProbe:
           httpGet:
             path: /health
