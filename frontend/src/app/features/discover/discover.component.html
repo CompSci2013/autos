@@ -1,0 +1,34 @@
+<div class="discover-page">
+  <div class="page-header">
+    <h1>Discover Vehicles</h1>
+    <p class="subtitle">
+      Select manufacturer and model combinations to explore classic automobiles
+    </p>
+  </div>
+
+  <div class="page-content">
+    <!-- Active Filters Summary -->
+    <div class="filters-summary" *ngIf="hasActiveFilters">
+      <div class="summary-content">
+        <span class="summary-label">Active Filters:</span>
+        <span class="summary-count">{{ selectionCount }} model(s) selected</span>
+      </div>
+      <button type="button" class="btn-clear-all" (click)="onClearAll()">
+        Clear All
+      </button>
+    </div>
+
+    <!-- Vehicle Picker Component -->
+    <div class="picker-section">
+      <app-manufacturer-model-table-picker
+        [clearTrigger]="pickerClearTrigger"
+        [initialSelections]="pickerInitialSelections"
+        (selectionChange)="onPickerSelectionChange($event)"
+      >
+      </app-manufacturer-model-table-picker>
+    </div>
+
+    <!-- Vehicle Results Table -->
+    <app-vehicle-results-table></app-vehicle-results-table>
+  </div>
+</div>

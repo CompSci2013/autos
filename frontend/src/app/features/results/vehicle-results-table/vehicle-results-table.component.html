@@ -1,0 +1,250 @@
+<div class="results-table-container">
+  <!-- Header with count and clear filters -->
+  <div class="results-header" *ngIf="!loading && results.length > 0">
+    <div class="header-left">
+      <h3>Vehicle Details</h3>
+      <span class="results-count">{{ results.length }} of {{ total }} results</span>
+    </div>
+    <button 
+      *ngIf="manufacturerFilter || modelFilter || yearMinFilter || yearMaxFilter || bodyClassFilter || dataSourceFilter"
+      class="btn-clear-filters"
+      (click)="clearAllFilters()">
+      Clear Filters
+    </button>
+  </div>
+
+  <!-- Loading State - ONLY show spinner when NOT filtering/sorting -->
+  <nz-spin [nzSpinning]="loading && !isFilteringOrSorting" nzTip="Loading vehicle details...">
+    
+    <!-- Error State -->
+    <nz-alert
+      *ngIf="error"
+      nzType="error"
+      [nzMessage]="error"
+      nzShowIcon
+      nzCloseable
+      (nzOnClose)="error = null"
+      class="error-alert">
+    </nz-alert>
+
+    <!-- Empty State -->
+    <nz-empty
+      *ngIf="!loading && !error && results.length === 0"
+      nzNotFoundContent="No vehicles selected. Use the picker above to select manufacturer-model combinations."
+      class="empty-state">
+    </nz-empty>
+
+    <!-- Results Table -->
+    <nz-table
+      *ngIf="!error && results.length > 0"
+      #resultsTable
+      [nzData]="results"
+      [nzFrontPagination]="false"
+      [nzTotal]="total"
+      [nzPageIndex]="currentPage"
+      [nzPageSize]="pageSize"
+      [nzShowSizeChanger]="true"
+      [nzPageSizeOptions]="[10, 20, 50, 100]"
+      (nzPageIndexChange)="onPageChange($event)"
+      (nzPageSizeChange)="onPageSizeChange($event)"
+      [nzScroll]="{y: '500px'}"
+      nzSize="middle"
+      nzBordered>
+      
+      <thead>
+        <tr>
+          <th nzWidth="50px"></th>
+          <th 
+            nzWidth="180px"
+            [nzSortFn]="true"
+            (nzSortOrderChange)="onSort('manufacturer')"
+            [nzSortOrder]="sortColumn === 'manufacturer' ? sortDirection : null">
+            Manufacturer
+          </th>
+          <th 
+            nzWidth="180px"
+            [nzSortFn]="true"
+            (nzSortOrderChange)="onSort('model')"
+            [nzSortOrder]="sortColumn === 'model' ? sortDirection : null">
+            Model
+          </th>
+          <th 
+            nzWidth="120px"
+            [nzSortFn]="true"
+            (nzSortOrderChange)="onSort('year')"
+            [nzSortOrder]="sortColumn === 'year' ? sortDirection : null">
+            Year
+          </th>
+          <th 
+            nzWidth="150px"
+            [nzSortFn]="true"
+            (nzSortOrderChange)="onSort('body_class')"
+            [nzSortOrder]="sortColumn === 'body_class' ? sortDirection : null">
+            Body Class
+          </th>
+          <th 
+            nzWidth="180px"
+            [nzSortFn]="true"
+            (nzSortOrderChange)="onSort('data_source')"
+            [nzSortOrder]="sortColumn === 'data_source' ? sortDirection : null">
+            Data Source
+          </th>
+          <th>Vehicle ID</th>
+        </tr>
+        <tr class="filter-row">
+          <th></th>
+          <th>
+            <input
+              nz-input
+              placeholder="Filter..."
+              [value]="manufacturerFilter"
+              (input)="onManufacturerFilterChange($any($event.target).value)"
+              class="filter-input"
+            />
+          </th>
+          <th>
+            <input
+              nz-input
+              placeholder="Filter..."
+              [value]="modelFilter"
+              (input)="onModelFilterChange($any($event.target).value)"
+              class="filter-input"
+            />
+          </th>
+          <th>
+            <div class="year-filter">
+              <input
+                nz-input
+                placeholder="Min"
+                type="number"
+                [value]="yearMinFilter"
+                (input)="onYearMinFilterChange($any($event.target).value)"
+                class="filter-input year-input"
+              />
+              <input
+                nz-input
+                placeholder="Max"
+                type="number"
+                [value]="yearMaxFilter"
+                (input)="onYearMaxFilterChange($any($event.target).value)"
+                class="filter-input year-input"
+              />
+            </div>
+          </th>
+          <th>
+            <input
+              nz-input
+              placeholder="Filter..."
+              [value]="bodyClassFilter"
+              (input)="onBodyClassFilterChange($any($event.target).value)"
+              class="filter-input"
+            />
+          </th>
+          <th>
+            <input
+              nz-input
+              placeholder="Filter..."
+              [value]="dataSourceFilter"
+              (input)="onDataSourceFilterChange($any($event.target).value)"
+              class="filter-input"
+            />
+          </th>
+          <th></th>
+        </tr>
+      </thead>
+      
+      <tbody>
+        <ng-container *ngFor="let vehicle of resultsTable.data; trackBy: trackByVehicleId">
+          <tr>
+            <td 
+              [nzExpand]="expandSet.has(vehicle.vehicle_id)"
+              (nzExpandChange)="onExpandChange(vehicle.vehicle_id, $event)">
+            </td>
+            <td>{{ vehicle.manufacturer }}</td>
+            <td>{{ vehicle.model }}</td>
+            <td>{{ vehicle.year }}</td>
+            <td>{{ vehicle.body_class || 'N/A' }}</td>
+            <td>
+              <nz-tag [nzColor]="vehicle.data_source === 'nhtsa_vpic_large_sample' ? 'blue' : 'default'">
+                {{ vehicle.data_source }}
+              </nz-tag>
+            </td>
+            <td>
+              <small class="vehicle-id">{{ vehicle.vehicle_id }}</small>
+            </td>
+          </tr>
+          <tr [nzExpand]="expandSet.has(vehicle.vehicle_id)">
+            <td colspan="7" class="expanded-row-content">
+              <div class="vehicle-instances">
+                <h4>Vehicle Instances (VIN Data)</h4>
+                
+                <!-- Loading state -->
+                <div *ngIf="isLoadingInstances(vehicle.vehicle_id)" class="instances-loading">
+                  <nz-spin nzSimple></nz-spin>
+                  <span>Loading VIN data...</span>
+                </div>
+                
+                <!-- Instances table -->
+                <nz-table
+                  *ngIf="!isLoadingInstances(vehicle.vehicle_id) && getInstances(vehicle.vehicle_id).length > 0"
+                  [nzData]="getInstances(vehicle.vehicle_id)"
+                  [nzShowPagination]="false"
+                  nzSize="small"
+                  class="instances-table">
+                  <thead>
+                    <tr>
+                      <th>VIN</th>
+                      <th>Condition</th>
+                      <th>Mileage</th>
+                      <th>State</th>
+                      <th>Title Status</th>
+                      <th>Color</th>
+                      <th>Est. Value</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let instance of getInstances(vehicle.vehicle_id)">
+                      <td><code>{{ instance.vin }}</code></td>
+                      <td>
+                        <nz-rate 
+                          [ngModel]="instance.condition_rating" 
+                          [nzDisabled]="true"
+                          [nzCount]="5">
+                        </nz-rate>
+                        <small>{{ instance.condition_description }}</small>
+                      </td>
+                      <td>
+                        {{ instance.mileage | number }}
+                        <nz-tag 
+                          *ngIf="instance.mileage_verified" 
+                          nzColor="green" 
+                          style="margin-left: 4px;">
+                          Verified
+                        </nz-tag>
+                      </td>
+                      <td>{{ instance.registered_state }}</td>
+                      <td>
+                        <nz-tag [nzColor]="getTitleStatusColor(instance.title_status)">
+                          {{ instance.title_status }}
+                        </nz-tag>
+                      </td>
+                      <td>{{ instance.exterior_color }}</td>
+                      <td>${{ instance.estimated_value | number }}</td>
+                    </tr>
+                  </tbody>
+                </nz-table>
+                
+                <!-- No data state -->
+                <nz-empty
+                  *ngIf="!isLoadingInstances(vehicle.vehicle_id) && getInstances(vehicle.vehicle_id).length === 0"
+                  nzNotFoundContent="No VIN data available"
+                  [nzNotFoundImage]="'simple'">
+                </nz-empty>
+              </div>
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </nz-table>
+  </nz-spin>
+</div>

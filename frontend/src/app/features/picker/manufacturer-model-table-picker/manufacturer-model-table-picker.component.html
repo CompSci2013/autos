@@ -1,0 +1,264 @@
+<div class="picker-container">
+  <div class="picker-header">
+    <h4>Manufacturer + Model</h4>
+
+    <!-- Search Box -->
+    <div class="search-box">
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchChange()"
+        placeholder="Search manufacturer or model..."
+        class="search-input"
+      />
+    </div>
+
+    <!-- Controls Row: Page Size + Expand/Collapse -->
+    <div class="controls-row">
+      <!-- Visible Rows Dropdown -->
+      <div class="page-size-control">
+        <label for="pageSize">Show:</label>
+        <select
+          id="pageSize"
+          [(ngModel)]="pageSize"
+          (ngModelChange)="onPageSizeChange()"
+          class="page-size-select"
+        >
+          <option *ngFor="let option of visibleRowOptions" [value]="option">
+            {{ option }} rows
+          </option>
+        </select>
+        <span class="total-info"
+          >of {{ filteredGroups.length }} manufacturers</span
+        >
+      </div>
+
+      <!-- Expand/Collapse All Controls -->
+      <div class="expand-controls">
+        <button
+          type="button"
+          class="btn-expand"
+          (click)="expandAll()"
+          title="Expand all manufacturers"
+        >
+          Expand All
+        </button>
+        <button
+          type="button"
+          class="btn-collapse"
+          (click)="collapseAll()"
+          title="Collapse all manufacturers"
+        >
+          Collapse All
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <p>Loading vehicle combinations...</p>
+  </div>
+
+  <!-- Table -->
+  <div *ngIf="!loading" class="table-wrapper">
+    <div class="table-scroll-wrapper">
+      <nz-table
+        #vehicleTable
+        [nzData]="visibleGroups"
+        [nzShowPagination]="false"
+        [nzFrontPagination]="false"
+        nzSize="middle"
+      >
+        <thead>
+          <tr>
+            <th>Manufacturer</th>
+            <th>Model</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let group of vehicleTable.data">
+            <!-- COLLAPSED STATE: Single row for this manufacturer -->
+            <ng-container *ngIf="!group.expanded">
+              <tr class="collapsed-row clickable">
+                <td colspan="2" (click)="toggleManufacturer(group.manufacturer)">
+                  <div class="collapsed-content">
+                    <label
+                      nz-checkbox
+                      [nzIndeterminate]="
+                        getParentCheckboxState(group.manufacturer) ===
+                        'indeterminate'
+                      "
+                      [nzChecked]="
+                        getParentCheckboxState(group.manufacturer) === 'checked'
+                      "
+                      (nzCheckedChange)="
+                        onParentCheckboxChange(group.manufacturer, $event)
+                      "
+                      (click)="$event.stopPropagation()"
+                    >
+                      <strong>{{ group.manufacturer }}</strong>
+                    </label>
+                    <span class="selection-info">
+                      ({{ group.models.length }} models,
+                      {{ getSelectedModelCount(group.manufacturer) }} selected)
+                    </span>
+                    <span class="expand-icon">[+]</span>
+                  </div>
+                </td>
+              </tr>
+            </ng-container>
+
+            <!-- EXPANDED STATE: One row per model (manufacturer repeats) -->
+            <ng-container *ngIf="group.expanded">
+              <tr
+                *ngFor="let model of group.models"
+                class="expanded-row"
+              >
+                <!-- Manufacturer cell (repeats on every model row for sorting) -->
+                <td class="manufacturer-cell clickable" (click)="toggleManufacturer(group.manufacturer)">
+                  <div class="manufacturer-content">
+                    <label
+                      nz-checkbox
+                      [nzIndeterminate]="
+                        getParentCheckboxState(group.manufacturer) ===
+                        'indeterminate'
+                      "
+                      [nzChecked]="
+                        getParentCheckboxState(group.manufacturer) === 'checked'
+                      "
+                      (nzCheckedChange)="
+                        onParentCheckboxChange(group.manufacturer, $event)
+                      "
+                      (click)="$event.stopPropagation()"
+                    >
+                      <strong>{{ group.manufacturer }}</strong>
+                    </label>
+                    <span class="collapse-icon">[−]</span>
+                  </div>
+                </td>
+
+                <!-- Model cell -->
+                <td class="model-cell">
+                  <label
+                    nz-checkbox
+                    [nzChecked]="
+                      isModelSelected(group.manufacturer, model.model)
+                    "
+                    (nzCheckedChange)="
+                      onChildCheckboxChange(
+                        group.manufacturer,
+                        model.model,
+                        $event
+                      )
+                    "
+                  >
+                    {{ model.model }}
+                  </label>
+                </td>
+              </tr>
+            </ng-container>
+          </ng-container>
+        </tbody>
+      </nz-table>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="pagination-controls" *ngIf="totalPages > 1">
+      <button
+        type="button"
+        class="btn-page"
+        (click)="previousPage()"
+        [disabled]="!hasPreviousPage"
+      >
+        ‹ Prev
+      </button>
+
+      <div class="page-numbers">
+        <button
+          *ngFor="let page of pageNumbers"
+          type="button"
+          class="btn-page-num"
+          [class.active]="page === currentPage"
+          [disabled]="page === -1"
+          (click)="goToPage(page)"
+        >
+          <span *ngIf="page > 0">{{ page }}</span>
+          <span *ngIf="page === -1">...</span>
+        </button>
+      </div>
+
+      <button
+        type="button"
+        class="btn-page"
+        (click)="nextPage()"
+        [disabled]="!hasNextPage"
+      >
+        Next ›
+      </button>
+    </div>
+  </div>
+
+  <!-- Selected Items (Hierarchical Chips) -->
+  <div class="chips-section">
+    <div class="chips-label">Selected ({{ selectedChips.length }}):</div>
+    <div class="chips-container">
+      <div *ngIf="selectedChips.length === 0" class="no-selections">
+        No selections
+      </div>
+      <ng-container *ngFor="let group of groupedChips; let i = index">
+        <hr *ngIf="i > 0" class="chip-separator" />
+        <div class="chip-group">
+          <div class="chip chip-parent">
+            <span class="chip-text">
+              {{ group.manufacturer }}
+              <span class="chip-badge">({{ group.count }})</span>
+            </span>
+            <button
+              type="button"
+              class="chip-remove"
+              (click)="removeManufacturerChip(group.manufacturer)"
+              title="Remove all {{ group.manufacturer }} models"
+            >
+              ×
+            </button>
+          </div>
+          <div *ngFor="let model of group.models" class="chip chip-child">
+            <span class="chip-text">{{ model }}</span>
+            <button
+              type="button"
+              class="chip-remove"
+              (click)="
+                removeChip({ manufacturer: group.manufacturer, model: model })
+              "
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="actions-section">
+    <button
+      type="button"
+      class="btn btn-primary"
+      (click)="onApply()"
+      [disabled]="selectedChips.length === 0"
+      nz-tooltip
+      nzTooltipTitle="Logs selected manufacturer-model combinations to browser console (MVP)"
+    >
+      Apply ({{ selectedChips.length }})
+    </button>
+    <button
+      type="button"
+      class="btn btn-secondary"
+      (click)="onClear()"
+      [disabled]="selectedChips.length === 0"
+    >
+      Clear
+    </button>
+  </div>
+</div>

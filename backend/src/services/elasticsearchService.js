@@ -119,6 +119,149 @@ async function getManufacturerModelCombinations(options = {}) {
   }
 }
 
+/**
+ * Get detailed vehicle records for specific manufacturer-model combinations
+ * @param {Object} options - Query options
+ * @param {Array} options.modelCombos - Array of {manufacturer, model} objects
+ * @param {number} options.page - Page number (1-indexed)
+ * @param {number} options.size - Results per page
+ * @param {Object} options.filters - Filter criteria
+ * @param {string} options.sortBy - Field to sort by
+ * @param {string} options.sortOrder - Sort order (asc/desc)
+ * @returns {Object} - Paginated vehicle detail records
+ */
+async function getVehicleDetails(options = {}) {
+  const {
+    modelCombos = [],
+    page = 1,
+    size = 20,
+    filters = {},
+    sortBy = null,
+    sortOrder = 'asc'
+  } = options;
+
+  try {
+    // Build boolean query with should clauses for each manufacturer-model pair
+    const shouldClauses = modelCombos.map(combo => ({
+      bool: {
+        must: [
+          { term: { 'manufacturer.keyword': combo.manufacturer } },
+          { term: { 'model.keyword': combo.model } }
+        ]
+      }
+    }));
+
+    // Build the main query
+    const query = {
+      bool: {
+        should: shouldClauses,
+        minimum_should_match: 1,
+        filter: []
+      }
+    };
+
+    // Apply filters (case-insensitive partial matching using wildcard on analyzed fields)
+    if (filters.manufacturer) {
+      query.bool.filter.push({
+        wildcard: {
+          'manufacturer': `*${filters.manufacturer.toLowerCase()}*`
+        }
+      });
+    }
+
+    if (filters.model) {
+      query.bool.filter.push({
+        wildcard: {
+          'model': `*${filters.model.toLowerCase()}*`
+        }
+      });
+    }
+
+    if (filters.yearMin !== undefined) {
+      query.bool.filter.push({
+        range: {
+          year: { gte: filters.yearMin }
+        }
+      });
+    }
+
+    if (filters.yearMax !== undefined) {
+      query.bool.filter.push({
+        range: {
+          year: { lte: filters.yearMax }
+        }
+      });
+    }
+
+    if (filters.bodyClass) {
+      query.bool.filter.push({
+        wildcard: {
+          'body_class': `*${filters.bodyClass.toLowerCase()}*`
+        }
+      });
+    }
+
+    if (filters.dataSource) {
+      query.bool.filter.push({
+        wildcard: {
+          'data_source': `*${filters.dataSource.toLowerCase()}*`
+        }
+      });
+    }
+
+    // Build sort array
+    let sort;
+    if (sortBy) {
+      const sortField = sortBy === 'manufacturer' || sortBy === 'model' || sortBy === 'body_class' || sortBy === 'data_source'
+        ? `${sortBy}.keyword`
+        : sortBy;
+      
+      sort = [{ [sortField]: { order: sortOrder } }];
+    } else {
+      // Default sort
+      sort = [
+        { 'manufacturer.keyword': { order: 'asc' } },
+        { 'model.keyword': { order: 'asc' } },
+        { 'year': { order: 'desc' } }
+      ];
+    }
+
+    // Calculate pagination
+    const from = (page - 1) * size;
+
+    // Execute search query
+    const response = await esClient.search({
+      index: ELASTICSEARCH_INDEX,
+      from: from,
+      size: size,
+      query: query,
+      sort: sort
+    });
+
+    // Extract hits
+    const results = response.hits.hits.map(hit => hit._source);
+
+    return {
+      total: response.hits.total.value,
+      page: parseInt(page),
+      size: parseInt(size),
+      totalPages: Math.ceil(response.hits.total.value / size),
+      query: {
+        modelCombos: modelCombos,
+        filters: filters,
+        sortBy: sortBy,
+        sortOrder: sortOrder
+      },
+      results: results
+    };
+
+  } catch (error) {
+    console.error('Elasticsearch vehicle details query error:', error);
+    throw new Error(`Failed to fetch vehicle details: ${error.message}`);
+  }
+}
+
 module.exports = {
-  getManufacturerModelCombinations
+  getManufacturerModelCombinations,
+  getVehicleDetails
 };
