@@ -1,0 +1,87 @@
+.navigation-bar {
+  background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.nav-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-brand {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+
+  h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: white;
+    letter-spacing: 2px;
+  }
+
+  .tagline {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 300;
+  }
+}
+
+.nav-menu {
+  background: transparent !important;
+  border: none !important;
+  line-height: 64px;
+
+  ::ng-deep .ant-menu-item {
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 500;
+    border-bottom: 3px solid transparent !important;
+    
+    i {
+      margin-right: 8px;
+    }
+
+    &:hover {
+      color: white;
+      background: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    &.ant-menu-item-selected {
+      color: white;
+      background: rgba(255, 255, 255, 0.15) !important;
+      border-bottom: 3px solid white !important;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .nav-container {
+    flex-direction: column;
+    padding: 1rem;
+    align-items: flex-start;
+  }
+
+  .nav-brand {
+    margin-bottom: 0.5rem;
+
+    h1 {
+      font-size: 1.4rem;
+    }
+
+    .tagline {
+      display: none;
+    }
+  }
+
+  .nav-menu {
+    line-height: 48px;
+  }
+}

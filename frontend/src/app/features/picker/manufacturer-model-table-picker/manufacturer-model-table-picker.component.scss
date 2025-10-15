@@ -5,7 +5,6 @@
   padding: 1rem;
   max-width: 100%;
   min-width: 400px;
-  overflow-x: auto;
 }
 
 // ========== HEADER ==========
@@ -501,3 +500,34 @@
     vertical-align: middle;
   }
 }
+
+// Sticky footer for chips and actions
+
+// .table-wrapper {
+//   flex: 1;
+//   overflow: auto;
+//   margin-bottom: 0;
+//   min-height: 0;
+// }
+
+// .chips-section {
+//   flex-shrink: 0;
+//   background: white;
+//   border-top: 2px solid #e8e8e8;
+//   margin-bottom: 0;
+  
+//   .chips-container {
+//     max-height: 120px;
+//     overflow-y: auto;
+//   }
+// }
+
+// .actions-section {
+//   position: sticky;
+//   bottom: 0;
+//   background: white;
+//   border-top: 2px solid #1890ff;
+//   padding: 12px 16px;
+//   z-index: 10;
+//   box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+// }

@@ -18,18 +18,32 @@ import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzRateModule } from 'ng-zorro-antd/rate';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
+import { NzCollapseModule } from 'ng-zorro-antd/collapse';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzMenuModule } from 'ng-zorro-antd/menu';
+
+// Grid Layout
+import { KtdGridModule } from '@katoid/angular-grid-layout';
+
+// Feature components
 
 // Feature components
 import { ManufacturerModelTablePickerComponent } from './features/picker/manufacturer-model-table-picker/manufacturer-model-table-picker.component';
 import { DiscoverComponent } from './features/discover/discover.component';
 import { VehicleResultsTableComponent } from './features/results/vehicle-results-table/vehicle-results-table.component';
+import { WorkshopComponent } from './features/workshop/workshop.component';
+import { HomeComponent } from './features/home/home.component';
+import { NavigationComponent } from './core/navigation/navigation.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ManufacturerModelTablePickerComponent,
     DiscoverComponent,
-    VehicleResultsTableComponent
+    VehicleResultsTableComponent,
+    WorkshopComponent,
+    HomeComponent,
+    NavigationComponent
   ],
   imports: [
     BrowserModule,
@@ -46,7 +60,12 @@ import { VehicleResultsTableComponent } from './features/results/vehicle-results
     NzTagModule,
     NzSpinModule,
     NzRateModule,
-    NzAlertModule
+    NzAlertModule,
+    NzCollapseModule,
+    NzButtonModule,
+    NzMenuModule,
+    // Grid Layout
+    KtdGridModule
   ],
   providers: [
     { provide: NZ_I18N, useValue: en_US }

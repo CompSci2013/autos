@@ -1,0 +1,210 @@
+.workshop-page {
+  padding: 2rem;
+  max-width: 100%;
+  height: calc(100vh - 4rem);
+  display: flex;
+  flex-direction: column;
+}
+
+.page-header {
+  margin-bottom: 1.5rem;
+
+  h1 {
+    margin: 0 0 0.5rem 0;
+    font-size: 2rem;
+    color: #333;
+  }
+
+  .subtitle {
+    margin: 0;
+    color: #666;
+    font-size: 1rem;
+  }
+}
+
+.filters-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background: #e3f2fd;
+  border: 1px solid #90caf9;
+  border-radius: 4px;
+
+  .summary-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    .summary-label {
+      font-weight: 600;
+      color: #1976d2;
+    }
+
+    .summary-count {
+      color: #0d47a1;
+      font-weight: 500;
+    }
+  }
+}
+
+// Grid Layout Styles
+.grid-container {
+  flex: 1;
+  background: #f5f5f5;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1rem;
+  overflow: auto;
+}
+
+// Grid Item Styles
+::ng-deep ktd-grid-item {
+  background: white;
+  border: 2px solid #1890ff;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+
+  // Add a visible resize indicator in the corner
+  &::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 30px;
+    height: 30px;
+    background: linear-gradient(135deg, transparent 50%, #1890ff 50%);
+    opacity: 0.6;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: #40a9ff;
+  }
+
+  &:hover::before {
+    opacity: 0.9;
+    background: linear-gradient(135deg, transparent 50%, #40a9ff 50%);
+  }
+
+  // Grid item being dragged
+  &.ktd-grid-item-dragging {
+    opacity: 0.5;
+    z-index: 1000;
+  }
+
+  // Grid item being resized
+  &.ktd-grid-item-resizing {
+    opacity: 0.8;
+  }
+}
+
+// Collapse Panel Styles
+.panel-collapse {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  ::ng-deep .ant-collapse {
+    border: none;
+    background: transparent;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  ::ng-deep .ant-collapse-item {
+    border: none;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  ::ng-deep .ant-collapse-header {
+    background: #fafafa;
+    border-bottom: 1px solid #e8e8e8;
+    font-weight: 600;
+    color: #1890ff;
+    padding: 12px 16px !important;
+  }
+
+  ::ng-deep .ant-collapse-content {
+    border: none;
+    flex: 1;
+    overflow: auto;
+  }
+
+  ::ng-deep .ant-collapse-content-box {
+    padding: 16px;
+  }
+}
+
+// Resize handles - Always visible with clear indicators
+::ng-deep .ktd-grid-item-resize-handle {
+  background: #1890ff;
+  opacity: 0.4;
+  transition: all 0.2s;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    background: white;
+    border-radius: 2px;
+  }
+}
+
+// Bottom-right handle (main resize handle)
+::ng-deep .ktd-grid-item-resize-handle.bottom-right::after {
+  width: 12px;
+  height: 12px;
+  bottom: 4px;
+  right: 4px;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+}
+
+::ng-deep ktd-grid-item:hover .ktd-grid-item-resize-handle {
+  opacity: 0.7;
+}
+
+::ng-deep .ktd-grid-item-resize-handle:hover {
+  opacity: 1 !important;
+  background: #40a9ff;
+}
+
+// Add cursor indicators for all resize directions
+::ng-deep .ktd-grid-item-resize-handle.bottom-right {
+  cursor: nwse-resize !important;
+}
+
+::ng-deep .ktd-grid-item-resize-handle.bottom {
+  cursor: ns-resize !important;
+}
+
+::ng-deep .ktd-grid-item-resize-handle.right {
+  cursor: ew-resize !important;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .workshop-page {
+    padding: 1rem;
+  }
+
+  .page-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .filters-summary {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+}

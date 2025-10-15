@@ -1,0 +1,23 @@
+<div class="navigation-bar">
+  <div class="nav-container">
+    <div class="nav-brand">
+      <h1>AUTOS</h1>
+      <span class="tagline">Classic Vehicle Discovery</span>
+    </div>
+    
+    <ul nz-menu nzMode="horizontal" nzTheme="dark" class="nav-menu">
+      <li nz-menu-item [nzSelected]="isActive('/')" routerLink="/">
+        <i nz-icon nzType="home" nzTheme="outline"></i>
+        Home
+      </li>
+      <li nz-menu-item [nzSelected]="isActive('/discover')" routerLink="/discover">
+        <i nz-icon nzType="search" nzTheme="outline"></i>
+        Discover
+      </li>
+      <li nz-menu-item [nzSelected]="isActive('/workshop')" routerLink="/workshop">
+        <i nz-icon nzType="experiment" nzTheme="outline"></i>
+        Workshop
+      </li>
+    </ul>
+  </div>
+</div>

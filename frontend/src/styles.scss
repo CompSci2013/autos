@@ -1,1 +1,36 @@
-/* You can add global styles to this file, and also import other style files */
+// Grid Layout Resize Handles - Global styles
+.ktd-grid-item-resize-handle {
+  background: #1890ff !important;
+  opacity: 0.5 !important;
+  z-index: 100;
+}
+
+.ktd-grid-item-resize-handle.bottom-right {
+  width: 24px !important;
+  height: 24px !important;
+  bottom: 0 !important;
+  right: 0 !important;
+  cursor: nwse-resize !important;
+  border-radius: 0 0 4px 0;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    bottom: 3px;
+    right: 3px;
+    background: white;
+    border-radius: 2px;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.ktd-grid-item:hover .ktd-grid-item-resize-handle {
+  opacity: 0.8 !important;
+}
+
+.ktd-grid-item-resize-handle:hover {
+  opacity: 1 !important;
+  background: #40a9ff !important;
+}

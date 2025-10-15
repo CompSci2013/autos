@@ -1,0 +1,52 @@
+<div class="workshop-page">
+  <div class="page-header">
+    <h1>Workshop - Experimental Layout</h1>
+    <p class="subtitle">
+      Drag and resize panels to customize your workspace. Layout is saved automatically.
+    </p>
+  </div>
+
+  <!-- Active Filters Summary -->
+  <div class="filters-summary" *ngIf="hasActiveFilters">
+    <div class="summary-content">
+      <span class="summary-label">Active Filters:</span>
+      <span class="summary-count">{{ selectionCount }} model(s) selected</span>
+    </div>
+    <button nz-button nzType="primary" nzDanger (click)="onClearAll()">
+      Clear All
+    </button>
+  </div>
+
+  <!-- Grid Layout Container -->
+  <ktd-grid
+    [cols]="cols"
+    [rowHeight]="rowHeight"
+    [layout]="layout"
+    [gap]="gap"
+    (layoutUpdated)="onLayoutUpdated($event)"
+    class="grid-container"
+  >
+    <!-- Picker Panel -->
+    <ktd-grid-item [id]="'picker'" [resizable]="true">
+      <nz-collapse class="panel-collapse">
+        <nz-collapse-panel nzHeader="Manufacturer + Model Picker" [nzActive]="!pickerCollapsed">
+          <app-manufacturer-model-table-picker
+            [clearTrigger]="pickerClearTrigger"
+            [initialSelections]="pickerInitialSelections"
+            (selectionChange)="onPickerSelectionChange($event)"
+          >
+          </app-manufacturer-model-table-picker>
+        </nz-collapse-panel>
+      </nz-collapse>
+    </ktd-grid-item>
+
+    <!-- Results Panel -->
+    <ktd-grid-item [id]="'results'" [resizable]="true">
+      <nz-collapse class="panel-collapse">
+        <nz-collapse-panel nzHeader="Vehicle Results" [nzActive]="!resultsCollapsed">
+          <app-vehicle-results-table></app-vehicle-results-table>
+        </nz-collapse-panel>
+      </nz-collapse>
+    </ktd-grid-item>
+  </ktd-grid>
+</div>
