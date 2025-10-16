@@ -22,10 +22,11 @@ import { NzCollapseModule } from 'ng-zorro-antd/collapse';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
 
+// Angular CDK
+import { DragDropModule } from '@angular/cdk/drag-drop';
+
 // Grid Layout
 import { KtdGridModule } from '@katoid/angular-grid-layout';
-
-// Feature components
 
 // Feature components
 import { ManufacturerModelTablePickerComponent } from './features/picker/manufacturer-model-table-picker/manufacturer-model-table-picker.component';
@@ -64,6 +65,8 @@ import { NavigationComponent } from './core/navigation/navigation.component';
     NzCollapseModule,
     NzButtonModule,
     NzMenuModule,
+    // Angular CDK
+    DragDropModule,
     // Grid Layout
     KtdGridModule
   ],

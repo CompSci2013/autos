@@ -208,3 +208,46 @@
     align-items: stretch;
   }
 }
+
+// CRITICAL: Prevent grid from interfering with table column drag
+::ng-deep {
+  // Disable grid dragging on the results panel entirely
+  ktd-grid-item[id='results'] {
+    // Allow normal interaction with content
+    pointer-events: auto;
+    
+    // But disable the grid's drag system on this item
+    .ktd-grid-item-drag {
+      pointer-events: none !important;
+      display: none !important;
+    }
+  }
+  
+  // When hovering over table headers, kill all grid interactions
+  .results-table-container:hover {
+    ~ * {
+      pointer-events: none;
+    }
+  }
+  
+  // When CDK drag is active, disable entire grid
+  body:has(.cdk-drag-dragging) {
+    ktd-grid-item {
+      pointer-events: none !important;
+      
+      // But keep table interactive
+      .results-table-container,
+      .ant-table,
+      .ant-table * {
+        pointer-events: auto !important;
+      }
+    }
+  }
+}
+
+// Visual indicator when grid drag is disabled
+.grid-drag-disabled {
+  ktd-grid-item {
+    opacity: 0.95;
+  }
+}

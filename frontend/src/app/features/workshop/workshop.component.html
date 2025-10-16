@@ -23,11 +23,12 @@
     [rowHeight]="rowHeight"
     [layout]="layout"
     [gap]="gap"
+    [compactType]="'vertical'"
     (layoutUpdated)="onLayoutUpdated($event)"
     class="grid-container"
   >
     <!-- Picker Panel -->
-    <ktd-grid-item [id]="'picker'" [resizable]="true">
+    <ktd-grid-item [id]="'picker'" [resizable]="true" [draggable]="true">
       <nz-collapse class="panel-collapse">
         <nz-collapse-panel nzHeader="Manufacturer + Model Picker" [nzActive]="!pickerCollapsed">
           <app-manufacturer-model-table-picker
@@ -41,7 +42,7 @@
     </ktd-grid-item>
 
     <!-- Results Panel -->
-    <ktd-grid-item [id]="'results'" [resizable]="true">
+    <ktd-grid-item [id]="'results'" [resizable]="true" [draggable]="true">
       <nz-collapse class="panel-collapse">
         <nz-collapse-panel nzHeader="Vehicle Results" [nzActive]="!resultsCollapsed">
           <app-vehicle-results-table></app-vehicle-results-table>

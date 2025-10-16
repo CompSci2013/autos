@@ -1,16 +1,25 @@
 <div class="results-table-container">
-  <!-- Header with count and clear filters -->
+  <!-- Header with count, clear filters, and reset columns -->
   <div class="results-header" *ngIf="!loading && results.length > 0">
     <div class="header-left">
       <h3>Vehicle Details</h3>
       <span class="results-count">{{ results.length }} of {{ total }} results</span>
     </div>
-    <button 
-      *ngIf="manufacturerFilter || modelFilter || yearMinFilter || yearMaxFilter || bodyClassFilter || dataSourceFilter"
-      class="btn-clear-filters"
-      (click)="clearAllFilters()">
-      Clear Filters
-    </button>
+    <div class="header-actions">
+      <button 
+        class="btn-reset-columns"
+        (click)="resetColumnOrder()"
+        nz-tooltip
+        nzTooltipTitle="Reset column order to default">
+        Reset Columns
+      </button>
+      <button 
+        *ngIf="manufacturerFilter || modelFilter || yearMinFilter || yearMaxFilter || bodyClassFilter || dataSourceFilter"
+        class="btn-clear-filters"
+        (click)="clearAllFilters()">
+        Clear Filters
+      </button>
+    </div>
   </div>
 
   <!-- Loading State - ONLY show spinner when NOT filtering/sorting -->
@@ -52,67 +61,43 @@
       nzBordered>
       
       <thead>
-        <tr>
-          <th nzWidth="50px"></th>
+        <!-- Column Headers Row (Draggable) -->
+        <tr cdkDropList cdkDropListOrientation="horizontal" (cdkDropListDropped)="onColumnDrop($event)">
+          <th nzWidth="50px" class="expand-column"></th>
           <th 
-            nzWidth="180px"
-            [nzSortFn]="true"
-            (nzSortOrderChange)="onSort('manufacturer')"
-            [nzSortOrder]="sortColumn === 'manufacturer' ? sortDirection : null">
-            Manufacturer
+            *ngFor="let column of columns"
+            [nzWidth]="column.width"
+            [nzSortFn]="column.sortable"
+            (nzSortOrderChange)="column.sortable ? onSort(column.key) : null"
+            [nzSortOrder]="sortColumn === column.key ? sortDirection : null"
+            cdkDrag
+            [cdkDragData]="column"
+            (cdkDragStarted)="onColumnDragStart($event)"
+            (mousedown)="onHeaderMouseDown($event)"
+            class="draggable-header">
+            <div class="header-content">
+              <span class="column-label">{{ column.label }}</span>
+              <i nz-icon nzType="drag" nzTheme="outline" class="drag-handle"></i>
+            </div>
           </th>
-          <th 
-            nzWidth="180px"
-            [nzSortFn]="true"
-            (nzSortOrderChange)="onSort('model')"
-            [nzSortOrder]="sortColumn === 'model' ? sortDirection : null">
-            Model
-          </th>
-          <th 
-            nzWidth="120px"
-            [nzSortFn]="true"
-            (nzSortOrderChange)="onSort('year')"
-            [nzSortOrder]="sortColumn === 'year' ? sortDirection : null">
-            Year
-          </th>
-          <th 
-            nzWidth="150px"
-            [nzSortFn]="true"
-            (nzSortOrderChange)="onSort('body_class')"
-            [nzSortOrder]="sortColumn === 'body_class' ? sortDirection : null">
-            Body Class
-          </th>
-          <th 
-            nzWidth="180px"
-            [nzSortFn]="true"
-            (nzSortOrderChange)="onSort('data_source')"
-            [nzSortOrder]="sortColumn === 'data_source' ? sortDirection : null">
-            Data Source
-          </th>
-          <th>Vehicle ID</th>
         </tr>
+        
+        <!-- Filter Row -->
         <tr class="filter-row">
           <th></th>
-          <th>
+          <th *ngFor="let column of columns">
+            <!-- Text Filter -->
             <input
+              *ngIf="column.filterable && column.filterType === 'text'"
               nz-input
               placeholder="Filter..."
-              [value]="manufacturerFilter"
-              (input)="onManufacturerFilterChange($any($event.target).value)"
+              [value]="getFilterValue(column.key)"
+              (input)="onFilterChange(column.key, $any($event.target).value)"
               class="filter-input"
             />
-          </th>
-          <th>
-            <input
-              nz-input
-              placeholder="Filter..."
-              [value]="modelFilter"
-              (input)="onModelFilterChange($any($event.target).value)"
-              class="filter-input"
-            />
-          </th>
-          <th>
-            <div class="year-filter">
+            
+            <!-- Year Range Filter -->
+            <div *ngIf="column.filterable && column.filterType === 'year-range'" class="year-filter">
               <input
                 nz-input
                 placeholder="Min"
@@ -131,25 +116,6 @@
               />
             </div>
           </th>
-          <th>
-            <input
-              nz-input
-              placeholder="Filter..."
-              [value]="bodyClassFilter"
-              (input)="onBodyClassFilterChange($any($event.target).value)"
-              class="filter-input"
-            />
-          </th>
-          <th>
-            <input
-              nz-input
-              placeholder="Filter..."
-              [value]="dataSourceFilter"
-              (input)="onDataSourceFilterChange($any($event.target).value)"
-              class="filter-input"
-            />
-          </th>
-          <th></th>
         </tr>
       </thead>
       
@@ -160,21 +126,31 @@
               [nzExpand]="expandSet.has(vehicle.vehicle_id)"
               (nzExpandChange)="onExpandChange(vehicle.vehicle_id, $event)">
             </td>
-            <td>{{ vehicle.manufacturer }}</td>
-            <td>{{ vehicle.model }}</td>
-            <td>{{ vehicle.year }}</td>
-            <td>{{ vehicle.body_class || 'N/A' }}</td>
-            <td>
-              <nz-tag [nzColor]="vehicle.data_source === 'nhtsa_vpic_large_sample' ? 'blue' : 'default'">
+            <td *ngFor="let column of columns">
+              <!-- Manufacturer -->
+              <span *ngIf="column.key === 'manufacturer'">{{ vehicle.manufacturer }}</span>
+              
+              <!-- Model -->
+              <span *ngIf="column.key === 'model'">{{ vehicle.model }}</span>
+              
+              <!-- Year -->
+              <span *ngIf="column.key === 'year'">{{ vehicle.year }}</span>
+              
+              <!-- Body Class -->
+              <span *ngIf="column.key === 'body_class'">{{ vehicle.body_class || 'N/A' }}</span>
+              
+              <!-- Data Source -->
+              <nz-tag *ngIf="column.key === 'data_source'" 
+                [nzColor]="vehicle.data_source === 'nhtsa_vpic_large_sample' ? 'blue' : 'default'">
                 {{ vehicle.data_source }}
               </nz-tag>
-            </td>
-            <td>
-              <small class="vehicle-id">{{ vehicle.vehicle_id }}</small>
+              
+              <!-- Vehicle ID -->
+              <small *ngIf="column.key === 'vehicle_id'" class="vehicle-id">{{ vehicle.vehicle_id }}</small>
             </td>
           </tr>
           <tr [nzExpand]="expandSet.has(vehicle.vehicle_id)">
-            <td colspan="7" class="expanded-row-content">
+            <td [attr.colspan]="columns.length + 1" class="expanded-row-content">
               <div class="vehicle-instances">
                 <h4>Vehicle Instances (VIN Data)</h4>
                 
