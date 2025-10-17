@@ -93,6 +93,12 @@ export class RouteStateService {
         .join(',');
     }
 
+    // Column filters
+    if (filters.manufacturer) params['manufacturer'] = filters.manufacturer;
+    if (filters.model) params['model'] = filters.model;
+    if (filters.bodyClass) params['bodyClass'] = filters.bodyClass;
+    if (filters.dataSource) params['dataSource'] = filters.dataSource;
+
     // Text search
     if (filters.q) params['q'] = filters.q;
 
@@ -104,7 +110,7 @@ export class RouteStateService {
       params['yearMax'] = String(filters.yearMax);
     }
 
-    // Body style
+    // Body style (legacy)
     if (filters.bodyStyle) params['bodyStyle'] = filters.bodyStyle;
 
     // Pagination
@@ -134,6 +140,12 @@ export class RouteStateService {
       filters.modelCombos = modelsArray;
     }
 
+    // Column filters
+    if (params['manufacturer']) filters.manufacturer = params['manufacturer'];
+    if (params['model']) filters.model = params['model'];
+    if (params['bodyClass']) filters.bodyClass = params['bodyClass'];
+    if (params['dataSource']) filters.dataSource = params['dataSource'];
+
     // Text search
     if (params['q']) filters.q = params['q'];
 
@@ -141,7 +153,7 @@ export class RouteStateService {
     if (params['yearMin']) filters.yearMin = parseInt(params['yearMin'], 10);
     if (params['yearMax']) filters.yearMax = parseInt(params['yearMax'], 10);
 
-    // Body style
+    // Body style (legacy)
     if (params['bodyStyle']) filters.bodyStyle = params['bodyStyle'];
 
     // Pagination

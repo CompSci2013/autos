@@ -1,10 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
-import { takeUntil, distinctUntilChanged, debounceTime } from 'rxjs/operators';
+import { takeUntil, debounceTime } from 'rxjs/operators';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { StateManagementService } from '../../../core/services/state-management.service';
 import { ApiService } from '../../../services/api.service';
-import { VehicleResult, VehicleDetailsResponse, VehicleInstance } from '../../../models';
+import { VehicleResult, VehicleInstance } from '../../../models';
 
 // Column definition interface
 interface TableColumn {
@@ -19,7 +19,7 @@ interface TableColumn {
 @Component({
   selector: 'app-vehicle-results-table',
   templateUrl: './vehicle-results-table.component.html',
-  styleUrls: ['./vehicle-results-table.component.scss']
+  styleUrls: ['./vehicle-results-table.component.scss'],
 })
 export class VehicleResultsTableComponent implements OnInit, OnDestroy {
   // Data
@@ -31,17 +31,57 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
 
   // UI State
   loading = false;
-  isFilteringOrSorting = false;
   error: string | null = null;
 
   // Column configuration and ordering
   columns: TableColumn[] = [
-    { key: 'manufacturer', label: 'Manufacturer', width: '180px', sortable: true, filterable: true, filterType: 'text' },
-    { key: 'model', label: 'Model', width: '180px', sortable: true, filterable: true, filterType: 'text' },
-    { key: 'year', label: 'Year', width: '120px', sortable: true, filterable: true, filterType: 'year-range' },
-    { key: 'body_class', label: 'Body Class', width: '150px', sortable: true, filterable: true, filterType: 'text' },
-    { key: 'data_source', label: 'Data Source', width: '180px', sortable: true, filterable: true, filterType: 'text' },
-    { key: 'vehicle_id', label: 'Vehicle ID', width: 'auto', sortable: false, filterable: false }
+    {
+      key: 'manufacturer',
+      label: 'Manufacturer',
+      width: '180px',
+      sortable: true,
+      filterable: true,
+      filterType: 'text',
+    },
+    {
+      key: 'model',
+      label: 'Model',
+      width: '180px',
+      sortable: true,
+      filterable: true,
+      filterType: 'text',
+    },
+    {
+      key: 'year',
+      label: 'Year',
+      width: '120px',
+      sortable: true,
+      filterable: true,
+      filterType: 'year-range',
+    },
+    {
+      key: 'body_class',
+      label: 'Body Class',
+      width: '150px',
+      sortable: true,
+      filterable: true,
+      filterType: 'text',
+    },
+    {
+      key: 'data_source',
+      label: 'Data Source',
+      width: '180px',
+      sortable: true,
+      filterable: true,
+      filterType: 'text',
+    },
+    {
+      key: 'vehicle_id',
+      label: 'Vehicle ID',
+      width: 'auto',
+      sortable: false,
+      filterable: false,
+    },
   ];
 
   // Column filters (for server-side filtering)
@@ -69,32 +109,69 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
 
   // Subscription management
   private destroy$ = new Subject<void>();
-  private currentModelCombos: Array<{ manufacturer: string; model: string }> = [];
+  private currentModelCombos: Array<{ manufacturer: string; model: string }> =
+    [];
 
   constructor(
     private stateService: StateManagementService,
-    private apiService: ApiService
+    private apiService: ApiService // Keep temporarily for loadVehicleInstances
   ) {}
 
   ngOnInit(): void {
-    // Load saved column order from localStorage
     this.loadColumnOrder();
-
-    this.stateService.filters$.pipe(
-      takeUntil(this.destroy$),
-      distinctUntilChanged((prev, curr) => {
-        return JSON.stringify(prev.modelCombos) === JSON.stringify(curr.modelCombos);
-      })
-    ).subscribe(filters => {
-      if (filters.modelCombos && filters.modelCombos.length > 0) {
-        this.currentModelCombos = filters.modelCombos;
-        this.fetchVehicleDetails(1, false);
-      } else {
-        this.clearResults();
-      }
-    });
-
+    this.subscribeToStateChanges();
     this.setupFilterDebouncing();
+  }
+
+  /**
+   * Subscribe to StateManagementService observables
+   * Component receives data from StateManagement instead of fetching directly
+   */
+  private subscribeToStateChanges(): void {
+    // Subscribe to results
+    this.stateService.results$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((results) => {
+        this.results = results;
+      });
+
+    // Subscribe to loading state
+    this.stateService.loading$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((loading) => {
+        this.loading = loading;
+      });
+
+    // Subscribe to error state
+    this.stateService.error$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((error) => {
+        this.error = error;
+      });
+
+    // Subscribe to total results
+    this.stateService.totalResults$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((total) => {
+        this.total = total;
+        this.totalPages = Math.ceil(total / this.pageSize);
+      });
+
+    // Subscribe to filters to sync ALL local UI state
+    this.stateService.filters$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((filters) => {
+        // Update page state
+        this.currentPage = filters.page || 1;
+        this.pageSize = filters.size || 20;
+
+        // Update sort state for UI indicators
+        this.sortColumn = filters.sort || null;
+        this.sortDirection = filters.sortDirection || null;
+
+        // Track current model combos
+        this.currentModelCombos = filters.modelCombos || [];
+      });
   }
 
   ngOnDestroy(): void {
@@ -106,12 +183,18 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
   onColumnDrop(event: CdkDragDrop<TableColumn[]>): void {
     moveItemInArray(this.columns, event.previousIndex, event.currentIndex);
     this.saveColumnOrder();
-    console.log('Column order updated:', this.columns.map(c => c.key));
+    console.log(
+      'Column order updated:',
+      this.columns.map((c) => c.key)
+    );
   }
 
   private saveColumnOrder(): void {
-    const columnOrder = this.columns.map(c => c.key);
-    localStorage.setItem('autos-results-column-order', JSON.stringify(columnOrder));
+    const columnOrder = this.columns.map((c) => c.key);
+    localStorage.setItem(
+      'autos-results-column-order',
+      JSON.stringify(columnOrder)
+    );
   }
 
   private loadColumnOrder(): void {
@@ -121,20 +204,23 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
         const savedOrder: string[] = JSON.parse(saved);
         // Reorder columns array based on saved order
         const reorderedColumns: TableColumn[] = [];
-        savedOrder.forEach(key => {
-          const column = this.columns.find(c => c.key === key);
+        savedOrder.forEach((key) => {
+          const column = this.columns.find((c) => c.key === key);
           if (column) {
             reorderedColumns.push(column);
           }
         });
         // Add any new columns that weren't in saved order
-        this.columns.forEach(column => {
-          if (!reorderedColumns.find(c => c.key === column.key)) {
+        this.columns.forEach((column) => {
+          if (!reorderedColumns.find((c) => c.key === column.key)) {
             reorderedColumns.push(column);
           }
         });
         this.columns = reorderedColumns;
-        console.log('Loaded column order from localStorage:', this.columns.map(c => c.key));
+        console.log(
+          'Loaded column order from localStorage:',
+          this.columns.map((c) => c.key)
+        );
       } catch (e) {
         console.error('Failed to load column order:', e);
       }
@@ -144,12 +230,53 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
   resetColumnOrder(): void {
     // Reset to default order
     this.columns = [
-      { key: 'manufacturer', label: 'Manufacturer', width: '180px', sortable: true, filterable: true, filterType: 'text' },
-      { key: 'model', label: 'Model', width: '180px', sortable: true, filterable: true, filterType: 'text' },
-      { key: 'year', label: 'Year', width: '120px', sortable: true, filterable: true, filterType: 'year-range' },
-      { key: 'body_class', label: 'Body Class', width: '150px', sortable: true, filterable: true, filterType: 'text' },
-      { key: 'data_source', label: 'Data Source', width: '180px', sortable: true, filterable: true, filterType: 'text' },
-      { key: 'vehicle_id', label: 'Vehicle ID', width: 'auto', sortable: false, filterable: false }
+      {
+        key: 'manufacturer',
+        label: 'Manufacturer',
+        width: '180px',
+        sortable: true,
+        filterable: true,
+        filterType: 'text',
+      },
+      {
+        key: 'model',
+        label: 'Model',
+        width: '180px',
+        sortable: true,
+        filterable: true,
+        filterType: 'text',
+      },
+      {
+        key: 'year',
+        label: 'Year',
+        width: '120px',
+        sortable: true,
+        filterable: true,
+        filterType: 'year-range',
+      },
+      {
+        key: 'body_class',
+        label: 'Body Class',
+        width: '150px',
+        sortable: true,
+        filterable: true,
+        filterType: 'text',
+      },
+      {
+        key: 'data_source',
+        label: 'Data Source',
+        width: '180px',
+        sortable: true,
+        filterable: true,
+        filterType: 'text',
+      },
+      {
+        key: 'vehicle_id',
+        label: 'Vehicle ID',
+        width: 'auto',
+        sortable: false,
+        filterable: false,
+      },
     ];
     localStorage.removeItem('autos-results-column-order');
     console.log('Column order reset to default');
@@ -173,10 +300,10 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
 
   getFilterValue(columnKey: string): string | number | null {
     const filterMap: { [key: string]: string | number | null } = {
-      'manufacturer': this.manufacturerFilter,
-      'model': this.modelFilter,
-      'body_class': this.bodyClassFilter,
-      'data_source': this.dataSourceFilter
+      manufacturer: this.manufacturerFilter,
+      model: this.modelFilter,
+      body_class: this.bodyClassFilter,
+      data_source: this.dataSourceFilter,
     };
     return filterMap[columnKey] || '';
   }
@@ -199,97 +326,49 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
   }
 
   private setupFilterDebouncing(): void {
-    this.manufacturerFilterSubject.pipe(
-      takeUntil(this.destroy$),
-      debounceTime(800)
-    ).subscribe(value => {
-      this.manufacturerFilter = value;
-      this.fetchVehicleDetails(1, true);
-    });
+    this.manufacturerFilterSubject
+      .pipe(takeUntil(this.destroy$), debounceTime(400))
+      .subscribe((value) => {
+        console.log('🔵 Manufacturer filter debounced:', value);
+        this.manufacturerFilter = value;
+        this.stateService.updateFilters({
+          manufacturer: value || undefined,
+          page: 1,
+        });
+      });
 
-    this.modelFilterSubject.pipe(
-      takeUntil(this.destroy$),
-      debounceTime(800)
-    ).subscribe(value => {
-      this.modelFilter = value;
-      this.fetchVehicleDetails(1, true);
-    });
+    this.modelFilterSubject
+      .pipe(takeUntil(this.destroy$), debounceTime(800))
+      .subscribe((value) => {
+        console.log('🔵 Model filter debounced:', value);
+        this.modelFilter = value;
+        this.stateService.updateFilters({
+          model: value || undefined,
+          page: 1,
+        });
+      });
 
-    this.bodyClassFilterSubject.pipe(
-      takeUntil(this.destroy$),
-      debounceTime(800)
-    ).subscribe(value => {
-      this.bodyClassFilter = value;
-      this.fetchVehicleDetails(1, true);
-    });
+    this.bodyClassFilterSubject
+      .pipe(takeUntil(this.destroy$), debounceTime(800))
+      .subscribe((value) => {
+        console.log('🔵 Body Class filter debounced:', value);
+        this.bodyClassFilter = value;
+        this.stateService.updateFilters({
+          bodyClass: value || undefined,
+          page: 1,
+        });
+      });
 
-    this.dataSourceFilterSubject.pipe(
-      takeUntil(this.destroy$),
-      debounceTime(800)
-    ).subscribe(value => {
-      this.dataSourceFilter = value;
-      this.fetchVehicleDetails(1, true);
-    });
-  }
-
-  private fetchVehicleDetails(page: number, isFilterOrSort: boolean = false): void {
-    if (!this.currentModelCombos || this.currentModelCombos.length === 0) {
-      return;
-    }
-
-    this.loading = true;
-    this.isFilteringOrSorting = isFilterOrSort;
-    this.error = null;
-
-    const modelsParam = this.currentModelCombos
-      .map(c => `${c.manufacturer}:${c.model}`)
-      .join(',');
-
-    const filters: any = {};
-    if (this.manufacturerFilter) filters.manufacturer = this.manufacturerFilter;
-    if (this.modelFilter) filters.model = this.modelFilter;
-    if (this.yearMinFilter !== null) filters.yearMin = this.yearMinFilter;
-    if (this.yearMaxFilter !== null) filters.yearMax = this.yearMaxFilter;
-    if (this.bodyClassFilter) filters.bodyClass = this.bodyClassFilter;
-    if (this.dataSourceFilter) filters.dataSource = this.dataSourceFilter;
-
-    const sortByMap: { [key: string]: string } = {
-      'manufacturer': 'manufacturer',
-      'model': 'model',
-      'year': 'year',
-      'body_class': 'body_class',
-      'data_source': 'data_source'
-    };
-
-    const sortBy = this.sortColumn ? sortByMap[this.sortColumn] : undefined;
-
-    this.apiService.getVehicleDetails(
-      modelsParam,
-      page,
-      this.pageSize,
-      Object.keys(filters).length > 0 ? filters : undefined,
-      sortBy,
-      this.sortDirection || undefined
-    ).pipe(
-      takeUntil(this.destroy$)
-    ).subscribe({
-      next: (response: VehicleDetailsResponse) => {
-        this.results = response.results;
-        this.total = response.total;
-        this.currentPage = response.page;
-        this.pageSize = response.size;
-        this.totalPages = response.totalPages;
-        this.loading = false;
-        this.isFilteringOrSorting = false;
-      },
-      error: (error) => {
-        console.error('Failed to fetch vehicle details:', error);
-        this.error = 'Failed to load vehicle details. Please try again.';
-        this.loading = false;
-        this.isFilteringOrSorting = false;
-        this.clearResults();
-      }
-    });
+    this.dataSourceFilterSubject
+      .pipe(takeUntil(this.destroy$), debounceTime(800))
+      .subscribe((value) => {
+        console.log('🔵 Data Source filter debounced:', value);
+        this.dataSourceFilter = value;
+        this.stateService.updateFilters({
+          dataSource: value || undefined,
+          page: 1,
+        });
+      });
   }
 
   onSort(column: string): void {
@@ -307,7 +386,26 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
       this.sortDirection = 'asc';
     }
 
-    this.fetchVehicleDetails(1, true);
+    // Map frontend column keys to backend field names
+    const sortByMap: { [key: string]: string } = {
+      manufacturer: 'manufacturer',
+      model: 'model',
+      year: 'year',
+      body_class: 'body_class',
+      data_source: 'data_source',
+    };
+
+    // Update StateManagement with new sort
+    if (this.sortColumn && this.sortDirection) {
+      const backendSortField = sortByMap[this.sortColumn] || this.sortColumn;
+      this.stateService.updateSort(backendSortField, this.sortDirection);
+    } else {
+      // Clear sort by updating filters
+      this.stateService.updateFilters({
+        sort: undefined,
+        sortDirection: undefined,
+      });
+    }
   }
 
   onManufacturerFilterChange(value: string): void {
@@ -319,13 +417,53 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
   }
 
   onYearMinFilterChange(value: string): void {
+    // Just update local state, don't trigger search yet
     this.yearMinFilter = value ? parseInt(value, 10) : null;
-    this.fetchVehicleDetails(1, true);
   }
 
   onYearMaxFilterChange(value: string): void {
+    // Just update local state, don't trigger search yet
     this.yearMaxFilter = value ? parseInt(value, 10) : null;
-    this.fetchVehicleDetails(1, true);
+  }
+
+  onYearMinFilterBlur(): void {
+    // Only trigger search if yearMax is not set OR yearMax >= yearMin
+    if (
+      this.yearMaxFilter === null ||
+      this.yearMinFilter === null ||
+      this.yearMaxFilter >= this.yearMinFilter
+    ) {
+      this.stateService.updateFilters({
+        yearMin: this.yearMinFilter || undefined,
+        yearMax: this.yearMaxFilter || undefined,
+        page: 1,
+      });
+    } else {
+      // Invalid range: yearMax < yearMin, don't search
+      console.warn(
+        `Invalid year range: min=${this.yearMinFilter}, max=${this.yearMaxFilter}. Min must be <= Max.`
+      );
+    }
+  }
+
+  onYearMaxFilterBlur(): void {
+    // Only trigger search if yearMin is not set OR yearMin <= yearMax
+    if (
+      this.yearMinFilter === null ||
+      this.yearMaxFilter === null ||
+      this.yearMinFilter <= this.yearMaxFilter
+    ) {
+      this.stateService.updateFilters({
+        yearMin: this.yearMinFilter || undefined,
+        yearMax: this.yearMaxFilter || undefined,
+        page: 1,
+      });
+    } else {
+      // Invalid range: yearMin > yearMax, don't search
+      console.warn(
+        `Invalid year range: min=${this.yearMinFilter}, max=${this.yearMaxFilter}. Min must be <= Max.`
+      );
+    }
   }
 
   onBodyClassFilterChange(value: string): void {
@@ -336,17 +474,8 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
     this.dataSourceFilterSubject.next(value);
   }
 
-  private clearResults(): void {
-    this.results = [];
-    this.total = 0;
-    this.currentPage = 1;
-    this.totalPages = 0;
-    this.loading = false;
-    this.isFilteringOrSorting = false;
-    this.error = null;
-  }
-
   clearAllFilters(): void {
+    // Clear local filter state
     this.manufacturerFilter = '';
     this.modelFilter = '';
     this.yearMinFilter = null;
@@ -355,22 +484,37 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
     this.dataSourceFilter = '';
     this.sortColumn = null;
     this.sortDirection = null;
-    this.fetchVehicleDetails(1, true);
+
+    // Clear all filters in StateManagement (keeps modelCombos, clears everything else)
+    this.stateService.updateFilters({
+      manufacturer: undefined,
+      model: undefined,
+      yearMin: undefined,
+      yearMax: undefined,
+      bodyClass: undefined,
+      dataSource: undefined,
+      sort: undefined,
+      sortDirection: undefined,
+      page: 1,
+    });
   }
 
   onPageChange(page: number): void {
-    this.fetchVehicleDetails(page, false);
+    this.stateService.updatePage(page);
   }
 
   onPageSizeChange(size: number): void {
     this.pageSize = size;
-    this.fetchVehicleDetails(1, false);
+    this.stateService.updateFilters({
+      size: size,
+      page: 1, // Reset to page 1 when changing page size
+    });
   }
 
   onExpandChange(vehicleId: string, expanded: boolean): void {
     if (expanded) {
       this.expandSet.add(vehicleId);
-      
+
       if (!this.expandedRowInstances.has(vehicleId)) {
         this.loadVehicleInstances(vehicleId);
       }
@@ -379,6 +523,7 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Keep this method - it's for detail data (VIN instances), not main results
   private loadVehicleInstances(vehicleId: string): void {
     this.loadingInstances.add(vehicleId);
 
@@ -386,14 +531,14 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
       .getVehicleInstances(vehicleId, 8)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (response) => {
+        next: (response: any) => {
           this.expandedRowInstances.set(vehicleId, response.instances);
           this.loadingInstances.delete(vehicleId);
         },
-        error: (err) => {
+        error: (err: any) => {
           console.error('Error loading VIN instances:', err);
           this.loadingInstances.delete(vehicleId);
-        }
+        },
       });
   }
 
@@ -407,13 +552,13 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
 
   getTitleStatusColor(status: string): string {
     const statusColors: { [key: string]: string } = {
-      'Clean': 'green',
-      'Salvage': 'red',
-      'Rebuilt': 'orange',
-      'Lemon': 'red',
-      'Flood': 'red',
+      Clean: 'green',
+      Salvage: 'red',
+      Rebuilt: 'orange',
+      Lemon: 'red',
+      Flood: 'red',
       'Theft Recovery': 'orange',
-      'Junk': 'red'
+      Junk: 'red',
     };
     return statusColors[status] || 'default';
   }
