@@ -1,15 +1,18 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
-import { BehaviorSubject, Subject } from 'rxjs';
-import { map, distinctUntilChanged, takeUntil, filter } from 'rxjs/operators';
+import { BehaviorSubject, Subject, Observable, throwError } from 'rxjs';
+import { map, distinctUntilChanged, takeUntil, filter, tap, catchError } from 'rxjs/operators';
 import { AppState, SearchFilters } from '../../models/search-filters.model';
 import { RouteStateService } from './route-state.service';
+import { RequestCoordinatorService, RequestState } from './request-coordinator.service';
+import { ApiService } from '../../services/api.service';
+import { VehicleDetailsResponse, ManufacturerModelSelection } from '../../models';
 
 /**
- * StateManagementService - AUTOS Version (Simplified MVP)
+ * StateManagementService - AUTOS Version
  *
  * Manages application state with URL as single source of truth
- * No API integration yet - just URL <-> State synchronization
+ * Now includes API integration with request coordination
  */
 @Injectable({
   providedIn: 'root',
@@ -52,7 +55,9 @@ export class StateManagementService implements OnDestroy {
 
   constructor(
     private routeState: RouteStateService,
-    private router: Router
+    private router: Router,
+    private apiService: ApiService,
+    private requestCoordinator: RequestCoordinatorService
   ) {
     this.initializeFromUrl();
     this.watchUrlChanges();
@@ -80,8 +85,6 @@ export class StateManagementService implements OnDestroy {
     this.updateState({
       filters,
     });
-
-    console.log('StateManagementService initialized from URL:', filters);
   }
 
   private watchUrlChanges(): void {
@@ -100,7 +103,6 @@ export class StateManagementService implements OnDestroy {
           JSON.stringify(filters) !== JSON.stringify(currentState.filters)
         ) {
           this.updateState({ filters });
-          console.log('StateManagementService: URL changed, filters updated:', filters);
         }
       });
   }
@@ -133,14 +135,21 @@ export class StateManagementService implements OnDestroy {
     if (filters.page === undefined && filters.modelCombos !== undefined) {
       newFilters.page = 1;
     }
-
-    console.log('StateManagementService: Updating filters:', newFilters);
     
     this.updateState({ filters: newFilters });
     this.syncStateToUrl();
 
-    // TODO: Trigger API search when backend integration is added
-    // this.performSearch();
+    // Trigger API search if we have model selections
+    if (newFilters.modelCombos && newFilters.modelCombos.length > 0) {
+      this.fetchVehicleData().subscribe();
+    } else {
+      // Clear results if no models selected
+      this.updateState({
+        results: [],
+        totalResults: 0,
+        error: null
+      });
+    }
   }
 
   /**
@@ -153,7 +162,10 @@ export class StateManagementService implements OnDestroy {
     this.updateState({ filters: newFilters });
     this.syncStateToUrl();
 
-    // TODO: Trigger API search
+    // Trigger API search
+    if (newFilters.modelCombos && newFilters.modelCombos.length > 0) {
+      this.fetchVehicleData().subscribe();
+    }
   }
 
   /**
@@ -171,7 +183,10 @@ export class StateManagementService implements OnDestroy {
     this.updateState({ filters: newFilters });
     this.syncStateToUrl();
 
-    // TODO: Trigger API search
+    // Trigger API search
+    if (newFilters.modelCombos && newFilters.modelCombos.length > 0) {
+      this.fetchVehicleData().subscribe();
+    }
   }
 
   /**
@@ -200,7 +215,181 @@ export class StateManagementService implements OnDestroy {
     return this.stateSubject.value.filters;
   }
 
+  // ========== NEW: API INTEGRATION WITH REQUEST COORDINATION ==========
+
+  /**
+   * Fetch vehicle data with request coordination
+   * Uses RequestCoordinatorService for deduplication, caching, and retry
+   */
+  fetchVehicleData(): Observable<VehicleDetailsResponse> {
+    const filters = this.getCurrentFilters();
+    
+    // Don't make API call if no models selected
+    if (!filters.modelCombos || filters.modelCombos.length === 0) {
+      return throwError(() => new Error('No models selected'));
+    }
+
+    // Build unique cache key from filters
+    const cacheKey = this.buildCacheKey('vehicle-details', filters);
+    
+    // Execute through coordinator
+    return this.requestCoordinator.execute(
+      cacheKey,
+      () => this.apiService.getVehicleDetails(
+        this.buildModelsParam(filters.modelCombos),
+        filters.page || 1,
+        filters.size || 20,
+        this.buildFilterParams(filters),
+        filters.sort,
+        filters.sortDirection
+      ),
+      {
+        cacheTime: 30000,      // Cache for 30 seconds
+        deduplication: true,   // Deduplicate identical requests
+        retryAttempts: 2,      // Retry twice on failure
+        retryDelay: 1000       // Start with 1s delay
+      }
+    ).pipe(
+      tap(response => {
+        // Update state on success
+        this.updateState({
+          results: response.results,
+          totalResults: response.total,
+          loading: false,
+          error: null
+        });
+      }),
+      catchError(error => {
+        // Update state on error
+        this.updateState({
+          results: [],
+          totalResults: 0,
+          loading: false,
+          error: this.formatError(error)
+        });
+        console.error('StateManagementService: Failed to load vehicle data:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Get loading state for vehicle data
+   * Returns observable of loading state for the current filters
+   */
+  getVehicleDataLoadingState$(): Observable<RequestState> {
+    const filters = this.getCurrentFilters();
+    const cacheKey = this.buildCacheKey('vehicle-details', filters);
+    return this.requestCoordinator.getLoadingState$(cacheKey);
+  }
+
+  /**
+   * Get global loading state (any request loading)
+   * Returns true if ANY request is currently in progress
+   */
+  getGlobalLoadingState$(): Observable<boolean> {
+    return this.requestCoordinator.getGlobalLoading$();
+  }
+
+  /**
+   * Cancel all active requests
+   * Useful for cleanup on navigation or component destroy
+   */
+  cancelAllRequests(): void {
+    this.requestCoordinator.cancelAll();
+  }
+
+  /**
+   * Clear response cache
+   * Can clear specific key or all cached responses
+   */
+  clearCache(key?: string): void {
+    this.requestCoordinator.clearCache(key);
+  }
+
+  // ========== PRIVATE HELPER METHODS ==========
+
+  /**
+   * Build unique cache key from filter state
+   * Creates deterministic key for request deduplication and caching
+   */
+  private buildCacheKey(prefix: string, filters: SearchFilters): string {
+    // Create deterministic key from filters
+    const filterString = JSON.stringify({
+      modelCombos: filters.modelCombos?.sort((a, b) => 
+        `${a.manufacturer}:${a.model}`.localeCompare(`${b.manufacturer}:${b.model}`)
+      ),
+      page: filters.page,
+      size: filters.size,
+      sort: filters.sort,
+      sortDirection: filters.sortDirection,
+      yearMin: filters.yearMin,
+      yearMax: filters.yearMax,
+      bodyStyle: filters.bodyStyle,
+      q: filters.q
+    });
+    
+    // Use base64 encoding for URL-safe key
+    return `${prefix}:${btoa(filterString)}`;
+  }
+
+  /**
+   * Build models parameter string for API
+   * Format: "Ford:F-150,Ford:Mustang,Chevrolet:Corvette"
+   */
+  private buildModelsParam(modelCombos?: ManufacturerModelSelection[]): string {
+    if (!modelCombos || modelCombos.length === 0) {
+      return '';
+    }
+    return modelCombos
+      .map(c => `${c.manufacturer}:${c.model}`)
+      .join(',');
+  }
+
+  /**
+   * Build filter parameters object for API
+   * Extracts relevant filter fields for backend
+   */
+  private buildFilterParams(filters: SearchFilters): any {
+    const params: any = {};
+    
+    if (filters.yearMin !== undefined && filters.yearMin !== null) {
+      params.yearMin = filters.yearMin;
+    }
+    if (filters.yearMax !== undefined && filters.yearMax !== null) {
+      params.yearMax = filters.yearMax;
+    }
+    if (filters.bodyStyle) {
+      params.bodyStyle = filters.bodyStyle;
+    }
+    if (filters.q) {
+      params.q = filters.q;
+    }
+    
+    return Object.keys(params).length > 0 ? params : undefined;
+  }
+
+  /**
+   * Format error message for display
+   * Converts technical errors to user-friendly messages
+   */
+  private formatError(error: any): string {
+    if (error.status === 0) {
+      return 'Network error. Please check your connection.';
+    }
+    if (error.status === 404) {
+      return 'No vehicles found matching your criteria.';
+    }
+    if (error.status >= 500) {
+      return 'Server error. Please try again later.';
+    }
+    return error.message || 'An unexpected error occurred.';
+  }
+
+  // ========== CLEANUP ==========
+
   ngOnDestroy(): void {
+    this.cancelAllRequests();
     this.destroy$.next();
     this.destroy$.complete();
   }

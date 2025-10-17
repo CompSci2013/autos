@@ -21,6 +21,21 @@ import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzCollapseModule } from 'ng-zorro-antd/collapse';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
+// Import icon definitions
+import {
+  HomeOutline,
+  SearchOutline,
+  ExperimentOutline,
+  DragOutline
+} from '@ant-design/icons-angular/icons';
+
+// Register icons
+const icons = [
+  HomeOutline,
+  SearchOutline,
+  ExperimentOutline,
+  DragOutline
+];
 
 // Angular CDK
 import { DragDropModule } from '@angular/cdk/drag-drop';
@@ -56,7 +71,7 @@ import { NavigationComponent } from './core/navigation/navigation.component';
     NzTableModule,
     NzCheckboxModule,
     NzToolTipModule,
-    NzIconModule,
+    NzIconModule.forRoot(icons),
     NzEmptyModule,
     NzTagModule,
     NzSpinModule,

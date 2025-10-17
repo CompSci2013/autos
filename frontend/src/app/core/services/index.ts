@@ -3,3 +3,4 @@
 
 export * from './route-state.service';
 export * from './state-management.service';
+export * from './request-coordinator.service';
