@@ -1,10 +1,13 @@
 <div class="results-table-container">
   <!-- Header with count, clear filters, and reset columns -->
-  <div class="results-header" *ngIf="!loading && results.length > 0">
+  <div class="results-header" *ngIf="!loading && currentModelCombos.length > 0">
     <div class="header-left">
       <h3>Vehicle Details</h3>
-      <span class="results-count"
+      <span class="results-count" *ngIf="results.length > 0"
         >{{ results.length }} of {{ total }} results</span
+      >
+      <span class="results-count" *ngIf="results.length === 0"
+        >0 results found</span
       >
     </div>
     <div class="header-actions">
@@ -47,30 +50,32 @@
     >
     </nz-alert>
 
-    <!-- Empty State -->
+    <!-- Empty State: No Models Selected -->
     <nz-empty
-      *ngIf="!loading && !error && results.length === 0"
+      *ngIf="!loading && !error && currentModelCombos.length === 0"
       nzNotFoundContent="No vehicles selected. Use the picker above to select manufacturer-model combinations."
       class="empty-state"
     >
     </nz-empty>
 
-    <!-- Results Table -->
+    <!-- Results Table (always rendered when models selected, shows empty message when no results) -->
     <nz-table
-      *ngIf="!error && results.length > 0"
+      *ngIf="!error && currentModelCombos.length > 0"
       #resultsTable
       [nzData]="results"
       [nzFrontPagination]="false"
       [nzTotal]="total"
       [nzPageIndex]="currentPage"
       [nzPageSize]="pageSize"
-      [nzShowSizeChanger]="true"
+      [nzShowSizeChanger]="results.length > 0"
+      [nzShowPagination]="results.length > 0"
       [nzPageSizeOptions]="[10, 20, 50, 100]"
       (nzPageIndexChange)="onPageChange($event)"
       (nzPageSizeChange)="onPageSizeChange($event)"
       [nzScroll]="{ y: '500px' }"
       nzSize="middle"
       nzBordered
+      [nzTemplateMode]="true"
     >
       <thead>
         <!-- Column Headers Row (Draggable) -->
@@ -83,7 +88,7 @@
           <th
             *ngFor="let column of columns"
             [nzWidth]="column.width"
-            [nzSortFn]="column.sortable"
+            [nzSortFn]="column.sortable && results.length > 0"
             (nzSortOrderChange)="column.sortable ? onSort(column.key) : null"
             [nzSortOrder]="
               sortColumn === column.key
@@ -159,6 +164,21 @@
       </thead>
 
       <tbody>
+        <!-- Empty state row (when no results) -->
+        <tr *ngIf="results.length === 0">
+          <td
+            [attr.colspan]="columns.length + 1"
+            style="text-align: center; padding: 40px"
+          >
+            <nz-empty
+              nzNotFoundContent="No vehicles match your current filters. Try adjusting the filter criteria above."
+              [nzNotFoundImage]="'simple'"
+            >
+            </nz-empty>
+          </td>
+        </tr>
+
+        <!-- Data rows (when we have results) -->
         <ng-container
           *ngFor="let vehicle of resultsTable.data; trackBy: trackByVehicleId"
         >

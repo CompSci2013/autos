@@ -5,14 +5,18 @@
 ## **1. Application Purpose & Architecture**
 
 ### **Core Purpose**
+
 AUTOS is a classic American automobile discovery platform (1950-2025) that allows users to:
+
 - Browse manufacturer-model combinations via a sophisticated picker interface
 - View detailed vehicle specifications from Elasticsearch
 - Expand rows to see synthetic VIN-level instance data (condition, mileage, value, etc.)
 - Filter, sort, and paginate through large vehicle datasets
 
 ### **Architecture Pattern**
+
 **URL-First State Management Architecture**
+
 - URL query params are the **single source of truth**
 - State flows: URL → RouteStateService → StateManagementService → Components
 - Browser back/forward navigation works seamlessly
@@ -24,6 +28,7 @@ AUTOS is a classic American automobile discovery platform (1950-2025) that allow
 ## **2. Technology Stack**
 
 ### **Frontend (Angular 14)**
+
 - **Framework**: Angular 14.2.0
 - **UI Library**: NG-ZORRO Ant Design (tables, buttons, collapse, tags, etc.)
 - **Grid Layout**: @katoid/angular-grid-layout (Workshop mode)
@@ -32,6 +37,7 @@ AUTOS is a classic American automobile discovery platform (1950-2025) that allow
 - **Routing**: Angular Router with query param sync
 
 ### **Backend (Node.js + Express)**
+
 - **Runtime**: Node.js 18 (Alpine)
 - **Framework**: Express.js 4.18.2
 - **Database**: Elasticsearch 8.11.0 (via platform service)
@@ -39,6 +45,7 @@ AUTOS is a classic American automobile discovery platform (1950-2025) that allow
 - **Port**: 3000 (internal), proxied via Traefik at `/api`
 
 ### **Data Store (Elasticsearch)**
+
 - **Service**: `elasticsearch.data.svc.cluster.local:9200`
 - **Index**: `autos-unified`
 - **Schema**: 15+ fields (manufacturer, model, year, body_class, etc.)
@@ -46,6 +53,7 @@ AUTOS is a classic American automobile discovery platform (1950-2025) that allow
 - **Load Time**: 60 records (sample) to 20,000 records (full, 45-90 min)
 
 ### **Infrastructure (Kubernetes on K3s)**
+
 - **Cluster**: Halo Labs K3s (2 nodes: Loki control plane, Thor worker with GPU)
 - **Namespace**: `autos`
 - **Ingress**: Traefik (routes `/api/*` to backend, `/*` to frontend)
@@ -57,6 +65,7 @@ AUTOS is a classic American automobile discovery platform (1950-2025) that allow
 ## **3. State Management Flow**
 
 ### **The URL-First Pattern**
+
 This is the most sophisticated aspect of the application:
 
 ```
@@ -86,12 +95,14 @@ Results table fetches new data from API
 ### **Key State Services**
 
 **RouteStateService** (`route-state.service.ts`)
+
 - Converts `SearchFilters` ↔ URL query params
 - Format: `?models=Ford:F-150,Chevrolet:Corvette`
 - Handles year ranges, pagination, sorting
 - Provides observables for watching param changes
 
 **StateManagementService** (`state-management.service.ts`)
+
 - Maintains `AppState` (filters, results, loading, error)
 - Reads initial state from URL on app load
 - Watches URL changes via Angular Router events
@@ -142,6 +153,7 @@ AppComponent (root)
 The `ManufacturerModelTablePickerComponent` is the most complex component:
 
 ### **Data Flow**
+
 1. **Load Data**: Fetches all manufacturer-model combinations from API
 2. **Flatten & Group**: Converts hierarchical API response to flat rows, then groups by manufacturer
 3. **Filter**: Applies search term to manufacturer/model names
@@ -152,13 +164,15 @@ The `ManufacturerModelTablePickerComponent` is the most complex component:
 8. **Emit Event**: When "Apply" clicked, emits `ManufacturerModelSelection[]` array
 
 ### **State Synchronization**
-- **Inputs**: 
+
+- **Inputs**:
   - `clearTrigger` (number, incremented by parent to signal clear)
   - `initialSelections` (array, hydrated from URL state)
-- **Output**: 
+- **Output**:
   - `selectionChange` (emits when Apply button clicked)
 
 ### **Hydration Logic** (CRITICAL)
+
 ```typescript
 ngOnChanges(changes: SimpleChanges): void {
   // When URL changes (browser back/forward, initial load, deep link)
@@ -169,6 +183,7 @@ ngOnChanges(changes: SimpleChanges): void {
 ```
 
 This ensures:
+
 - Page refresh preserves selections
 - Browser back/forward works correctly
 - Deep links work: `/discover?models=Ford:F-150,Chevrolet:Corvette`
@@ -178,19 +193,24 @@ This ensures:
 ## **6. Results Table Component**
 
 ### **Features**
+
 1. **Column Filtering** (server-side with 800ms debounce)
+
    - Manufacturer, Model, Body Class, Data Source (text inputs)
    - Year Min/Max (number inputs)
 
 2. **Sorting** (server-side)
+
    - Click column header to cycle: none → asc → desc → none
    - Backend handles sorting via `sortBy` and `sortOrder` params
 
 3. **Pagination** (server-side)
+
    - Page size: 10/20/50/100
    - Total count and page info displayed
 
 4. **Expandable Rows**
+
    - Click expand icon → Loads 8 VIN instances from `/api/v1/vehicles/{vehicleId}/instances`
    - Shows synthetic data: VIN, condition (star rating), mileage, state, title status, color, estimated value
    - Cached in component (Map<vehicleId, instances[]>)
@@ -207,14 +227,17 @@ This ensures:
 ### **Endpoints**
 
 **1. Manufacturer-Model Combinations (Picker Data)**
+
 ```
 GET /api/v1/manufacturer-model-combinations?page=1&size=50&search=ford
 ```
+
 - Aggregation query on Elasticsearch
 - Returns hierarchical structure: manufacturers → models → counts
 - Used to populate picker table
 
 **2. Vehicle Details (Results Data)**
+
 ```
 GET /api/v1/vehicles/details
   ?models=Ford:F-150,Chevrolet:Corvette
@@ -225,23 +248,28 @@ GET /api/v1/vehicles/details
   &sortBy=year             (sort)
   &sortOrder=desc          (sort)
 ```
+
 - Elasticsearch query with filters and sorting
 - Returns paginated vehicle specifications
 - Each result has: vehicle_id, manufacturer, model, year, body_class, data_source
 
 **3. Vehicle Instances (VIN Data)**
+
 ```
 GET /api/v1/vehicles/nhtsa-ford-mustang-1967/instances?count=8
 ```
+
 - Fetches single vehicle spec from Elasticsearch
 - Calls `VINGenerator.generateInstances(vehicleData, 8)`
 - Returns 8 deterministic synthetic VINs with correlated attributes
 - **NO VINs are stored in Elasticsearch** — all generated on-demand
 
 **4. Health Check**
+
 ```
 GET /health
 ```
+
 - Returns: `{ status: 'ok', service: 'autos-backend', timestamp: ... }`
 
 ---
@@ -251,12 +279,14 @@ GET /health
 **Location**: `/home/odin/projects/autos/backend/src/utils/vinGenerator.js`
 
 ### **Key Characteristics**
+
 1. **Deterministic**: Same `vehicle_id` always generates same VINs
 2. **Seeded Random**: Uses hash of `vehicle_id` as random seed
 3. **Pre-1981 Format**: 7-character manufacturer-specific (e.g., `7R01C123456`)
 4. **Post-1981 Format**: 17-character ISO standard (e.g., `1FABP40E9YF123456`)
 
 ### **Correlated Attributes**
+
 - **Mileage**: Age-based (5k-12k miles/year with variance)
 - **Condition**: Realistic distribution (5% Concours, 20% Excellent, 55% Good, 15% Fair, 5% Poor)
 - **State**: Geographic weighting (CA 15%, TX 8%, FL 7%, etc.)
@@ -269,6 +299,7 @@ GET /health
 ## **9. Development Workflow**
 
 ### **Frontend Development**
+
 ```bash
 # Start long-running dev container (detached)
 podman run -d --name autos-frontend-dev --network host \
@@ -284,6 +315,7 @@ podman exec -it autos-frontend-dev npm start -- --host 0.0.0.0 --port 4200
 ```
 
 ### **Backend Development**
+
 ```bash
 # Edit code
 cd /home/odin/projects/autos/backend
@@ -305,6 +337,7 @@ kubectl rollout status deployment/autos-backend -n autos
 ```
 
 ### **Data Management**
+
 ```bash
 # Load sample data (60 vehicles, fast)
 cd /home/odin/projects/autos/data/scripts
@@ -323,11 +356,13 @@ exit
 ## **10. Deployment Architecture**
 
 ### **Production Image Flow**
+
 ```
 Thor (Podman) → Build Image → Export TAR → Import to K3s → Deploy Pods
 ```
 
 ### **Network Routing**
+
 ```
 User Browser (http://autos.minilab)
     ↓
@@ -341,6 +376,7 @@ Traefik Ingress
 ```
 
 ### **Environment Variables** (Backend Deployment)
+
 ```yaml
 ELASTICSEARCH_URL: http://elasticsearch.data.svc.cluster.local:9200
 ELASTICSEARCH_INDEX: autos-unified
@@ -353,30 +389,36 @@ PORT: 3000
 ## **11. Key Design Decisions**
 
 ### **1. URL as Single Source of Truth**
+
 **Why**: Enables browser navigation, bookmarking, sharing, deep linking
 **Trade-off**: More complex state sync logic vs simpler in-memory state
 
 ### **2. No VIN Storage in Elasticsearch**
+
 **Why**: 20,000 base vehicles × 8 VINs = 160,000 documents (unnecessary bloat)
 **Solution**: Generate VINs on-demand with deterministic algorithm
 **Trade-off**: Slight API latency vs massive storage savings
 
 ### **3. Server-Side Filtering/Sorting**
+
 **Why**: Dataset too large for client-side operations (20,000+ vehicles)
 **Implementation**: Debounced inputs (800ms) → API calls with filter params
 **Trade-off**: Network latency vs browser memory limits
 
 ### **4. Hierarchical Picker with Expand/Collapse**
+
 **Why**: 70 manufacturers × 100+ models = 7,000+ rows (unusable as flat table)
 **Solution**: Collapsed view shows manufacturers only, expanded shows models
 **Trade-off**: Extra click to see models vs cleaner initial view
 
 ### **5. Separate Dev and Prod Frontend Containers**
+
 **Dev**: Long-running Node.js container with HMR (hot reload)
 **Prod**: Nginx serving pre-built static files (optimized)
 **Why**: Dev needs npm/ng for compilation, Prod needs only static files
 
 ### **6. Workshop Mode with Grid Layout**
+
 **Why**: Experimental feature for power users who want custom layouts
 **Library**: @katoid/angular-grid-layout (drag, resize, save to localStorage)
 **Trade-off**: Additional complexity vs traditional vertical layout (Discover mode)
@@ -386,11 +428,13 @@ PORT: 3000
 ## **12. Data Pipeline**
 
 ### **Data Sources**
+
 - **NHTSA vPIC API**: https://vpic.nhtsa.dot.gov/api/
 - **Focus**: American manufacturers (Ford, Chevrolet, Dodge, etc.)
 - **Years**: 1950-2025 (pre-1981 synthetic, 1981+ actual)
 
 ### **Loading Scripts**
+
 1. `create_autos_index.py` - Creates Elasticsearch index with mappings
 2. `load_sample_data.py` - 60 vehicles (6 mfr × 10 models)
 3. `load_large_sample_data.py` - 2,000 vehicles (20 mfr × 100 models)
@@ -398,19 +442,20 @@ PORT: 3000
 5. `load_full_data.py` - 20,000 vehicles (all models × years, 45-90 min)
 
 ### **Schema Fields** (Elasticsearch)
+
 ```json
 {
-  "vehicle_id": "keyword",           // nhtsa-ford-mustang-1967
-  "manufacturer": "text + keyword",  // Ford
-  "model": "text + keyword",         // Mustang
-  "year": "integer",                 // 1967
-  "body_class": "keyword",           // Coupe
+  "vehicle_id": "keyword", // nhtsa-ford-mustang-1967
+  "manufacturer": "text + keyword", // Ford
+  "model": "text + keyword", // Mustang
+  "year": "integer", // 1967
+  "body_class": "keyword", // Coupe
   "engine_type": "keyword",
   "engine_cylinders": "integer",
   "engine_displacement_l": "float",
   "transmission_type": "keyword",
   "drive_type": "keyword",
-  "data_source": "keyword",          // nhtsa_vpic_sample
+  "data_source": "keyword", // nhtsa_vpic_sample
   "ingested_at": "date"
 }
 ```
@@ -422,30 +467,36 @@ PORT: 3000
 Based on the 6 provided images:
 
 **Image 1**: Collapsed picker view
+
 - Shows 5 manufacturers per page
 - Each row: Manufacturer | (X models, Y selected) | [+] expand icon
 - Empty "Selected (0)" section at bottom
 
 **Image 2**: Expanded picker with selections
+
 - Buick expanded: shows individual models (Allure, Cascada, Coachbuilder)
 - Checkboxes for each model
 - Hierarchical chips: "Affordable Aluminum (1)" parent chip → "Affordable Aluminum" child chip
 
 **Image 3**: Results table with expanded row
+
 - Main table: Manufacturer, Model, Year, Body Class, Data Source, Vehicle ID
 - Expanded row shows "Vehicle Instances (VIN Data)" table
 - VIN, Condition (star rating), Mileage (with Verified badge), State, Title Status, Color, Est. Value
 
 **Image 4**: Multiple manufacturers expanded
+
 - Shows Affordable Aluminum + multiple Buick entries expanded
 - Demonstrates how repeating manufacturer names in expanded state (for sorting)
 
 **Image 5**: Full workflow - selections to results
+
 - Selected (5) chips displayed hierarchically
 - Results table shows 5 matching vehicles
 - Each result has expand icon to show VIN instances
 
 **Image 6**: Active Filters banner
+
 - Blue banner at top: "Active Filters: 5 model(s) selected" + "Clear All" button
 - Filters preserved across page, persisted in URL
 
@@ -454,38 +505,43 @@ Based on the 6 provided images:
 ## **14. Critical Implementation Notes**
 
 ### **Checkbox State Management**
+
 ```typescript
 getParentCheckboxState(manufacturer: string): 'checked' | 'indeterminate' | 'unchecked' {
   const models = this.getModelsForManufacturer(manufacturer);
-  const checkedCount = models.filter(m => 
+  const checkedCount = models.filter(m =>
     this.selectedRows.has(`${manufacturer}|${m.model}`)
   ).length;
-  
+
   if (checkedCount === 0) return 'unchecked';
   if (checkedCount === models.length) return 'checked';
   return 'indeterminate';
 }
 ```
+
 - Parent checkbox shows indeterminate when some (not all) children selected
 - Uses `Set<string>` with keys like `"Ford|F-150"` for O(1) lookup
 
 ### **Debounced Filtering**
+
 ```typescript
 private manufacturerFilterSubject = new Subject<string>();
 
 ngOnInit() {
   this.manufacturerFilterSubject.pipe(
-    debounceTime(800)
+    debounceTime(300)
   ).subscribe(value => {
     this.manufacturerFilter = value;
     this.fetchVehicleDetails(1, true); // true = isFilteringOrSorting
   });
 }
 ```
+
 - 800ms debounce prevents API spam during typing
 - `isFilteringOrSorting` flag prevents full-page spinner (better UX)
 
 ### **Hydration on URL Change**
+
 ```typescript
 ngOnChanges(changes: SimpleChanges): void {
   if (changes['initialSelections']) {
@@ -497,6 +553,7 @@ ngOnChanges(changes: SimpleChanges): void {
   }
 }
 ```
+
 - **Must** be called AFTER data is loaded (otherwise checkboxes don't exist yet)
 - Order: loadData() → hydrateSelections()
 
@@ -505,24 +562,29 @@ ngOnChanges(changes: SimpleChanges): void {
 ## **15. Troubleshooting Patterns**
 
 ### **Frontend Not Updating**
+
 1. Check browser console for errors
 2. Verify API calls in Network tab
 3. Check StateManagementService subscriptions (use `console.log` in pipes)
 4. Verify URL params match expected format
 
 ### **Backend Pod Crashing**
+
 ```bash
 kubectl logs -n autos deployment/autos-backend --tail=50
 kubectl describe pod -n autos <pod-name>
 ```
+
 Common issues: Elasticsearch connection, missing env vars
 
 ### **VIN Data Not Loading**
+
 - Check network tab for 404s on `/instances` endpoint
 - Verify `vehicle_id` format matches Elasticsearch documents
 - Check backend logs for VIN generator errors
 
 ### **Selections Not Persisting**
+
 - Verify URL contains `?models=...` param
 - Check RouteStateService.paramsToFilters() logic
 - Ensure picker's ngOnChanges is triggering
@@ -532,6 +594,7 @@ Common issues: Elasticsearch connection, missing env vars
 ## **16. Future Enhancements (Not Yet Implemented)**
 
 Based on TODO comments in code:
+
 1. **Advanced Filters**: Year range, body style, engine type
 2. **Saved Searches**: Store user preference in backend
 3. **Export Functionality**: CSV export of results

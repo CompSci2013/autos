@@ -5,6 +5,7 @@ import {
   map,
   distinctUntilChanged,
   takeUntil,
+  take,
   filter,
   tap,
   catchError,
@@ -93,17 +94,18 @@ export class StateManagementService implements OnDestroy {
     const params = this.routeState.getCurrentParams();
     const filters = this.routeState.paramsToFilters(params);
 
-    this.updateState({
+    console.log('[StateManagement] Initializing from URL:', filters);
+
+    const currentState = this.stateSubject.value;
+    this.stateSubject.next({
+      ...currentState,
       filters,
     });
 
-    // If URL contains model selections, fetch data immediately
+    // NEW: Auto-fetch data on initialization if we have model selections
     if (filters.modelCombos && filters.modelCombos.length > 0) {
-      console.log('🟢 Initializing from URL with models:', filters.modelCombos);
-      this.fetchVehicleData().subscribe({
-        next: () => console.log('🟢 Initial data loaded from URL'),
-        error: (err) => console.error('🔴 Failed to load initial data:', err),
-      });
+      console.log('[StateManagement] Auto-fetching data on initialization');
+      this.fetchVehicleData().pipe(take(1)).subscribe();
     }
   }
 
@@ -120,7 +122,21 @@ export class StateManagementService implements OnDestroy {
 
         // Only update if something actually changed
         if (JSON.stringify(filters) !== JSON.stringify(currentState.filters)) {
+          console.log(
+            '🟡 watchUrlChanges: URL changed, updating filters:',
+            filters
+          );
           this.updateState({ filters });
+
+          // NEW: Trigger data fetch if we have model selections
+          if (filters.modelCombos && filters.modelCombos.length > 0) {
+            console.log('🟡 watchUrlChanges: Triggering fetchVehicleData()');
+            this.fetchVehicleData().subscribe({
+              next: () => console.log('🟢 watchUrlChanges: Data fetched'),
+              error: (err) =>
+                console.error('🔴 watchUrlChanges: Fetch failed:', err),
+            });
+          }
         }
       });
   }
@@ -145,26 +161,40 @@ export class StateManagementService implements OnDestroy {
   updateFilters(filters: Partial<SearchFilters>): void {
     const currentFilters = this.stateSubject.value.filters;
 
-    // ✅ Clean undefined values before merging (prevents accidental overwrites)
-    const cleanFilters = Object.fromEntries(
-      Object.entries(filters).filter(([_, v]) => v !== undefined)
-    ) as Partial<SearchFilters>;
+    // Separate undefined values (to be removed) from defined values
+    const filtersToRemove: string[] = [];
+    const filtersToSet: Partial<SearchFilters> = {};
 
-    const newFilters = {
-      ...currentFilters,
-      ...cleanFilters, // Only merge defined values
-    };
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value === undefined) {
+        filtersToRemove.push(key);
+      } else {
+        (filtersToSet as any)[key] = value;
+      }
+    });
+
+    // Start with current filters
+    const newFilters = { ...currentFilters };
+
+    // Remove filters that are explicitly set to undefined
+    filtersToRemove.forEach((key) => {
+      delete newFilters[key as keyof SearchFilters];
+    });
+
+    // Merge in the new defined values
+    Object.assign(newFilters, filtersToSet);
 
     // Reset to page 1 if any filter changed (except page/size)
-    if (
-      cleanFilters.page === undefined &&
-      Object.keys(cleanFilters).some((k) => k !== 'size')
-    ) {
+    const nonPaginationKeys = Object.keys(filters).filter(
+      (k) => k !== 'page' && k !== 'size'
+    );
+    if (nonPaginationKeys.length > 0 && filters.page === undefined) {
       newFilters.page = 1;
     }
 
     console.log('🔵 StateManagement.updateFilters() called with:', filters);
-    console.log('🔵 Cleaned filters:', cleanFilters);
+    console.log('🔵 Filters to remove:', filtersToRemove);
+    console.log('🔵 Filters to set:', filtersToSet);
     console.log('🔵 Result filters:', newFilters);
 
     this.updateState({ filters: newFilters });
@@ -186,7 +216,6 @@ export class StateManagementService implements OnDestroy {
       });
     }
   }
-
   /**
    * Update pagination and sync to URL
    */
@@ -370,6 +399,11 @@ export class StateManagementService implements OnDestroy {
       yearMax: filters.yearMax,
       bodyStyle: filters.bodyStyle,
       q: filters.q,
+      // ✅ ADD MISSING COLUMN FILTERS:
+      manufacturer: filters.manufacturer,
+      model: filters.model,
+      bodyClass: filters.bodyClass,
+      dataSource: filters.dataSource,
     });
 
     // Use base64 encoding for URL-safe key

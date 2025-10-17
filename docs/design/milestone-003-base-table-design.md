@@ -7,6 +7,7 @@
 ---
 
 ## Table of Contents
+
 1. [Problem Statement](#problem-statement)
 2. [Design Decisions](#design-decisions)
 3. [Architecture Overview](#architecture-overview)
@@ -22,13 +23,16 @@
 ## Problem Statement
 
 ### Current State
+
 - **Code Duplication:** Table logic (filtering, sorting, pagination, column reordering) is repeated across components
 - **Inconsistent Behavior:** Each table reimplements features differently
 - **Maintenance Burden:** Bug fixes and enhancements must be applied to multiple tables
 - **Future Tables:** New tables will require copying ~400 lines of boilerplate code
 
 ### Current Table Implementations
+
 1. **Vehicle Results Table** (`vehicle-results-table.component.ts` - ~400 lines)
+
    - Column reordering with drag-drop
    - Server-side filtering (debounced inputs)
    - Server-side sorting
@@ -42,6 +46,7 @@
    - Remains a specialized selection widget
 
 ### Target State
+
 - **Single Source of Truth:** All table logic in reusable `BaseDataTableComponent`
 - **Consistent UX:** All tables behave identically for common operations
 - **Easy Extension:** New tables require minimal code (~50-100 lines vs 400+)
@@ -52,9 +57,11 @@
 ## Design Decisions
 
 ### Decision 1: Composition over Inheritance ✅
+
 **Pattern:** Wrapper component (composition)
 
 **Rationale:**
+
 - Lower cognitive load (explicit inputs/outputs)
 - Easier to test (mock inputs vs understanding base class)
 - More flexible (can swap implementations)
@@ -62,6 +69,7 @@
 - Better TypeScript generic support
 
 **Implementation:**
+
 ```typescript
 // Parent component uses base table
 <app-base-data-table
@@ -70,12 +78,12 @@
   [dataSource]="vehicleDataSource"
   [expandable]="true"
   (rowExpand)="onRowExpand($event)">
-  
+
   <!-- Custom cell templates -->
   <ng-template #cellTemplate let-column="column" let-row="row">
     <!-- Custom rendering logic -->
   </ng-template>
-  
+
   <!-- Expansion content -->
   <ng-template #expansionTemplate let-row="row">
     <!-- VIN instances table, details, etc -->
@@ -88,29 +96,35 @@
 ---
 
 ### Decision 2: ng-template Slots for Customization ✅
+
 **Pattern:** Hybrid approach with template projection
 
 **Rationale:**
+
 - Each table has unique rendering needs (tags, badges, icons, charts)
 - Pure configuration (formatters) fails for complex components
 - ng-template provides maximum flexibility
 - Keeps base component generic
 
 **Templates Required:**
+
 1. **cellTemplate** - Custom cell rendering per column
 2. **expansionTemplate** - Expanded row content
 3. **filterTemplate** (optional) - Custom filter inputs per column
 
 **Example:**
+
 ```html
 <ng-template #cellTemplate let-column="column" let-row="row">
   <ng-container [ngSwitch]="column.key">
     <nz-tag *ngSwitchCase="'data_source'" [nzColor]="getSourceColor(row)">
       {{ row.data_source }}
     </nz-tag>
-    <nz-rate *ngSwitchCase="'condition_rating'" 
-             [ngModel]="row.condition_rating" 
-             [nzDisabled]="true">
+    <nz-rate
+      *ngSwitchCase="'condition_rating'"
+      [ngModel]="row.condition_rating"
+      [nzDisabled]="true"
+    >
     </nz-rate>
     <code *ngSwitchCase="'vin'">{{ row.vin }}</code>
     <span *ngSwitchDefault>{{ row[column.key] }}</span>
@@ -121,14 +135,17 @@
 ---
 
 ### Decision 3: Generic Row Expansion ✅
+
 **Pattern:** Optional expansion with template slot
 
 **Rationale:**
+
 - Not all tables need expansion (optional feature)
 - Expansion content varies by table (VIN instances, order details, etc)
 - Template slot provides maximum flexibility
 
 **Implementation:**
+
 - Base table manages expansion state (Set<rowId>)
 - Parent provides expansion content via ng-template
 - Base table emits `(rowExpand)` event for lazy-loading data
@@ -136,9 +153,11 @@
 ---
 
 ### Decision 4: SharedModule Structure ✅
+
 **Pattern:** SharedModule for Angular 14, standalone components later
 
 **Structure:**
+
 ```
 frontend/src/app/shared/
 ├── shared.module.ts
@@ -160,6 +179,7 @@ frontend/src/app/shared/
 ```
 
 **Future Migration (Angular 15+):**
+
 - Convert to standalone components
 - Remove SharedModule
 - Direct imports per component
@@ -169,21 +189,25 @@ frontend/src/app/shared/
 ---
 
 ### Decision 5: Column Visibility Management ✅
+
 **Pattern:** NG-ZORRO Drawer with Transfer component
 
 **UI Components:**
+
 - **Trigger:** Icon button in table header actions (`<i nz-icon nzType="setting"></i>`)
 - **Interface:** `nz-drawer` from right side
 - **Control:** `nz-transfer` for moving columns between visible/hidden
 - **Persistence:** localStorage (future: preferences service)
 
 **Rationale for Drawer over Modal:**
+
 - User can see table changes in real-time
 - Less context switching (no block/unblock)
 - Modern UX (similar to Google Sheets, Excel Online)
 - Fits existing grid layout pattern
 
 **Features:**
+
 - Drag to reorder visible columns within transfer
 - Search/filter columns by name
 - Bulk actions (show all, hide all)
@@ -192,14 +216,17 @@ frontend/src/app/shared/
 ---
 
 ### Decision 6: Column Dependencies and Constraints ✅
+
 **Pattern:** Declarative configuration with validation
 
 **Requirements:**
+
 1. **Required Columns:** Some columns cannot be hidden (e.g., primary identifier)
 2. **Dependent Columns:** Column X requires Column Y to be visible
 3. **Grouped Columns:** Toggle multiple related columns together
 
 **Configuration:**
+
 ```typescript
 {
   key: 'engine_displacement_l',
@@ -211,6 +238,7 @@ frontend/src/app/shared/
 ```
 
 **Validation:**
+
 - Prevent hiding required columns (show warning)
 - Auto-show dependencies when showing dependent column
 - Show grouped columns together
@@ -220,6 +248,7 @@ frontend/src/app/shared/
 ## Architecture Overview
 
 ### Component Hierarchy
+
 ```
 BaseDataTableComponent (generic, reusable)
 ├── Manages column state (order, visibility, width)
@@ -255,6 +284,7 @@ FutureTableComponent (easy to create)
 ### BaseDataTableComponent
 
 **Inputs:**
+
 ```typescript
 @Input() tableId: string;                          // Unique ID for localStorage
 @Input() columns: TableColumn<T>[];                // Column definitions
@@ -267,6 +297,7 @@ FutureTableComponent (easy to create)
 ```
 
 **Outputs:**
+
 ```typescript
 @Output() rowExpand = new EventEmitter<T>();       // Row expanded
 @Output() rowCollapse = new EventEmitter<T>();     // Row collapsed
@@ -276,6 +307,7 @@ FutureTableComponent (easy to create)
 ```
 
 **Template Slots:**
+
 ```typescript
 @ContentChild('cellTemplate') cellTemplate?: TemplateRef<any>;
 @ContentChild('expansionTemplate') expansionTemplate?: TemplateRef<any>;
@@ -283,6 +315,7 @@ FutureTableComponent (easy to create)
 ```
 
 **Public Methods:**
+
 ```typescript
 refresh(): void;                    // Reload data
 resetColumns(): void;               // Reset to default order/visibility
@@ -295,6 +328,7 @@ importColumnConfig(json: string): void;
 ### ColumnManagerComponent
 
 **Inputs:**
+
 ```typescript
 @Input() columns: TableColumn<T>[];
 @Input() visibleColumns: string[];
@@ -302,6 +336,7 @@ importColumnConfig(json: string): void;
 ```
 
 **Outputs:**
+
 ```typescript
 @Output() visibilityChange = new EventEmitter<string[]>();
 @Output() orderChange = new EventEmitter<string[]>();
@@ -309,6 +344,7 @@ importColumnConfig(json: string): void;
 ```
 
 **Features:**
+
 - nz-drawer slides from right
 - nz-transfer with drag-to-reorder
 - Search box to filter columns
@@ -321,9 +357,11 @@ importColumnConfig(json: string): void;
 ## Feature Requirements
 
 ### 1. Column Reordering (Drag & Drop)
+
 **Status:** ✅ Already implemented in VehicleResultsTable, needs extraction
 
 **Requirements:**
+
 - Angular CDK Drag & Drop
 - Drag column headers to reorder
 - Visual feedback during drag (preview, placeholder)
@@ -331,9 +369,13 @@ importColumnConfig(json: string): void;
 - Prevent drag during column manager open
 
 **Implementation:**
+
 ```html
-<thead cdkDropList cdkDropListOrientation="horizontal" 
-       (cdkDropListDropped)="onColumnDrop($event)">
+<thead
+  cdkDropList
+  cdkDropListOrientation="horizontal"
+  (cdkDropListDropped)="onColumnDrop($event)"
+>
   <th *ngFor="let column of visibleColumns" cdkDrag>
     <div class="header-content">
       <span>{{ column.label }}</span>
@@ -346,9 +388,11 @@ importColumnConfig(json: string): void;
 ---
 
 ### 2. Column Visibility Management
+
 **Status:** 🆕 New feature for this milestone
 
 **Requirements:**
+
 - Button in header actions area (next to Reset Columns)
 - Drawer slides from right with nz-transfer
 - Search/filter columns by name
@@ -357,6 +401,7 @@ importColumnConfig(json: string): void;
 - Persist visibility to localStorage
 
 **User Flow:**
+
 1. Click "Manage Columns" button (gear icon)
 2. Drawer opens from right
 3. See two lists: "Hidden" and "Visible"
@@ -366,6 +411,7 @@ importColumnConfig(json: string): void;
 7. Close drawer or click "Done"
 
 **Edge Cases:**
+
 - Cannot hide required columns (show tooltip)
 - Hiding column with dependents shows warning
 - Showing column auto-shows required dependencies
@@ -374,9 +420,11 @@ importColumnConfig(json: string): void;
 ---
 
 ### 3. Server-Side Filtering
+
 **Status:** ✅ Already implemented, needs extraction
 
 **Requirements:**
+
 - Filter inputs in header row (below column labels)
 - Debounced input (800ms) to reduce API calls
 - Support multiple filter types:
@@ -389,6 +437,7 @@ importColumnConfig(json: string): void;
 - Visual indicator when filters active
 
 **Implementation:**
+
 ```typescript
 // Filter subjects for debouncing
 private filterSubjects = new Map<string, Subject<string>>();
@@ -396,9 +445,9 @@ private filterSubjects = new Map<string, Subject<string>>();
 setupFilterDebouncing(column: TableColumn): void {
   const subject = new Subject<string>();
   this.filterSubjects.set(column.key, subject);
-  
+
   subject.pipe(
-    debounceTime(800),
+    debounceTime(300),
     distinctUntilChanged(),
     takeUntil(this.destroy$)
   ).subscribe(value => {
@@ -410,9 +459,11 @@ setupFilterDebouncing(column: TableColumn): void {
 ---
 
 ### 4. Server-Side Sorting
+
 **Status:** ✅ Already implemented, needs extraction
 
 **Requirements:**
+
 - Click column header to sort
 - Three states: none → asc → desc → none
 - Visual indicator (arrow icon)
@@ -420,6 +471,7 @@ setupFilterDebouncing(column: TableColumn): void {
 - Persist sort to query params (not localStorage)
 
 **Implementation:**
+
 ```typescript
 onSort(columnKey: string): void {
   if (this.sortColumn === columnKey) {
@@ -441,9 +493,11 @@ onSort(columnKey: string): void {
 ---
 
 ### 5. Server-Side Pagination
+
 **Status:** ✅ Already implemented, needs extraction
 
 **Requirements:**
+
 - NG-ZORRO pagination component
 - Configurable page sizes
 - Page size selection persisted
@@ -453,9 +507,11 @@ onSort(columnKey: string): void {
 ---
 
 ### 6. Row Expansion
+
 **Status:** ✅ Already implemented, needs extraction
 
 **Requirements:**
+
 - Expandable rows (optional feature)
 - Toggle icon in first column
 - Expansion state managed by base component
@@ -464,6 +520,7 @@ onSort(columnKey: string): void {
 - Visual indicator (icon changes: + to -)
 
 **Implementation:**
+
 ```typescript
 expandSet = new Set<string>();
 
@@ -481,9 +538,11 @@ onExpandChange(rowId: string, expanded: boolean): void {
 ---
 
 ### 7. localStorage Persistence
+
 **Status:** ⚠️ Partial (only column order), needs enhancement
 
 **Requirements:**
+
 - Persist per table using `tableId`
 - Column order
 - Column visibility
@@ -491,6 +550,7 @@ onExpandChange(rowId: string, expanded: boolean): void {
 - NOT persisted: filters, sort, page number (use URL for these)
 
 **Storage Structure:**
+
 ```typescript
 interface TablePreferences {
   columnOrder: string[];
@@ -502,6 +562,7 @@ interface TablePreferences {
 ```
 
 **Service:**
+
 ```typescript
 @Injectable({ providedIn: 'root' })
 export class TableStatePersistenceService {
@@ -518,34 +579,35 @@ export class TableStatePersistenceService {
 ## Data Models
 
 ### TableColumn Interface
+
 ```typescript
 export interface TableColumn<T = any> {
   // Basic configuration
-  key: keyof T;                      // Property key from data model
-  label: string;                     // Display name
-  width?: string;                    // CSS width (e.g., '180px', 'auto')
-  
+  key: keyof T; // Property key from data model
+  label: string; // Display name
+  width?: string; // CSS width (e.g., '180px', 'auto')
+
   // Sorting
-  sortable?: boolean;                // Can this column be sorted?
-  sortKey?: string;                  // Backend sort field (if different from key)
-  
+  sortable?: boolean; // Can this column be sorted?
+  sortKey?: string; // Backend sort field (if different from key)
+
   // Filtering
-  filterable?: boolean;              // Can this column be filtered?
+  filterable?: boolean; // Can this column be filtered?
   filterType?: 'text' | 'number' | 'date-range' | 'select';
-  filterOptions?: any[];             // For select type
-  filterKey?: string;                // Backend filter field (if different from key)
-  
+  filterOptions?: any[]; // For select type
+  filterKey?: string; // Backend filter field (if different from key)
+
   // Visibility
-  visible?: boolean;                 // Default visibility state
-  hideable?: boolean;                // Can user hide this column? (default: true)
-  
+  visible?: boolean; // Default visibility state
+  hideable?: boolean; // Can user hide this column? (default: true)
+
   // Dependencies
-  requiredColumns?: (keyof T)[];     // Must show these columns first
-  groupId?: string;                  // Group ID for toggling multiple columns
-  
+  requiredColumns?: (keyof T)[]; // Must show these columns first
+  groupId?: string; // Group ID for toggling multiple columns
+
   // Formatting (for simple cases, complex use ng-template)
   formatter?: (value: any, row: T) => string | number;
-  
+
   // Alignment
   align?: 'left' | 'center' | 'right';
 }
@@ -554,6 +616,7 @@ export interface TableColumn<T = any> {
 ---
 
 ### TableDataSource Interface
+
 ```typescript
 export interface TableDataSource<T> {
   /**
@@ -583,6 +646,7 @@ export interface TableResponse<T> {
 ---
 
 ### Example Usage in Parent Component
+
 ```typescript
 @Component({
   selector: 'app-vehicle-results-table',
@@ -592,8 +656,8 @@ export interface TableResponse<T> {
       [columns]="columns"
       [dataSource]="dataSource"
       [expandable]="true"
-      (rowExpand)="loadVehicleInstances($event)">
-      
+      (rowExpand)="loadVehicleInstances($event)"
+    >
       <!-- Custom cell rendering -->
       <ng-template #cellTemplate let-column="column" let-row="row">
         <ng-container [ngSwitch]="column.key">
@@ -606,7 +670,7 @@ export interface TableResponse<T> {
           <span *ngSwitchDefault>{{ row[column.key] }}</span>
         </ng-container>
       </ng-template>
-      
+
       <!-- Expansion content -->
       <ng-template #expansionTemplate let-row="row">
         <div class="vehicle-instances">
@@ -617,32 +681,63 @@ export interface TableResponse<T> {
         </div>
       </ng-template>
     </app-base-data-table>
-  `
+  `,
 })
 export class VehicleResultsTableComponent implements OnInit {
   columns: TableColumn<VehicleResult>[] = [
-    { key: 'manufacturer', label: 'Manufacturer', sortable: true, filterable: true, hideable: false },
+    {
+      key: 'manufacturer',
+      label: 'Manufacturer',
+      sortable: true,
+      filterable: true,
+      hideable: false,
+    },
     { key: 'model', label: 'Model', sortable: true, filterable: true },
-    { key: 'year', label: 'Year', sortable: true, filterable: true, filterType: 'number' },
-    { key: 'body_class', label: 'Body Class', sortable: true, filterable: true },
-    { key: 'data_source', label: 'Data Source', sortable: true, filterable: true },
-    { key: 'vehicle_id', label: 'Vehicle ID', sortable: false, filterable: false }
+    {
+      key: 'year',
+      label: 'Year',
+      sortable: true,
+      filterable: true,
+      filterType: 'number',
+    },
+    {
+      key: 'body_class',
+      label: 'Body Class',
+      sortable: true,
+      filterable: true,
+    },
+    {
+      key: 'data_source',
+      label: 'Data Source',
+      sortable: true,
+      filterable: true,
+    },
+    {
+      key: 'vehicle_id',
+      label: 'Vehicle ID',
+      sortable: false,
+      filterable: false,
+    },
   ];
 
   dataSource: TableDataSource<VehicleResult> = {
-    fetch: (params) => this.apiService.getVehicleDetails(
-      this.selectedModels,
-      params.page,
-      params.size,
-      params.filters,
-      params.sortBy,
-      params.sortOrder
-    )
+    fetch: (params) =>
+      this.apiService.getVehicleDetails(
+        this.selectedModels,
+        params.page,
+        params.size,
+        params.filters,
+        params.sortBy,
+        params.sortOrder
+      ),
   };
 
   loadVehicleInstances(vehicle: VehicleResult): void {
-    this.apiService.getVehicleInstances(vehicle.vehicle_id)
-      .subscribe(instances => this.expandedRowInstances.set(vehicle.vehicle_id, instances));
+    this.apiService
+      .getVehicleInstances(vehicle.vehicle_id)
+      .subscribe((instances) =>
+        this.expandedRowInstances.set(vehicle.vehicle_id, instances)
+      );
   }
 }
 ```
@@ -652,22 +747,27 @@ export class VehicleResultsTableComponent implements OnInit {
 ## Implementation Plan
 
 ### Phase 1: Foundation (Steps 1-5)
+
 1. **Create SharedModule structure**
+
    - Create `frontend/src/app/shared/` directory
    - Create `shared.module.ts`
    - Set up exports for NG-ZORRO components
 
 2. **Create data models**
+
    - `table-column.model.ts`
    - `table-data-source.model.ts`
    - `table-query-params.model.ts`
 
 3. **Create TableStatePersistenceService**
+
    - localStorage read/write methods
    - Export/import JSON methods
    - Reset methods
 
 4. **Generate BaseDataTableComponent**
+
    - Use Angular CLI
    - Set up basic structure
 
@@ -678,22 +778,27 @@ export class VehicleResultsTableComponent implements OnInit {
 ---
 
 ### Phase 2: Core Features (Steps 6-10)
+
 6. **Implement BaseDataTableComponent structure**
+
    - Inputs/Outputs
    - Template slot setup (@ContentChild)
    - Basic nz-table integration
 
 7. **Implement column management**
+
    - Column ordering logic
    - Column visibility logic
    - Integration with persistence service
 
 8. **Implement server-side operations**
+
    - Filtering with debouncing
    - Sorting state management
    - Pagination integration
 
 9. **Implement row expansion**
+
    - Expansion state management
    - Template projection
    - Event emission
@@ -707,22 +812,27 @@ export class VehicleResultsTableComponent implements OnInit {
 ---
 
 ### Phase 3: Integration (Steps 11-15)
+
 11. **Create VehicleDataSource adapter**
+
     - Implement TableDataSource interface
     - Wrap existing API service calls
 
 12. **Refactor VehicleResultsTableComponent**
+
     - Replace internal logic with BaseDataTable
     - Define column configuration
     - Implement cell templates
     - Implement expansion template
 
 13. **Update styles**
+
     - Extract common table styles
     - Ensure consistent appearance
     - Fix any spacing/alignment issues
 
 14. **Test all features**
+
     - Column reordering
     - Column visibility
     - Filtering
@@ -739,13 +849,16 @@ export class VehicleResultsTableComponent implements OnInit {
 ---
 
 ### Phase 4: Polish (Steps 16-18)
+
 16. **Handle edge cases**
+
     - Empty data states
     - Loading states
     - Error states
     - Validation messages
 
 17. **Performance optimization**
+
     - trackBy functions
     - OnPush change detection
     - Debounce/throttle where needed
@@ -760,6 +873,7 @@ export class VehicleResultsTableComponent implements OnInit {
 ## Testing Strategy
 
 ### Unit Tests
+
 ```typescript
 describe('BaseDataTableComponent', () => {
   it('should initialize with default column order');
@@ -792,12 +906,14 @@ describe('TableStatePersistenceService', () => {
 ```
 
 ### Integration Tests
+
 - Full user flow: open drawer → hide column → verify table → reopen drawer → show column
 - Column reordering persists across page refresh
 - Filters work with column visibility changes
 - Expansion state preserved during column changes
 
 ### Manual Testing Checklist
+
 - [ ] Column drag-and-drop reordering works
 - [ ] Column visibility toggle works
 - [ ] Required columns cannot be hidden
@@ -822,10 +938,12 @@ describe('TableStatePersistenceService', () => {
 ## Migration Path
 
 ### Current VehicleResultsTableComponent
+
 - **Before:** ~400 lines of TypeScript
 - **After:** ~100 lines of TypeScript (75% reduction)
 
 ### Removed from VehicleResultsTableComponent
+
 - Column reordering logic (CDK drag-drop)
 - Column visibility management
 - Filter debouncing subjects
@@ -835,6 +953,7 @@ describe('TableStatePersistenceService', () => {
 - localStorage persistence logic
 
 ### Kept in VehicleResultsTableComponent
+
 - Column definitions (specific to vehicles)
 - API service integration (data source adapter)
 - Custom cell templates (tags, badges)
@@ -846,37 +965,44 @@ describe('TableStatePersistenceService', () => {
 ## Future Enhancements (Post-Milestone)
 
 ### Column Width Resizing
+
 - Drag column borders to resize
 - Persist widths to localStorage
 - Min/max width constraints
 
 ### Saved Layouts
+
 - Multiple named layouts per table
 - Share layouts between users (JSON export/import)
 - Default layout for new users
 
 ### Advanced Filtering
+
 - Multi-select dropdowns
 - Date range pickers with presets
 - AND/OR filter combinations
 - Saved filter presets
 
 ### Export/Print
+
 - Export visible columns as CSV/Excel
 - Print-friendly view
 - PDF generation
 
 ### Column Grouping
+
 - Group related columns under headers
 - Collapse/expand column groups
 - Multi-level headers
 
 ### Virtual Scrolling
+
 - For tables with 10,000+ rows
 - Improve performance
 - Seamless UX
 
 ### Keyboard Navigation
+
 - Arrow keys to navigate cells
 - Enter to expand/collapse rows
 - Shift+Click for multi-select
@@ -887,6 +1013,7 @@ describe('TableStatePersistenceService', () => {
 ## Success Criteria
 
 ### Functionality
+
 - ✅ All existing table features work identically
 - ✅ Column visibility management works
 - ✅ Column dependencies validated
@@ -894,6 +1021,7 @@ describe('TableStatePersistenceService', () => {
 - ✅ No regressions in existing features
 
 ### Code Quality
+
 - ✅ VehicleResultsTable reduced from ~400 to ~100 lines
 - ✅ No code duplication between tables
 - ✅ BaseDataTable is reusable for future tables
@@ -901,6 +1029,7 @@ describe('TableStatePersistenceService', () => {
 - ✅ Well-documented interfaces
 
 ### User Experience
+
 - ✅ Column changes apply in real-time
 - ✅ Drawer UI is intuitive
 - ✅ No performance degradation
@@ -908,6 +1037,7 @@ describe('TableStatePersistenceService', () => {
 - ✅ Proper loading/error states
 
 ### Future-Ready
+
 - ✅ Easy to create new tables (~50-100 lines)
 - ✅ Easy to add new features to base table
 - ✅ Migration path to Angular 15+ standalone components
@@ -918,6 +1048,7 @@ describe('TableStatePersistenceService', () => {
 ## Git Workflow
 
 ### Branch Strategy
+
 ```bash
 # Create feature branch from main
 git checkout -b feature/milestone-003-base-table
@@ -946,9 +1077,11 @@ git push github main --tags
 ## Risks and Mitigations
 
 ### Risk 1: Performance Degradation
+
 **Concern:** Additional abstraction layer slows down table rendering
 
 **Mitigation:**
+
 - Use OnPush change detection
 - Implement trackBy functions
 - Profile before/after with Chrome DevTools
@@ -957,9 +1090,11 @@ git push github main --tags
 ---
 
 ### Risk 2: Breaking Existing Functionality
+
 **Concern:** Migration breaks VehicleResultsTable
 
 **Mitigation:**
+
 - Keep feature branch until fully tested
 - Side-by-side comparison before removing old code
 - Comprehensive manual testing checklist
@@ -968,9 +1103,11 @@ git push github main --tags
 ---
 
 ### Risk 3: Over-Engineering
+
 **Concern:** Base table becomes too complex, hard to maintain
 
 **Mitigation:**
+
 - Start simple, add features incrementally
 - Clear documentation for each feature
 - Code review before finalizing
@@ -979,9 +1116,11 @@ git push github main --tags
 ---
 
 ### Risk 4: Template Projection Complexity
+
 **Concern:** ng-template slots are hard to understand/use
 
 **Mitigation:**
+
 - Provide clear examples in documentation
 - Create sample implementations
 - Consistent naming conventions
@@ -1004,6 +1143,7 @@ git push github main --tags
 ## References
 
 ### Similar Implementations
+
 - **AG Grid:** Enterprise data grid (complex, paid)
 - **PrimeNG Table:** Feature-rich Angular table (heavy dependency)
 - **Material Table:** Angular Material table (limited features)
@@ -1012,6 +1152,7 @@ git push github main --tags
 **Our approach:** Lighter than AG Grid, more flexible than PrimeNG, leveraging NG-ZORRO we already use.
 
 ### Documentation
+
 - [NG-ZORRO Table](https://ng.ant.design/components/table/en)
 - [NG-ZORRO Transfer](https://ng.ant.design/components/transfer/en)
 - [NG-ZORRO Drawer](https://ng.ant.design/components/drawer/en)

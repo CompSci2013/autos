@@ -109,8 +109,7 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
 
   // Subscription management
   private destroy$ = new Subject<void>();
-  private currentModelCombos: Array<{ manufacturer: string; model: string }> =
-    [];
+  currentModelCombos: Array<{ manufacturer: string; model: string }> = [];
 
   constructor(
     private stateService: StateManagementService,
@@ -157,19 +156,23 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
         this.totalPages = Math.ceil(total / this.pageSize);
       });
 
-    // Subscribe to filters to sync ALL local UI state
+    // NEW: Subscribe to filters to hydrate local input values from URL
     this.stateService.filters$
       .pipe(takeUntil(this.destroy$))
       .subscribe((filters) => {
-        // Update page state
+        console.log('🟣 Table: Hydrating filters from state:', filters);
+
+        // Hydrate local filter values (but don't trigger the debounce subjects)
+        this.manufacturerFilter = filters.manufacturer || '';
+        this.modelFilter = filters.model || '';
+        this.yearMinFilter = filters.yearMin || null;
+        this.yearMaxFilter = filters.yearMax || null;
+        this.bodyClassFilter = filters.bodyClass || '';
+        this.dataSourceFilter = filters.dataSource || '';
         this.currentPage = filters.page || 1;
         this.pageSize = filters.size || 20;
-
-        // Update sort state for UI indicators
         this.sortColumn = filters.sort || null;
         this.sortDirection = filters.sortDirection || null;
-
-        // Track current model combos
         this.currentModelCombos = filters.modelCombos || [];
       });
   }
@@ -327,7 +330,7 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
 
   private setupFilterDebouncing(): void {
     this.manufacturerFilterSubject
-      .pipe(takeUntil(this.destroy$), debounceTime(400))
+      .pipe(takeUntil(this.destroy$), debounceTime(300))
       .subscribe((value) => {
         console.log('🔵 Manufacturer filter debounced:', value);
         this.manufacturerFilter = value;
@@ -338,7 +341,7 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
       });
 
     this.modelFilterSubject
-      .pipe(takeUntil(this.destroy$), debounceTime(800))
+      .pipe(takeUntil(this.destroy$), debounceTime(300))
       .subscribe((value) => {
         console.log('🔵 Model filter debounced:', value);
         this.modelFilter = value;
@@ -349,7 +352,7 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
       });
 
     this.bodyClassFilterSubject
-      .pipe(takeUntil(this.destroy$), debounceTime(800))
+      .pipe(takeUntil(this.destroy$), debounceTime(300))
       .subscribe((value) => {
         console.log('🔵 Body Class filter debounced:', value);
         this.bodyClassFilter = value;
@@ -360,7 +363,7 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
       });
 
     this.dataSourceFilterSubject
-      .pipe(takeUntil(this.destroy$), debounceTime(800))
+      .pipe(takeUntil(this.destroy$), debounceTime(300))
       .subscribe((value) => {
         console.log('🔵 Data Source filter debounced:', value);
         this.dataSourceFilter = value;
