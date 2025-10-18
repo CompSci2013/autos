@@ -28,6 +28,8 @@ export class WorkshopComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
   private gridDragEnabled = true;
+  // Add these properties to store listener cleanup functions
+  private documentListeners: Array<() => void> = [];
 
   // Grid 1 layout configuration (Results Table Demo only)
   cols1 = 12;
@@ -96,6 +98,16 @@ export class WorkshopComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    // Clean up all event listeners
+    this.documentListeners.forEach((unlisten) => unlisten());
+    this.documentListeners = [];
+
+    // Re-enable grid drag to clean up any lingering state
+    if (!this.gridDragEnabled) {
+      this.enableGridDrag();
+    }
+
+    // Clean up RxJS subscriptions
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -103,35 +115,56 @@ export class WorkshopComponent implements OnInit, OnDestroy {
   private setupColumnDragListeners(): void {
     // Wait for the view to initialize
     setTimeout(() => {
-      // Listen for CDK drag start (from table columns)
-      this.renderer.listen('document', 'mousedown', (event: MouseEvent) => {
-        const target = event.target as HTMLElement;
-        // Check if the mousedown is on a draggable table header
-        if (target.closest('.draggable-header')) {
-          console.log('Column drag detected - disabling grid');
+      // Listen for CDK drag start (from table columns) - SCOPED to workshop
+      const mousedownListener = this.renderer.listen(
+        this.el.nativeElement,
+        'mousedown',
+        (event: MouseEvent) => {
+          const target = event.target as HTMLElement;
+          // Check if the mousedown is on a draggable table header
+          if (target.closest('.draggable-header')) {
+            console.log('Column drag detected - disabling grid');
+            this.disableGridDrag();
+          }
+        }
+      );
+      this.documentListeners.push(mousedownListener);
+
+      // Listen for CDK drag end - SCOPED to workshop
+      const mouseupListener = this.renderer.listen(
+        this.el.nativeElement,
+        'mouseup',
+        (event: MouseEvent) => {
+          // Re-enable grid drag after any drag operation ends
+          if (!this.gridDragEnabled) {
+            console.log('Drag ended - re-enabling grid');
+            setTimeout(() => this.enableGridDrag(), 100);
+          }
+        }
+      );
+      this.documentListeners.push(mouseupListener);
+
+      // Additional safety: listen for cdkDragStarted - SCOPED to workshop
+      const dragStartListener = this.renderer.listen(
+        this.el.nativeElement,
+        'cdkDragStarted',
+        () => {
+          console.log('CDK Drag started - disabling grid');
           this.disableGridDrag();
         }
-      });
+      );
+      this.documentListeners.push(dragStartListener);
 
-      // Listen for CDK drag end
-      this.renderer.listen('document', 'mouseup', (event: MouseEvent) => {
-        // Re-enable grid drag after any drag operation ends
-        if (!this.gridDragEnabled) {
-          console.log('Drag ended - re-enabling grid');
+      // Additional safety: listen for cdkDragEnded - SCOPED to workshop
+      const dragEndListener = this.renderer.listen(
+        this.el.nativeElement,
+        'cdkDragEnded',
+        () => {
+          console.log('CDK Drag ended - re-enabling grid');
           setTimeout(() => this.enableGridDrag(), 100);
         }
-      });
-
-      // Additional safety: listen for cdkDragStarted and cdkDragEnded events
-      this.renderer.listen('document', 'cdkDragStarted', () => {
-        console.log('CDK Drag started - disabling grid');
-        this.disableGridDrag();
-      });
-
-      this.renderer.listen('document', 'cdkDragEnded', () => {
-        console.log('CDK Drag ended - re-enabling grid');
-        setTimeout(() => this.enableGridDrag(), 100);
-      });
+      );
+      this.documentListeners.push(dragEndListener);
     }, 500);
   }
 
