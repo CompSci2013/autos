@@ -349,8 +349,52 @@ AppComponent
     │       ├── Displays: Vehicle search results
     │       ├── Expandable: VIN instances per vehicle
     │       └── Status: READY FOR MIGRATION to BaseDataTable
-    └── WorkshopComponent (future: builder interface)
+    └── WorkshopComponent ( builder interface)
 ```
+
+### Workshop Page Implementation
+
+**Status:** âœ… FULLY IMPLEMENTED (Experimental Feature)
+
+**Route:** `/workshop`
+
+**Purpose:** Drag-and-drop customizable workspace
+
+**Key Features:**
+
+- **Grid Layout:** @katoid/angular-grid-layout (12-column grid)
+- **Panels:**
+  - Manufacturer-Model Picker (collapsible)
+  - Vehicle Results Table (collapsible)
+- **Persistence:** Layout saved to localStorage (`autos-workshop-layout`)
+- **State Integration:** Full StateManagementService integration
+- **Drag Conflict Resolution:** Prevents grid drag from interfering with table column reordering
+
+**Technical Implementation:**
+
+- Grid configuration: 12 cols, 50px row height, 16px gap
+- Default layout: Picker (12×16), Results (12×14)
+- Dynamic drag enable/disable using Renderer2
+- CDK drag event listeners for column vs grid drag coordination
+
+```
+
+Also update the component hierarchy diagram to show Workshop as implemented:
+```
+
+AppComponent
+├── NavigationComponent
+└── RouterOutlet
+├── HomeComponent (landing page with feature cards)
+├── DiscoverComponent (traditional layout)
+│ ├── ManufacturerModelTablePickerComponent
+│ └── VehicleResultsTableComponent
+└── WorkshopComponent âœ… (experimental grid layout)
+├── ktd-grid (drag/drop layout system)
+│ ├── Picker Panel (nz-collapse)
+│ │ └── ManufacturerModelTablePickerComponent
+│ └── Results Panel (nz-collapse)
+│ └── VehicleResultsTableComponent
 
 ### State Management Flow
 
