@@ -79,7 +79,7 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
       key: 'vehicle_id',
       label: 'Vehicle ID',
       width: 'auto',
-      sortable: false,
+      sortable: true,
       filterable: false,
     },
   ];
@@ -91,6 +91,7 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
   yearMaxFilter: number | null = null;
   bodyClassFilter = '';
   dataSourceFilter = '';
+  vehicleIDFilter = '';
 
   // Sorting (for server-side sorting)
   sortColumn: string | null = null;
@@ -106,6 +107,7 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
   private modelFilterSubject = new Subject<string>();
   private bodyClassFilterSubject = new Subject<string>();
   private dataSourceFilterSubject = new Subject<string>();
+  private vehicleIDFilterSubject = new Subject<string>();
 
   // Subscription management
   private destroy$ = new Subject<void>();
@@ -169,6 +171,7 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
         this.yearMaxFilter = filters.yearMax || null;
         this.bodyClassFilter = filters.bodyClass || '';
         this.dataSourceFilter = filters.dataSource || '';
+        this.vehicleIDFilter = filters.vehicleID || '';
         this.currentPage = filters.page || 1;
         this.pageSize = filters.size || 20;
         this.sortColumn = filters.sort || null;
@@ -307,6 +310,7 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
       model: this.modelFilter,
       body_class: this.bodyClassFilter,
       data_source: this.dataSourceFilter,
+      vehicle_id: this.vehicleIDFilter,
     };
     return filterMap[columnKey] || '';
   }
@@ -323,6 +327,9 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
         this.onBodyClassFilterChange(value);
         break;
       case 'data_source':
+        this.onDataSourceFilterChange(value);
+        break;
+      case 'vehicle_id':
         this.onDataSourceFilterChange(value);
         break;
     }
@@ -372,6 +379,17 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
           page: 1,
         });
       });
+
+    this.vehicleIDFilterSubject
+      .pipe(takeUntil(this.destroy$), debounceTime(300))
+      .subscribe((value) => {
+        console.log('🔵 Vehicle Id filter debounced:', value);
+        this.dataSourceFilter = value;
+        this.stateService.updateFilters({
+          dataSource: value || undefined,
+          page: 1,
+        });
+      });
   }
 
   onSort(column: string): void {
@@ -396,6 +414,7 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
       year: 'year',
       body_class: 'body_class',
       data_source: 'data_source',
+      vehicle_id: 'vehicle_id',
     };
 
     // Update StateManagement with new sort
@@ -485,6 +504,7 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
     this.yearMaxFilter = null;
     this.bodyClassFilter = '';
     this.dataSourceFilter = '';
+    this.vehicleIDFilter = '';
     this.sortColumn = null;
     this.sortDirection = null;
 
@@ -496,6 +516,7 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
       yearMax: undefined,
       bodyClass: undefined,
       dataSource: undefined,
+      vehicleID: undefined,
       sort: undefined,
       sortDirection: undefined,
       page: 1,

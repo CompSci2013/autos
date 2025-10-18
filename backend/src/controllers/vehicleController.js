@@ -1,4 +1,7 @@
-const { getManufacturerModelCombinations, getVehicleDetails } = require('../services/elasticsearchService');
+const {
+  getManufacturerModelCombinations,
+  getVehicleDetails,
+} = require('../services/elasticsearchService');
 
 /**
  * Controller for manufacturer-model combinations endpoint
@@ -7,12 +10,7 @@ const { getManufacturerModelCombinations, getVehicleDetails } = require('../serv
 async function getManufacturerModelCombinationsHandler(req, res, next) {
   try {
     // Extract query parameters
-    const {
-      page = 1,
-      size = 50,
-      search = '',
-      manufacturer = null
-    } = req.query;
+    const { page = 1, size = 50, search = '', manufacturer = null } = req.query;
 
     // Validate pagination parameters
     const pageNum = parseInt(page);
@@ -21,7 +19,7 @@ async function getManufacturerModelCombinationsHandler(req, res, next) {
     if (pageNum < 1 || sizeNum < 1 || sizeNum > 100) {
       return res.status(400).json({
         error: 'Invalid pagination parameters',
-        message: 'page must be >= 1, size must be between 1 and 100'
+        message: 'page must be >= 1, size must be between 1 and 100',
       });
     }
 
@@ -30,12 +28,11 @@ async function getManufacturerModelCombinationsHandler(req, res, next) {
       page: pageNum,
       size: sizeNum,
       search,
-      manufacturer
+      manufacturer,
     });
 
     // Return successful response
     res.json(result);
-
   } catch (error) {
     console.error('Controller error:', error);
     next(error); // Pass to error handling middleware
@@ -45,7 +42,7 @@ async function getManufacturerModelCombinationsHandler(req, res, next) {
 /**
  * Controller for vehicle details endpoint
  * GET /api/v1/vehicles/details
- * 
+ *
  * Query parameters:
  *   - models: Comma-separated manufacturer:model pairs (e.g., "Ford:F-150,Chevrolet:Corvette")
  *   - page: Page number (default: 1)
@@ -73,28 +70,31 @@ async function getVehicleDetailsHandler(req, res, next) {
       bodyClass = '',
       dataSource = '',
       sortBy = '',
-      sortOrder = 'asc'
+      sortOrder = 'asc',
     } = req.query;
 
     // Validate models parameter
     if (!models || models.trim() === '') {
       return res.status(400).json({
         error: 'Missing required parameter',
-        message: 'Query parameter "models" is required (e.g., models=Ford:F-150,Chevrolet:Corvette)'
+        message:
+          'Query parameter "models" is required (e.g., models=Ford:F-150,Chevrolet:Corvette)',
       });
     }
 
     // Parse models parameter into array of {manufacturer, model} objects
-    const modelCombos = models.split(',').map(combo => {
+    const modelCombos = models.split(',').map((combo) => {
       const [mfr, mdl] = combo.split(':');
-      
+
       if (!mfr || !mdl) {
-        throw new Error(`Invalid model format: "${combo}". Expected format: "Manufacturer:Model"`);
+        throw new Error(
+          `Invalid model format: "${combo}". Expected format: "Manufacturer:Model"`
+        );
       }
-      
+
       return {
         manufacturer: mfr.trim(),
-        model: mdl.trim()
+        model: mdl.trim(),
       };
     });
 
@@ -105,23 +105,30 @@ async function getVehicleDetailsHandler(req, res, next) {
     if (pageNum < 1 || sizeNum < 1 || sizeNum > 100) {
       return res.status(400).json({
         error: 'Invalid pagination parameters',
-        message: 'page must be >= 1, size must be between 1 and 100'
+        message: 'page must be >= 1, size must be between 1 and 100',
       });
     }
 
     // Validate sort parameters
-    const validSortFields = ['manufacturer', 'model', 'year', 'body_class', 'data_source'];
+    const validSortFields = [
+      'manufacturer',
+      'model',
+      'year',
+      'body_class',
+      'data_source',
+      'vehicle_id',
+    ];
     if (sortBy && !validSortFields.includes(sortBy)) {
       return res.status(400).json({
         error: 'Invalid sort parameter',
-        message: `sortBy must be one of: ${validSortFields.join(', ')}`
+        message: `sortBy must be one of: ${validSortFields.join(', ')}`,
       });
     }
 
     if (sortOrder && !['asc', 'desc'].includes(sortOrder)) {
       return res.status(400).json({
         error: 'Invalid sort order',
-        message: 'sortOrder must be either "asc" or "desc"'
+        message: 'sortOrder must be either "asc" or "desc"',
       });
     }
 
@@ -141,23 +148,22 @@ async function getVehicleDetailsHandler(req, res, next) {
       size: sizeNum,
       filters,
       sortBy: sortBy || null,
-      sortOrder: sortOrder || 'asc'
+      sortOrder: sortOrder || 'asc',
     });
 
     // Return successful response
     res.json(result);
-
   } catch (error) {
     console.error('Vehicle details controller error:', error);
-    
+
     // Handle specific error types
     if (error.message.includes('Invalid model format')) {
       return res.status(400).json({
         error: 'Bad Request',
-        message: error.message
+        message: error.message,
       });
     }
-    
+
     next(error); // Pass to error handling middleware
   }
 }
@@ -178,32 +184,38 @@ async function getVehicleInstancesHandler(req, res, next) {
     if (instanceCount < 1 || instanceCount > 20) {
       return res.status(400).json({
         error: 'Invalid count parameter',
-        message: 'count must be between 1 and 20'
+        message: 'count must be between 1 and 20',
       });
     }
 
     // Fetch the vehicle specification from Elasticsearch
-    const { esClient, ELASTICSEARCH_INDEX } = require('../config/elasticsearch');
-    
+    const {
+      esClient,
+      ELASTICSEARCH_INDEX,
+    } = require('../config/elasticsearch');
+
     const response = await esClient.search({
       index: ELASTICSEARCH_INDEX,
       query: {
-        term: { 'vehicle_id': vehicleId }
+        term: { vehicle_id: vehicleId },
       },
-      size: 1
+      size: 1,
     });
 
     if (response.hits.hits.length === 0) {
       return res.status(404).json({
         error: 'Vehicle not found',
-        message: `No vehicle found with ID: ${vehicleId}`
+        message: `No vehicle found with ID: ${vehicleId}`,
       });
     }
 
     const vehicleData = response.hits.hits[0]._source;
 
     // Generate synthetic VIN instances
-    const instances = VINGenerator.generateInstances(vehicleData, instanceCount);
+    const instances = VINGenerator.generateInstances(
+      vehicleData,
+      instanceCount
+    );
 
     // Return response
     res.json({
@@ -213,9 +225,8 @@ async function getVehicleInstancesHandler(req, res, next) {
       year: vehicleData.year,
       body_class: vehicleData.body_class,
       instance_count: instances.length,
-      instances
+      instances,
     });
-
   } catch (error) {
     console.error('Controller error (instances):', error);
     next(error);
@@ -225,5 +236,5 @@ async function getVehicleInstancesHandler(req, res, next) {
 module.exports = {
   getManufacturerModelCombinationsHandler,
   getVehicleDetailsHandler,
-  getVehicleInstancesHandler
+  getVehicleInstancesHandler,
 };

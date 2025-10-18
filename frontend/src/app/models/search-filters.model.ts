@@ -23,6 +23,7 @@ export interface SearchFilters {
   yearMax?: number;
   bodyClass?: string;
   dataSource?: string;
+  vehicleID?: string;
   bodyStyle?: string; // Keep for backwards compatibility
 }
 

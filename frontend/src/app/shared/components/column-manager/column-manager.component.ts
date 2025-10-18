@@ -79,24 +79,60 @@ export class ColumnManagerComponent implements OnChanges {
   }
 
   onApply(): void {
-    // Update column visibility based on transfer direction
-    this.columns.forEach((col) => {
-      const transferItem = this.transferData.find(
-        (item) => item['key'] === col.key
-      );
-      if (transferItem) {
-        col.visible = transferItem.direction === 'right';
-      }
-    });
+    console.log('🔥🔥🔥 APPLY BUTTON CLICKED! 🔥🔥🔥');
 
-    // Validate dependencies
-    this.validateDependencies();
+    try {
+      console.log('🎯 ColumnManager: onApply() START', {
+        columnsBeforeUpdate: this.columns.map((c) => ({
+          key: c.key,
+          visible: c.visible,
+        })),
+        transferData: this.transferData.map((t) => ({
+          key: t['key'],
+          direction: t['direction'],
+        })),
+      });
 
-    // Emit changes
-    this.columnsChange.emit();
-    this.onClose();
+      // Update column visibility based on transfer direction
+      this.columns.forEach((col) => {
+        const transferItem = this.transferData.find(
+          (item) => item['key'] === col.key
+        );
+        if (transferItem) {
+          console.log(
+            `📝 Updating ${col.key}: ${col.visible} -> ${
+              transferItem.direction === 'right'
+            }`
+          );
+          col.visible = transferItem.direction === 'right';
+        }
+      });
+
+      console.log('📝 ColumnManager: Columns updated', {
+        columnsAfterUpdate: this.columns.map((c) => ({
+          key: c.key,
+          visible: c.visible,
+        })),
+      });
+
+      // Validate dependencies
+      this.validateDependencies();
+
+      console.log('✅ ColumnManager: Emitting columnsChange event');
+
+      // Emit changes
+      this.columnsChange.emit();
+
+      console.log('🚪 ColumnManager: Closing drawer');
+
+      // Close drawer
+      this.onClose();
+
+      console.log('✅ ColumnManager: onApply() COMPLETE');
+    } catch (error) {
+      console.error('❌ ERROR in onApply():', error);
+    }
   }
-
   onReset(): void {
     // Reset all columns to default visibility
     this.columns.forEach((col) => {
@@ -113,8 +149,12 @@ export class ColumnManagerComponent implements OnChanges {
   // ========== TRANSFER ACTIONS ==========
 
   onTransferChange(event: any): void {
-    // Transfer component handles the data movement
-    // We just need to update on apply
+    // Event format: { from: 'left'|'right', to: 'left'|'right', list: Array }
+    console.log('Transfer change:', event);
+
+    // The nz-transfer component emits changes, but we need to update our data
+    // The transfer component modifies the direction property automatically
+    // We just log for debugging purposes
   }
 
   filterOption = (inputValue: string, item: TransferItem): boolean => {

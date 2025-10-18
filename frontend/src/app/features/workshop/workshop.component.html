@@ -42,7 +42,7 @@
               functionality as below, but with ~60% less code. Drag, resize, or
               collapse this panel!
             </p>
-            <app-results-table></app-results-table>
+            <app-vehicle-results-table></app-vehicle-results-table>
           </div>
           <div class="demo-content" *ngIf="!hasActiveFilters">
             <nz-empty
@@ -88,7 +88,7 @@
           nzHeader="Vehicle Results"
           [nzActive]="!resultsCollapsed"
         >
-          <app-vehicle-results-table></app-vehicle-results-table>
+          <app-results-table></app-results-table>
         </nz-collapse-panel>
       </nz-collapse>
     </ktd-grid-item>

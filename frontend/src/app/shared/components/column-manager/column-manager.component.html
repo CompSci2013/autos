@@ -1,8 +1,9 @@
 <nz-drawer
   [nzVisible]="visible"
-  [nzWidth]="600"
+  [nzWidth]="700"
   nzTitle="Manage Columns"
   nzPlacement="right"
+  [nzFooter]="footerTemplate"
   (nzOnClose)="onClose()"
 >
   <!-- Drawer Content -->
@@ -53,36 +54,25 @@
           </ng-template>
         </nz-transfer>
       </div>
-
-      <!-- Help Text -->
-      <div class="help-section">
-        <nz-alert
-          nzType="warning"
-          nzShowIcon
-          nzMessage="Note"
-          nzDescription="Column order can be adjusted by dragging column headers in the table. Changes will be saved automatically."
-        >
-        </nz-alert>
-      </div>
-    </div>
-  </ng-container>
-
-  <!-- Drawer Footer -->
-  <ng-container *nzDrawerFooter>
-    <div class="drawer-footer">
-      <button nz-button nzType="default" (click)="onCancel()">Cancel</button>
-      <button
-        nz-button
-        nzType="default"
-        nzDanger
-        (click)="onReset()"
-        [disabled]="!canReset()"
-      >
-        Reset to Default
-      </button>
-      <button nz-button nzType="primary" (click)="onApply()">
-        Apply Changes
-      </button>
     </div>
   </ng-container>
 </nz-drawer>
+
+<!-- Footer Template (outside drawer, referenced by [nzFooter]) -->
+<ng-template #footerTemplate>
+  <div class="drawer-footer">
+    <button nz-button nzType="default" (click)="onCancel()">Cancel</button>
+    <button
+      nz-button
+      nzType="default"
+      nzDanger
+      (click)="onReset()"
+      [disabled]="!canReset()"
+    >
+      Reset to Default
+    </button>
+    <button nz-button nzType="primary" (click)="onApply()">
+      Apply Changes
+    </button>
+  </div>
+</ng-template>

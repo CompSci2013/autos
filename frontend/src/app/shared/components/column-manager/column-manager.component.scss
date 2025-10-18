@@ -1,11 +1,15 @@
 .column-manager-container {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
   padding: 0;
+  height: calc(100vh - 180px); // Leave room for header + footer
+  max-height: calc(100vh - 180px);
+  overflow: hidden;
 
   // ========== INFO SECTION ==========
   .info-section {
+    flex-shrink: 0;
     display: flex;
     flex-direction: column;
     gap: 16px;
@@ -32,138 +36,108 @@
 
   // ========== TRANSFER SECTION ==========
   .transfer-section {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+
     ::ng-deep {
-      nz-transfer {
-        .ant-transfer {
-          // Transfer list styling
-          .ant-transfer-list {
-            width: calc(50% - 20px);
-            height: 400px;
+      .ant-transfer {
+        display: flex !important;
+        justify-content: space-between !important;
+        height: 100%;
 
-            .ant-transfer-list-header {
-              background-color: #fafafa;
-              padding: 12px 16px;
-              border-radius: 4px 4px 0 0;
+        .ant-transfer-list {
+          width: 320px !important;
+          min-width: 320px !important;
+          max-width: 320px !important;
+          height: 100% !important;
+          max-height: 100% !important;
+          flex: 0 0 320px !important;
 
-              .ant-transfer-list-header-title {
-                font-weight: 600;
-              }
+          .ant-transfer-list-header {
+            background-color: #fafafa;
+            padding: 12px 16px;
+            border-radius: 4px 4px 0 0;
+
+            .ant-transfer-list-header-title {
+              font-weight: 600;
             }
+          }
 
-            .ant-transfer-list-body {
-              .ant-transfer-list-content {
-                .ant-transfer-list-content-item {
-                  padding: 8px 12px;
+          .ant-transfer-list-body {
+            height: calc(100% - 56px) !important;
 
-                  // Custom item layout
+            .ant-transfer-list-content {
+              .ant-transfer-list-content-item {
+                padding: 8px 12px;
+
+                .transfer-item {
+                  display: flex;
+                  flex-direction: column;
+                  gap: 4px;
+
+                  .item-title {
+                    font-size: 14px;
+                    font-weight: 500;
+                    color: rgba(0, 0, 0, 0.85);
+                  }
+
+                  .item-description {
+                    font-size: 12px;
+                    color: rgba(0, 0, 0, 0.45);
+                  }
+                }
+
+                &.ant-transfer-list-content-item-disabled {
                   .transfer-item {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 4px;
-
-                    .item-title {
-                      font-size: 14px;
-                      font-weight: 500;
-                      color: rgba(0, 0, 0, 0.85);
-                    }
-
+                    .item-title,
                     .item-description {
-                      font-size: 12px;
-                      color: rgba(0, 0, 0, 0.45);
+                      color: rgba(0, 0, 0, 0.25);
                     }
                   }
+                }
 
-                  // Disabled item styling
-                  &.ant-transfer-list-content-item-disabled {
-                    .transfer-item {
-                      .item-title {
-                        color: rgba(0, 0, 0, 0.25);
-                      }
-
-                      .item-description {
-                        color: rgba(0, 0, 0, 0.25);
-                      }
-                    }
-                  }
-
-                  // Hover state
-                  &:not(.ant-transfer-list-content-item-disabled):hover {
-                    background-color: #f5f5f5;
-                  }
+                &:not(.ant-transfer-list-content-item-disabled):hover {
+                  background-color: #f5f5f5;
                 }
               }
             }
           }
+        }
 
-          // Operation buttons (arrows)
-          .ant-transfer-operation {
+        .ant-transfer-operation {
+          display: flex !important;
+          flex-direction: column !important;
+          justify-content: center !important;
+          gap: 8px !important;
+          margin: 0 16px !important;
+          flex-shrink: 0 !important;
+
+          button {
             display: flex;
-            flex-direction: column;
+            align-items: center;
             justify-content: center;
-            gap: 8px;
-            margin: 0 10px;
-
-            button {
-              display: flex;
-              align-items: center;
-              justify-content: center;
-            }
           }
         }
       }
     }
-  }
-
-  // ========== HELP SECTION ==========
-  .help-section {
-    margin-top: 8px;
   }
 }
 
 // ========== DRAWER FOOTER ==========
 .drawer-footer {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
+  align-items: center;
   gap: 8px;
-  width: 100%;
+  padding: 16px 0;
+  border-top: 1px solid #f0f0f0;
 
   button {
-    flex: 1;
+    min-width: 100px;
 
     &[nzType="primary"] {
-      flex: 1.5;
-    }
-  }
-}
-
-// ========== RESPONSIVE ==========
-@media (max-width: 768px) {
-  .column-manager-container {
-    .info-section {
-      .column-stats {
-        flex-direction: column;
-        gap: 8px;
-      }
-    }
-
-    .transfer-section {
-      ::ng-deep {
-        nz-transfer {
-          .ant-transfer {
-            .ant-transfer-list {
-              height: 300px;
-            }
-          }
-        }
-      }
-    }
-  }
-
-  .drawer-footer {
-    flex-direction: column;
-
-    button {
-      width: 100%;
+      min-width: 140px;
     }
   }
 }

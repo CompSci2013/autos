@@ -1,5 +1,6 @@
 import {
   Component,
+  ChangeDetectorRef,
   OnInit,
   OnDestroy,
   OnChanges,
@@ -113,7 +114,10 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
 
   // ========== LIFECYCLE ==========
 
-  constructor(private persistenceService: TableStatePersistenceService) {}
+  constructor(
+    private persistenceService: TableStatePersistenceService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     // Load preferences
@@ -139,7 +143,16 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    // If columns array reference changed, re-apply saved preferences
+    if (changes['columns'] && !changes['columns'].firstChange) {
+      console.log('🔄 Columns input changed, re-applying preferences');
+      this.loadPreferences();
+      this.cdr.markForCheck();
+    }
+
+    // If queryParams changed, fetch new data
     if (changes['queryParams'] && !changes['queryParams'].firstChange) {
+      console.log('🔄 QueryParams changed, fetching data');
       this.fetchData();
     }
   }
@@ -212,12 +225,23 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
       .filter((col) => col.visible !== false)
       .map((col) => col.key);
 
+    console.log('💾 BaseDataTable: savePreferences() called', {
+      columnOrder,
+      visibleColumns,
+      allColumns: this.columns.map((c) => ({ key: c.key, visible: c.visible })),
+    });
+
     this.persistenceService.savePreferences(this.tableId, {
       columnOrder,
       visibleColumns,
       pageSize: this.pageSize,
       lastUpdated: Date.now(),
     });
+
+    // Manually trigger change detection for OnPush
+    this.cdr.markForCheck();
+
+    console.log('✅ BaseDataTable: markForCheck() called');
   }
 
   applyColumnOrder(order: string[]): void {

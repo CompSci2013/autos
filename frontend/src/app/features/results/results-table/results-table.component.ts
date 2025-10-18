@@ -9,17 +9,17 @@ import { VehicleDataSourceAdapter } from './vehicle-data-source.adapter';
 
 /**
  * Results-Table Component
- * 
+ *
  * First implementation using BaseDataTableComponent.
  * Demonstrates proper data source adapter pattern and state management integration.
- * 
+ *
  * This component is placed on the Workshop page ABOVE the grid container
  * to showcase the reusable base table in action.
  */
 @Component({
   selector: 'app-results-table',
   templateUrl: './results-table.component.html',
-  styleUrls: ['./results-table.component.scss']
+  styleUrls: ['./results-table.component.scss'],
 })
 export class ResultsTableComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
@@ -33,7 +33,7 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
       sortable: true,
       filterable: true,
       filterType: 'text',
-      hideable: false, // Required column
+      hideable: true,
     },
     {
       key: 'model',
@@ -42,7 +42,7 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
       sortable: true,
       filterable: true,
       filterType: 'text',
-      hideable: false, // Required column
+      hideable: true,
     },
     {
       key: 'year',
@@ -75,9 +75,9 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
       key: 'vehicle_id',
       label: 'Vehicle ID',
       width: 'auto',
-      sortable: false,
+      sortable: true,
       filterable: false,
-      hideable: false, // Required column
+      hideable: true,
     },
   ];
 

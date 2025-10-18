@@ -33,7 +33,7 @@ export class WorkshopComponent implements OnInit, OnDestroy {
   cols1 = 12;
   rowHeight1 = 50;
   gap1 = 16;
-  layout1: KtdGridLayout = [{ id: 'demo', x: 0, y: 0, w: 12, h: 12 }];
+  layout1: KtdGridLayout = [{ id: 'results', x: 0, y: 0, w: 12, h: 12 }];
 
   // Grid 2 layout configuration (Original: Picker + Results)
   cols2 = 12;
@@ -41,7 +41,7 @@ export class WorkshopComponent implements OnInit, OnDestroy {
   gap2 = 16;
   layout2: KtdGridLayout = [
     { id: 'picker', x: 0, y: 0, w: 12, h: 16 },
-    { id: 'results', x: 0, y: 16, w: 12, h: 14 },
+    { id: 'demo', x: 0, y: 16, w: 12, h: 14 },
   ];
   trackById = ktdTrackById;
 
