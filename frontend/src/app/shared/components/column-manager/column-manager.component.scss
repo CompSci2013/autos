@@ -1,0 +1,169 @@
+.column-manager-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 0;
+
+  // ========== INFO SECTION ==========
+  .info-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .column-stats {
+      display: flex;
+      gap: 24px;
+      padding: 12px 16px;
+      background-color: #fafafa;
+      border-radius: 4px;
+      border: 1px solid #d9d9d9;
+
+      .stat {
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.65);
+
+        strong {
+          color: rgba(0, 0, 0, 0.85);
+          margin-right: 4px;
+        }
+      }
+    }
+  }
+
+  // ========== TRANSFER SECTION ==========
+  .transfer-section {
+    ::ng-deep {
+      nz-transfer {
+        .ant-transfer {
+          // Transfer list styling
+          .ant-transfer-list {
+            width: calc(50% - 20px);
+            height: 400px;
+
+            .ant-transfer-list-header {
+              background-color: #fafafa;
+              padding: 12px 16px;
+              border-radius: 4px 4px 0 0;
+
+              .ant-transfer-list-header-title {
+                font-weight: 600;
+              }
+            }
+
+            .ant-transfer-list-body {
+              .ant-transfer-list-content {
+                .ant-transfer-list-content-item {
+                  padding: 8px 12px;
+
+                  // Custom item layout
+                  .transfer-item {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+
+                    .item-title {
+                      font-size: 14px;
+                      font-weight: 500;
+                      color: rgba(0, 0, 0, 0.85);
+                    }
+
+                    .item-description {
+                      font-size: 12px;
+                      color: rgba(0, 0, 0, 0.45);
+                    }
+                  }
+
+                  // Disabled item styling
+                  &.ant-transfer-list-content-item-disabled {
+                    .transfer-item {
+                      .item-title {
+                        color: rgba(0, 0, 0, 0.25);
+                      }
+
+                      .item-description {
+                        color: rgba(0, 0, 0, 0.25);
+                      }
+                    }
+                  }
+
+                  // Hover state
+                  &:not(.ant-transfer-list-content-item-disabled):hover {
+                    background-color: #f5f5f5;
+                  }
+                }
+              }
+            }
+          }
+
+          // Operation buttons (arrows)
+          .ant-transfer-operation {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 8px;
+            margin: 0 10px;
+
+            button {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // ========== HELP SECTION ==========
+  .help-section {
+    margin-top: 8px;
+  }
+}
+
+// ========== DRAWER FOOTER ==========
+.drawer-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+
+  button {
+    flex: 1;
+
+    &[nzType="primary"] {
+      flex: 1.5;
+    }
+  }
+}
+
+// ========== RESPONSIVE ==========
+@media (max-width: 768px) {
+  .column-manager-container {
+    .info-section {
+      .column-stats {
+        flex-direction: column;
+        gap: 8px;
+      }
+    }
+
+    .transfer-section {
+      ::ng-deep {
+        nz-transfer {
+          .ant-transfer {
+            .ant-transfer-list {
+              height: 300px;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .drawer-footer {
+    flex-direction: column;
+
+    button {
+      width: 100%;
+    }
+  }
+}

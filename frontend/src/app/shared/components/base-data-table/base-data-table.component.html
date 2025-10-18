@@ -1,0 +1,188 @@
+<p>base-data-table works!</p>
+<div class="base-data-table-container">
+  <!-- Toolbar -->
+  <div class="table-toolbar">
+    <div class="toolbar-left">
+      <button nz-button nzType="default" (click)="openColumnManager()">
+        <i nz-icon nzType="setting" nzTheme="outline"></i>
+        Manage Columns
+      </button>
+      <button
+        nz-button
+        nzType="default"
+        (click)="clearFilters()"
+        [disabled]="getFilterCount() === 0"
+      >
+        <i nz-icon nzType="clear" nzTheme="outline"></i>
+        Clear Filters
+      </button>
+    </div>
+    <div class="toolbar-right">
+      <span class="result-count" *ngIf="!isLoading">
+        {{ totalCount }} {{ totalCount === 1 ? "result" : "results" }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <nz-table
+    #basicTable
+    [nzData]="tableData"
+    [nzLoading]="isLoading"
+    [nzTotal]="totalCount"
+    [nzPageSize]="pageSize"
+    [nzPageIndex]="currentPage"
+    [nzFrontPagination]="false"
+    [nzShowSizeChanger]="true"
+    [nzPageSizeOptions]="[10, 20, 50, 100]"
+    (nzPageIndexChange)="onPageChange($event)"
+    (nzPageSizeChange)="onPageSizeChange($event)"
+    nzSize="small"
+    [nzScroll]="{ x: 'max-content' }"
+  >
+    <thead>
+      <tr>
+        <!-- Expansion column -->
+        <th *ngIf="expandable" nzWidth="50px"></th>
+
+        <!-- Data columns -->
+        <th
+          *ngFor="let column of getVisibleColumns(); trackBy: trackByKey"
+          [nzWidth]="column.width || null"
+          [nzAlign]="column.align || 'left'"
+          [nzSortFn]="column.sortable ? true : null"
+          (nzSortOrderChange)="onSort(column.key)"
+        >
+          {{ column.label }}
+        </th>
+      </tr>
+
+      <!-- Filter row -->
+      <tr class="filter-row">
+        <!-- Expansion column spacer -->
+        <th *ngIf="expandable"></th>
+
+        <!-- Filter inputs -->
+        <th *ngFor="let column of getVisibleColumns(); trackBy: trackByKey">
+          <ng-container *ngIf="column.filterable">
+            <!-- Text filter -->
+            <input
+              *ngIf="!column.filterType || column.filterType === 'text'"
+              nz-input
+              placeholder="Filter {{ column.label }}"
+              [value]="filters[column.key] || ''"
+              (input)="onFilterChange(column.key, $any($event.target).value)"
+              class="filter-input"
+            />
+
+            <!-- Number filter -->
+            <nz-input-number
+              *ngIf="column.filterType === 'number'"
+              [nzPlaceHolder]="'Filter ' + column.label"
+              [ngModel]="filters[column.key]"
+              (ngModelChange)="onFilterChange(column.key, $event)"
+              class="filter-input"
+            >
+            </nz-input-number>
+
+            <!-- Select filter -->
+            <nz-select
+              *ngIf="column.filterType === 'select'"
+              nzAllowClear
+              [nzPlaceHolder]="'Filter ' + column.label"
+              [ngModel]="filters[column.key]"
+              (ngModelChange)="onFilterChange(column.key, $event)"
+              class="filter-input"
+            >
+              <nz-option
+                *ngFor="let option of column.filterOptions"
+                [nzValue]="option.value"
+                [nzLabel]="option.label"
+              >
+              </nz-option>
+            </nz-select>
+          </ng-container>
+        </th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <ng-container *ngFor="let row of basicTable.data; trackBy: trackByIndex">
+        <!-- Main row -->
+        <tr>
+          <!-- Expansion toggle -->
+          <td *ngIf="expandable">
+            <button
+              nz-button
+              nzType="link"
+              nzSize="small"
+              (click)="toggleRowExpansion(row)"
+            >
+              <i
+                nz-icon
+                [nzType]="isRowExpanded(row) ? 'caret-down' : 'caret-right'"
+                nzTheme="outline"
+              >
+              </i>
+            </button>
+          </td>
+
+          <!-- Data cells -->
+          <td
+            *ngFor="let column of getVisibleColumns(); trackBy: trackByKey"
+            [nzAlign]="column.align || 'left'"
+          >
+            <!-- Use custom template if provided -->
+            <ng-container *ngIf="cellTemplate">
+              <ng-container
+                *ngTemplateOutlet="
+                  cellTemplate;
+                  context: { column: column, row: row }
+                "
+              >
+              </ng-container>
+            </ng-container>
+
+            <!-- Default cell rendering -->
+            <ng-container *ngIf="!cellTemplate">
+              {{
+                column.formatter
+                  ? column.formatter($any(row)[column.key], row)
+                  : $any(row)[column.key]
+              }}
+            </ng-container>
+          </td>
+        </tr>
+
+        <!-- Expansion row -->
+        <tr *ngIf="expandable && isRowExpanded(row)" class="expansion-row">
+          <td [attr.colspan]="getVisibleColumns().length + 1">
+            <div class="expansion-content">
+              <ng-container *ngIf="expansionTemplate">
+                <ng-container
+                  *ngTemplateOutlet="expansionTemplate; context: { row: row }"
+                >
+                </ng-container>
+              </ng-container>
+            </div>
+          </td>
+        </tr>
+      </ng-container>
+    </tbody>
+  </nz-table>
+
+  <!-- Empty state -->
+  <nz-empty
+    *ngIf="!isLoading && tableData.length === 0"
+    nzNotFoundContent="No data available"
+  >
+  </nz-empty>
+</div>
+
+<!-- Column Manager Drawer -->
+<app-column-manager
+  [(visible)]="columnManagerVisible"
+  [columns]="columns"
+  (columnsChange)="savePreferences()"
+>
+</app-column-manager>
