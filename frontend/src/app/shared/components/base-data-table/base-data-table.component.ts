@@ -2,6 +2,8 @@ import {
   Component,
   OnInit,
   OnDestroy,
+  OnChanges,
+  SimpleChanges,
   Input,
   Output,
   EventEmitter,
@@ -27,7 +29,7 @@ import { TableStatePersistenceService } from '../../services/table-state-persist
   styleUrls: ['./base-data-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BaseDataTableComponent<T> implements OnInit, OnDestroy {
+export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
   // ========== INPUTS ==========
 
   /** Unique identifier for this table (used for localStorage) */
@@ -107,6 +109,7 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
   private filterSubject$ = new Subject<void>();
+  private isReorderingColumns = false;
 
   // ========== LIFECYCLE ==========
 
@@ -135,6 +138,12 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy {
     this.fetchData();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['queryParams'] && !changes['queryParams'].firstChange) {
+      this.fetchData();
+    }
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -143,6 +152,9 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy {
   // ========== DATA FETCHING ==========
 
   fetchData(): void {
+    if (this.isReorderingColumns) {
+      return; // Don't fetch during column reordering
+    }
     this.isLoading = true;
 
     const params: TableQueryParams = {
@@ -281,8 +293,30 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy {
   // ========== COLUMN MANAGEMENT ==========
 
   onColumnDrop(event: CdkDragDrop<TableColumn<T>[]>): void {
+    this.isReorderingColumns = true;
     moveItemInArray(this.columns, event.previousIndex, event.currentIndex);
     this.savePreferences();
+    setTimeout(() => {
+      this.isReorderingColumns = false;
+    }, 100);
+
+    console.log('🔴 BaseDataTable: onColumnDrop() END', {
+      isReorderingColumns_AFTER: this.isReorderingColumns,
+    });
+  }
+
+  onColumnDragStart(event: any): void {
+    // Prevent the event from bubbling up to the grid
+    if (event && event.source && event.source.element) {
+      const nativeElement = event.source.element.nativeElement;
+      // Add a flag to prevent grid from capturing
+      nativeElement.classList.add('column-dragging');
+    }
+  }
+
+  onHeaderMouseDown(event: MouseEvent): void {
+    // Stop the mousedown event from reaching the grid container
+    event.stopPropagation();
   }
 
   toggleColumnVisibility(columnKey: string): void {

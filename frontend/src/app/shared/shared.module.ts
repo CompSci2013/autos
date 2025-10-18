@@ -16,16 +16,12 @@ import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
+import { NzTagModule } from 'ng-zorro-antd/tag';
 import { BaseDataTableComponent } from './components/base-data-table/base-data-table.component';
 import { ColumnManagerComponent } from './components/column-manager/column-manager.component';
 
 @NgModule({
-  declarations: [
-    // Components will be added here as they are created
-
-    BaseDataTableComponent,
-    ColumnManagerComponent,
-  ],
+  declarations: [BaseDataTableComponent, ColumnManagerComponent],
   imports: [
     CommonModule,
     FormsModule,
@@ -43,9 +39,12 @@ import { ColumnManagerComponent } from './components/column-manager/column-manag
     NzEmptyModule,
     NzSpinModule,
     NzAlertModule,
+    NzTagModule,
   ],
   exports: [
-    // Components will be exported here as they are created
+    // Export our components
+    BaseDataTableComponent,
+    ColumnManagerComponent,
     // Also export NG-ZORRO modules for convenience
     CommonModule,
     FormsModule,
@@ -63,6 +62,7 @@ import { ColumnManagerComponent } from './components/column-manager/column-manag
     NzEmptyModule,
     NzSpinModule,
     NzAlertModule,
+    NzTagModule,
   ],
 })
 export class SharedModule {}

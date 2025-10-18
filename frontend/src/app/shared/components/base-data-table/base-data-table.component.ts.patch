@@ -1,0 +1,22 @@
+Add a flag to prevent fetching during column operations:
+
+After line 104 (after isLoading = false), add:
+  private isReorderingColumns = false;
+
+In onColumnDrop method, wrap with the flag:
+  onColumnDrop(event: CdkDragDrop<TableColumn<T>[]>): void {
+    this.isReorderingColumns = true;
+    moveItemInArray(this.columns, event.previousIndex, event.currentIndex);
+    this.savePreferences();
+    setTimeout(() => {
+      this.isReorderingColumns = false;
+    }, 100);
+  }
+
+In fetchData method, add guard at the beginning:
+  fetchData(): void {
+    if (this.isReorderingColumns) {
+      return; // Don't fetch during column reordering
+    }
+    this.isLoading = true;
+    // ... rest of method

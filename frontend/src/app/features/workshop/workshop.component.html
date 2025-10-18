@@ -2,7 +2,8 @@
   <div class="page-header">
     <h1>Workshop - Experimental Layout</h1>
     <p class="subtitle">
-      Drag and resize panels to customize your workspace. Layout is saved automatically.
+      Drag and resize panels to customize your workspace. Layout is saved
+      automatically.
     </p>
   </div>
 
@@ -17,20 +18,59 @@
     </button>
   </div>
 
-  <!-- Grid Layout Container -->
+  <!-- Grid Layout Container 1 (Results Table Demo) -->
   <ktd-grid
-    [cols]="cols"
-    [rowHeight]="rowHeight"
-    [layout]="layout"
-    [gap]="gap"
+    [cols]="cols1"
+    [rowHeight]="rowHeight1"
+    [layout]="layout1"
+    [gap]="gap1"
     [compactType]="'vertical'"
-    (layoutUpdated)="onLayoutUpdated($event)"
-    class="grid-container"
+    (layoutUpdated)="onLayoutUpdated1($event)"
+    class="grid-container grid-container-1"
+  >
+    <!-- Results Table Demo Panel -->
+    <ktd-grid-item [id]="'demo'" [resizable]="true" [draggable]="true">
+      <nz-collapse class="panel-collapse">
+        <nz-collapse-panel
+          nzHeader="Results Table (BaseDataTable Demo)"
+          [nzActive]="!demoCollapsed"
+        >
+          <div class="demo-content" *ngIf="hasActiveFilters">
+            <p class="demo-description">
+              <i nz-icon nzType="experiment" nzTheme="outline"></i>
+              This table uses the new BaseDataTableComponent - same data and
+              functionality as below, but with ~60% less code. Drag, resize, or
+              collapse this panel!
+            </p>
+            <app-results-table></app-results-table>
+          </div>
+          <div class="demo-content" *ngIf="!hasActiveFilters">
+            <nz-empty
+              nzNotFoundContent="Select models from the picker below to see results"
+            ></nz-empty>
+          </div>
+        </nz-collapse-panel>
+      </nz-collapse>
+    </ktd-grid-item>
+  </ktd-grid>
+
+  <!-- Grid Layout Container 2 (Original: Picker + Results) -->
+  <ktd-grid
+    [cols]="cols2"
+    [rowHeight]="rowHeight2"
+    [layout]="layout2"
+    [gap]="gap2"
+    [compactType]="'vertical'"
+    (layoutUpdated)="onLayoutUpdated2($event)"
+    class="grid-container grid-container-2"
   >
     <!-- Picker Panel -->
     <ktd-grid-item [id]="'picker'" [resizable]="true" [draggable]="true">
       <nz-collapse class="panel-collapse">
-        <nz-collapse-panel nzHeader="Manufacturer + Model Picker" [nzActive]="!pickerCollapsed">
+        <nz-collapse-panel
+          nzHeader="Manufacturer + Model Picker"
+          [nzActive]="!pickerCollapsed"
+        >
           <app-manufacturer-model-table-picker
             [clearTrigger]="pickerClearTrigger"
             [initialSelections]="pickerInitialSelections"
@@ -44,7 +84,10 @@
     <!-- Results Panel -->
     <ktd-grid-item [id]="'results'" [resizable]="true" [draggable]="true">
       <nz-collapse class="panel-collapse">
-        <nz-collapse-panel nzHeader="Vehicle Results" [nzActive]="!resultsCollapsed">
+        <nz-collapse-panel
+          nzHeader="Vehicle Results"
+          [nzActive]="!resultsCollapsed"
+        >
           <app-vehicle-results-table></app-vehicle-results-table>
         </nz-collapse-panel>
       </nz-collapse>

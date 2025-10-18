@@ -26,16 +26,7 @@ import {
   HomeOutline,
   SearchOutline,
   ExperimentOutline,
-  DragOutline,
-  CaretRightOutline,
-  CaretDownOutline,
-  SettingOutline,
-  ReloadOutline,
-  FilterOutline,
-  UpOutline,
-  DownOutline,
-  CloseCircleOutline,
-  InboxOutline,
+  DragOutline
 } from '@ant-design/icons-angular/icons';
 
 // Register icons
@@ -43,16 +34,7 @@ const icons = [
   HomeOutline,
   SearchOutline,
   ExperimentOutline,
-  DragOutline,
-  CaretRightOutline,
-  CaretDownOutline,
-  SettingOutline,
-  ReloadOutline,
-  FilterOutline,
-  UpOutline,
-  DownOutline,
-  CloseCircleOutline,
-  InboxOutline,
+  DragOutline
 ];
 
 // Angular CDK
@@ -61,14 +43,10 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 // Grid Layout
 import { KtdGridModule } from '@katoid/angular-grid-layout';
 
-// Shared Module (contains BaseDataTableComponent)
-import { SharedModule } from './shared/shared.module';
-
 // Feature components
 import { ManufacturerModelTablePickerComponent } from './features/picker/manufacturer-model-table-picker/manufacturer-model-table-picker.component';
 import { DiscoverComponent } from './features/discover/discover.component';
 import { VehicleResultsTableComponent } from './features/results/vehicle-results-table/vehicle-results-table.component';
-import { ResultsTableComponent } from './features/results/results-table/results-table.component';
 import { WorkshopComponent } from './features/workshop/workshop.component';
 import { HomeComponent } from './features/home/home.component';
 import { NavigationComponent } from './core/navigation/navigation.component';
@@ -79,10 +57,9 @@ import { NavigationComponent } from './core/navigation/navigation.component';
     ManufacturerModelTablePickerComponent,
     DiscoverComponent,
     VehicleResultsTableComponent,
-    ResultsTableComponent,
     WorkshopComponent,
     HomeComponent,
-    NavigationComponent,
+    NavigationComponent
   ],
   imports: [
     BrowserModule,
@@ -106,11 +83,11 @@ import { NavigationComponent } from './core/navigation/navigation.component';
     // Angular CDK
     DragDropModule,
     // Grid Layout
-    KtdGridModule,
-    // Shared Module (BaseDataTableComponent)
-    SharedModule,
+    KtdGridModule
   ],
-  providers: [{ provide: NZ_I18N, useValue: en_US }],
-  bootstrap: [AppComponent],
+  providers: [
+    { provide: NZ_I18N, useValue: en_US }
+  ],
+  bootstrap: [AppComponent]
 })
-export class AppModule {}
+export class AppModule { }
