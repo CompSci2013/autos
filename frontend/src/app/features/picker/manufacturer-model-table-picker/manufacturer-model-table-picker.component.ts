@@ -221,7 +221,6 @@ export class ManufacturerModelTablePickerComponent
     return this.selectedRows.has(`${manufacturer}|${model}`);
   }
 
-
   toggleManufacturer(manufacturer: string): void {
     const group = this.filteredGroups.find(
       (g) => g.manufacturer === manufacturer

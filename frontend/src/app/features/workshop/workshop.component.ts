@@ -1,22 +1,10 @@
-import {
-  Component,
-  OnInit,
-  OnDestroy,
-  ViewChild,
-  ElementRef,
-  Renderer2,
-} from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { StateManagementService } from '../../core/services/state-management.service';
 import { ManufacturerModelSelection } from '../../models';
 import { SearchFilters } from '../../models/search-filters.model';
-import {
-  KtdGridLayout,
-  KtdGridLayoutItem,
-  ktdTrackById,
-  KtdGridComponent,
-} from '@katoid/angular-grid-layout';
+import { GridsterConfig, GridsterItem } from 'angular-gridster2';
 
 @Component({
   selector: 'app-workshop',
@@ -24,31 +12,18 @@ import {
   styleUrls: ['./workshop.component.scss'],
 })
 export class WorkshopComponent implements OnInit, OnDestroy {
-  @ViewChild(KtdGridComponent) grid?: KtdGridComponent;
-
   private destroy$ = new Subject<void>();
-  private gridDragEnabled = true;
-  // Add these properties to store listener cleanup functions
-  private documentListeners: Array<() => void> = [];
 
-  // Grid 1 layout configuration (Results Table Demo only)
-  cols1 = 12;
-  rowHeight1 = 50;
-  gap1 = 16;
-  layout1: KtdGridLayout = [{ id: 'results', x: 0, y: 0, w: 12, h: 12 }];
+  // Gridster options for both grids
+  options1!: GridsterConfig;
+  options2!: GridsterConfig;
 
-  // Grid 2 layout configuration (Original: Picker + Results)
-  cols2 = 12;
-  rowHeight2 = 50;
-  gap2 = 16;
-  layout2: KtdGridLayout = [
-    { id: 'picker', x: 0, y: 0, w: 12, h: 16 },
-    { id: 'demo', x: 0, y: 16, w: 12, h: 14 },
-  ];
-  trackById = ktdTrackById;
+  // Dashboard layouts
+  dashboard1!: Array<GridsterItem>;
+  dashboard2!: Array<GridsterItem>;
 
   // Panel collapse states
-  demoCollapsed = false; // Add this line
+  demoCollapsed = false;
   pickerCollapsed = false;
   resultsCollapsed = false;
 
@@ -59,23 +34,74 @@ export class WorkshopComponent implements OnInit, OnDestroy {
   // Current filters from state
   currentFilters: SearchFilters = {};
 
-  constructor(
-    private stateService: StateManagementService,
-    private renderer: Renderer2,
-    private el: ElementRef
-  ) {}
+  constructor(private stateService: StateManagementService) {}
 
   ngOnInit(): void {
+    // Initialize Gridster options for grid 1
+    this.options1 = {
+      gridType: 'fit',
+      displayGrid: 'onDrag&Resize',
+      pushItems: true,
+      draggable: {
+        enabled: true,
+        ignoreContent: true,
+        dragHandleClass: 'drag-handler',
+      },
+      resizable: {
+        enabled: true,
+      },
+      swap: false,
+      margin: 16,
+      outerMargin: true,
+      minCols: 12,
+      maxCols: 12,
+      minRows: 1,
+      maxRows: 100,
+      itemChangeCallback: this.itemChange.bind(this),
+      itemResizeCallback: this.itemResize.bind(this),
+    };
+
+    // Initialize Gridster options for grid 2
+    this.options2 = {
+      gridType: 'fit',
+      displayGrid: 'onDrag&Resize',
+      pushItems: true,
+      draggable: {
+        enabled: true,
+        ignoreContent: true,
+        dragHandleClass: 'drag-handler',
+      },
+      resizable: {
+        enabled: true,
+      },
+      swap: false,
+      margin: 16,
+      outerMargin: true,
+      minCols: 12,
+      maxCols: 12,
+      minRows: 1,
+      maxRows: 100,
+      itemChangeCallback: this.itemChange.bind(this),
+      itemResizeCallback: this.itemResize.bind(this),
+    };
+
     // Load saved layout 1 (Results Table Demo grid)
     const savedLayout1 = localStorage.getItem('autos-workshop-layout1');
     if (savedLayout1) {
-      this.layout1 = JSON.parse(savedLayout1);
+      this.dashboard1 = JSON.parse(savedLayout1);
+    } else {
+      this.dashboard1 = [{ cols: 12, rows: 12, y: 0, x: 0 }];
     }
 
     // Load saved layout 2 (Picker + Results grid)
     const savedLayout2 = localStorage.getItem('autos-workshop-layout2');
     if (savedLayout2) {
-      this.layout2 = JSON.parse(savedLayout2);
+      this.dashboard2 = JSON.parse(savedLayout2);
+    } else {
+      this.dashboard2 = [
+        { cols: 12, rows: 16, y: 0, x: 0 },
+        { cols: 12, rows: 14, y: 16, x: 0 },
+      ];
     }
 
     // Subscribe to filters from state
@@ -92,136 +118,34 @@ export class WorkshopComponent implements OnInit, OnDestroy {
           this.pickerInitialSelections = [];
         }
       });
-
-    // Set up listeners for column drag events
-    this.setupColumnDragListeners();
   }
 
   ngOnDestroy(): void {
-    // Clean up all event listeners
-    this.documentListeners.forEach((unlisten) => unlisten());
-    this.documentListeners = [];
-
-    // Re-enable grid drag to clean up any lingering state
-    if (!this.gridDragEnabled) {
-      this.enableGridDrag();
-    }
-
-    // Clean up RxJS subscriptions
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  private setupColumnDragListeners(): void {
-    // Wait for the view to initialize
-    setTimeout(() => {
-      // Listen for CDK drag start (from table columns) - SCOPED to workshop
-      const mousedownListener = this.renderer.listen(
-        this.el.nativeElement,
-        'mousedown',
-        (event: MouseEvent) => {
-          const target = event.target as HTMLElement;
-          // Check if the mousedown is on a draggable table header
-          if (target.closest('.draggable-header')) {
-            console.log('Column drag detected - disabling grid');
-            this.disableGridDrag();
-          }
-        }
-      );
-      this.documentListeners.push(mousedownListener);
-
-      // Listen for CDK drag end - SCOPED to workshop
-      const mouseupListener = this.renderer.listen(
-        this.el.nativeElement,
-        'mouseup',
-        (event: MouseEvent) => {
-          // Re-enable grid drag after any drag operation ends
-          if (!this.gridDragEnabled) {
-            console.log('Drag ended - re-enabling grid');
-            setTimeout(() => this.enableGridDrag(), 100);
-          }
-        }
-      );
-      this.documentListeners.push(mouseupListener);
-
-      // Additional safety: listen for cdkDragStarted - SCOPED to workshop
-      const dragStartListener = this.renderer.listen(
-        this.el.nativeElement,
-        'cdkDragStarted',
-        () => {
-          console.log('CDK Drag started - disabling grid');
-          this.disableGridDrag();
-        }
-      );
-      this.documentListeners.push(dragStartListener);
-
-      // Additional safety: listen for cdkDragEnded - SCOPED to workshop
-      const dragEndListener = this.renderer.listen(
-        this.el.nativeElement,
-        'cdkDragEnded',
-        () => {
-          console.log('CDK Drag ended - re-enabling grid');
-          setTimeout(() => this.enableGridDrag(), 100);
-        }
-      );
-      this.documentListeners.push(dragEndListener);
-    }, 500);
+  itemChange(item: GridsterItem, itemComponent: any): void {
+    console.log('Item changed:', item);
+    // Save layout when item changes
+    this.saveLayouts();
   }
 
-  private disableGridDrag(): void {
-    if (this.gridDragEnabled) {
-      this.gridDragEnabled = false;
-
-      // Disable both grid containers
-      const gridElements =
-        this.el.nativeElement.querySelectorAll('.grid-container');
-      gridElements.forEach((gridElement: HTMLElement) => {
-        this.renderer.addClass(gridElement, 'grid-drag-disabled');
-      });
-
-      // Disable draggable on all grid items
-      const gridItems = this.el.nativeElement.querySelectorAll('ktd-grid-item');
-      gridItems.forEach((item: HTMLElement) => {
-        this.renderer.setStyle(item, 'pointer-events', 'none');
-      });
-
-      // Re-enable pointer events for ALL table content (both grids)
-      const tables = this.el.nativeElement.querySelectorAll(
-        '.ant-table, app-results-table, app-vehicle-results-table'
-      );
-      tables.forEach((table: HTMLElement) => {
-        this.renderer.setStyle(table, 'pointer-events', 'auto');
-      });
-    }
+  itemResize(item: GridsterItem, itemComponent: any): void {
+    console.log('Item resized:', item);
+    // Save layout when item resizes
+    this.saveLayouts();
   }
 
-  private enableGridDrag(): void {
-    if (!this.gridDragEnabled) {
-      this.gridDragEnabled = true;
-
-      // Re-enable both grid containers
-      const gridElements =
-        this.el.nativeElement.querySelectorAll('.grid-container');
-      gridElements.forEach((gridElement: HTMLElement) => {
-        this.renderer.removeClass(gridElement, 'grid-drag-disabled');
-      });
-
-      // Re-enable draggable on all grid items
-      const gridItems = this.el.nativeElement.querySelectorAll('ktd-grid-item');
-      gridItems.forEach((item: HTMLElement) => {
-        this.renderer.removeStyle(item, 'pointer-events');
-      });
-    }
-  }
-
-  onLayoutUpdated1(layout: KtdGridLayout): void {
-    this.layout1 = layout;
-    localStorage.setItem('autos-workshop-layout1', JSON.stringify(layout));
-  }
-
-  onLayoutUpdated2(layout: KtdGridLayout): void {
-    this.layout2 = layout;
-    localStorage.setItem('autos-workshop-layout2', JSON.stringify(layout));
+  saveLayouts(): void {
+    localStorage.setItem(
+      'autos-workshop-layout1',
+      JSON.stringify(this.dashboard1)
+    );
+    localStorage.setItem(
+      'autos-workshop-layout2',
+      JSON.stringify(this.dashboard2)
+    );
   }
 
   onPickerSelectionChange(selections: ManufacturerModelSelection[]): void {

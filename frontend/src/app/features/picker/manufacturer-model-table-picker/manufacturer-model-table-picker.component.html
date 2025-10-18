@@ -81,7 +81,10 @@
             <!-- COLLAPSED STATE: Single row for this manufacturer -->
             <ng-container *ngIf="!group.expanded">
               <tr class="collapsed-row clickable">
-                <td colspan="2" (click)="toggleManufacturer(group.manufacturer)">
+                <td
+                  colspan="2"
+                  (click)="toggleManufacturer(group.manufacturer)"
+                >
                   <div class="collapsed-content">
                     <label
                       nz-checkbox
@@ -111,12 +114,12 @@
 
             <!-- EXPANDED STATE: One row per model (manufacturer repeats) -->
             <ng-container *ngIf="group.expanded">
-              <tr
-                *ngFor="let model of group.models"
-                class="expanded-row"
-              >
+              <tr *ngFor="let model of group.models" class="expanded-row">
                 <!-- Manufacturer cell (repeats on every model row for sorting) -->
-                <td class="manufacturer-cell clickable" (click)="toggleManufacturer(group.manufacturer)">
+                <td
+                  class="manufacturer-cell clickable"
+                  (click)="toggleManufacturer(group.manufacturer)"
+                >
                   <div class="manufacturer-content">
                     <label
                       nz-checkbox
@@ -248,7 +251,7 @@
       (click)="onApply()"
       [disabled]="selectedChips.length === 0"
       nz-tooltip
-      nzTooltipTitle="Logs selected manufacturer-model combinations to browser console (MVP)"
+      nzTooltipTitle=""
     >
       Apply ({{ selectedChips.length }})
     </button>

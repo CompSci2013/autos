@@ -19,17 +19,8 @@
   </div>
 
   <!-- Grid Layout Container 1 (Results Table Demo) -->
-  <ktd-grid
-    [cols]="cols1"
-    [rowHeight]="rowHeight1"
-    [layout]="layout1"
-    [gap]="gap1"
-    [compactType]="'vertical'"
-    (layoutUpdated)="onLayoutUpdated1($event)"
-    class="grid-container grid-container-1"
-  >
-    <!-- Results Table Demo Panel -->
-    <ktd-grid-item [id]="'demo'" [resizable]="true" [draggable]="true">
+  <gridster [options]="options1" class="grid-container grid-container-1">
+    <gridster-item [item]="dashboard1[0]">
       <nz-collapse class="panel-collapse">
         <nz-collapse-panel
           nzHeader="Results Table (BaseDataTable Demo)"
@@ -51,46 +42,48 @@
           </div>
         </nz-collapse-panel>
       </nz-collapse>
-    </ktd-grid-item>
-  </ktd-grid>
+    </gridster-item>
+  </gridster>
 
   <!-- Grid Layout Container 2 (Original: Picker + Results) -->
-  <ktd-grid
-    [cols]="cols2"
-    [rowHeight]="rowHeight2"
-    [layout]="layout2"
-    [gap]="gap2"
-    [compactType]="'vertical'"
-    (layoutUpdated)="onLayoutUpdated2($event)"
-    class="grid-container grid-container-2"
-  >
+  <gridster [options]="options2" class="grid-container grid-container-2">
     <!-- Picker Panel -->
-    <ktd-grid-item [id]="'picker'" [resizable]="true" [draggable]="true">
+    <gridster-item [item]="dashboard2[0]">
       <nz-collapse class="panel-collapse">
         <nz-collapse-panel
           nzHeader="Manufacturer + Model Picker"
           [nzActive]="!pickerCollapsed"
         >
-          <app-manufacturer-model-table-picker
-            [clearTrigger]="pickerClearTrigger"
-            [initialSelections]="pickerInitialSelections"
-            (selectionChange)="onPickerSelectionChange($event)"
+          <div
+            (mousedown)="$event.stopPropagation()"
+            (touchstart)="$event.stopPropagation()"
           >
-          </app-manufacturer-model-table-picker>
+            <app-manufacturer-model-table-picker
+              [clearTrigger]="pickerClearTrigger"
+              [initialSelections]="pickerInitialSelections"
+              (selectionChange)="onPickerSelectionChange($event)"
+            >
+            </app-manufacturer-model-table-picker>
+          </div>
         </nz-collapse-panel>
       </nz-collapse>
-    </ktd-grid-item>
+    </gridster-item>
 
     <!-- Results Panel -->
-    <ktd-grid-item [id]="'results'" [resizable]="true" [draggable]="true">
+    <gridster-item [item]="dashboard2[1]">
       <nz-collapse class="panel-collapse">
         <nz-collapse-panel
           nzHeader="Vehicle Results"
           [nzActive]="!resultsCollapsed"
         >
-          <app-results-table></app-results-table>
+          <div
+            (mousedown)="$event.stopPropagation()"
+            (touchstart)="$event.stopPropagation()"
+          >
+            <app-results-table></app-results-table>
+          </div>
         </nz-collapse-panel>
       </nz-collapse>
-    </ktd-grid-item>
-  </ktd-grid>
+    </gridster-item>
+  </gridster>
 </div>

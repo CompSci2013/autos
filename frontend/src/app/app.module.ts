@@ -7,6 +7,8 @@ import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
+import { GridsterModule } from 'angular-gridster2';
+
 // NG-ZORRO imports
 import { NZ_I18N, en_US } from 'ng-zorro-antd/i18n';
 import { NzTableModule } from 'ng-zorro-antd/table';
@@ -58,9 +60,6 @@ const icons = [
 // Angular CDK
 import { DragDropModule } from '@angular/cdk/drag-drop';
 
-// Grid Layout
-import { KtdGridModule } from '@katoid/angular-grid-layout';
-
 // Shared Module (contains BaseDataTableComponent)
 import { SharedModule } from './shared/shared.module';
 
@@ -106,7 +105,7 @@ import { NavigationComponent } from './core/navigation/navigation.component';
     // Angular CDK
     DragDropModule,
     // Grid Layout
-    KtdGridModule,
+    GridsterModule,
     // Shared Module (BaseDataTableComponent)
     SharedModule,
   ],
