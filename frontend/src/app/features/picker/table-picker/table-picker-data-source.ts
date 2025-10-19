@@ -50,7 +50,8 @@ export class TablePickerDataSource
     // First load: fetch all data from API and transform to manufacturer summaries
     console.log('TablePickerDataSource: Loading all data (one-time)');
 
-    return this.apiService.getManufacturerModelCombinations(1, 1000, '').pipe(
+    // Match original picker: page=1, size=100, NO third parameter
+    return this.apiService.getManufacturerModelCombinations(1, 100).pipe(
       tap((response) => {
         // Transform hierarchical API response to manufacturer summary rows
         this.allManufacturers = response.data.map((mfr) => ({
@@ -77,6 +78,7 @@ export class TablePickerDataSource
 
   /**
    * Filter and paginate manufacturer summaries in memory
+   * CRITICAL: Model filter searches across ALL manufacturers' models
    */
   private filterAndPaginate(
     params: TableQueryParams
@@ -85,7 +87,7 @@ export class TablePickerDataSource
 
     // Apply filters
     if (params.filters) {
-      // Manufacturer name filter
+      // Manufacturer name filter (filters rows)
       if (params.filters['manufacturer']) {
         const value = String(params.filters['manufacturer']).toLowerCase();
         filtered = filtered.filter((row) =>
@@ -93,7 +95,7 @@ export class TablePickerDataSource
         );
       }
 
-      // Model name filter (search within models array)
+      // Model name filter (searches within models array, shows matching manufacturers)
       if (params.filters['model']) {
         const value = String(params.filters['model']).toLowerCase();
         filtered = filtered.filter((row) =>

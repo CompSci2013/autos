@@ -7,6 +7,8 @@ import {
   Input,
   SimpleChanges,
   OnChanges,
+  ChangeDetectorRef, // ADD THIS
+  ChangeDetectionStrategy, // ADD THIS
 } from '@angular/core';
 import { Subject } from 'rxjs';
 import { ManufacturerModelSelection } from '../../../models';
@@ -27,6 +29,7 @@ import {
   templateUrl: './table-picker.component.html',
   styleUrls: ['./table-picker.component.scss'],
   providers: [TablePickerDataSource],
+  changeDetection: ChangeDetectionStrategy.OnPush, // ADD THIS
 })
 export class TablePickerComponent implements OnInit, OnDestroy, OnChanges {
   private destroy$ = new Subject<void>();
@@ -43,26 +46,19 @@ export class TablePickerComponent implements OnInit, OnDestroy, OnChanges {
     {
       key: 'manufacturer',
       label: 'Manufacturer',
-      width: '50%',
+      width: '95%',
       sortable: true,
       filterable: true,
       filterType: 'text',
       hideable: false,
     },
     {
-      key: 'modelCount',
-      label: 'Models',
-      width: '25%',
+      key: 'model',
+      label: 'Model',
+      width: '5%',
       sortable: true,
-      filterable: false,
-      hideable: true,
-    },
-    {
-      key: 'totalCount',
-      label: 'Total Count',
-      width: '25%',
-      sortable: true,
-      filterable: false,
+      filterable: true,
+      filterType: 'text',
       hideable: true,
     },
   ];
@@ -70,7 +66,7 @@ export class TablePickerComponent implements OnInit, OnDestroy, OnChanges {
   // Data source (client-side filtering)
   dataSource: TablePickerDataSource;
 
-  // Query params for BaseDataTable
+  // Query params for BaseDataTable - CRITICAL: Must be non-null with defaults
   tableQueryParams: TableQueryParams = {
     page: 1,
     size: 20,
@@ -80,13 +76,13 @@ export class TablePickerComponent implements OnInit, OnDestroy, OnChanges {
   // Selection state (EFFICIENT: Set<string> pattern)
   selectedRows = new Set<string>();
 
-  // Track which manufacturers have models selected (for checkbox states)
-  manufacturerSelections = new Map<string, Set<string>>(); // manufacturer -> Set<modelNames>
-
   // Track last clear trigger
   private lastClearTrigger = 0;
 
-  constructor(dataSource: TablePickerDataSource) {
+  constructor(
+    dataSource: TablePickerDataSource,
+    private cdr: ChangeDetectorRef // ADD THIS
+  ) {
     this.dataSource = dataSource;
   }
 
@@ -95,6 +91,8 @@ export class TablePickerComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    console.log('🔶 ngOnChanges triggered:', Object.keys(changes));
+
     // Handle clear trigger (parent commanding "clear now")
     if (changes['clearTrigger'] && !changes['clearTrigger'].firstChange) {
       const newValue = changes['clearTrigger'].currentValue;
@@ -102,7 +100,7 @@ export class TablePickerComponent implements OnInit, OnDestroy, OnChanges {
         console.log('TablePickerComponent: Clear trigger fired');
         this.lastClearTrigger = newValue;
         this.selectedRows.clear();
-        this.manufacturerSelections.clear();
+        this.cdr.markForCheck(); // ADD THIS
       }
     }
 
@@ -113,6 +111,7 @@ export class TablePickerComponent implements OnInit, OnDestroy, OnChanges {
         this.initialSelections
       );
       this.hydrateSelections();
+      this.cdr.markForCheck(); // ADD THIS
     }
   }
 
@@ -127,7 +126,6 @@ export class TablePickerComponent implements OnInit, OnDestroy, OnChanges {
   private hydrateSelections(): void {
     // Clear existing selections first (idempotent operation)
     this.selectedRows.clear();
-    this.manufacturerSelections.clear();
 
     // If no initial selections provided, nothing to hydrate
     if (!this.initialSelections || this.initialSelections.length === 0) {
@@ -138,14 +136,6 @@ export class TablePickerComponent implements OnInit, OnDestroy, OnChanges {
     this.initialSelections.forEach((selection) => {
       const key = `${selection.manufacturer}:${selection.model}`;
       this.selectedRows.add(key);
-
-      // Track in manufacturer map
-      if (!this.manufacturerSelections.has(selection.manufacturer)) {
-        this.manufacturerSelections.set(selection.manufacturer, new Set());
-      }
-      this.manufacturerSelections
-        .get(selection.manufacturer)!
-        .add(selection.model);
     });
 
     console.log(
@@ -157,7 +147,7 @@ export class TablePickerComponent implements OnInit, OnDestroy, OnChanges {
    * Handle table query changes (pagination, sorting, filtering)
    */
   onTableQueryChange(params: TableQueryParams): void {
-    console.log('TablePickerComponent: Table query changed:', params);
+    console.log('🔶 onTableQueryChange called:', params);
     this.tableQueryParams = { ...params };
   }
 
@@ -174,66 +164,84 @@ export class TablePickerComponent implements OnInit, OnDestroy, OnChanges {
 
   /**
    * Get selection state for manufacturer checkbox (parent checkbox)
+   * MATCHES ORIGINAL PICKER: Calculates state from Set, no Map needed
    */
   getManufacturerCheckboxState(
     row: ManufacturerSummaryRow
   ): 'checked' | 'indeterminate' | 'unchecked' {
-    const selections = this.manufacturerSelections.get(row.manufacturer);
-    if (!selections || selections.size === 0) return 'unchecked';
-    if (selections.size === row.modelCount) return 'checked';
+    if (!row.models || row.models.length === 0) return 'unchecked';
+
+    // Count how many models are selected
+    const checkedCount = row.models.filter((m) =>
+      this.selectedRows.has(`${row.manufacturer}:${m.model}`)
+    ).length;
+
+    if (checkedCount === 0) return 'unchecked';
+    if (checkedCount === row.modelCount) return 'checked';
     return 'indeterminate';
   }
 
   /**
    * Toggle all models for a manufacturer (parent checkbox)
+   * MATCHES ORIGINAL PICKER: Only updates Set
    */
   onManufacturerCheckboxChange(
     row: ManufacturerSummaryRow,
     checked: boolean
   ): void {
-    if (!this.manufacturerSelections.has(row.manufacturer)) {
-      this.manufacturerSelections.set(row.manufacturer, new Set());
-    }
+    console.log('🔵 onManufacturerCheckboxChange START:', {
+      manufacturer: row.manufacturer,
+      checked,
+      modelCount: row.models.length,
+    });
 
-    const selections = this.manufacturerSelections.get(row.manufacturer)!;
+    row.models.forEach((m) => {
+      const key = `${row.manufacturer}:${m.model}`;
+      if (checked) {
+        this.selectedRows.add(key);
+      } else {
+        this.selectedRows.delete(key);
+      }
+    });
 
-    if (checked) {
-      // Select all models
-      row.models.forEach((m) => {
-        selections.add(m.model);
-        this.selectedRows.add(`${row.manufacturer}:${m.model}`);
-      });
-    } else {
-      // Deselect all models
-      row.models.forEach((m) => {
-        selections.delete(m.model);
-        this.selectedRows.delete(`${row.manufacturer}:${m.model}`);
-      });
-    }
+    // Trigger change detection after Set mutation
+    this.cdr.markForCheck();
+
+    console.log(
+      '🟢 onManufacturerCheckboxChange COMPLETE. Set size:',
+      this.selectedRows.size
+    );
   }
 
   /**
    * Toggle individual model selection (child checkbox)
+   * MATCHES ORIGINAL PICKER: Only updates Set
    */
   onModelCheckboxChange(
     manufacturer: string,
     model: string,
     checked: boolean
   ): void {
-    if (!this.manufacturerSelections.has(manufacturer)) {
-      this.manufacturerSelections.set(manufacturer, new Set());
-    }
+    console.log('🔵 onModelCheckboxChange START:', {
+      manufacturer,
+      model,
+      checked,
+    });
 
-    const selections = this.manufacturerSelections.get(manufacturer)!;
     const key = `${manufacturer}:${model}`;
-
     if (checked) {
-      selections.add(model);
       this.selectedRows.add(key);
     } else {
-      selections.delete(model);
       this.selectedRows.delete(key);
     }
+
+    // Trigger change detection after Set mutation
+    this.cdr.markForCheck();
+
+    console.log(
+      '🟢 onModelCheckboxChange COMPLETE. Set size:',
+      this.selectedRows.size
+    );
   }
 
   /**
@@ -245,10 +253,17 @@ export class TablePickerComponent implements OnInit, OnDestroy, OnChanges {
 
   /**
    * Get selection count for manufacturer
+   * MATCHES ORIGINAL PICKER: Calculates from Set
    */
   getSelectionCount(manufacturer: string): number {
-    const selections = this.manufacturerSelections.get(manufacturer);
-    return selections ? selections.size : 0;
+    // Count keys in Set that start with this manufacturer
+    let count = 0;
+    this.selectedRows.forEach((key) => {
+      if (key.startsWith(`${manufacturer}:`)) {
+        count++;
+      }
+    });
+    return count;
   }
 
   /**
@@ -284,7 +299,7 @@ export class TablePickerComponent implements OnInit, OnDestroy, OnChanges {
   onClear(): void {
     console.log('TablePickerComponent: Clear clicked');
     this.selectedRows.clear();
-    this.manufacturerSelections.clear();
+    this.cdr.markForCheck(); // ADD THIS
     this.selectionChange.emit([]);
   }
 
@@ -294,11 +309,7 @@ export class TablePickerComponent implements OnInit, OnDestroy, OnChanges {
   onRemoveModel(selection: ManufacturerModelSelection): void {
     const key = `${selection.manufacturer}:${selection.model}`;
     this.selectedRows.delete(key);
-
-    const selections = this.manufacturerSelections.get(selection.manufacturer);
-    if (selections) {
-      selections.delete(selection.model);
-    }
+    this.cdr.markForCheck(); // ADD THIS
   }
 
   /**
@@ -313,6 +324,6 @@ export class TablePickerComponent implements OnInit, OnDestroy, OnChanges {
     });
 
     keysToRemove.forEach((key) => this.selectedRows.delete(key));
-    this.manufacturerSelections.delete(manufacturer);
+    this.cdr.markForCheck(); // ADD THIS
   }
 }
