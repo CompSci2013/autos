@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { StateManagementService } from '../../core/services/state-management.service';
@@ -35,7 +35,10 @@ export class WorkshopComponent implements OnInit, OnDestroy {
   // Current filters from state
   currentFilters: SearchFilters = {};
 
-  constructor(private stateService: StateManagementService) {}
+  constructor(
+    private stateService: StateManagementService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     // Initialize Gridster options for grid 1
@@ -51,15 +54,19 @@ export class WorkshopComponent implements OnInit, OnDestroy {
       resizable: {
         enabled: true,
       },
-      swap: false,
-      margin: 16,
+      swap: true,
+      margin: 2,
       outerMargin: true,
       minCols: 12,
       maxCols: 12,
       minRows: 1,
       maxRows: 100,
-      itemChangeCallback: this.itemChange.bind(this),
-      itemResizeCallback: this.itemResize.bind(this),
+      itemChangeCallback: (item: GridsterItem, itemComponent: any) => {
+        this.itemChange(item, itemComponent);
+      },
+      itemResizeCallback: (item: GridsterItem, itemComponent: any) => {
+        this.itemResize(item, itemComponent);
+      },
     };
 
     // Initialize Gridster options for grid 2
@@ -132,13 +139,15 @@ export class WorkshopComponent implements OnInit, OnDestroy {
 
   itemChange(item: GridsterItem, itemComponent: any): void {
     console.log('Item changed:', item);
-    // Save layout when item changes
+    console.log('Current dashboard1:', JSON.stringify(this.dashboard1));
+    this.cdr.detectChanges();
     this.saveLayouts();
   }
 
   itemResize(item: GridsterItem, itemComponent: any): void {
     console.log('Item resized:', item);
-    // Save layout when item resizes
+    console.log('Current dashboard1:', JSON.stringify(this.dashboard1));
+    this.cdr.detectChanges();
     this.saveLayouts();
   }
 
