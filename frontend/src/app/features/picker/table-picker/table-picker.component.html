@@ -8,6 +8,8 @@
     [expandable]="true"
     (queryParamsChange)="onTableQueryChange($event)"
     (rowExpand)="onRowExpand($event)"
+    (expandAll)="onExpandAll()"
+    (collapseAll)="onCollapseAll()"
   >
     <!-- Custom cell rendering for manufacturer rows -->
     <ng-template #cellTemplate let-column="column" let-row="row">

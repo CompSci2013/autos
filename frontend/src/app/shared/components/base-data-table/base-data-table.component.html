@@ -17,8 +17,18 @@
       </button>
       <button nz-button nzType="default" (click)="resetColumns()">
         <i nz-icon nzType="reload" nzTheme="outline"></i>
-        Reset Columns
-      </button>
+        Reset Columns</button
+      ><!-- Add these two buttons only when expandable is true -->
+      <ng-container *ngIf="expandable">
+        <button nz-button nzType="default" (click)="onExpandAll()">
+          <i nz-icon nzType="down" nzTheme="outline"></i>
+          Expand All
+        </button>
+        <button nz-button nzType="default" (click)="onCollapseAll()">
+          <i nz-icon nzType="up" nzTheme="outline"></i>
+          Collapse All
+        </button>
+      </ng-container>
     </div>
     <div class="toolbar-right">
       <span class="result-count" *ngIf="!isLoading">

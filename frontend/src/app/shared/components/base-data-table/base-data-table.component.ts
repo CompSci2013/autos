@@ -67,6 +67,10 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
   /** Emits when a row is collapsed */
   @Output() rowCollapse = new EventEmitter<T>();
 
+  // Add these two new outputs:
+  @Output() expandAll = new EventEmitter<void>();
+  @Output() collapseAll = new EventEmitter<void>();
+
   // ========== TEMPLATE REFERENCES ==========
 
   /** Custom cell template from parent */
@@ -407,6 +411,36 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
       this.expandedRowSet.add(row);
       this.rowExpand.emit(row);
     }
+  }
+
+  /**
+   * Expand all rows
+   */
+  public expandAllRows(): void {
+    console.log('🔽 BaseDataTable: Expanding all rows');
+    this.tableData.forEach((row) => {
+      this.expandedRowSet.add(row);
+    });
+    this.cdr.markForCheck();
+    console.log('✅ Expanded rows:', this.expandedRowSet.size);
+  }
+
+  /**
+   * Collapse all rows
+   */
+  public collapseAllRows(): void {
+    console.log('🔼 BaseDataTable: Collapsing all rows');
+    this.expandedRowSet.clear();
+    this.cdr.markForCheck();
+    console.log('✅ Collapsed all rows');
+  }
+
+  onExpandAll(): void {
+    this.expandAll.emit();
+  }
+
+  onCollapseAll(): void {
+    this.collapseAll.emit();
   }
 
   // ========== UTILITY ==========

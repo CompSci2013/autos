@@ -7,6 +7,7 @@ import {
   Input,
   SimpleChanges,
   OnChanges,
+  ViewChild,
   ChangeDetectorRef, // ADD THIS
   ChangeDetectionStrategy, // ADD THIS
 } from '@angular/core';
@@ -17,6 +18,7 @@ import {
   TablePickerDataSource,
   ManufacturerSummaryRow,
 } from './table-picker-data-source';
+import { BaseDataTableComponent } from 'src/app/shared/components/base-data-table/base-data-table.component';
 
 /**
  * Table-Picker Component
@@ -32,6 +34,8 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush, // ADD THIS
 })
 export class TablePickerComponent implements OnInit, OnDestroy, OnChanges {
+  @ViewChild(BaseDataTableComponent)
+  baseTable!: BaseDataTableComponent<ManufacturerSummaryRow>;
   private destroy$ = new Subject<void>();
 
   // Inputs from parent (Workshop)
@@ -325,5 +329,29 @@ export class TablePickerComponent implements OnInit, OnDestroy, OnChanges {
 
     keysToRemove.forEach((key) => this.selectedRows.delete(key));
     this.cdr.markForCheck(); // ADD THIS
+  }
+
+  /**
+   * Expand all manufacturer rows
+   */
+  onExpandAll(): void {
+    console.log('📍 TablePickerComponent: Expand All clicked');
+    if (this.baseTable) {
+      this.baseTable.expandAllRows();
+    } else {
+      console.warn('⚠️ baseTable ViewChild not available');
+    }
+  }
+
+  /**
+   * Collapse all manufacturer rows
+   */
+  onCollapseAll(): void {
+    console.log('📍 TablePickerComponent: Collapse All clicked');
+    if (this.baseTable) {
+      this.baseTable.collapseAllRows();
+    } else {
+      console.warn('⚠️ baseTable ViewChild not available');
+    }
   }
 }
