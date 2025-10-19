@@ -1,0 +1,75 @@
+<div class="picker-container">
+  <div class="picker-header">
+    <h4>Manufacturer + Model</h4>
+  </div>
+
+  <!-- Base Data Table with Checkboxes -->
+  <app-base-data-table
+    [tableId]="'manufacturer-model-picker'"
+    [columns]="columns"
+    [dataSource]="dataSource"
+    [queryParams]="tableQueryParams"
+    (queryParamsChange)="onTableQueryChange($event)"
+  >
+    <!-- Custom cell rendering with checkbox column -->
+    <ng-template #cellTemplate let-column="column" let-row="row">
+      <ng-container [ngSwitch]="column.key">
+        
+        <!-- Manufacturer column with checkbox -->
+        <div *ngSwitchCase="'manufacturer'" class="manufacturer-cell">
+          <label nz-checkbox
+            [ngModel]="isRowSelected($any(row))"
+            (ngModelChange)="toggleRowSelection($any(row), $event)"
+          >
+            <strong>{{ $any(row).manufacturer }}</strong>
+          </label>
+        </div>
+
+        <!-- Model column -->
+        <span *ngSwitchCase="'model'">
+          {{ $any(row).model }}
+        </span>
+
+        <!-- Count column (right-aligned) -->
+        <span *ngSwitchCase="'count'" class="count-cell">
+          {{ $any(row).count | number }}
+        </span>
+
+        <!-- Default rendering -->
+        <span *ngSwitchDefault>
+          {{ $any(row)[column.key] }}
+        </span>
+      </ng-container>
+    </ng-template>
+  </app-base-data-table>
+
+  <!-- Selected Items Chips -->
+  <app-selected-items-chips
+    [selections]="currentSelections"
+    (removeModel)="onRemoveModelChip($event)"
+    (removeManufacturer)="onRemoveManufacturerChip($event)"
+  >
+  </app-selected-items-chips>
+
+  <!-- Action Buttons -->
+  <div class="actions-section">
+    <button
+      type="button"
+      class="btn btn-primary"
+      (click)="onApply()"
+      [disabled]="currentSelections.length === 0"
+      nz-tooltip
+      nzTooltipTitle="Apply selections to search"
+    >
+      Apply ({{ currentSelections.length }})
+    </button>
+    <button
+      type="button"
+      class="btn btn-secondary"
+      (click)="onClear()"
+      [disabled]="currentSelections.length === 0"
+    >
+      Clear
+    </button>
+  </div>
+</div>

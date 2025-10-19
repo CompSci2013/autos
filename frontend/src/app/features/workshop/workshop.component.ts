@@ -26,6 +26,7 @@ export class WorkshopComponent implements OnInit, OnDestroy {
   demoCollapsed = false;
   pickerCollapsed = false;
   resultsCollapsed = false;
+  pickerComparisonCollapsed = false; // ✅ ADDED
 
   // State passed to picker
   pickerClearTrigger = 0;
@@ -85,12 +86,16 @@ export class WorkshopComponent implements OnInit, OnDestroy {
       itemResizeCallback: this.itemResize.bind(this),
     };
 
-    // Load saved layout 1 (Results Table Demo grid)
+    // Load saved layout 1 (Picker Comparison + Results Table Demo grid)
     const savedLayout1 = localStorage.getItem('autos-workshop-layout1');
     if (savedLayout1) {
       this.dashboard1 = JSON.parse(savedLayout1);
     } else {
-      this.dashboard1 = [{ cols: 12, rows: 12, y: 0, x: 0 }];
+      // ✅ UPDATED: Two items instead of one
+      this.dashboard1 = [
+        { cols: 12, rows: 16, y: 0, x: 0 }, // Picker Comparison
+        { cols: 12, rows: 14, y: 16, x: 0 }, // Results Table Demo
+      ];
     }
 
     // Load saved layout 2 (Picker + Results grid)

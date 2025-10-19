@@ -1,0 +1,43 @@
+<div class="chips-section">
+  <div class="chips-label">Selected ({{ selections.length }}):</div>
+  <div class="chips-container">
+    <div *ngIf="selections.length === 0" class="no-selections">
+      No selections
+    </div>
+
+    <ng-container *ngFor="let group of groupedChips; let i = index">
+      <hr *ngIf="i > 0" class="chip-separator" />
+      
+      <div class="chip-group">
+        <!-- Parent chip: Manufacturer with count badge -->
+        <div class="chip chip-parent">
+          <span class="chip-text">
+            {{ group.manufacturer }}
+            <span class="chip-badge">({{ group.count }})</span>
+          </span>
+          <button
+            type="button"
+            class="chip-remove"
+            (click)="onRemoveManufacturer(group.manufacturer)"
+            [attr.title]="'Remove all ' + group.manufacturer + ' models'"
+          >
+            ×
+          </button>
+        </div>
+
+        <!-- Child chips: Individual models -->
+        <div *ngFor="let model of group.models" class="chip chip-child">
+          <span class="chip-text">{{ model }}</span>
+          <button
+            type="button"
+            class="chip-remove"
+            (click)="onRemoveModel(group.manufacturer, model)"
+            [attr.title]="'Remove ' + group.manufacturer + ' ' + model"
+          >
+            ×
+          </button>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>

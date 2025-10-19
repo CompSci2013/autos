@@ -1,0 +1,86 @@
+.picker-container {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 1rem;
+  max-width: 100%;
+  min-width: 400px;
+}
+
+// ========== HEADER ==========
+.picker-header {
+  margin-bottom: 1rem;
+
+  h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+}
+
+// ========== TABLE CELLS ==========
+.manufacturer-cell {
+  display: flex;
+  align-items: center;
+
+  label {
+    cursor: pointer;
+    margin: 0;
+  }
+
+  strong {
+    font-weight: 600;
+  }
+}
+
+.count-cell {
+  text-align: right;
+  font-weight: 500;
+  color: #666;
+}
+
+// ========== ACTIONS ==========
+.actions-section {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+
+  .btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    &.btn-primary {
+      background: #4a90e2;
+      color: white;
+
+      &:hover:not(:disabled) {
+        background: #357abd;
+      }
+    }
+
+    &.btn-secondary {
+      background: #e0e0e0;
+      color: #333;
+
+      &:hover:not(:disabled) {
+        background: #d0d0d0;
+      }
+    }
+  }
+}
+
+// ========== RESPONSIVE ==========
+@media (max-width: 600px) {
+  .picker-container {
+    min-width: 100%;
+  }
+}

@@ -18,9 +18,49 @@
     </button>
   </div>
 
-  <!-- Grid Layout Container 1 (Results Table Demo) -->
+  <!-- Grid Layout Container 1 (Picker Comparison + Results Table Demo) -->
   <gridster [options]="options1" class="grid-container grid-container-1">
+    <!-- NEW: Table Picker Panel -->
     <gridster-item [item]="dashboard1[0]">
+      <nz-collapse class="panel-collapse">
+        <nz-collapse-panel
+          nzHeader="Manufacturer + Model Picker (Comparison)"
+          [nzActive]="!pickerComparisonCollapsed"
+        >
+          <div
+            (mousedown)="$event.stopPropagation()"
+            (touchstart)="$event.stopPropagation()"
+          >
+            <nz-tabset>
+              <nz-tab nzTitle="Original Picker">
+                <div class="tab-content">
+                  <app-manufacturer-model-table-picker
+                    [clearTrigger]="pickerClearTrigger"
+                    [initialSelections]="pickerInitialSelections"
+                    (selectionChange)="onPickerSelectionChange($event)"
+                  >
+                  </app-manufacturer-model-table-picker>
+                </div>
+              </nz-tab>
+
+              <nz-tab nzTitle="⚡ NEW: BaseDataTable Picker">
+                <div class="tab-content">
+                  <app-table-picker
+                    [initialSelections]="pickerInitialSelections"
+                    [clearTrigger]="pickerClearTrigger"
+                    (selectionChange)="onPickerSelectionChange($event)"
+                  >
+                  </app-table-picker>
+                </div>
+              </nz-tab>
+            </nz-tabset>
+          </div>
+        </nz-collapse-panel>
+      </nz-collapse>
+    </gridster-item>
+
+    <!-- Results Table Demo Panel -->
+    <gridster-item [item]="dashboard1[1]">
       <nz-collapse class="panel-collapse">
         <nz-collapse-panel
           nzHeader="Results Table (BaseDataTable Demo)"

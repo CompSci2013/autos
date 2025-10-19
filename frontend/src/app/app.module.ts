@@ -23,6 +23,8 @@ import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzCollapseModule } from 'ng-zorro-antd/collapse';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
+import { NzTabsModule } from 'ng-zorro-antd/tabs';
+
 // Import icon definitions
 import {
   HomeOutline,
@@ -65,6 +67,8 @@ import { SharedModule } from './shared/shared.module';
 
 // Feature components
 import { ManufacturerModelTablePickerComponent } from './features/picker/manufacturer-model-table-picker/manufacturer-model-table-picker.component';
+import { TablePickerComponent } from './features/picker/table-picker/table-picker.component';
+import { SelectedItemsChipsComponent } from './features/picker/table-picker/selected-items-chips/selected-items-chips.component';
 import { DiscoverComponent } from './features/discover/discover.component';
 import { VehicleResultsTableComponent } from './features/results/vehicle-results-table/vehicle-results-table.component';
 import { ResultsTableComponent } from './features/results/results-table/results-table.component';
@@ -76,6 +80,8 @@ import { NavigationComponent } from './core/navigation/navigation.component';
   declarations: [
     AppComponent,
     ManufacturerModelTablePickerComponent,
+    TablePickerComponent,
+    SelectedItemsChipsComponent,
     DiscoverComponent,
     VehicleResultsTableComponent,
     ResultsTableComponent,
@@ -102,6 +108,7 @@ import { NavigationComponent } from './core/navigation/navigation.component';
     NzCollapseModule,
     NzButtonModule,
     NzMenuModule,
+    NzTabsModule,
     // Angular CDK
     DragDropModule,
     // Grid Layout
