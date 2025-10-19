@@ -55,8 +55,8 @@
         [hidden]="pickerComparisonCollapsed"
         style="background: white; padding: 16px"
       >
-        <nz-tabset>
-          <nz-tab nzTitle="Original Picker">
+        <!-- <nz-tabset> -->
+        <!-- <nz-tab nzTitle="Original Picker">
             <div class="tab-content">
               <app-manufacturer-model-table-picker
                 [clearTrigger]="pickerClearTrigger"
@@ -65,19 +65,19 @@
               >
               </app-manufacturer-model-table-picker>
             </div>
-          </nz-tab>
+          </nz-tab> -->
 
-          <nz-tab nzTitle="⚡ NEW: BaseDataTable Picker">
-            <div class="tab-content">
-              <app-table-picker
-                [initialSelections]="pickerInitialSelections"
-                [clearTrigger]="pickerClearTrigger"
-                (selectionChange)="onPickerSelectionChange($event)"
-              >
-              </app-table-picker>
-            </div>
-          </nz-tab>
-        </nz-tabset>
+        <!-- <nz-tab nzTitle="⚡ NEW: BaseDataTable Picker"> -->
+        <div class="tab-content">
+          <app-table-picker
+            [initialSelections]="pickerInitialSelections"
+            [clearTrigger]="pickerClearTrigger"
+            (selectionChange)="onPickerSelectionChange($event)"
+          >
+          </app-table-picker>
+        </div>
+        <!-- </nz-tab> -->
+        <!-- </nz-tabset> -->
       </div>
     </gridster-item>
 

@@ -203,6 +203,9 @@ export class TablePickerComponent implements OnInit, OnDestroy, OnChanges {
     row: ManufacturerSummaryRow,
     checked: boolean
   ): void {
+    const perfLabel = `checkbox-${row.manufacturer}-${checked}`;
+    console.time(perfLabel);
+
     console.log('🔵 onManufacturerCheckboxChange START:', {
       manufacturer: row.manufacturer,
       checked,
@@ -225,6 +228,8 @@ export class TablePickerComponent implements OnInit, OnDestroy, OnChanges {
       '🟢 onManufacturerCheckboxChange COMPLETE. Set size:',
       this.selectedRows.size
     );
+
+    console.timeEnd(perfLabel);
   }
 
   /**
