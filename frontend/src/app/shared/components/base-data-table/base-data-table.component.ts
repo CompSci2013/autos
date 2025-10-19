@@ -94,7 +94,7 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
   /** Page size */
   pageSize = 20;
 
-  /** Expanded row set */
+  /** Expanded row keys (uses row.key if available, otherwise row reference) */
   expandedRowSet = new Set<any>();
 
   /** Column manager drawer visibility */
@@ -400,16 +400,25 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
 
   // ========== ROW EXPANSION ==========
 
+  /**
+   * Get the key for a row (uses row.key if available, falls back to row itself)
+   */
+  private getRowKey(row: T): any {
+    return (row as any).key !== undefined ? (row as any).key : row;
+  }
+
   isRowExpanded(row: T): boolean {
-    return this.expandedRowSet.has(row);
+    const key = this.getRowKey(row);
+    return this.expandedRowSet.has(key);
   }
 
   toggleRowExpansion(row: T): void {
-    if (this.expandedRowSet.has(row)) {
-      this.expandedRowSet.delete(row);
+    const key = this.getRowKey(row);
+    if (this.expandedRowSet.has(key)) {
+      this.expandedRowSet.delete(key);
       this.rowCollapse.emit(row);
     } else {
-      this.expandedRowSet.add(row);
+      this.expandedRowSet.add(key);
       this.rowExpand.emit(row);
     }
   }
@@ -420,7 +429,8 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
   public expandAllRows(): void {
     console.log('🔽 BaseDataTable: Expanding all rows');
     this.tableData.forEach((row) => {
-      this.expandedRowSet.add(row);
+      const key = this.getRowKey(row);
+      this.expandedRowSet.add(key);
     });
     this.cdr.markForCheck();
     console.log('✅ Expanded rows:', this.expandedRowSet.size);

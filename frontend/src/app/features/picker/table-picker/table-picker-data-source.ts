@@ -80,6 +80,14 @@ export class TablePickerDataSource
    * Filter and paginate manufacturer summaries in memory
    * CRITICAL: Model filter searches across ALL manufacturers' models
    */
+  /**
+   * Filter and paginate manufacturer summaries in memory
+   * CRITICAL: Model filter searches across ALL manufacturers' models
+   */
+  /**
+   * Filter and paginate manufacturer summaries in memory
+   * CRITICAL: Model filter searches across ALL manufacturers' models
+   */
   private filterAndPaginate(
     params: TableQueryParams
   ): TableResponse<ManufacturerSummaryRow> {
@@ -95,12 +103,25 @@ export class TablePickerDataSource
         );
       }
 
-      // Model name filter (searches within models array, shows matching manufacturers)
+      // Model name filter (filters models array AND shows only matching manufacturers)
       if (params.filters['model']) {
         const value = String(params.filters['model']).toLowerCase();
-        filtered = filtered.filter((row) =>
-          row.models.some((m) => m.model.toLowerCase().includes(value))
-        );
+
+        // Filter manufacturers that have matching models
+        filtered = filtered
+          .filter((row) =>
+            row.models.some((m) => m.model.toLowerCase().includes(value))
+          )
+          // Create new row objects with filtered models array
+          .map((row) => ({
+            ...row,
+            models: row.models.filter((m) =>
+              m.model.toLowerCase().includes(value)
+            ),
+            modelCount: row.models.filter((m) =>
+              m.model.toLowerCase().includes(value)
+            ).length,
+          }));
       }
     }
 

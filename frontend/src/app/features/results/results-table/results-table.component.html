@@ -4,6 +4,7 @@
   [dataSource]="dataSource"
   [queryParams]="tableQueryParams"
   [expandable]="true"
+  [maxTableHeight]="'200px'"
   (queryParamsChange)="onTableQueryChange($event)"
   (rowExpand)="onRowExpand($event)"
 >
@@ -31,7 +32,12 @@
   <ng-template #expansionTemplate let-row="row">
     <div class="expansion-content">
       <nz-spin [nzSpinning]="isLoadingInstances($any(row).vehicle_id)">
-        <div *ngIf="getInstances($any(row).vehicle_id).length > 0; else noInstances">
+        <div
+          *ngIf="
+            getInstances($any(row).vehicle_id).length > 0;
+            else noInstances
+          "
+        >
           <h4>Synthetic VIN Instances (Sample of 8)</h4>
           <nz-table
             #instancesTable
@@ -56,7 +62,9 @@
               <tr *ngFor="let instance of instancesTable.data">
                 <td>
                   <code>{{ instance.vin }}</code>
-                  <small *ngIf="instance.matching_numbers">âœ" Matching Numbers</small>
+                  <small *ngIf="instance.matching_numbers"
+                    >âœ" Matching Numbers</small
+                  >
                 </td>
                 <td>
                   {{ instance.condition_rating }}/10
@@ -71,7 +79,9 @@
                   <small>{{ instance.registration_status }}</small>
                 </td>
                 <td>
-                  <nz-tag [nzColor]="getTitleStatusColor(instance.title_status)">
+                  <nz-tag
+                    [nzColor]="getTitleStatusColor(instance.title_status)"
+                  >
                     {{ instance.title_status }}
                   </nz-tag>
                 </td>

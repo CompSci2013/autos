@@ -50,7 +50,7 @@ export class TablePickerComponent implements OnInit, OnDestroy, OnChanges {
     {
       key: 'manufacturer',
       label: 'Manufacturer',
-      width: '95%',
+      width: '60%',
       sortable: true,
       filterable: true,
       filterType: 'text',
@@ -59,11 +59,21 @@ export class TablePickerComponent implements OnInit, OnDestroy, OnChanges {
     {
       key: 'model',
       label: 'Model',
-      width: '5%',
+      width: '300%',
       sortable: true,
       filterable: true,
       filterType: 'text',
       hideable: true,
+    },
+    {
+      key: 'modelCount',
+      label: 'Model Count',
+      width: '10%',
+      sortable: true,
+      filterable: false,
+      filterType: 'text',
+      hideable: true,
+      align: 'right',
     },
   ];
 
