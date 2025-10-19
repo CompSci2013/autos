@@ -51,7 +51,7 @@
     (nzPageIndexChange)="onPageChange($event)"
     (nzPageSizeChange)="onPageSizeChange($event)"
     nzSize="small"
-    [nzScroll]="{ x: 'max-content' }"
+    [nzScroll]="{ x: 'max-content', y: maxTableHeight }"
   >
     <thead>
       <tr
