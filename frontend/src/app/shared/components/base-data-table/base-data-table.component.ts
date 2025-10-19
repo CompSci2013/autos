@@ -38,6 +38,7 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
 
   /** Column definitions */
   @Input() columns: TableColumn<T>[] = [];
+  private originalColumnDefinitions: TableColumn<T>[] = [];
 
   /** Data source for fetching table data */
   @Input() dataSource!: TableDataSource<T>;
@@ -143,6 +144,13 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    // Store orignial
+    if (changes['columns'] && changes['columns'].firstChange) {
+      this.originalColumnDefinitions = changes['columns'].currentValue.map(
+        (col: TableColumn<T>) => ({ ...col })
+      );
+      console.log('Original columns saved:', this.originalColumnDefinitions);
+    }
     // If columns array reference changed, re-apply saved preferences
     if (changes['columns'] && !changes['columns'].firstChange) {
       console.log('🔄 Columns input changed, re-applying preferences');
@@ -360,11 +368,25 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
   }
 
   resetColumns(): void {
-    // Reset to default visibility and order
-    this.columns.forEach((col) => {
-      col.visible = col.hideable ? undefined : true;
-    });
+    console.log('🔄 Reset Columns clicked');
+
+    // Remove saved preferences from localStorage
     this.persistenceService.resetPreferences(this.tableId);
+    console.log('✅ localStorage cleared for tableId:', this.tableId);
+
+    // Recreate columns array from original definitions
+    if (this.originalColumnDefinitions.length > 0) {
+      this.columns = this.originalColumnDefinitions.map((col) => ({ ...col }));
+      console.log(
+        '✅ Columns restored to original order:',
+        this.columns.map((c) => c.key)
+      );
+
+      // Trigger change detection
+      this.cdr.markForCheck();
+    } else {
+      console.warn('⚠️ No original column definitions found');
+    }
   }
 
   getVisibleColumns(): TableColumn<T>[] {
