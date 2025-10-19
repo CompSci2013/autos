@@ -1,38 +1,47 @@
-<div class="picker-container">
-  <div class="picker-header">
-    <h4>Manufacturer + Model</h4>
-  </div>
-
-  <!-- Base Data Table with Checkboxes -->
+<div class="table-picker-container">
+  <!-- BaseDataTable with expandable manufacturer rows -->
   <app-base-data-table
-    [tableId]="'manufacturer-model-picker'"
+    [tableId]="'table-picker'"
     [columns]="columns"
     [dataSource]="dataSource"
     [queryParams]="tableQueryParams"
+    [expandable]="true"
     (queryParamsChange)="onTableQueryChange($event)"
+    (rowExpand)="onRowExpand($event)"
   >
-    <!-- Custom cell rendering with checkbox column -->
+    <!-- Custom cell rendering for manufacturer rows -->
     <ng-template #cellTemplate let-column="column" let-row="row">
       <ng-container [ngSwitch]="column.key">
-        
-        <!-- Manufacturer column with checkbox -->
-        <div *ngSwitchCase="'manufacturer'" class="manufacturer-cell">
-          <label nz-checkbox
-            [ngModel]="isRowSelected($any(row))"
-            (ngModelChange)="toggleRowSelection($any(row), $event)"
+        <!-- Manufacturer column with parent checkbox -->
+        <ng-container *ngSwitchCase="'manufacturer'">
+          <label
+            nz-checkbox
+            [nzIndeterminate]="
+              getManufacturerCheckboxState($any(row)) === 'indeterminate'
+            "
+            [nzChecked]="getManufacturerCheckboxState($any(row)) === 'checked'"
+            (nzCheckedChange)="onManufacturerCheckboxChange($any(row), $event)"
+            (click)="$event.stopPropagation()"
           >
             <strong>{{ $any(row).manufacturer }}</strong>
+            <span
+              class="selection-info"
+              *ngIf="getSelectionCount($any(row).manufacturer) > 0"
+            >
+              ({{ getSelectionCount($any(row).manufacturer) }} of
+              {{ $any(row).modelCount }} selected)
+            </span>
           </label>
-        </div>
+        </ng-container>
 
-        <!-- Model column -->
-        <span *ngSwitchCase="'model'">
-          {{ $any(row).model }}
+        <!-- Model count column -->
+        <span *ngSwitchCase="'modelCount'" class="count-cell">
+          {{ $any(row).modelCount }}
         </span>
 
-        <!-- Count column (right-aligned) -->
-        <span *ngSwitchCase="'count'" class="count-cell">
-          {{ $any(row).count | number }}
+        <!-- Total count column -->
+        <span *ngSwitchCase="'totalCount'" class="count-cell">
+          {{ $any(row).totalCount | number }}
         </span>
 
         <!-- Default rendering -->
@@ -41,34 +50,74 @@
         </span>
       </ng-container>
     </ng-template>
+
+    <!-- Expansion content: model checkboxes -->
+    <ng-template #expansionTemplate let-row="row">
+      <div class="expansion-content">
+        <div class="models-list">
+          <div *ngFor="let model of $any(row).models" class="model-item">
+            <label
+              nz-checkbox
+              [ngModel]="isModelSelected($any(row).manufacturer, model.model)"
+              (ngModelChange)="
+                onModelCheckboxChange(
+                  $any(row).manufacturer,
+                  model.model,
+                  $event
+                )
+              "
+            >
+              {{ model.model }}
+              <span class="model-count">({{ model.count | number }})</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </ng-template>
   </app-base-data-table>
 
-  <!-- Selected Items Chips -->
-  <app-selected-items-chips
-    [selections]="currentSelections"
-    (removeModel)="onRemoveModelChip($event)"
-    (removeManufacturer)="onRemoveManufacturerChip($event)"
-  >
-  </app-selected-items-chips>
+  <!-- Selected items display -->
+  <div class="selections-display" *ngIf="selectedItems.length > 0">
+    <div class="selections-header">
+      <span class="selections-count">{{ selectedItems.length }} selected</span>
+      <button nz-button nzType="link" nzSize="small" (click)="onClear()">
+        Clear all
+      </button>
+    </div>
 
-  <!-- Action Buttons -->
+    <div class="selections-chips">
+      <nz-tag
+        *ngFor="let item of selectedItems"
+        nzMode="closeable"
+        (nzOnClose)="onRemoveModel(item)"
+        class="selection-chip"
+      >
+        {{ item.manufacturer }} - {{ item.model }}
+      </nz-tag>
+    </div>
+  </div>
+
+  <!-- Action buttons -->
   <div class="actions-section">
     <button
-      type="button"
-      class="btn btn-primary"
+      nz-button
+      nzType="primary"
+      nzSize="large"
       (click)="onApply()"
-      [disabled]="currentSelections.length === 0"
-      nz-tooltip
-      nzTooltipTitle="Apply selections to search"
+      [disabled]="selectedItems.length === 0"
     >
-      Apply ({{ currentSelections.length }})
+      <i nz-icon nzType="check-circle" nzTheme="outline"></i>
+      Apply ({{ selectedItems.length }})
     </button>
+
     <button
-      type="button"
-      class="btn btn-secondary"
+      nz-button
+      nzType="default"
+      nzSize="large"
       (click)="onClear()"
-      [disabled]="currentSelections.length === 0"
+      [disabled]="selectedItems.length === 0"
     >
+      <i nz-icon nzType="close-circle" nzTheme="outline"></i>
       Clear
     </button>
   </div>

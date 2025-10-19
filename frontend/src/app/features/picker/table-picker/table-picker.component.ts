@@ -1,98 +1,97 @@
 import {
   Component,
   OnInit,
-  OnChanges,
   OnDestroy,
-  Input,
   Output,
   EventEmitter,
+  Input,
   SimpleChanges,
+  OnChanges,
 } from '@angular/core';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { ApiService } from '../../../services/api.service';
 import { ManufacturerModelSelection } from '../../../models';
 import { TableColumn, TableQueryParams } from '../../../shared/models';
-import { TablePickerDataSource, PickerTableRow } from './table-picker-data-source';
+import {
+  TablePickerDataSource,
+  ManufacturerSummaryRow,
+} from './table-picker-data-source';
 
 /**
- * Table Picker Component
- * 
- * Manufacturer-Model selector using BaseDataTableComponent.
- * Provides same functionality as existing picker but with:
- * - Sortable columns
- * - Server-side filtering
- * - Column reordering (drag-drop)
- * - Persistent UI preferences
+ * Table-Picker Component
+ *
+ * Uses BaseDataTableComponent with hierarchical manufacturer rows.
+ * Expands to show model checkboxes.
  */
 @Component({
   selector: 'app-table-picker',
   templateUrl: './table-picker.component.html',
-  styleUrls: ['./table-picker.component.scss']
+  styleUrls: ['./table-picker.component.scss'],
+  providers: [TablePickerDataSource],
 })
-export class TablePickerComponent implements OnInit, OnChanges, OnDestroy {
+export class TablePickerComponent implements OnInit, OnDestroy, OnChanges {
   private destroy$ = new Subject<void>();
 
-  // ========== INPUTS/OUTPUTS ==========
-
+  // Inputs from parent (Workshop)
   @Input() initialSelections: ManufacturerModelSelection[] = [];
   @Input() clearTrigger: number = 0;
-  
+
+  // Output to parent
   @Output() selectionChange = new EventEmitter<ManufacturerModelSelection[]>();
 
-  // ========== TABLE CONFIGURATION ==========
-
-  columns: TableColumn<PickerTableRow>[] = [
+  // Column configuration (manufacturer summary rows)
+  columns: TableColumn<ManufacturerSummaryRow>[] = [
     {
       key: 'manufacturer',
       label: 'Manufacturer',
+      width: '50%',
       sortable: true,
       filterable: true,
       filterType: 'text',
       hideable: false,
-      width: '40%'
     },
     {
-      key: 'model',
-      label: 'Model',
-      sortable: true,
-      filterable: true,
-      filterType: 'text',
-      hideable: false,
-      width: '40%'
-    },
-    {
-      key: 'count',
-      label: 'Count',
+      key: 'modelCount',
+      label: 'Models',
+      width: '25%',
       sortable: true,
       filterable: false,
       hideable: true,
-      width: '20%',
-      align: 'right'
-    }
+    },
+    {
+      key: 'totalCount',
+      label: 'Total Count',
+      width: '25%',
+      sortable: true,
+      filterable: false,
+      hideable: true,
+    },
   ];
 
+  // Data source (client-side filtering)
   dataSource: TablePickerDataSource;
+
+  // Query params for BaseDataTable
   tableQueryParams: TableQueryParams = {
     page: 1,
-    size: 10,
-    filters: {}
+    size: 20,
+    filters: {},
   };
 
-  // ========== SELECTION STATE ==========
+  // Selection state (EFFICIENT: Set<string> pattern)
+  selectedRows = new Set<string>();
 
-  selectedRows = new Set<string>(); // Set of keys: "manufacturer|model"
-  private lastClearTrigger: number = 0;
+  // Track which manufacturers have models selected (for checkbox states)
+  manufacturerSelections = new Map<string, Set<string>>(); // manufacturer -> Set<modelNames>
 
-  // ========== LIFECYCLE ==========
+  // Track last clear trigger
+  private lastClearTrigger = 0;
 
-  constructor(private apiService: ApiService) {
-    this.dataSource = new TablePickerDataSource(this.apiService);
+  constructor(dataSource: TablePickerDataSource) {
+    this.dataSource = dataSource;
   }
 
   ngOnInit(): void {
-    // Initial hydration from URL state
-    this.hydrateSelections();
+    console.log('TablePickerComponent: Initialized');
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -100,13 +99,19 @@ export class TablePickerComponent implements OnInit, OnChanges, OnDestroy {
     if (changes['clearTrigger'] && !changes['clearTrigger'].firstChange) {
       const newValue = changes['clearTrigger'].currentValue;
       if (newValue !== this.lastClearTrigger) {
+        console.log('TablePickerComponent: Clear trigger fired');
         this.lastClearTrigger = newValue;
         this.selectedRows.clear();
+        this.manufacturerSelections.clear();
       }
     }
 
     // Handle initial selections (hydration from URL)
     if (changes['initialSelections']) {
+      console.log(
+        'TablePickerComponent: Initial selections changed:',
+        this.initialSelections
+      );
       this.hydrateSelections();
     }
   }
@@ -116,15 +121,13 @@ export class TablePickerComponent implements OnInit, OnChanges, OnDestroy {
     this.destroy$.complete();
   }
 
-  // ========== HYDRATION ==========
-
   /**
    * Hydrate selections from initialSelections input
-   * Called when URL state changes (browser navigation, refresh, deep link)
    */
   private hydrateSelections(): void {
     // Clear existing selections first (idempotent operation)
     this.selectedRows.clear();
+    this.manufacturerSelections.clear();
 
     // If no initial selections provided, nothing to hydrate
     if (!this.initialSelections || this.initialSelections.length === 0) {
@@ -132,97 +135,184 @@ export class TablePickerComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     // Add each selection to the Set
-    this.initialSelections.forEach(selection => {
-      const key = `${selection.manufacturer}|${selection.model}`;
+    this.initialSelections.forEach((selection) => {
+      const key = `${selection.manufacturer}:${selection.model}`;
       this.selectedRows.add(key);
-    });
 
-    console.log(`[TablePicker] Hydrated ${this.initialSelections.length} selections from URL`);
-  }
-
-  // ========== SELECTION LOGIC ==========
-
-  /**
-   * Check if a row is selected
-   */
-  isRowSelected(row: PickerTableRow): boolean {
-    return this.selectedRows.has(row.key);
-  }
-
-  /**
-   * Toggle row selection
-   */
-  toggleRowSelection(row: PickerTableRow, selected: boolean): void {
-    if (selected) {
-      this.selectedRows.add(row.key);
-    } else {
-      this.selectedRows.delete(row.key);
-    }
-  }
-
-  /**
-   * Get current selections as array
-   */
-  get currentSelections(): ManufacturerModelSelection[] {
-    return Array.from(this.selectedRows)
-      .map(key => {
-        const [manufacturer, model] = key.split('|');
-        return { manufacturer, model };
-      })
-      .sort((a, b) => {
-        const mfrCompare = a.manufacturer.localeCompare(b.manufacturer);
-        if (mfrCompare !== 0) return mfrCompare;
-        return a.model.localeCompare(b.model);
-      });
-  }
-
-  // ========== CHIP HANDLERS ==========
-
-  /**
-   * Handle removal of individual model chip
-   */
-  onRemoveModelChip(selection: ManufacturerModelSelection): void {
-    const key = `${selection.manufacturer}|${selection.model}`;
-    this.selectedRows.delete(key);
-  }
-
-  /**
-   * Handle removal of entire manufacturer group
-   */
-  onRemoveManufacturerChip(manufacturer: string): void {
-    const keysToRemove: string[] = [];
-    
-    this.selectedRows.forEach(key => {
-      if (key.startsWith(`${manufacturer}|`)) {
-        keysToRemove.push(key);
+      // Track in manufacturer map
+      if (!this.manufacturerSelections.has(selection.manufacturer)) {
+        this.manufacturerSelections.set(selection.manufacturer, new Set());
       }
+      this.manufacturerSelections
+        .get(selection.manufacturer)!
+        .add(selection.model);
     });
 
-    keysToRemove.forEach(key => this.selectedRows.delete(key));
-  }
-
-  // ========== ACTION HANDLERS ==========
-
-  /**
-   * Apply selections - emit to parent
-   */
-  onApply(): void {
-    console.log('[TablePicker] Apply clicked, selections:', this.currentSelections);
-    this.selectionChange.emit(this.currentSelections);
-  }
-
-  /**
-   * Clear all selections
-   */
-  onClear(): void {
-    this.selectedRows.clear();
-    this.selectionChange.emit([]);
+    console.log(
+      `TablePickerComponent: Hydrated ${this.initialSelections.length} selections`
+    );
   }
 
   /**
    * Handle table query changes (pagination, sorting, filtering)
    */
   onTableQueryChange(params: TableQueryParams): void {
-    this.tableQueryParams = params;
+    console.log('TablePickerComponent: Table query changed:', params);
+    this.tableQueryParams = { ...params };
+  }
+
+  /**
+   * Handle row expansion - models already loaded
+   */
+  onRowExpand(row: ManufacturerSummaryRow): void {
+    console.log(
+      'TablePickerComponent: Manufacturer expanded:',
+      row.manufacturer
+    );
+    // Models are already in row.models, no API call needed
+  }
+
+  /**
+   * Get selection state for manufacturer checkbox (parent checkbox)
+   */
+  getManufacturerCheckboxState(
+    row: ManufacturerSummaryRow
+  ): 'checked' | 'indeterminate' | 'unchecked' {
+    const selections = this.manufacturerSelections.get(row.manufacturer);
+    if (!selections || selections.size === 0) return 'unchecked';
+    if (selections.size === row.modelCount) return 'checked';
+    return 'indeterminate';
+  }
+
+  /**
+   * Toggle all models for a manufacturer (parent checkbox)
+   */
+  onManufacturerCheckboxChange(
+    row: ManufacturerSummaryRow,
+    checked: boolean
+  ): void {
+    if (!this.manufacturerSelections.has(row.manufacturer)) {
+      this.manufacturerSelections.set(row.manufacturer, new Set());
+    }
+
+    const selections = this.manufacturerSelections.get(row.manufacturer)!;
+
+    if (checked) {
+      // Select all models
+      row.models.forEach((m) => {
+        selections.add(m.model);
+        this.selectedRows.add(`${row.manufacturer}:${m.model}`);
+      });
+    } else {
+      // Deselect all models
+      row.models.forEach((m) => {
+        selections.delete(m.model);
+        this.selectedRows.delete(`${row.manufacturer}:${m.model}`);
+      });
+    }
+  }
+
+  /**
+   * Toggle individual model selection (child checkbox)
+   */
+  onModelCheckboxChange(
+    manufacturer: string,
+    model: string,
+    checked: boolean
+  ): void {
+    if (!this.manufacturerSelections.has(manufacturer)) {
+      this.manufacturerSelections.set(manufacturer, new Set());
+    }
+
+    const selections = this.manufacturerSelections.get(manufacturer)!;
+    const key = `${manufacturer}:${model}`;
+
+    if (checked) {
+      selections.add(model);
+      this.selectedRows.add(key);
+    } else {
+      selections.delete(model);
+      this.selectedRows.delete(key);
+    }
+  }
+
+  /**
+   * Check if individual model is selected
+   */
+  isModelSelected(manufacturer: string, model: string): boolean {
+    return this.selectedRows.has(`${manufacturer}:${model}`);
+  }
+
+  /**
+   * Get selection count for manufacturer
+   */
+  getSelectionCount(manufacturer: string): number {
+    const selections = this.manufacturerSelections.get(manufacturer);
+    return selections ? selections.size : 0;
+  }
+
+  /**
+   * Get selected items as array
+   */
+  get selectedItems(): ManufacturerModelSelection[] {
+    return Array.from(this.selectedRows)
+      .map((key) => {
+        const [manufacturer, model] = key.split(':');
+        return { manufacturer, model };
+      })
+      .sort((a, b) => {
+        const mfrCompare = a.manufacturer.localeCompare(b.manufacturer);
+        return mfrCompare !== 0 ? mfrCompare : a.model.localeCompare(b.model);
+      });
+  }
+
+  /**
+   * Handle Apply button click
+   */
+  onApply(): void {
+    console.log('TablePickerComponent: Apply clicked');
+    console.log(
+      'TablePickerComponent: Emitting selections:',
+      this.selectedItems
+    );
+    this.selectionChange.emit(this.selectedItems);
+  }
+
+  /**
+   * Handle Clear button click
+   */
+  onClear(): void {
+    console.log('TablePickerComponent: Clear clicked');
+    this.selectedRows.clear();
+    this.manufacturerSelections.clear();
+    this.selectionChange.emit([]);
+  }
+
+  /**
+   * Remove a specific model from selections
+   */
+  onRemoveModel(selection: ManufacturerModelSelection): void {
+    const key = `${selection.manufacturer}:${selection.model}`;
+    this.selectedRows.delete(key);
+
+    const selections = this.manufacturerSelections.get(selection.manufacturer);
+    if (selections) {
+      selections.delete(selection.model);
+    }
+  }
+
+  /**
+   * Remove all models for a manufacturer
+   */
+  onRemoveManufacturer(manufacturer: string): void {
+    const keysToRemove: string[] = [];
+    this.selectedRows.forEach((key) => {
+      if (key.startsWith(`${manufacturer}:`)) {
+        keysToRemove.push(key);
+      }
+    });
+
+    keysToRemove.forEach((key) => this.selectedRows.delete(key));
+    this.manufacturerSelections.delete(manufacturer);
   }
 }

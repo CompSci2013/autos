@@ -1,86 +1,127 @@
-.picker-container {
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 1rem;
-  max-width: 100%;
-  min-width: 400px;
-}
-
-// ========== HEADER ==========
-.picker-header {
-  margin-bottom: 1rem;
-
-  h4 {
-    margin: 0 0 0.5rem 0;
-    font-size: 1.1rem;
-    font-weight: 600;
-  }
-}
-
-// ========== TABLE CELLS ==========
-.manufacturer-cell {
+.table-picker-container {
   display: flex;
-  align-items: center;
-
-  label {
-    cursor: pointer;
-    margin: 0;
-  }
-
-  strong {
-    font-weight: 600;
-  }
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  background: white;
+  border-radius: 4px;
 }
 
+// Count column alignment
 .count-cell {
+  display: block;
   text-align: right;
-  font-weight: 500;
+  font-family: "Courier New", monospace;
   color: #666;
+  font-weight: 500;
 }
 
-// ========== ACTIONS ==========
+// Selections display
+.selections-display {
+  padding: 12px;
+  background: #f5f5f5;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+
+  .selections-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+
+    .selections-count {
+      font-weight: 600;
+      font-size: 14px;
+      color: #1890ff;
+    }
+  }
+
+  .selections-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+
+    // Scrollbar styling
+    &::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 4px;
+
+      &:hover {
+        background: #555;
+      }
+    }
+
+    .selection-chip {
+      font-size: 12px;
+      background: #e6f7ff;
+      border-color: #91d5ff;
+      color: #1890ff;
+
+      &:hover {
+        background: #bae7ff;
+      }
+    }
+  }
+}
+
+// Action buttons
 .actions-section {
   display: flex;
-  gap: 0.5rem;
-  margin-top: 1rem;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e8e8e8;
 
-  .btn {
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: background-color 0.2s;
+  button {
+    min-width: 120px;
+    font-weight: 500;
 
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
+    i {
+      margin-right: 6px;
     }
 
-    &.btn-primary {
-      background: #4a90e2;
-      color: white;
-
-      &:hover:not(:disabled) {
-        background: #357abd;
-      }
-    }
-
-    &.btn-secondary {
-      background: #e0e0e0;
-      color: #333;
-
-      &:hover:not(:disabled) {
-        background: #d0d0d0;
-      }
+    &:first-child {
+      flex: 1;
     }
   }
 }
 
-// ========== RESPONSIVE ==========
-@media (max-width: 600px) {
-  .picker-container {
-    min-width: 100%;
+// Empty state
+::ng-deep .ant-table-placeholder {
+  padding: 40px 0;
+
+  .ant-empty-description {
+    color: #8c8c8c;
+  }
+}
+
+// Checkbox label styling
+::ng-deep {
+  .ant-checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+
+    &:hover {
+      .ant-checkbox-inner {
+        border-color: #1890ff;
+      }
+    }
+  }
+
+  // Prevent text selection during rapid clicking
+  .ant-checkbox + span {
+    user-select: none;
   }
 }

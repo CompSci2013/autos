@@ -1,66 +1,137 @@
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Injectable } from '@angular/core';
+import { Observable, of } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 import {
   TableDataSource,
   TableQueryParams,
   TableResponse,
-} from '../../../shared/models';
+} from '../../../shared/models/table-data-source.model';
 import { ApiService } from '../../../services/api.service';
+import { PickerRow, ModelDetail } from '../../../models/vehicle.model';
 
 /**
- * Flattened row for table display
- * Each row represents one manufacturer-model combination
+ * Manufacturer summary row for picker table
+ * Each row represents one manufacturer with aggregate data
  */
-export interface PickerTableRow {
-  key: string; // "manufacturer|model"
+export interface ManufacturerSummaryRow {
   manufacturer: string;
-  model: string;
-  count: number;
-  selected: boolean; // Managed by component
+  totalCount: number;
+  modelCount: number;
+  models: ModelDetail[]; // Stored for expansion
+  key: string;
 }
 
 /**
- * Data source adapter for table-picker component
- * Transforms hierarchical API response into flat table rows
+ * TablePickerDataSource
+ *
+ * Returns manufacturer summary rows (one per manufacturer)
+ * Models are stored in each row and displayed on expansion
  */
-export class TablePickerDataSource implements TableDataSource<PickerTableRow> {
+@Injectable()
+export class TablePickerDataSource
+  implements TableDataSource<ManufacturerSummaryRow>
+{
+  private allManufacturers: ManufacturerSummaryRow[] = [];
+  private dataLoaded = false;
+
   constructor(private apiService: ApiService) {}
 
   /**
-   * Fetch manufacturer-model combinations from API
-   * Transform to flat rows for table display
+   * Fetch data - loads all manufacturers once, then filters in memory
    */
-  fetch(params: TableQueryParams): Observable<TableResponse<PickerTableRow>> {
-    // Extract search term from filters
-    const search = params.filters?.['search'] || '';
+  fetch(
+    params: TableQueryParams
+  ): Observable<TableResponse<ManufacturerSummaryRow>> {
+    // If data already loaded, filter and return from memory
+    if (this.dataLoaded) {
+      return of(this.filterAndPaginate(params));
+    }
 
-    return this.apiService
-      .getManufacturerModelCombinations(params.page, params.size, search)
-      .pipe(
-        map((response) => {
-          // Flatten hierarchical data into table rows
-          const rows: PickerTableRow[] = [];
+    // First load: fetch all data from API and transform to manufacturer summaries
+    console.log('TablePickerDataSource: Loading all data (one-time)');
 
-          response.data.forEach((mfr) => {
-            mfr.models.forEach((model) => {
-              rows.push({
-                key: `${mfr.manufacturer}|${model.model}`,
-                manufacturer: mfr.manufacturer,
-                model: model.model,
-                count: model.count,
-                selected: false, // Component will manage this
-              });
-            });
-          });
+    return this.apiService.getManufacturerModelCombinations(1, 1000, '').pipe(
+      tap((response) => {
+        // Transform hierarchical API response to manufacturer summary rows
+        this.allManufacturers = response.data.map((mfr) => ({
+          manufacturer: mfr.manufacturer,
+          totalCount: mfr.count,
+          modelCount: mfr.models.length,
+          models: mfr.models, // Store models for expansion
+          key: mfr.manufacturer,
+        }));
 
-          return {
-            results: rows,
-            total: rows.length, // Total items (not manufacturers)
-            page: response.page,
-            size: response.size,
-            totalPages: response.totalPages,
-          };
-        })
-      );
+        // Sort by manufacturer name
+        this.allManufacturers.sort((a, b) =>
+          a.manufacturer.localeCompare(b.manufacturer)
+        );
+
+        this.dataLoaded = true;
+        console.log(
+          `TablePickerDataSource: Loaded ${this.allManufacturers.length} manufacturers`
+        );
+      }),
+      map(() => this.filterAndPaginate(params))
+    );
+  }
+
+  /**
+   * Filter and paginate manufacturer summaries in memory
+   */
+  private filterAndPaginate(
+    params: TableQueryParams
+  ): TableResponse<ManufacturerSummaryRow> {
+    let filtered = [...this.allManufacturers];
+
+    // Apply filters
+    if (params.filters) {
+      // Manufacturer name filter
+      if (params.filters['manufacturer']) {
+        const value = String(params.filters['manufacturer']).toLowerCase();
+        filtered = filtered.filter((row) =>
+          row.manufacturer.toLowerCase().includes(value)
+        );
+      }
+
+      // Model name filter (search within models array)
+      if (params.filters['model']) {
+        const value = String(params.filters['model']).toLowerCase();
+        filtered = filtered.filter((row) =>
+          row.models.some((m) => m.model.toLowerCase().includes(value))
+        );
+      }
+    }
+
+    // Apply sorting
+    if (params.sortBy && params.sortOrder) {
+      filtered.sort((a, b) => {
+        const aVal = (a as any)[params.sortBy!];
+        const bVal = (b as any)[params.sortBy!];
+        const compare = aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
+        return params.sortOrder === 'asc' ? compare : -compare;
+      });
+    }
+
+    // Calculate pagination
+    const total = filtered.length;
+    const start = (params.page - 1) * params.size;
+    const end = start + params.size;
+    const results = filtered.slice(start, end);
+
+    return {
+      results,
+      total,
+      page: params.page,
+      size: params.size,
+      totalPages: Math.ceil(total / params.size),
+    };
+  }
+
+  /**
+   * Reset data (force reload on next fetch)
+   */
+  reset(): void {
+    this.allManufacturers = [];
+    this.dataLoaded = false;
   }
 }
