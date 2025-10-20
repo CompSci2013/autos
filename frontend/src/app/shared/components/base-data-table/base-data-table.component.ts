@@ -149,25 +149,92 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    // Store orignial
+    // Handle column changes
     if (changes['columns'] && changes['columns'].firstChange) {
       this.originalColumnDefinitions = changes['columns'].currentValue.map(
         (col: TableColumn<T>) => ({ ...col })
       );
       console.log('Original columns saved:', this.originalColumnDefinitions);
     }
-    // If columns array reference changed, re-apply saved preferences
+
     if (changes['columns'] && !changes['columns'].firstChange) {
       console.log('🔄 Columns input changed, re-applying preferences');
       this.loadPreferences();
       this.cdr.markForCheck();
     }
 
-    // If queryParams changed, fetch new data
-    if (changes['queryParams'] && !changes['queryParams'].firstChange) {
+    // Handle queryParams changes with smart comparison
+    if (changes['queryParams']) {
+      const prev = changes['queryParams'].previousValue;
+      const curr = changes['queryParams'].currentValue;
+
+      // Skip if this is the first change (handled in ngOnInit)
+      if (changes['queryParams'].firstChange) {
+        console.log(
+          '⭐ First queryParams change, skipping (handled in ngOnInit)'
+        );
+        return;
+      }
+
+      // Skip if queryParams are deeply equal (no actual change)
+      if (this.areQueryParamsEqual(prev, curr)) {
+        console.log('⏭️ QueryParams unchanged, skipping fetch');
+        return;
+      }
+
       console.log('🔄 QueryParams changed, fetching data');
       this.fetchData();
     }
+  }
+
+  /**
+   * Deep equality check for query parameters
+   * Prevents unnecessary re-fetching when params haven't actually changed
+   *
+   * @param a Previous query parameters
+   * @param b Current query parameters
+   * @returns true if parameters are deeply equal
+   */
+  private areQueryParamsEqual(
+    a: TableQueryParams,
+    b: TableQueryParams
+  ): boolean {
+    // Handle null/undefined cases
+    if (!a && !b) return true;
+    if (!a || !b) return false;
+
+    // Compare primitive properties
+    if (a.page !== b.page) {
+      console.log('🔍 Page changed:', a.page, '→', b.page);
+      return false;
+    }
+
+    if (a.size !== b.size) {
+      console.log('🔍 Size changed:', a.size, '→', b.size);
+      return false;
+    }
+
+    if (a.sortBy !== b.sortBy) {
+      console.log('🔍 SortBy changed:', a.sortBy, '→', b.sortBy);
+      return false;
+    }
+
+    if (a.sortOrder !== b.sortOrder) {
+      console.log('🔍 SortOrder changed:', a.sortOrder, '→', b.sortOrder);
+      return false;
+    }
+
+    // Compare filters object (deep comparison)
+    const aFilters = JSON.stringify(a.filters || {});
+    const bFilters = JSON.stringify(b.filters || {});
+
+    if (aFilters !== bFilters) {
+      console.log('🔍 Filters changed:', a.filters, '→', b.filters);
+      return false;
+    }
+
+    // All properties are equal
+    return true;
   }
 
   ngOnDestroy(): void {
