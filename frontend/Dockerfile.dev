@@ -3,11 +3,22 @@ FROM node:18-alpine
 # Install Angular CLI 14
 RUN npm install -g @angular/cli@14
 
+# Install Chromium and dependencies for headless testing
+RUN apk add --no-cache \
+    chromium \
+    nss \
+    freetype \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont \
+    git
+
+# Set Chromium path for Karma
+ENV CHROME_BIN=/usr/bin/chromium-browser
+ENV CHROMIUM_BIN=/usr/bin/chromium-browser
+
 # Set working directory
 WORKDIR /app
-
-# Install basic dependencies for Angular
-RUN apk add --no-cache git
 
 # Expose development server port
 EXPOSE 4200
