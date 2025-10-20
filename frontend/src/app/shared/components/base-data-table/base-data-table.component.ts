@@ -139,7 +139,7 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
 
     // Set up filter debouncing
     this.filterSubject$
-      .pipe(debounceTime(400), distinctUntilChanged(), takeUntil(this.destroy$))
+      .pipe(debounceTime(400), takeUntil(this.destroy$))
       .subscribe(() => {
         this.currentPage = 1; // Reset to first page on filter change
         this.fetchData();
@@ -184,6 +184,7 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
       // Skip if queryParams are deeply equal (no actual change)
       if (this.areQueryParamsEqual(prev, curr)) {
         console.log('⏭️ QueryParams unchanged, skipping fetch');
+        return;
       }
 
       console.log('🔄 QueryParams changed, fetching data');
