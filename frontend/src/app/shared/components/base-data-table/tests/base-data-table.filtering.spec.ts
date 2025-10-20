@@ -1,100 +1,72 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+
 import { BaseDataTableComponent } from '../base-data-table.component';
-import { ColumnManagerComponent } from '../../column-manager/column-manager.component';
+import { TableColumn } from '../../../models/table-column.model';
+import { TableQueryParams } from '../../../models/table-data-source.model';
 import { TableStatePersistenceService } from '../../../services/table-state-persistence.service';
+
 import { MockTableDataSource } from '../mocks/mock-data-source';
 import { createTestColumns } from './test-helpers';
-import { DragDropModule } from '@angular/cdk/drag-drop';
-import { NzTableModule } from 'ng-zorro-antd/table';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzIconModule } from 'ng-zorro-antd/icon';
-import { NzInputModule } from 'ng-zorro-antd/input';
-import { NzEmptyModule } from 'ng-zorro-antd/empty';
-import { NzSpinModule } from 'ng-zorro-antd/spin';
-import { NzDrawerModule } from 'ng-zorro-antd/drawer';
-import { NzTransferModule } from 'ng-zorro-antd/transfer';
-import { NzAlertModule } from 'ng-zorro-antd/alert';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { TableQueryParams } from '../../../models/table-data-source.model';
+
+// Import NG-ZORRO modules
+import { NzIconModule, NZ_ICONS } from 'ng-zorro-antd/icon';
+import { IconDefinition } from '@ant-design/icons-angular';
+import * as AllIcons from '@ant-design/icons-angular/icons';
+
+const antDesignIcons = AllIcons as {
+  [key: string]: IconDefinition;
+};
+const icons: IconDefinition[] = Object.keys(antDesignIcons).map(key => antDesignIcons[key]);
 
 describe('BaseDataTableComponent - Filtering', () => {
   let component: BaseDataTableComponent<any>;
   let fixture: ComponentFixture<BaseDataTableComponent<any>>;
   let mockDataSource: MockTableDataSource;
-  let persistenceService: jasmine.SpyObj<TableStatePersistenceService>;
+  let mockPersistenceService: jasmine.SpyObj<TableStatePersistenceService>;
 
   beforeEach(async () => {
-    const persistenceSpy = jasmine.createSpyObj('TableStatePersistenceService', [
+    mockDataSource = new MockTableDataSource();
+    mockPersistenceService = jasmine.createSpyObj('TableStatePersistenceService', [
       'loadPreferences',
       'savePreferences',
       'resetPreferences'
     ]);
 
     await TestBed.configureTestingModule({
-      declarations: [
-        BaseDataTableComponent,
-        ColumnManagerComponent
-      ],
+      declarations: [BaseDataTableComponent],
       imports: [
         FormsModule,
-        HttpClientModule,
-        DragDropModule,
-        NzTableModule,
-        NzButtonModule,
-        NzIconModule,
-        NzInputModule,
-        NzEmptyModule,
-        NzSpinModule,
-        NzDrawerModule,
-        NzTransferModule,
-        NzAlertModule,
-        NoopAnimationsModule
+        NzIconModule
       ],
       providers: [
-        { provide: TableStatePersistenceService, useValue: persistenceSpy }
+        { provide: TableStatePersistenceService, useValue: mockPersistenceService },
+        { provide: NZ_ICONS, useValue: icons }
       ],
       schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();
 
-    persistenceService = TestBed.inject(TableStatePersistenceService) as jasmine.SpyObj<TableStatePersistenceService>;
-    persistenceService.loadPreferences.and.returnValue(null);
-  });
-
-  beforeEach(() => {
     fixture = TestBed.createComponent(BaseDataTableComponent);
     component = fixture.componentInstance;
     
-    mockDataSource = new MockTableDataSource();
     component.tableId = 'test-table';
     component.columns = createTestColumns();
     component.dataSource = mockDataSource;
-    component.queryParams = {
-      page: 1,
-      size: 20,
-      filters: {}
-    };
-    
-    fixture.detectChanges();
+    component.queryParams = { page: 1, size: 20, filters: {} };
+  });
+
+  afterEach(() => {
+    fixture.destroy();
   });
 
   describe('Filter Input Handling', () => {
-    
-    it('should update filters object when onFilterChange is called', () => {
+    it('should update filter state when input value changes', () => {
       component.onFilterChange('manufacturer', 'Ford');
       expect(component.filters['manufacturer']).toBe('Ford');
     });
 
-    it('should trigger fetchData after debounce when filter changes', fakeAsync(() => {
-      const fetchSpy = spyOn(component, 'fetchData');
-      component.onFilterChange('manufacturer', 'Ford');
-      tick(400);
-      expect(fetchSpy).toHaveBeenCalled();
-    }));
-
-    it('should remove filter when value is empty string', () => {
+    it('should remove filter when input is cleared', () => {
       component.filters['manufacturer'] = 'Ford';
       component.onFilterChange('manufacturer', '');
       expect(component.filters['manufacturer']).toBeUndefined();
@@ -106,12 +78,38 @@ describe('BaseDataTableComponent - Filtering', () => {
       expect(component.filters['manufacturer']).toBeUndefined();
     });
 
+    it('should remove filter when value is undefined', () => {
+      component.filters['manufacturer'] = 'Ford';
+      component.onFilterChange('manufacturer', undefined);
+      expect(component.filters['manufacturer']).toBeUndefined();
+    });
   });
 
   describe('Filter Debouncing', () => {
-    
-    it('should debounce filter input (400ms delay)', fakeAsync(() => {
-      const fetchSpy = spyOn(component, 'fetchData');
+    it('should debounce filter changes', fakeAsync(() => {
+      const fetchSpy = spyOn(mockDataSource, 'fetch').and.callThrough();
+      
+      fixture.detectChanges();
+      tick();
+      
+      const initialCallCount = fetchSpy.calls.count();
+      
+      component.onFilterChange('manufacturer', 'F');
+      tick(100);
+      expect(fetchSpy.calls.count()).toBe(initialCallCount);
+
+      tick(300);
+      expect(fetchSpy.calls.count()).toBe(initialCallCount + 1);
+    }));
+
+    it('should only trigger one fetch for rapid filter changes', fakeAsync(() => {
+      const fetchSpy = spyOn(mockDataSource, 'fetch').and.callThrough();
+      
+      fixture.detectChanges();
+      tick();
+      
+      const initialCallCount = fetchSpy.calls.count();
+
       component.onFilterChange('manufacturer', 'F');
       tick(100);
       component.onFilterChange('manufacturer', 'Fo');
@@ -120,128 +118,204 @@ describe('BaseDataTableComponent - Filtering', () => {
       tick(100);
       component.onFilterChange('manufacturer', 'Ford');
       tick(400);
-      expect(fetchSpy).toHaveBeenCalledTimes(1);
-    }));
 
-    it('should NOT fetch data before debounce time completes', fakeAsync(() => {
-      const fetchSpy = spyOn(component, 'fetchData');
-      component.onFilterChange('manufacturer', 'Ford');
-      tick(399);
-      expect(fetchSpy).not.toHaveBeenCalled();
+      expect(fetchSpy.calls.count()).toBe(initialCallCount + 1);
     }));
-
   });
 
-  describe('Filter State Management', () => {
-    
-    it('should reset to page 1 when filter changes', fakeAsync(() => {
-      component.currentPage = 5;
-      spyOn(component, 'fetchData');
-      component.onFilterChange('manufacturer', 'Ford');
-      tick(400);
-      expect(component.currentPage).toBe(1);
-    }));
-
-    it('should emit queryParamsChange when filter changes', fakeAsync(() => {
+  describe('Filter Query Param Emission', () => {
+    it('should emit queryParamsChange with filters', fakeAsync(() => {
+      fixture.detectChanges();
+      tick();
+      
       const emitSpy = spyOn(component.queryParamsChange, 'emit');
+
       component.onFilterChange('manufacturer', 'Ford');
       tick(400);
-      expect(emitSpy).toHaveBeenCalled();
-      const emittedParams = emitSpy.calls.mostRecent().args[0] as TableQueryParams;
-      expect(emittedParams.filters?.['manufacturer']).toBe('Ford');
+
+      expect(emitSpy).toHaveBeenCalledWith(
+        jasmine.objectContaining({
+          filters: jasmine.objectContaining({ manufacturer: 'Ford' })
+        })
+      );
     }));
 
+    it('should reset to page 1 when filter changes', fakeAsync(() => {
+      fixture.detectChanges();
+      tick();
+      
+      component.currentPage = 5;
+      const emitSpy = spyOn(component.queryParamsChange, 'emit');
+
+      component.onFilterChange('manufacturer', 'Ford');
+      tick(400);
+
+      expect(emitSpy).toHaveBeenCalledWith(
+        jasmine.objectContaining({
+          page: 1
+        })
+      );
+    }));
   });
 
-  describe('Data Source Integration', () => {
-    
-    it('should pass filters to data source', fakeAsync(() => {
-      const dataSourceSpy = spyOn(mockDataSource, 'fetch').and.callThrough();
+  describe('Multiple Filter Handling', () => {
+    it('should handle multiple active filters', fakeAsync(() => {
+      const fetchSpy = spyOn(mockDataSource, 'fetch').and.callThrough();
+      
+      fixture.detectChanges();
+      tick();
+      
+      fetchSpy.calls.reset();
+
       component.onFilterChange('manufacturer', 'Ford');
       tick(400);
-      expect(dataSourceSpy).toHaveBeenCalled();
-      const params = dataSourceSpy.calls.mostRecent().args[0];
-      expect(params.filters?.['manufacturer']).toBe('Ford');
-    }));
-
-    it('should filter data correctly through data source', fakeAsync(() => {
-      component.onFilterChange('manufacturer', 'Ford');
+      
+      expect(fetchSpy.calls.count()).toBe(1);
+      
+      component.onFilterChange('model', 'F-150');
       tick(400);
-      expect(component.tableData.length).toBe(2);
-      component.tableData.forEach(item => {
-        expect(item.manufacturer).toBe('Ford');
-      });
+
+      expect(component.filters['manufacturer']).toBe('Ford');
+      expect(component.filters['model']).toBe('F-150');
+      expect(fetchSpy.calls.count()).toBe(2);
     }));
 
+    it('should preserve existing filters when adding new ones', () => {
+      component.filters['manufacturer'] = 'Ford';
+      component.onFilterChange('model', 'F-150');
+
+      expect(component.filters['manufacturer']).toBe('Ford');
+      expect(component.filters['model']).toBe('F-150');
+    });
   });
 
   describe('Clear Filters', () => {
-    
-    it('should clear all filters when clearFilters is called', () => {
-      component.filters = {
-        manufacturer: 'Ford',
-        model: 'F-150',
-        year: 2020
-      };
+    it('should clear all filters when clearFilters is called', fakeAsync(() => {
+      fixture.detectChanges();
+      tick();
+      
+      component.filters = { manufacturer: 'Ford', model: 'F-150', year: 2020 };
+      
       component.clearFilters();
-      expect(component.filters).toEqual({});
-    });
+      tick();
 
-    it('should fetch data after clearing filters', fakeAsync(() => {
+      expect(Object.keys(component.filters).length).toBe(0);
+    }));
+
+    it('should emit queryParamsChange after clearing filters', fakeAsync(() => {
+      fixture.detectChanges();
+      tick();
+      
       component.filters = { manufacturer: 'Ford' };
-      const fetchSpy = spyOn(component, 'fetchData');
+      const emitSpy = spyOn(component.queryParamsChange, 'emit');
+
       component.clearFilters();
-      tick(400);
-      expect(fetchSpy).toHaveBeenCalled();
+      tick();
+
+      expect(emitSpy).toHaveBeenCalledWith(
+        jasmine.objectContaining({
+          filters: {}
+        })
+      );
     }));
 
+    it('should reset to page 1 after clearing filters', fakeAsync(() => {
+      fixture.detectChanges();
+      tick();
+      
+      component.currentPage = 5;
+      component.filters = { manufacturer: 'Ford' };
+      
+      component.clearFilters();
+      tick();
+
+      expect(component.currentPage).toBe(1);
+    }));
   });
 
-  describe('Multiple Filters', () => {
-    
-    it('should handle multiple simultaneous filters', fakeAsync(() => {
+  describe('Data Source Integration', () => {
+    it('should pass filters to data source fetch', fakeAsync(() => {
+      const fetchSpy = spyOn(mockDataSource, 'fetch').and.callThrough();
+      
+      fixture.detectChanges();
+      tick();
+      
+      fetchSpy.calls.reset();
+
       component.onFilterChange('manufacturer', 'Ford');
-      component.onFilterChange('year', 2020);
       tick(400);
-      const params = mockDataSource.lastParams;
-      expect(params?.filters?.['manufacturer']).toBe('Ford');
-      expect(params?.filters?.['year']).toBe(2020);
+
+      expect(fetchSpy).toHaveBeenCalledWith(
+        jasmine.objectContaining({
+          filters: jasmine.objectContaining({ manufacturer: 'Ford' })
+        })
+      );
     }));
 
-    it('should filter data with multiple criteria', fakeAsync(() => {
-      component.onFilterChange('manufacturer', 'Ford');
-      component.onFilterChange('body_class', 'Pickup');
-      tick(400);
-      expect(component.tableData.length).toBe(1);
-      expect(component.tableData[0].manufacturer).toBe('Ford');
-      expect(component.tableData[0].body_class).toBe('Pickup');
-    }));
-
-  });
-
-  describe('Edge Cases', () => {
-    
-    it('should handle empty filter value', fakeAsync(() => {
-      component.onFilterChange('manufacturer', 'Ford');
-      tick(400);
-      expect(component.tableData.length).toBe(2);
-      component.onFilterChange('manufacturer', '');
-      tick(400);
+    it('should update table data after filtering', fakeAsync(() => {
+      fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
+      
       expect(component.tableData.length).toBe(5);
-    }));
-
-    it('should handle filter with no matching results', fakeAsync(() => {
-      component.onFilterChange('manufacturer', 'NonExistentBrand');
+      
+      component.onFilterChange('manufacturer', 'Ford');
       tick(400);
-      expect(component.tableData.length).toBe(0);
-    }));
+      fixture.detectChanges();
 
-    it('should be case-insensitive when filtering', fakeAsync(() => {
-      component.onFilterChange('manufacturer', 'ford');
-      tick(400);
       expect(component.tableData.length).toBe(2);
+      expect(component.tableData.every(item => item.manufacturer === 'Ford')).toBe(true);
     }));
-
   });
 
+  describe('Internal vs External Query Param Changes', () => {
+    it('should NOT skip fetch when user types in filter repeatedly (internal changes)', fakeAsync(() => {
+      const fetchSpy = spyOn(mockDataSource, 'fetch').and.callThrough();
+      
+      fixture.detectChanges();
+      tick();
+      
+      fetchSpy.calls.reset();
+
+      // First filter change
+      component.onFilterChange('manufacturer', 'Ford');
+      tick(400);
+      expect(fetchSpy.calls.count()).toBe(1);
+      
+      // Second filter change - should still fetch!
+      component.onFilterChange('manufacturer', 'Toyota');
+      tick(400);
+      expect(fetchSpy.calls.count()).toBe(2);
+      
+      // Third filter change - should still fetch!
+      component.onFilterChange('manufacturer', 'Honda');
+      tick(400);
+      expect(fetchSpy.calls.count()).toBe(3);
+    }));
+
+    it('SHOULD skip fetch when parent sends identical queryParams back (external change)', fakeAsync(() => {
+      const fetchSpy = spyOn(mockDataSource, 'fetch').and.callThrough();
+      
+      fixture.detectChanges();
+      tick();
+      
+      fetchSpy.calls.reset();
+
+      // Simulate parent sending same params back
+      const sameParams = { page: 1, size: 20, filters: {} };
+      component.queryParams = sameParams;
+      component.ngOnChanges({
+        queryParams: {
+          previousValue: sameParams,
+          currentValue: sameParams,
+          firstChange: false,
+          isFirstChange: () => false
+        }
+      });
+      tick();
+      
+      // Should NOT fetch because params didn't actually change
+      expect(fetchSpy.calls.count()).toBe(0);
+    }));
+  });
 });

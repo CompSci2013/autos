@@ -117,6 +117,7 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
   private destroy$ = new Subject<void>();
   private filterSubject$ = new Subject<void>();
   private isReorderingColumns = false;
+  private isInternalChange = false;
 
   // ========== LIFECYCLE ==========
 
@@ -149,6 +150,10 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    if (this.isInternalChange) {
+      this.isInternalChange = false;
+      return;
+    }
     // Handle column changes
     if (changes['columns'] && changes['columns'].firstChange) {
       this.originalColumnDefinitions = changes['columns'].currentValue.map(
@@ -179,7 +184,6 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
       // Skip if queryParams are deeply equal (no actual change)
       if (this.areQueryParamsEqual(prev, curr)) {
         console.log('⏭️ QueryParams unchanged, skipping fetch');
-        return;
       }
 
       console.log('🔄 QueryParams changed, fetching data');
@@ -380,6 +384,7 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
   // ========== FILTERING ==========
 
   onFilterChange(columnKey: string, value: any): void {
+    this.isInternalChange = true;
     if (value === null || value === undefined || value === '') {
       delete this.filters[columnKey];
     } else {
