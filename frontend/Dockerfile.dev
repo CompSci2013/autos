@@ -1,7 +1,7 @@
 FROM node:18-alpine
 
-# Install Angular CLI 14
-RUN npm install -g @angular/cli@14
+# Install bash for Claude Code
+RUN apk add --no-cache bash
 
 # Install Chromium and dependencies for headless testing
 RUN apk add --no-cache \
@@ -17,11 +17,26 @@ RUN apk add --no-cache \
 ENV CHROME_BIN=/usr/bin/chromium-browser
 ENV CHROMIUM_BIN=/usr/bin/chromium-browser
 
+# Set SHELL for Claude Code
+ENV SHELL=/bin/bash
+
 # Set working directory
 WORKDIR /app
 
-# Expose development server port
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Install Angular CLI globally
+RUN npm install -g @angular/cli
+
+# Install Claude Code CLI globally
+RUN npm install -g @anthropic-ai/claude-code
+
+# Expose Angular dev server port
 EXPOSE 4200
 
-# Keep container running and allow interactive development
+# Keep container running
 CMD ["tail", "-f", "/dev/null"]
