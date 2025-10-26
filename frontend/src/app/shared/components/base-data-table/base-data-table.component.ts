@@ -42,7 +42,7 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
 
   /** Data source for fetching table data */
   @Input() dataSource!: TableDataSource<T>;
-  @Input() maxTableHeight: string = '600px';
+  @Input() maxTableHeight: string = '1200px';
 
   /** Initial query parameters from parent */
   @Input() queryParams: TableQueryParams = {

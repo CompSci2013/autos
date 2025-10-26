@@ -53,7 +53,7 @@
 
   // Gridster requires explicit height
   &.grid-container-1 {
-    height: 1400px; // 600px * 1.2 = 720px
+    height: 1680px; // Increased from 1400px to accommodate taller results table (20 rows instead of 14)
   }
 
   &.grid-container-2 {

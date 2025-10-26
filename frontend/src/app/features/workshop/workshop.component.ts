@@ -101,7 +101,7 @@ export class WorkshopComponent implements OnInit, OnDestroy {
       // ✅ UPDATED: Two items instead of one
       this.dashboard1 = [
         { cols: 12, rows: 16, y: 0, x: 0 }, // Picker Comparison
-        { cols: 12, rows: 14, y: 16, x: 0 }, // Results Table Demo
+        { cols: 12, rows: 20, y: 16, x: 0 }, // Results Table Demo (increased from 14 to 20 for more vertical space)
       ];
     }
 
@@ -112,7 +112,7 @@ export class WorkshopComponent implements OnInit, OnDestroy {
     } else {
       this.dashboard2 = [
         { cols: 12, rows: 16, y: 0, x: 0 },
-        { cols: 12, rows: 14, y: 16, x: 0 },
+        { cols: 12, rows: 50, y: 16, x: 0 },
       ];
     }
 
