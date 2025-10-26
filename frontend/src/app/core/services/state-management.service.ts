@@ -71,8 +71,18 @@ export class StateManagementService implements OnDestroy {
     private apiService: ApiService,
     private requestCoordinator: RequestCoordinatorService
   ) {
-    this.initializeFromUrl();
-    this.watchUrlChanges();
+    // Detect if we're in a pop-out window
+    const isPopout = this.router.url.startsWith('/panel/');
+
+    if (isPopout) {
+      console.log('[StateManagement] Pop-out window detected - URL watching DISABLED');
+      // Pop-out windows receive state via BroadcastChannel, not URL
+      // Do not initialize from URL or watch URL changes
+    } else {
+      console.log('[StateManagement] Main window detected - URL watching ENABLED');
+      this.initializeFromUrl();
+      this.watchUrlChanges();
+    }
   }
 
   // ========== INITIALIZATION ==========
@@ -494,10 +504,17 @@ export class StateManagementService implements OnDestroy {
    */
   public syncStateFromExternal(state: Partial<AppState>): void {
     const currentState = this.stateSubject.value;
-    this.stateSubject.next({
+    const newState = {
       ...currentState,
       ...state
+    };
+    console.log('[StateManagement] syncStateFromExternal:', {
+      currentResults: currentState.results?.length,
+      newResults: newState.results?.length,
+      currentFilters: currentState.filters,
+      newFilters: newState.filters
     });
+    this.stateSubject.next(newState);
   }
 
   // ========== CLEANUP ==========

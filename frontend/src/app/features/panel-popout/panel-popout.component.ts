@@ -83,18 +83,27 @@ export class PanelPopoutComponent implements OnInit, OnDestroy {
   }
 
   private handleMessage(message: any): void {
-    console.log('Pop-out received message:', message);
+    console.log('[PopOut] Received message:', message.type);
 
     switch (message.type) {
       case 'STATE_UPDATE':
         // Handle state updates from main window
         // Sync FULL state to local StateManagementService
         if (message.state) {
-          console.log('Pop-out syncing full state:', message.state);
+          console.log('[PopOut] Syncing full state:', {
+            filters: message.state.filters,
+            resultsCount: message.state.results?.length,
+            loading: message.state.loading,
+            error: message.state.error,
+            totalResults: message.state.totalResults
+          });
+
           this.stateService.syncStateFromExternal(message.state);
 
           // Update local UI state
           this.currentFilters = message.state.filters;
+          console.log('[PopOut] Updated currentFilters:', this.currentFilters);
+          console.log('[PopOut] hasActiveFilters:', this.hasActiveFilters);
 
           // Update picker selections
           if (message.state.filters.modelCombos) {
