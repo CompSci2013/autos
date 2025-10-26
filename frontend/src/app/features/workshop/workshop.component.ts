@@ -2,9 +2,11 @@ import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { StateManagementService } from '../../core/services/state-management.service';
+import { GridTransferService } from '../../core/services/grid-transfer.service';
 import { ManufacturerModelSelection } from '../../models';
 import { SearchFilters } from '../../models/search-filters.model';
-import { GridsterConfig, GridsterItem } from 'angular-gridster2';
+import { WorkspacePanel } from '../../models/workspace-panel.model';
+import { GridsterConfig, GridType, CompactType } from 'angular-gridster2';
 
 @Component({
   selector: 'app-workshop',
@@ -14,19 +16,17 @@ import { GridsterConfig, GridsterItem } from 'angular-gridster2';
 export class WorkshopComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
-  // Gridster options for both grids
-  options1!: GridsterConfig;
-  options2!: GridsterConfig;
+  // Grid configurations
+  leftGridOptions!: GridsterConfig;
+  rightGridOptions!: GridsterConfig;
 
-  // Dashboard layouts
-  dashboard1!: Array<GridsterItem>;
-  dashboard2!: Array<GridsterItem>;
+  // Grid items
+  leftGridItems: WorkspacePanel[] = [];
+  rightGridItems: WorkspacePanel[] = [];
 
   // Panel collapse states
-  demoCollapsed = false;
-  pickerCollapsed = false;
-  resultsCollapsed = false;
-  pickerComparisonCollapsed = false; // ✅ ADDED
+  leftPanelCollapsed = false;
+  rightPanelCollapsed = false;
 
   // State passed to picker
   pickerClearTrigger = 0;
@@ -37,86 +37,136 @@ export class WorkshopComponent implements OnInit, OnDestroy {
 
   constructor(
     private stateService: StateManagementService,
+    private gridTransfer: GridTransferService,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    // Initialize Gridster options for grid 1
-    this.options1 = {
-      gridType: 'fit',
-      displayGrid: 'onDrag&Resize',
-      pushItems: true,
-      draggable: {
-        enabled: true,
-        ignoreContent: true,
-        dragHandleClass: 'drag-handler',
-      },
-      resizable: {
-        enabled: true,
-      },
-      swap: true,
-      margin: 2,
+    this.initializeGrids();
+    this.loadGridState();
+    this.subscribeToGridChanges();
+    this.subscribeToStateFilters();
+  }
+
+  private initializeGrids(): void {
+    const baseConfig: GridsterConfig = {
+      gridType: GridType.Fit,
+      compactType: CompactType.None,
+      margin: 10,
       outerMargin: true,
-      minCols: 12,
-      maxCols: 12,
+      outerMarginTop: null,
+      outerMarginRight: null,
+      outerMarginBottom: null,
+      outerMarginLeft: null,
+      useTransformPositioning: true,
+      mobileBreakpoint: 640,
+      minCols: 1,
+      maxCols: 100,
       minRows: 1,
       maxRows: 100,
-      itemChangeCallback: (item: GridsterItem, itemComponent: any) => {
-        this.itemChange(item, itemComponent);
-      },
-      itemResizeCallback: (item: GridsterItem, itemComponent: any) => {
-        this.itemResize(item, itemComponent);
-      },
-    };
-
-    // Initialize Gridster options for grid 2
-    this.options2 = {
-      gridType: 'fit',
-      displayGrid: 'onDrag&Resize',
-      pushItems: true,
+      maxItemCols: 100,
+      minItemCols: 1,
+      maxItemRows: 100,
+      minItemRows: 1,
+      maxItemArea: 2500,
+      minItemArea: 1,
+      defaultItemCols: 1,
+      defaultItemRows: 1,
+      fixedColWidth: 105,
+      fixedRowHeight: 105,
+      enableEmptyCellClick: false,
+      enableEmptyCellContextMenu: false,
+      enableEmptyCellDrop: true,
+      enableEmptyCellDrag: false,
+      enableOccupiedCellDrop: false,
+      emptyCellDragMaxCols: 50,
+      emptyCellDragMaxRows: 50,
+      ignoreMarginInRow: false,
       draggable: {
         enabled: true,
-        ignoreContent: true,
-        dragHandleClass: 'drag-handler',
+        ignoreContentClass: 'no-drag',
+        ignoreContent: false,
+        dragHandleClass: 'drag-handle',
+        stop: undefined,
+        start: undefined
       },
       resizable: {
-        enabled: true,
+        enabled: true
       },
       swap: false,
-      margin: 16,
-      outerMargin: true,
-      minCols: 12,
-      maxCols: 12,
-      minRows: 1,
-      maxRows: 100,
-      itemChangeCallback: this.itemChange.bind(this),
-      itemResizeCallback: this.itemResize.bind(this),
+      pushItems: true,
+      disablePushOnDrag: false,
+      disablePushOnResize: false,
+      pushDirections: { north: true, east: true, south: true, west: true },
+      pushResizeItems: false,
+      displayGrid: 'onDrag&Resize',
+      disableWindowResize: false,
+      disableWarnings: false,
+      scrollToNewItems: false,
+      itemChangeCallback: undefined,
+      itemResizeCallback: undefined
     };
 
-    // Load saved layout 1 (Picker Comparison + Results Table Demo grid)
-    const savedLayout1 = localStorage.getItem('autos-workshop-layout1');
-    if (savedLayout1) {
-      this.dashboard1 = JSON.parse(savedLayout1);
+    // Left grid configuration
+    this.leftGridOptions = {
+      ...baseConfig,
+      emptyCellDropCallback: this.onLeftGridDrop.bind(this),
+      draggable: {
+        ...baseConfig.draggable,
+        stop: this.onDragStop.bind(this, 'left')
+      },
+      itemChangeCallback: this.onLeftGridChange.bind(this)
+    };
+
+    // Right grid configuration
+    this.rightGridOptions = {
+      ...baseConfig,
+      emptyCellDropCallback: this.onRightGridDrop.bind(this),
+      draggable: {
+        ...baseConfig.draggable,
+        stop: this.onDragStop.bind(this, 'right')
+      },
+      itemChangeCallback: this.onRightGridChange.bind(this)
+    };
+  }
+
+  private loadGridState(): void {
+    const savedState = localStorage.getItem('autos-workshop-dual-grid-state');
+    if (savedState) {
+      const state = JSON.parse(savedState);
+      this.leftGridItems = state.leftGrid || [];
+      this.rightGridItems = state.rightGrid || [];
     } else {
-      // ✅ UPDATED: Two items instead of one
-      this.dashboard1 = [
-        { cols: 12, rows: 16, y: 0, x: 0 }, // Picker Comparison
-        { cols: 12, rows: 20, y: 16, x: 0 }, // Results Table Demo (increased from 14 to 20 for more vertical space)
+      // Initialize with default panels
+      this.leftGridItems = [
+        { cols: 2, rows: 3, y: 0, x: 0, id: 'left-picker', panelType: 'picker' }
+      ];
+
+      this.rightGridItems = [
+        { cols: 2, rows: 3, y: 0, x: 0, id: 'right-results', panelType: 'results' }
       ];
     }
 
-    // Load saved layout 2 (Picker + Results grid)
-    const savedLayout2 = localStorage.getItem('autos-workshop-layout2');
-    if (savedLayout2) {
-      this.dashboard2 = JSON.parse(savedLayout2);
-    } else {
-      this.dashboard2 = [
-        { cols: 12, rows: 16, y: 0, x: 0 },
-        { cols: 12, rows: 50, y: 16, x: 0 },
-      ];
-    }
+    this.gridTransfer.setGrids(this.leftGridItems, this.rightGridItems);
+  }
 
-    // Subscribe to filters from state
+  private subscribeToGridChanges(): void {
+    this.gridTransfer.leftGrid$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(items => {
+      this.leftGridItems = items;
+      this.saveGridState();
+    });
+
+    this.gridTransfer.rightGrid$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(items => {
+      this.rightGridItems = items;
+      this.saveGridState();
+    });
+  }
+
+  private subscribeToStateFilters(): void {
     this.stateService.filters$
       .pipe(takeUntil(this.destroy$))
       .subscribe((filters) => {
@@ -132,34 +182,101 @@ export class WorkshopComponent implements OnInit, OnDestroy {
       });
   }
 
+  private saveGridState(): void {
+    const state = {
+      leftGrid: this.leftGridItems,
+      rightGrid: this.rightGridItems
+    };
+    localStorage.setItem('autos-workshop-dual-grid-state', JSON.stringify(state));
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  itemChange(item: GridsterItem, itemComponent: any): void {
-    console.log('Item changed:', item);
-    console.log('Current dashboard1:', JSON.stringify(this.dashboard1));
-    this.cdr.detectChanges();
-    this.saveLayouts();
+  // Drag & Drop Handlers
+  onDragStop(sourceGrid: 'left' | 'right', item: WorkspacePanel, gridsterItem: any, event: MouseEvent): void {
+    const targetGrid = this.detectTargetGrid(event);
+
+    if (targetGrid && targetGrid !== sourceGrid) {
+      // Cross-grid drop detected
+      this.gridTransfer.transferItem(item, sourceGrid, targetGrid);
+    }
   }
 
-  itemResize(item: GridsterItem, itemComponent: any): void {
-    console.log('Item resized:', item);
-    console.log('Current dashboard1:', JSON.stringify(this.dashboard1));
-    this.cdr.detectChanges();
-    this.saveLayouts();
+  private detectTargetGrid(event: MouseEvent): 'left' | 'right' | null {
+    const leftGridEl = document.querySelector('.left-grid');
+    const rightGridEl = document.querySelector('.right-grid');
+
+    if (!leftGridEl || !rightGridEl) return null;
+
+    const leftRect = leftGridEl.getBoundingClientRect();
+    const rightRect = rightGridEl.getBoundingClientRect();
+
+    const x = event.clientX;
+    const y = event.clientY;
+
+    // Check if coordinates are within left grid
+    if (x >= leftRect.left && x <= leftRect.right &&
+        y >= leftRect.top && y <= leftRect.bottom) {
+      return 'left';
+    }
+
+    // Check if coordinates are within right grid
+    if (x >= rightRect.left && x <= rightRect.right &&
+        y >= rightRect.top && y <= rightRect.bottom) {
+      return 'right';
+    }
+
+    return null;
   }
 
-  saveLayouts(): void {
-    localStorage.setItem(
-      'autos-workshop-layout1',
-      JSON.stringify(this.dashboard1)
-    );
-    localStorage.setItem(
-      'autos-workshop-layout2',
-      JSON.stringify(this.dashboard2)
-    );
+  onLeftGridDrop(event: MouseEvent, item: WorkspacePanel): void {
+    console.log('Item dropped on left grid:', item);
+  }
+
+  onRightGridDrop(event: MouseEvent, item: WorkspacePanel): void {
+    console.log('Item dropped on right grid:', item);
+  }
+
+  onLeftGridChange(item: WorkspacePanel, gridsterItem: any): void {
+    this.saveGridState();
+  }
+
+  onRightGridChange(item: WorkspacePanel, gridsterItem: any): void {
+    this.saveGridState();
+  }
+
+  // Panel Actions
+  removePanel(item: WorkspacePanel, grid: 'left' | 'right'): void {
+    if (grid === 'left') {
+      const index = this.leftGridItems.indexOf(item);
+      this.leftGridItems.splice(index, 1);
+    } else {
+      const index = this.rightGridItems.indexOf(item);
+      this.rightGridItems.splice(index, 1);
+    }
+    this.saveGridState();
+  }
+
+  addPanel(grid: 'left' | 'right', panelType: 'picker' | 'results'): void {
+    const newItem: WorkspacePanel = {
+      cols: 2,
+      rows: 2,
+      y: 0,
+      x: 0,
+      id: `${grid}-${Date.now()}`,
+      panelType
+    };
+
+    if (grid === 'left') {
+      this.leftGridItems.push(newItem);
+    } else {
+      this.rightGridItems.push(newItem);
+    }
+
+    this.saveGridState();
   }
 
   onPickerSelectionChange(selections: ManufacturerModelSelection[]): void {

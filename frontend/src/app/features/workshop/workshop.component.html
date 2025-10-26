@@ -1,175 +1,109 @@
-<div class="workshop-page">
-  <div class="page-header">
-    <h1>Workshop - Experimental Layout</h1>
-    <p class="subtitle">
-      Drag and resize panels to customize your workspace. Layout is saved
-      automatically.
-    </p>
-  </div>
-
-  <!-- Active Filters Summary -->
-  <div class="filters-summary" *ngIf="hasActiveFilters">
-    <div class="summary-content">
-      <span class="summary-label">Active Filters:</span>
-      <span class="summary-count">{{ selectionCount }} model(s) selected</span>
+<div class="workspace-container">
+  <div class="workspace-header">
+    <div>
+      <h2>Dual Workspace</h2>
+      <p class="subtitle">Drag panels between grids. Layout is saved automatically.</p>
     </div>
-    <button nz-button nzType="primary" nzDanger (click)="onClearAll()">
-      Clear All
-    </button>
+    <div class="actions">
+      <div class="filters-summary" *ngIf="hasActiveFilters">
+        <span class="summary-label">Active:</span>
+        <span class="summary-count">{{ selectionCount }} model(s)</span>
+        <button nz-button nzType="primary" nzDanger nzSize="small" (click)="onClearAll()">
+          Clear All
+        </button>
+      </div>
+    </div>
   </div>
 
-  <!-- Grid Layout Container 1 (Picker Comparison + Results Table Demo) -->
-  <gridster [options]="options1" class="grid-container grid-container-1">
-    <!-- Table Picker Panel -->
-    <gridster-item [item]="dashboard1[0]">
-      <div
-        class="drag-handler"
-        style="
-          cursor: move;
-          padding: 8px;
-          background: #f0f0f0;
-          border-bottom: 1px solid #d9d9d9;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        "
-      >
-        <div style="display: flex; align-items: center">
-          <i
-            nz-icon
-            nzType="drag"
-            nzTheme="outline"
-            style="margin-right: 8px"
-          ></i>
-          <span>Manufacturer + Model Picker (Comparison)</span>
-        </div>
-        <i
-          nz-icon
-          [nzType]="pickerComparisonCollapsed ? 'down' : 'up'"
-          nzTheme="outline"
-          (click)="pickerComparisonCollapsed = !pickerComparisonCollapsed"
-          style="cursor: pointer"
-        ></i>
+  <div class="grids-container">
+    <!-- Left Grid -->
+    <div class="grid-wrapper left-grid">
+      <div class="grid-header">
+        <h3>Left Workspace</h3>
       </div>
-      <div
-        [hidden]="pickerComparisonCollapsed"
-        style="background: white; padding: 16px"
-      >
-        <!-- <nz-tabset> -->
-        <!-- <nz-tab nzTitle="Original Picker">
-            <div class="tab-content">
-              <app-manufacturer-model-table-picker
-                [clearTrigger]="pickerClearTrigger"
-                [initialSelections]="pickerInitialSelections"
-                (selectionChange)="onPickerSelectionChange($event)"
-              >
-              </app-manufacturer-model-table-picker>
+      <gridster [options]="leftGridOptions">
+        <gridster-item *ngFor="let item of leftGridItems" [item]="item">
+          <div class="panel-container">
+            <div class="panel-header drag-handle">
+              <span class="panel-title">
+                <i nz-icon nzType="drag" nzTheme="outline"></i>
+                {{ item.panelType === 'picker' ? 'Model Picker' : 'Vehicle Results' }}
+              </span>
+              <i
+                nz-icon
+                [nzType]="item.panelType === 'picker' ? (leftPanelCollapsed ? 'down' : 'up') : 'close'"
+                nzTheme="outline"
+                (click)="item.panelType === 'picker' ? (leftPanelCollapsed = !leftPanelCollapsed) : removePanel(item, 'left')"
+                style="cursor: pointer"
+              ></i>
             </div>
-          </nz-tab> -->
-
-        <!-- <nz-tab nzTitle="⚡ NEW: BaseDataTable Picker"> -->
-        <div class="tab-content">
-          <app-table-picker
-            [initialSelections]="pickerInitialSelections"
-            [clearTrigger]="pickerClearTrigger"
-            (selectionChange)="onPickerSelectionChange($event)"
-          >
-          </app-table-picker>
-        </div>
-        <!-- </nz-tab> -->
-        <!-- </nz-tabset> -->
-      </div>
-    </gridster-item>
-
-    <!-- Results Table Demo Panel -->
-    <gridster-item [item]="dashboard1[1]">
-      <div
-        class="drag-handler"
-        style="
-          cursor: move;
-          padding: 8px;
-          background: #f0f0f0;
-          border-bottom: 1px solid #d9d9d9;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        "
-      >
-        <div style="display: flex; align-items: center">
-          <i
-            nz-icon
-            nzType="drag"
-            nzTheme="outline"
-            style="margin-right: 8px"
-          ></i>
-          <span>Results Table (BaseDataTable Demo)</span>
-        </div>
-        <i
-          nz-icon
-          [nzType]="demoCollapsed ? 'down' : 'up'"
-          nzTheme="outline"
-          (click)="demoCollapsed = !demoCollapsed"
-          style="cursor: pointer"
-        ></i>
-      </div>
-      <div [hidden]="demoCollapsed" style="background: white">
-        <div class="demo-content" *ngIf="hasActiveFilters">
-          <p class="demo-description">
-            <i nz-icon nzType="experiment" nzTheme="outline"></i>
-            This table uses the new BaseDataTableComponent - same data and
-            functionality as below, but with ~60% less code. Drag, resize, or
-            collapse this panel!
-          </p>
-          <app-results-table></app-results-table>
-        </div>
-        <div class="demo-content" *ngIf="!hasActiveFilters">
-          <nz-empty
-            nzNotFoundContent="Select models from the picker below to see results"
-          ></nz-empty>
-        </div>
-      </div>
-    </gridster-item>
-  </gridster>
-
-  <!-- Grid Layout Container 2 (Original: Picker + Results) -->
-  <!-- <gridster [options]="options2" class="grid-container grid-container-2"> -->
-  <!-- Picker Panel -->
-  <!-- <gridster-item [item]="dashboard2[0]">
-      <nz-collapse class="panel-collapse">
-        <nz-collapse-panel
-          nzHeader="Manufacturer + Model Picker"
-          [nzActive]="!pickerCollapsed"
-        >
-          <div
-            (mousedown)="$event.stopPropagation()"
-            (touchstart)="$event.stopPropagation()"
-          >
-            <app-manufacturer-model-table-picker
-              [clearTrigger]="pickerClearTrigger"
-              [initialSelections]="pickerInitialSelections"
-              (selectionChange)="onPickerSelectionChange($event)"
-            >
-            </app-manufacturer-model-table-picker>
+            <div class="panel-content no-drag" [hidden]="item.panelType === 'picker' && leftPanelCollapsed">
+              <!-- Dynamic panel content based on panelType -->
+              <div *ngIf="item.panelType === 'picker'">
+                <app-table-picker
+                  [initialSelections]="pickerInitialSelections"
+                  [clearTrigger]="pickerClearTrigger"
+                  (selectionChange)="onPickerSelectionChange($event)"
+                >
+                </app-table-picker>
+              </div>
+              <div *ngIf="item.panelType === 'results'">
+                <div *ngIf="hasActiveFilters; else noFilters">
+                  <app-results-table></app-results-table>
+                </div>
+                <ng-template #noFilters>
+                  <nz-empty nzNotFoundContent="Select models from the picker to see results"></nz-empty>
+                </ng-template>
+              </div>
+            </div>
           </div>
-        </nz-collapse-panel>
-      </nz-collapse>
-    </gridster-item> -->
+        </gridster-item>
+      </gridster>
+    </div>
 
-  <!-- Results Panel -->
-  <!-- <gridster-item [item]="dashboard2[1]">
-      <nz-collapse class="panel-collapse">
-        <nz-collapse-panel
-          nzHeader="Vehicle Results"
-          [nzActive]="!resultsCollapsed"
-        >
-          <div
-            (mousedown)="$event.stopPropagation()"
-            (touchstart)="$event.stopPropagation()"
-          >
-            <app-results-table></app-results-table>
+    <!-- Right Grid -->
+    <div class="grid-wrapper right-grid">
+      <div class="grid-header">
+        <h3>Right Workspace</h3>
+      </div>
+      <gridster [options]="rightGridOptions">
+        <gridster-item *ngFor="let item of rightGridItems" [item]="item">
+          <div class="panel-container">
+            <div class="panel-header drag-handle">
+              <span class="panel-title">
+                <i nz-icon nzType="drag" nzTheme="outline"></i>
+                {{ item.panelType === 'picker' ? 'Model Picker' : 'Vehicle Results' }}
+              </span>
+              <i
+                nz-icon
+                [nzType]="item.panelType === 'picker' ? (rightPanelCollapsed ? 'down' : 'up') : 'close'"
+                nzTheme="outline"
+                (click)="item.panelType === 'picker' ? (rightPanelCollapsed = !rightPanelCollapsed) : removePanel(item, 'right')"
+                style="cursor: pointer"
+              ></i>
+            </div>
+            <div class="panel-content no-drag" [hidden]="item.panelType === 'picker' && rightPanelCollapsed">
+              <!-- Dynamic panel content based on panelType -->
+              <div *ngIf="item.panelType === 'picker'">
+                <app-table-picker
+                  [initialSelections]="pickerInitialSelections"
+                  [clearTrigger]="pickerClearTrigger"
+                  (selectionChange)="onPickerSelectionChange($event)"
+                >
+                </app-table-picker>
+              </div>
+              <div *ngIf="item.panelType === 'results'">
+                <div *ngIf="hasActiveFilters; else noFiltersRight">
+                  <app-results-table></app-results-table>
+                </div>
+                <ng-template #noFiltersRight>
+                  <nz-empty nzNotFoundContent="Select models from the picker to see results"></nz-empty>
+                </ng-template>
+              </div>
+            </div>
           </div>
-        </nz-collapse-panel>
-      </nz-collapse>
-    </gridster-item> -->
-  <!-- </gridster> -->
+        </gridster-item>
+      </gridster>
+    </div>
+  </div>
 </div>
