@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { WorkspacePanel } from '../../models/workspace-panel.model';
 import { GridTransferService } from './grid-transfer.service';
+import { StateManagementService } from './state-management.service';
 
 export interface PopoutWindow {
   panelId: string;
@@ -26,9 +27,20 @@ export class PanelPopoutService {
   private popouts = new Map<string, PopoutWindow>();
   private restoreInProgress = false;
 
-  constructor(private gridTransfer: GridTransferService) {
+  constructor(
+    private gridTransfer: GridTransferService,
+    private stateService: StateManagementService
+  ) {
     // Restore any panels that were popped out before page refresh
     this.restorePopoutsFromStorage();
+
+    // Subscribe to state changes and broadcast to all pop-outs
+    this.stateService.filters$.subscribe(filters => {
+      this.broadcastToAll({
+        type: 'STATE_UPDATE',
+        filters
+      });
+    });
 
     // Cleanup on page unload
     window.addEventListener('beforeunload', () => {
@@ -212,20 +224,38 @@ export class PanelPopoutService {
 
   /**
    * Handle messages from popped-out windows
+   * This is the KEY method for bidirectional state sync
    */
   private handlePopoutMessage(gridId: string, panelId: string, message: any): void {
     console.log(`Message from panel ${panelId}:`, message);
 
-    // Implement state sync logic here
-    // For example, propagate selection changes back to main window
     switch (message.type) {
       case 'SELECTION_CHANGE':
-        // Could emit event or update shared state
+        // Pop-out sent selection change - update MAIN window state
         console.log('Selection changed in pop-out:', message.data);
+        this.stateService.updateFilters({
+          modelCombos: message.data.length > 0 ? message.data : undefined,
+        });
+        // State change will automatically broadcast back to pop-out via subscription
         break;
+
+      case 'CLEAR_ALL':
+        // Pop-out requested clear - update MAIN window state
+        console.log('Clear all requested from pop-out');
+        this.stateService.resetFilters();
+        // State change will automatically broadcast back to pop-out via subscription
+        break;
+
       case 'PANEL_READY':
-        console.log('Pop-out panel ready');
+        // Pop-out is ready - send current state
+        console.log('Pop-out panel ready, sending current state');
+        const currentFilters = this.stateService.getCurrentFilters();
+        this.broadcastToPanel(panelId, {
+          type: 'STATE_UPDATE',
+          filters: currentFilters
+        });
         break;
+
       default:
         console.log('Unknown message type:', message.type);
     }

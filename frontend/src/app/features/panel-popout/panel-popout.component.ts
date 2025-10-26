@@ -90,10 +90,19 @@ export class PanelPopoutComponent implements OnInit, OnDestroy {
         // Handle state updates from main window
         if (message.filters) {
           this.currentFilters = message.filters;
+
+          // Update picker selections without triggering state change
+          if (message.filters.modelCombos) {
+            this.pickerInitialSelections = [...message.filters.modelCombos];
+          } else {
+            this.pickerInitialSelections = [];
+          }
         }
         break;
       case 'CLEAR_SELECTION':
         this.pickerClearTrigger++;
+        this.currentFilters = {};
+        this.pickerInitialSelections = [];
         break;
       default:
         console.log('Unknown message type:', message.type);
@@ -104,12 +113,8 @@ export class PanelPopoutComponent implements OnInit, OnDestroy {
   onPickerSelectionChange(selections: ManufacturerModelSelection[]): void {
     console.log('Pop-out: Picker selections changed:', selections);
 
-    // Update state service (same as main window)
-    this.stateService.updateFilters({
-      modelCombos: selections.length > 0 ? selections : undefined,
-    });
-
-    // Broadcast to main window
+    // DO NOT update state service - only broadcast to main window
+    // Main window will update state and broadcast back to us
     this.channel.postMessage({
       type: 'SELECTION_CHANGE',
       data: selections
@@ -118,8 +123,11 @@ export class PanelPopoutComponent implements OnInit, OnDestroy {
 
   onClearAll(): void {
     console.log('Pop-out: Clear all triggered');
-    this.pickerClearTrigger++;
-    this.stateService.resetFilters();
+
+    // DO NOT reset filters locally - only broadcast to main window
+    this.channel.postMessage({
+      type: 'CLEAR_ALL'
+    });
   }
 
   closeWindow(): void {
