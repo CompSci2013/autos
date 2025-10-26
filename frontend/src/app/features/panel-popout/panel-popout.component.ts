@@ -45,7 +45,7 @@ export class PanelPopoutComponent implements OnInit, OnDestroy {
 
       console.log(`Pop-out panel initialized: ${this.panelType} (${this.panelId})`);
       this.initializeBroadcastChannel();
-      this.subscribeToState();
+      // DO NOT subscribe to StateManagementService - pop-out gets state via BroadcastChannel only
     });
   }
 
