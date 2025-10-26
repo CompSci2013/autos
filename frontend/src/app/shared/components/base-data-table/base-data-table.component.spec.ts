@@ -16,7 +16,7 @@ import { createTestColumns } from './tests/test-helpers';
 import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzIconModule, NzIconService } from 'ng-zorro-antd/icon';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
@@ -26,6 +26,7 @@ import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { TableColumn, TableQueryParams } from '../../models';
 import { VehicleResult } from '../../../models';
+import { of } from 'rxjs';
 
 /**
  * BaseDataTableComponent Enhanced Test Suite
@@ -59,6 +60,13 @@ describe('BaseDataTableComponent', () => {
       'resetPreferences',
     ]);
 
+    // Mock NzIconService to prevent icon lookup errors
+    const mockIconService = jasmine.createSpyObj('NzIconService', ['getRenderedContent']);
+    mockIconService.getRenderedContent.and.callFake(() => {
+      const svgElement = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      return of(svgElement);
+    });
+
     await TestBed.configureTestingModule({
       declarations: [BaseDataTableComponent, ColumnManagerComponent],
       imports: [
@@ -78,6 +86,7 @@ describe('BaseDataTableComponent', () => {
       ],
       providers: [
         { provide: TableStatePersistenceService, useValue: persistenceSpy },
+        { provide: NzIconService, useValue: mockIconService },
       ],
       schemas: [NO_ERRORS_SCHEMA], // Suppress icon errors
     }).compileComponents();
@@ -91,7 +100,9 @@ describe('BaseDataTableComponent', () => {
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(BaseDataTableComponent);
+    fixture = TestBed.createComponent(BaseDataTableComponent) as ComponentFixture<
+      BaseDataTableComponent<VehicleResult>
+    >;
     component = fixture.componentInstance;
 
     // Setup required inputs

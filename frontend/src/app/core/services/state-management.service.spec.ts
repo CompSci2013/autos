@@ -47,6 +47,10 @@ describe('StateManagementService - URL-First State Management', () => {
     mockRouteState.getCurrentParams.and.returnValue({});
     mockRouteState.paramsToFilters.and.returnValue({});
     mockRouteState.filtersToParams.and.returnValue({});
+    mockRequestCoordinator.getLoadingState$.and.returnValue(
+      of({ loading: false, error: null, lastUpdated: Date.now() })
+    );
+    mockRequestCoordinator.getGlobalLoading$.and.returnValue(of(false));
     mockRequestCoordinator.execute.and.returnValue(
       of({ results: [], total: 0, page: 1, size: 20, totalPages: 0 })
     );
@@ -338,7 +342,7 @@ describe('StateManagementService - URL-First State Management', () => {
       setTimeout(() => {
         service.error$.subscribe((error) => {
           expect(error).toBeTruthy();
-          expect(error).toContain('error');
+          expect(error?.toLowerCase()).toContain('error');
           done();
         });
       }, 50);

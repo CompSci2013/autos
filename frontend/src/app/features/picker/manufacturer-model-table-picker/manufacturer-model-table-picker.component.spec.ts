@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ManufacturerModelTablePickerComponent } from './manufacturer-model-table-picker.component';
 import { ApiService } from '../../../services/api.service';
 import { of, throwError } from 'rxjs';
-import { ManufacturerModelSelection, ManufacturerGroup } from '../../../models';
+import { ManufacturerModelSelection, ManufacturerGroup, ManufacturerModelResponse } from '../../../models';
 import { NO_ERRORS_SCHEMA, SimpleChange } from '@angular/core';
 
 describe('ManufacturerModelTablePickerComponent - URL-First State Management', () => {
@@ -10,10 +10,15 @@ describe('ManufacturerModelTablePickerComponent - URL-First State Management', (
   let fixture: ComponentFixture<ManufacturerModelTablePickerComponent>;
   let mockApiService: jasmine.SpyObj<ApiService>;
 
-  const mockApiResponse = {
+  const mockApiResponse: ManufacturerModelResponse = {
+    total: 3,
+    page: 1,
+    size: 100,
+    totalPages: 1,
     data: [
       {
         manufacturer: 'Ford',
+        count: 40000,
         models: [
           { model: 'F-150', count: 25000 },
           { model: 'Mustang', count: 15000 },
@@ -21,6 +26,7 @@ describe('ManufacturerModelTablePickerComponent - URL-First State Management', (
       },
       {
         manufacturer: 'Chevrolet',
+        count: 20000,
         models: [
           { model: 'Corvette', count: 8000 },
           { model: 'Camaro', count: 12000 },
@@ -28,6 +34,7 @@ describe('ManufacturerModelTablePickerComponent - URL-First State Management', (
       },
       {
         manufacturer: 'Tesla',
+        count: 38000,
         models: [
           { model: 'Model 3', count: 20000 },
           { model: 'Model Y', count: 18000 },
@@ -850,7 +857,9 @@ describe('ManufacturerModelTablePickerComponent - URL-First State Management', (
     });
 
     it('should handle empty API response', () => {
-      mockApiService.getManufacturerModelCombinations.and.returnValue(of({ data: [] }));
+      mockApiService.getManufacturerModelCombinations.and.returnValue(
+        of({ total: 0, page: 1, size: 100, totalPages: 0, data: [] })
+      );
 
       const freshFixture = TestBed.createComponent(ManufacturerModelTablePickerComponent);
       freshFixture.detectChanges();

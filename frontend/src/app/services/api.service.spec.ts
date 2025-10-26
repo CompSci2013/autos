@@ -87,9 +87,14 @@ describe('ApiService', () => {
 
     it('should return manufacturer model data', (done) => {
       const mockData = {
+        total: 1,
+        page: 1,
+        size: 20,
+        totalPages: 1,
         data: [
           {
             manufacturer: 'Ford',
+            count: 25000,
             models: [{ model: 'F-150', count: 25000 }],
           },
         ],
@@ -253,6 +258,13 @@ describe('ApiService', () => {
 
     it('should return vehicle details data', (done) => {
       const mockData = {
+        total: 1,
+        page: 1,
+        size: 20,
+        totalPages: 1,
+        query: {
+          modelCombos: [{ manufacturer: 'Ford', model: 'F-150' }],
+        },
         results: [
           {
             vehicle_id: 'v1',
@@ -261,14 +273,9 @@ describe('ApiService', () => {
             year: 2020,
             body_class: 'Pickup',
             data_source: 'NHTSA',
-            make_model_year: 'Ford|F-150|2020',
-            instance_count: 25000,
+            ingested_at: new Date().toISOString(),
           },
         ],
-        total: 1,
-        page: 1,
-        size: 20,
-        totalPages: 1,
       };
 
       service.getVehicleDetails('Ford:F-150').subscribe((response) => {
@@ -328,16 +335,27 @@ describe('ApiService', () => {
 
     it('should return vehicle instances data', (done) => {
       const mockData = {
+        vehicle_id: vehicleId,
+        manufacturer: 'Ford',
+        model: 'F-150',
+        year: 2020,
+        body_class: 'Pickup',
+        instance_count: 1,
         instances: [
           {
             vin: 'ABC123DEF456GHI78',
-            state: 'CA',
-            color: 'Blue',
+            condition_rating: 9,
+            condition_description: 'Excellent',
             mileage: 45000,
-            condition: 'Excellent',
-            estimated_value: 28500,
+            mileage_verified: true,
+            registered_state: 'CA',
+            registration_status: 'Current',
             title_status: 'Clean',
-            registration_date: '2020-06-15',
+            exterior_color: 'Blue',
+            factory_options: ['Premium Package'],
+            estimated_value: 28500,
+            matching_numbers: true,
+            last_service_date: '2020-06-15',
           },
         ],
       };

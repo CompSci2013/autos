@@ -4,6 +4,7 @@ import {
   fakeAsync,
   tick,
 } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import {
   ChangeDetectorRef,
   SimpleChange,
@@ -17,6 +18,7 @@ import {
 import { ManufacturerModelSelection } from '../../../models';
 import { TableQueryParams } from '../../../shared/models';
 import { of } from 'rxjs';
+import { NzIconService } from 'ng-zorro-antd/icon';
 
 /**
  * TablePickerComponent Test Suite
@@ -49,9 +51,9 @@ describe('TablePickerComponent', () => {
   ): ManufacturerSummaryRow => ({
     key: manufacturer,
     manufacturer,
+    totalCount: models.length * 1000, // Total count of all instances
     modelCount: modelCount || models.length,
     models: models.map((model) => ({
-      manufacturer,
       model,
       count: 1000,
     })),
@@ -70,11 +72,20 @@ describe('TablePickerComponent', () => {
       of({ results: [], total: 0, page: 1, size: 20, totalPages: 0 })
     );
 
+    // Mock NzIconService to prevent icon lookup errors
+    const mockIconService = jasmine.createSpyObj('NzIconService', ['getRenderedContent']);
+    mockIconService.getRenderedContent.and.callFake(() => {
+      const svgElement = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      return of(svgElement);
+    });
+
     await TestBed.configureTestingModule({
       declarations: [TablePickerComponent],
+      imports: [HttpClientTestingModule],
       providers: [
         { provide: TablePickerDataSource, useValue: mockDataSource },
         { provide: ChangeDetectorRef, useValue: mockCdr },
+        { provide: NzIconService, useValue: mockIconService },
       ],
       schemas: [NO_ERRORS_SCHEMA], // Suppress template errors for BaseDataTable
     }).compileComponents();
@@ -952,10 +963,11 @@ describe('TablePickerComponent', () => {
       const row: ManufacturerSummaryRow = {
         key: 'Ford',
         manufacturer: 'Ford',
+        totalCount: 2000,
         modelCount: 5,
         models: [
-          { manufacturer: 'Ford', model: 'F-150', count: 1000 },
-          { manufacturer: 'Ford', model: 'Mustang', count: 1000 },
+          { model: 'F-150', count: 1000 },
+          { model: 'Mustang', count: 1000 },
         ],
       };
 

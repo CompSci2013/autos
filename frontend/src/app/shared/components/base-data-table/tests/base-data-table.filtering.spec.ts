@@ -9,16 +9,8 @@ import { TableStatePersistenceService } from '../../../services/table-state-pers
 
 import { MockTableDataSource } from '../mocks/mock-data-source';
 import { createTestColumns } from './test-helpers';
-
-// Import NG-ZORRO modules
-import { NzIconModule, NZ_ICONS } from 'ng-zorro-antd/icon';
-import { IconDefinition } from '@ant-design/icons-angular';
-import * as AllIcons from '@ant-design/icons-angular/icons';
-
-const antDesignIcons = AllIcons as {
-  [key: string]: IconDefinition;
-};
-const icons: IconDefinition[] = Object.keys(antDesignIcons).map(key => antDesignIcons[key]);
+import { NzIconService } from 'ng-zorro-antd/icon';
+import { of } from 'rxjs';
 
 describe('BaseDataTableComponent - Filtering', () => {
   let component: BaseDataTableComponent<any>;
@@ -34,15 +26,21 @@ describe('BaseDataTableComponent - Filtering', () => {
       'resetPreferences'
     ]);
 
+    // Mock NzIconService to prevent icon lookup errors
+    const mockIconService = jasmine.createSpyObj('NzIconService', ['getRenderedContent']);
+    mockIconService.getRenderedContent.and.callFake(() => {
+      const svgElement = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      return of(svgElement);
+    });
+
     await TestBed.configureTestingModule({
       declarations: [BaseDataTableComponent],
       imports: [
-        FormsModule,
-        NzIconModule
+        FormsModule
       ],
       providers: [
         { provide: TableStatePersistenceService, useValue: mockPersistenceService },
-        { provide: NZ_ICONS, useValue: icons }
+        { provide: NzIconService, useValue: mockIconService }
       ],
       schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();

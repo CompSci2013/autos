@@ -6,6 +6,7 @@ import { BehaviorSubject, of, throwError } from 'rxjs';
 import { SearchFilters, VehicleResult } from '../../../models';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
+import { VehicleInstance, VehicleInstancesResponse } from '../../../models/vehicle.model';
 
 describe('VehicleResultsTableComponent - URL-First State Management', () => {
   let component: VehicleResultsTableComponent;
@@ -26,8 +27,7 @@ describe('VehicleResultsTableComponent - URL-First State Management', () => {
       year: 2020,
       body_class: 'Pickup',
       data_source: 'NHTSA',
-      make_model_year: 'Ford|F-150|2020',
-      instance_count: 25000,
+      ingested_at: new Date().toISOString(),
     },
     {
       vehicle_id: 'v2',
@@ -36,10 +36,41 @@ describe('VehicleResultsTableComponent - URL-First State Management', () => {
       year: 1969,
       body_class: 'Coupe',
       data_source: 'NHTSA',
-      make_model_year: 'Ford|Mustang|1969',
-      instance_count: 15000,
+      ingested_at: new Date().toISOString(),
     },
   ];
+
+  const createVehicleInstance = (
+    overrides?: Partial<VehicleInstance>
+  ): VehicleInstance => ({
+    vin: '1FTFW1ET5DFC12345',
+    condition_rating: 8,
+    condition_description: 'Good',
+    mileage: 25000,
+    mileage_verified: true,
+    registered_state: 'CA',
+    registration_status: 'Current',
+    title_status: 'Clean',
+    exterior_color: 'Blue',
+    factory_options: ['Leather', 'Sunroof'],
+    estimated_value: 35000,
+    matching_numbers: true,
+    last_service_date: '2024-01-15',
+    ...overrides,
+  });
+
+  const createVehicleInstancesResponse = (
+    vehicleId: string,
+    instances: VehicleInstance[]
+  ): VehicleInstancesResponse => ({
+    vehicle_id: vehicleId,
+    manufacturer: 'Ford',
+    model: 'F-150',
+    year: 2020,
+    body_class: 'Pickup',
+    instance_count: instances.length,
+    instances,
+  });
 
   beforeEach(async () => {
     // Create subjects for observables
@@ -657,9 +688,11 @@ describe('VehicleResultsTableComponent - URL-First State Management', () => {
 
     it('should expand row and load instances', () => {
       const mockInstances = [
-        { vin: 'ABC123', state: 'CA', color: 'Blue', condition: 'Excellent' },
+        createVehicleInstance({ vin: 'ABC123', registered_state: 'CA', exterior_color: 'Blue', condition_description: 'Excellent' }),
       ];
-      mockApiService.getVehicleInstances.and.returnValue(of({ instances: mockInstances }));
+      mockApiService.getVehicleInstances.and.returnValue(
+        of(createVehicleInstancesResponse('v1', mockInstances))
+      );
 
       component.onExpandChange('v1', true);
 
@@ -677,8 +710,10 @@ describe('VehicleResultsTableComponent - URL-First State Management', () => {
     });
 
     it('should not reload instances if already loaded', () => {
-      const mockInstances = [{ vin: 'ABC123', state: 'CA', color: 'Blue', condition: 'Excellent' }];
-      component.expandedRowInstances.set('v1', mockInstances as any);
+      const mockInstances = [
+        createVehicleInstance({ vin: 'ABC123', registered_state: 'CA', exterior_color: 'Blue', condition_description: 'Excellent' })
+      ];
+      component.expandedRowInstances.set('v1', mockInstances);
 
       component.onExpandChange('v1', true);
 
@@ -686,7 +721,7 @@ describe('VehicleResultsTableComponent - URL-First State Management', () => {
     });
 
     it('should track loading state for instances', () => {
-      mockApiService.getVehicleInstances.and.returnValue(of({ instances: [] }));
+      mockApiService.getVehicleInstances.and.returnValue(of(createVehicleInstancesResponse('v1', [])));
 
       expect(component.isLoadingInstances('v1')).toBe(false);
 
@@ -697,12 +732,12 @@ describe('VehicleResultsTableComponent - URL-First State Management', () => {
     });
 
     it('should get instances for vehicle', () => {
-      const mockInstances = [{ vin: 'ABC123' }];
-      component.expandedRowInstances.set('v1', mockInstances as any);
+      const mockInstances = [createVehicleInstance({ vin: 'ABC123' })];
+      component.expandedRowInstances.set('v1', mockInstances);
 
       const instances = component.getInstances('v1');
 
-      expect(instances).toEqual(mockInstances as any);
+      expect(instances).toEqual(mockInstances);
     });
 
     it('should return empty array for non-existent vehicle', () => {
@@ -806,7 +841,7 @@ describe('VehicleResultsTableComponent - URL-First State Management', () => {
     });
 
     it('should handle rapid expand/collapse of same row', () => {
-      mockApiService.getVehicleInstances.and.returnValue(of({ instances: [] }));
+      mockApiService.getVehicleInstances.and.returnValue(of(createVehicleInstancesResponse('v1', [])));
 
       component.onExpandChange('v1', true);
       component.onExpandChange('v1', false);
