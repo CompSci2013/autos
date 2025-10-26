@@ -60,6 +60,7 @@
   gap: 16px;
   padding: 16px;
   overflow: hidden;
+  position: relative;
 }
 
 .grid-wrapper {
@@ -69,32 +70,36 @@
   background: #fff;
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  overflow: visible;
+  position: relative;
 
   &.left-grid {
-    border: 2px dashed #1890ff;
+    border: 3px solid #1890ff;
   }
 
   &.right-grid {
-    border: 2px dashed #52c41a;
+    border: 3px solid #52c41a;
   }
 }
 
 .grid-header {
   padding: 12px 16px;
   background: #fafafa;
-  border-bottom: 1px solid #e8e8e8;
+  border-bottom: 2px solid #d9d9d9;
 
   h3 {
     margin: 0;
     font-size: 16px;
     font-weight: 600;
+    color: #262626;
   }
 }
 
 gridster {
   flex: 1;
-  background: #fafafa;
+  background: #f5f5f5;
+  overflow: visible !important;
+  position: relative;
 }
 
 .panel-container {
@@ -102,9 +107,10 @@ gridster {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: #fff;
+  background: #ffffff;
   border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 2px solid #d9d9d9;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   overflow: hidden;
 }
 
@@ -112,9 +118,9 @@ gridster {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 12px;
+  padding: 10px 14px;
   background: #fafafa;
-  border-bottom: 1px solid #e8e8e8;
+  border-bottom: 2px solid #d9d9d9;
   cursor: move;
 
   &.drag-handle {
@@ -131,6 +137,28 @@ gridster {
     display: flex;
     align-items: center;
     gap: 8px;
+    color: #262626;
+  }
+
+  .panel-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .action-icon {
+      cursor: pointer;
+      font-size: 16px;
+      color: #595959;
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: #1890ff;
+      }
+
+      &.popout-icon:hover {
+        color: #52c41a;
+      }
+    }
   }
 }
 
@@ -138,6 +166,7 @@ gridster {
   flex: 1;
   padding: 16px;
   overflow: auto;
+  background: #ffffff;
 
   &.no-drag {
     cursor: default;
@@ -147,15 +176,45 @@ gridster {
 // Gridster drag preview
 ::ng-deep {
   gridster-item {
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
+    position: relative;
 
     &:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      .panel-container {
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+        border-color: #40a9ff;
+      }
     }
   }
 
   .gridster-item-moving {
-    opacity: 0.6;
-    z-index: 1000;
+    opacity: 0.9 !important;
+    z-index: 9999 !important;
+    position: absolute !important;
+
+    .panel-container {
+      border-color: #40a9ff;
+      border-width: 3px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4) !important;
+      transform: scale(1.02);
+    }
+  }
+
+  // Ensure gridster container allows overflow during drag
+  gridster {
+    &.gridster-display-grid {
+      .gridster-column,
+      .gridster-row {
+        border-color: rgba(0, 0, 0, 0.1);
+      }
+    }
+
+    // Allow items to overflow grid boundaries
+    overflow: visible !important;
+  }
+
+  // Ensure gridster items container allows overflow
+  .gridster-item {
+    overflow: visible !important;
   }
 }

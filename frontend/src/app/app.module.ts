@@ -39,7 +39,10 @@ import {
   UpOutline,
   DownOutline,
   CloseCircleOutline,
+  CloseOutline,
   InboxOutline,
+  ExportOutline,
+  LineChartOutline,
 } from '@ant-design/icons-angular/icons';
 
 // Register icons
@@ -56,7 +59,10 @@ const icons = [
   UpOutline,
   DownOutline,
   CloseCircleOutline,
+  CloseOutline,
   InboxOutline,
+  ExportOutline,
+  LineChartOutline,
 ];
 
 // Angular CDK
@@ -75,6 +81,7 @@ import { ResultsTableComponent } from './features/results/results-table/results-
 import { WorkshopComponent } from './features/workshop/workshop.component';
 import { HomeComponent } from './features/home/home.component';
 import { NavigationComponent } from './core/navigation/navigation.component';
+import { PanelPopoutComponent } from './features/panel-popout/panel-popout.component';
 
 @NgModule({
   declarations: [
@@ -88,6 +95,7 @@ import { NavigationComponent } from './core/navigation/navigation.component';
     WorkshopComponent,
     HomeComponent,
     NavigationComponent,
+    PanelPopoutComponent,
   ],
   imports: [
     BrowserModule,

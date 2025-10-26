@@ -1,7 +1,7 @@
 <div class="workspace-container">
   <div class="workspace-header">
     <div>
-      <h2>Dual Workspace</h2>
+      <h2>Multi-Grid Workspace</h2>
       <p class="subtitle">Drag panels between grids. Layout is saved automatically.</p>
     </div>
     <div class="actions">
@@ -16,28 +16,44 @@
   </div>
 
   <div class="grids-container">
-    <!-- Left Grid -->
-    <div class="grid-wrapper left-grid">
+    <!-- Dynamic Grid Rendering -->
+    <div
+      *ngFor="let grid of grids; let i = index"
+      class="grid-wrapper"
+      [attr.data-grid-id]="grid.id"
+      [style.border-color]="grid.borderColor">
+
       <div class="grid-header">
-        <h3>Left Workspace</h3>
+        <h3>{{ grid.name }}</h3>
       </div>
-      <gridster [options]="leftGridOptions">
-        <gridster-item *ngFor="let item of leftGridItems" [item]="item">
+
+      <gridster [options]="grid.options">
+        <gridster-item *ngFor="let item of grid.items" [item]="item">
           <div class="panel-container">
             <div class="panel-header drag-handle">
               <span class="panel-title">
                 <i nz-icon nzType="drag" nzTheme="outline"></i>
                 {{ item.panelType === 'picker' ? 'Model Picker' : 'Vehicle Results' }}
               </span>
-              <i
-                nz-icon
-                [nzType]="item.panelType === 'picker' ? (leftPanelCollapsed ? 'down' : 'up') : 'close'"
-                nzTheme="outline"
-                (click)="item.panelType === 'picker' ? (leftPanelCollapsed = !leftPanelCollapsed) : removePanel(item, 'left')"
-                style="cursor: pointer"
-              ></i>
+              <div class="panel-actions">
+                <i
+                  nz-icon
+                  nzType="export"
+                  nzTheme="outline"
+                  nz-tooltip="Pop out to new window"
+                  (click)="popOutPanel(grid.id, item); $event.stopPropagation()"
+                  class="action-icon popout-icon"
+                ></i>
+                <i
+                  nz-icon
+                  [nzType]="item.panelType === 'picker' ? (getPanelCollapseState(grid.id) ? 'down' : 'up') : 'close'"
+                  nzTheme="outline"
+                  (click)="item.panelType === 'picker' ? togglePanelCollapse(grid.id) : removePanel(item, grid.id)"
+                  class="action-icon"
+                ></i>
+              </div>
             </div>
-            <div class="panel-content no-drag" [hidden]="item.panelType === 'picker' && leftPanelCollapsed">
+            <div class="panel-content no-drag" [hidden]="item.panelType === 'picker' && getPanelCollapseState(grid.id)">
               <!-- Dynamic panel content based on panelType -->
               <div *ngIf="item.panelType === 'picker'">
                 <app-table-picker
@@ -52,51 +68,6 @@
                   <app-results-table></app-results-table>
                 </div>
                 <ng-template #noFilters>
-                  <nz-empty nzNotFoundContent="Select models from the picker to see results"></nz-empty>
-                </ng-template>
-              </div>
-            </div>
-          </div>
-        </gridster-item>
-      </gridster>
-    </div>
-
-    <!-- Right Grid -->
-    <div class="grid-wrapper right-grid">
-      <div class="grid-header">
-        <h3>Right Workspace</h3>
-      </div>
-      <gridster [options]="rightGridOptions">
-        <gridster-item *ngFor="let item of rightGridItems" [item]="item">
-          <div class="panel-container">
-            <div class="panel-header drag-handle">
-              <span class="panel-title">
-                <i nz-icon nzType="drag" nzTheme="outline"></i>
-                {{ item.panelType === 'picker' ? 'Model Picker' : 'Vehicle Results' }}
-              </span>
-              <i
-                nz-icon
-                [nzType]="item.panelType === 'picker' ? (rightPanelCollapsed ? 'down' : 'up') : 'close'"
-                nzTheme="outline"
-                (click)="item.panelType === 'picker' ? (rightPanelCollapsed = !rightPanelCollapsed) : removePanel(item, 'right')"
-                style="cursor: pointer"
-              ></i>
-            </div>
-            <div class="panel-content no-drag" [hidden]="item.panelType === 'picker' && rightPanelCollapsed">
-              <!-- Dynamic panel content based on panelType -->
-              <div *ngIf="item.panelType === 'picker'">
-                <app-table-picker
-                  [initialSelections]="pickerInitialSelections"
-                  [clearTrigger]="pickerClearTrigger"
-                  (selectionChange)="onPickerSelectionChange($event)"
-                >
-                </app-table-picker>
-              </div>
-              <div *ngIf="item.panelType === 'results'">
-                <div *ngIf="hasActiveFilters; else noFiltersRight">
-                  <app-results-table></app-results-table>
-                </div>
-                <ng-template #noFiltersRight>
                   <nz-empty nzNotFoundContent="Select models from the picker to see results"></nz-empty>
                 </ng-template>
               </div>

@@ -3,9 +3,11 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { StateManagementService } from '../../core/services/state-management.service';
 import { GridTransferService } from '../../core/services/grid-transfer.service';
+import { PanelPopoutService } from '../../core/services/panel-popout.service';
 import { ManufacturerModelSelection } from '../../models';
 import { SearchFilters } from '../../models/search-filters.model';
 import { WorkspacePanel } from '../../models/workspace-panel.model';
+import { GridConfig } from '../../models/grid-config.model';
 import { GridsterConfig, GridType, CompactType } from 'angular-gridster2';
 
 @Component({
@@ -16,17 +18,11 @@ import { GridsterConfig, GridType, CompactType } from 'angular-gridster2';
 export class WorkshopComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
-  // Grid configurations
-  leftGridOptions!: GridsterConfig;
-  rightGridOptions!: GridsterConfig;
+  // Grid configurations (array for N grids)
+  grids: GridConfig[] = [];
 
-  // Grid items
-  leftGridItems: WorkspacePanel[] = [];
-  rightGridItems: WorkspacePanel[] = [];
-
-  // Panel collapse states
-  leftPanelCollapsed = false;
-  rightPanelCollapsed = false;
+  // Panel collapse states (keyed by grid ID)
+  panelCollapseStates: Map<string, boolean> = new Map();
 
   // State passed to picker
   pickerClearTrigger = 0;
@@ -38,6 +34,7 @@ export class WorkshopComponent implements OnInit, OnDestroy {
   constructor(
     private stateService: StateManagementService,
     private gridTransfer: GridTransferService,
+    private popoutService: PanelPopoutService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -49,6 +46,16 @@ export class WorkshopComponent implements OnInit, OnDestroy {
   }
 
   private initializeGrids(): void {
+    // Define grid configurations
+    const gridDefinitions = [
+      { id: 'grid-0', name: 'Left Workspace', borderColor: '#1890ff' },
+      { id: 'grid-1', name: 'Right Workspace', borderColor: '#52c41a' }
+    ];
+
+    this.grids = gridDefinitions.map(def => this.createGridConfig(def.id, def.name, def.borderColor));
+  }
+
+  private createGridConfig(id: string, name: string, borderColor: string): GridConfig {
     const baseConfig: GridsterConfig = {
       gridType: GridType.Fit,
       compactType: CompactType.None,
@@ -87,7 +94,7 @@ export class WorkshopComponent implements OnInit, OnDestroy {
         ignoreContentClass: 'no-drag',
         ignoreContent: false,
         dragHandleClass: 'drag-handle',
-        stop: undefined,
+        stop: (item, gridsterItem, event) => this.onDragStop(id, item, gridsterItem, event),
         start: undefined
       },
       resizable: {
@@ -103,65 +110,60 @@ export class WorkshopComponent implements OnInit, OnDestroy {
       disableWindowResize: false,
       disableWarnings: false,
       scrollToNewItems: false,
-      itemChangeCallback: undefined,
+      emptyCellDropCallback: (event, item) => this.onGridDrop(id, event, item),
+      itemChangeCallback: (item, itemComponent) => this.onGridChange(id, item, itemComponent),
       itemResizeCallback: undefined
     };
 
-    // Left grid configuration
-    this.leftGridOptions = {
-      ...baseConfig,
-      emptyCellDropCallback: this.onLeftGridDrop.bind(this),
-      draggable: {
-        ...baseConfig.draggable,
-        stop: this.onDragStop.bind(this, 'left')
-      },
-      itemChangeCallback: this.onLeftGridChange.bind(this)
-    };
-
-    // Right grid configuration
-    this.rightGridOptions = {
-      ...baseConfig,
-      emptyCellDropCallback: this.onRightGridDrop.bind(this),
-      draggable: {
-        ...baseConfig.draggable,
-        stop: this.onDragStop.bind(this, 'right')
-      },
-      itemChangeCallback: this.onRightGridChange.bind(this)
+    return {
+      id,
+      name,
+      borderColor,
+      options: baseConfig,
+      items: []
     };
   }
 
   private loadGridState(): void {
-    const savedState = localStorage.getItem('autos-workshop-dual-grid-state');
+    const savedState = localStorage.getItem('autos-workshop-multi-grid-state');
+
     if (savedState) {
       const state = JSON.parse(savedState);
-      this.leftGridItems = state.leftGrid || [];
-      this.rightGridItems = state.rightGrid || [];
+      // Load items into each grid
+      this.grids.forEach(grid => {
+        grid.items = state[grid.id] || [];
+        this.panelCollapseStates.set(grid.id, false);
+      });
     } else {
       // Initialize with default panels
-      this.leftGridItems = [
-        { cols: 2, rows: 3, y: 0, x: 0, id: 'left-picker', panelType: 'picker' }
+      this.grids[0].items = [
+        { cols: 2, rows: 3, y: 0, x: 0, id: 'picker-1', panelType: 'picker' }
       ];
-
-      this.rightGridItems = [
-        { cols: 2, rows: 3, y: 0, x: 0, id: 'right-results', panelType: 'results' }
+      this.grids[1].items = [
+        { cols: 2, rows: 3, y: 0, x: 0, id: 'results-1', panelType: 'results' }
       ];
     }
 
-    this.gridTransfer.setGrids(this.leftGridItems, this.rightGridItems);
+    // Initialize collapse states
+    this.grids.forEach(grid => {
+      this.panelCollapseStates.set(grid.id, false);
+    });
+
+    // Sync to transfer service
+    const gridsMap = new Map<string, WorkspacePanel[]>();
+    this.grids.forEach(grid => {
+      gridsMap.set(grid.id, grid.items);
+    });
+    this.gridTransfer.setGrids(gridsMap);
   }
 
   private subscribeToGridChanges(): void {
-    this.gridTransfer.leftGrid$.pipe(
+    this.gridTransfer.grids$.pipe(
       takeUntil(this.destroy$)
-    ).subscribe(items => {
-      this.leftGridItems = items;
-      this.saveGridState();
-    });
-
-    this.gridTransfer.rightGrid$.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(items => {
-      this.rightGridItems = items;
+    ).subscribe(gridsMap => {
+      this.grids.forEach(grid => {
+        grid.items = gridsMap.get(grid.id) || [];
+      });
       this.saveGridState();
     });
   }
@@ -183,11 +185,11 @@ export class WorkshopComponent implements OnInit, OnDestroy {
   }
 
   private saveGridState(): void {
-    const state = {
-      leftGrid: this.leftGridItems,
-      rightGrid: this.rightGridItems
-    };
-    localStorage.setItem('autos-workshop-dual-grid-state', JSON.stringify(state));
+    const state: { [gridId: string]: WorkspacePanel[] } = {};
+    this.grids.forEach(grid => {
+      state[grid.id] = grid.items;
+    });
+    localStorage.setItem('autos-workshop-multi-grid-state', JSON.stringify(state));
   }
 
   ngOnDestroy(): void {
@@ -196,87 +198,74 @@ export class WorkshopComponent implements OnInit, OnDestroy {
   }
 
   // Drag & Drop Handlers
-  onDragStop(sourceGrid: 'left' | 'right', item: WorkspacePanel, gridsterItem: any, event: MouseEvent): void {
-    const targetGrid = this.detectTargetGrid(event);
+  onDragStop(sourceGridId: string, item: WorkspacePanel, gridsterItem: any, event: MouseEvent): void {
+    const targetGridId = this.detectTargetGrid(event);
 
-    if (targetGrid && targetGrid !== sourceGrid) {
+    if (targetGridId && targetGridId !== sourceGridId) {
       // Cross-grid drop detected
-      this.gridTransfer.transferItem(item, sourceGrid, targetGrid);
+      this.gridTransfer.transferItem(item, sourceGridId, targetGridId);
     }
   }
 
-  private detectTargetGrid(event: MouseEvent): 'left' | 'right' | null {
-    const leftGridEl = document.querySelector('.left-grid');
-    const rightGridEl = document.querySelector('.right-grid');
-
-    if (!leftGridEl || !rightGridEl) return null;
-
-    const leftRect = leftGridEl.getBoundingClientRect();
-    const rightRect = rightGridEl.getBoundingClientRect();
-
+  private detectTargetGrid(event: MouseEvent): string | null {
     const x = event.clientX;
     const y = event.clientY;
 
-    // Check if coordinates are within left grid
-    if (x >= leftRect.left && x <= leftRect.right &&
-        y >= leftRect.top && y <= leftRect.bottom) {
-      return 'left';
-    }
+    // Check each grid to see if coordinates are within bounds
+    for (const grid of this.grids) {
+      const gridEl = document.querySelector(`.grid-wrapper[data-grid-id="${grid.id}"]`);
+      if (!gridEl) continue;
 
-    // Check if coordinates are within right grid
-    if (x >= rightRect.left && x <= rightRect.right &&
-        y >= rightRect.top && y <= rightRect.bottom) {
-      return 'right';
+      const rect = gridEl.getBoundingClientRect();
+      if (x >= rect.left && x <= rect.right &&
+          y >= rect.top && y <= rect.bottom) {
+        return grid.id;
+      }
     }
 
     return null;
   }
 
-  onLeftGridDrop(event: MouseEvent, item: WorkspacePanel): void {
-    console.log('Item dropped on left grid:', item);
+  onGridDrop(gridId: string, event: MouseEvent, item: WorkspacePanel): void {
+    console.log(`Item dropped on grid ${gridId}:`, item);
   }
 
-  onRightGridDrop(event: MouseEvent, item: WorkspacePanel): void {
-    console.log('Item dropped on right grid:', item);
-  }
-
-  onLeftGridChange(item: WorkspacePanel, gridsterItem: any): void {
-    this.saveGridState();
-  }
-
-  onRightGridChange(item: WorkspacePanel, gridsterItem: any): void {
+  onGridChange(gridId: string, item: WorkspacePanel, gridsterItem: any): void {
     this.saveGridState();
   }
 
   // Panel Actions
-  removePanel(item: WorkspacePanel, grid: 'left' | 'right'): void {
-    if (grid === 'left') {
-      const index = this.leftGridItems.indexOf(item);
-      this.leftGridItems.splice(index, 1);
-    } else {
-      const index = this.rightGridItems.indexOf(item);
-      this.rightGridItems.splice(index, 1);
-    }
-    this.saveGridState();
+  removePanel(item: WorkspacePanel, gridId: string): void {
+    this.gridTransfer.removeItem(gridId, item.id!);
   }
 
-  addPanel(grid: 'left' | 'right', panelType: 'picker' | 'results'): void {
+  addPanel(gridId: string, panelType: 'picker' | 'results'): void {
     const newItem: WorkspacePanel = {
       cols: 2,
       rows: 2,
       y: 0,
       x: 0,
-      id: `${grid}-${Date.now()}`,
+      id: `${gridId}-${panelType}-${Date.now()}`,
       panelType
     };
 
-    if (grid === 'left') {
-      this.leftGridItems.push(newItem);
-    } else {
-      this.rightGridItems.push(newItem);
-    }
+    this.gridTransfer.addItem(gridId, newItem);
+  }
 
-    this.saveGridState();
+  // Helper to get collapse state for a grid
+  getPanelCollapseState(gridId: string): boolean {
+    return this.panelCollapseStates.get(gridId) || false;
+  }
+
+  // Helper to toggle collapse state for a grid
+  togglePanelCollapse(gridId: string): void {
+    const currentState = this.panelCollapseStates.get(gridId) || false;
+    this.panelCollapseStates.set(gridId, !currentState);
+  }
+
+  // Pop-out panel to new window
+  popOutPanel(gridId: string, panel: WorkspacePanel): void {
+    this.popoutService.popOutPanel(gridId, panel);
   }
 
   onPickerSelectionChange(selections: ManufacturerModelSelection[]): void {

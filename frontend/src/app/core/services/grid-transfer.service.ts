@@ -6,33 +6,50 @@ import { WorkspacePanel } from '../../models/workspace-panel.model';
   providedIn: 'root'
 })
 export class GridTransferService {
-  private leftGridSubject = new BehaviorSubject<WorkspacePanel[]>([]);
-  private rightGridSubject = new BehaviorSubject<WorkspacePanel[]>([]);
+  private gridsSubject = new BehaviorSubject<Map<string, WorkspacePanel[]>>(new Map());
 
-  leftGrid$: Observable<WorkspacePanel[]> = this.leftGridSubject.asObservable();
-  rightGrid$: Observable<WorkspacePanel[]> = this.rightGridSubject.asObservable();
+  grids$: Observable<Map<string, WorkspacePanel[]>> = this.gridsSubject.asObservable();
 
   constructor() { }
 
-  setGrids(leftItems: WorkspacePanel[], rightItems: WorkspacePanel[]): void {
-    this.leftGridSubject.next(leftItems);
-    this.rightGridSubject.next(rightItems);
+  /**
+   * Initialize grids with IDs and their items
+   */
+  setGrids(grids: Map<string, WorkspacePanel[]>): void {
+    this.gridsSubject.next(new Map(grids));
   }
 
+  /**
+   * Get items for a specific grid
+   */
+  getGridItems(gridId: string): WorkspacePanel[] {
+    return this.gridsSubject.value.get(gridId) || [];
+  }
+
+  /**
+   * Get observable for a specific grid
+   */
+  getGrid$(gridId: string): Observable<WorkspacePanel[]> {
+    return new Observable(observer => {
+      this.grids$.subscribe(grids => {
+        observer.next(grids.get(gridId) || []);
+      });
+    });
+  }
+
+  /**
+   * Transfer item from one grid to another
+   */
   transferItem(
     item: WorkspacePanel,
-    from: 'left' | 'right',
-    to: 'left' | 'right'
+    fromGridId: string,
+    toGridId: string
   ): void {
-    if (from === to) return;
+    if (fromGridId === toGridId) return;
 
-    const sourceItems = from === 'left'
-      ? [...this.leftGridSubject.value]
-      : [...this.rightGridSubject.value];
-
-    const targetItems = to === 'left'
-      ? [...this.leftGridSubject.value]
-      : [...this.rightGridSubject.value];
+    const grids = new Map(this.gridsSubject.value);
+    const sourceItems = [...(grids.get(fromGridId) || [])];
+    const targetItems = [...(grids.get(toGridId) || [])];
 
     // Remove from source
     const index = sourceItems.findIndex(i => i.id === item.id);
@@ -48,48 +65,45 @@ export class GridTransferService {
     };
     targetItems.push(transferredItem);
 
-    // Update observables
-    if (from === 'left') {
-      this.leftGridSubject.next(sourceItems);
-    } else {
-      this.rightGridSubject.next(sourceItems);
-    }
+    // Update both grids
+    grids.set(fromGridId, sourceItems);
+    grids.set(toGridId, targetItems);
 
-    if (to === 'left') {
-      this.leftGridSubject.next(targetItems);
-    } else {
-      this.rightGridSubject.next(targetItems);
-    }
+    this.gridsSubject.next(grids);
   }
 
-  addItem(grid: 'left' | 'right', item: WorkspacePanel): void {
-    const items = grid === 'left'
-      ? [...this.leftGridSubject.value]
-      : [...this.rightGridSubject.value];
-
+  /**
+   * Add item to a specific grid
+   */
+  addItem(gridId: string, item: WorkspacePanel): void {
+    const grids = new Map(this.gridsSubject.value);
+    const items = [...(grids.get(gridId) || [])];
     items.push(item);
-
-    if (grid === 'left') {
-      this.leftGridSubject.next(items);
-    } else {
-      this.rightGridSubject.next(items);
-    }
+    grids.set(gridId, items);
+    this.gridsSubject.next(grids);
   }
 
-  removeItem(grid: 'left' | 'right', itemId: string): void {
-    const items = grid === 'left'
-      ? [...this.leftGridSubject.value]
-      : [...this.rightGridSubject.value];
-
+  /**
+   * Remove item from a specific grid
+   */
+  removeItem(gridId: string, itemId: string): void {
+    const grids = new Map(this.gridsSubject.value);
+    const items = [...(grids.get(gridId) || [])];
     const index = items.findIndex(i => i.id === itemId);
+
     if (index > -1) {
       items.splice(index, 1);
+      grids.set(gridId, items);
+      this.gridsSubject.next(grids);
     }
+  }
 
-    if (grid === 'left') {
-      this.leftGridSubject.next(items);
-    } else {
-      this.rightGridSubject.next(items);
-    }
+  /**
+   * Update items for a specific grid
+   */
+  updateGrid(gridId: string, items: WorkspacePanel[]): void {
+    const grids = new Map(this.gridsSubject.value);
+    grids.set(gridId, items);
+    this.gridsSubject.next(grids);
   }
 }
