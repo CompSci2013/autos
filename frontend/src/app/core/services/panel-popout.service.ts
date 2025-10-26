@@ -36,6 +36,11 @@ export class PanelPopoutService {
 
     // Subscribe to state changes and broadcast FULL state to all pop-outs
     this.stateService.state$.subscribe(state => {
+      console.log('[PanelPopoutService] Broadcasting state to all pop-outs:', {
+        resultsCount: state.results?.length,
+        filters: state.filters,
+        popoutsCount: this.popouts.size
+      });
       this.broadcastToAll({
         type: 'STATE_UPDATE',
         state  // Send complete AppState (filters, results, loading, error, totalResults)

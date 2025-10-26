@@ -33,6 +33,7 @@ import {
 })
 export class StateManagementService implements OnDestroy {
   private destroy$ = new Subject<void>();
+  private isPopoutWindow = false;
 
   // ========== PRIVATE STATE ==========
   private stateSubject = new BehaviorSubject<AppState>(this.getInitialState());
@@ -72,12 +73,13 @@ export class StateManagementService implements OnDestroy {
     private requestCoordinator: RequestCoordinatorService
   ) {
     // Detect if we're in a pop-out window
-    const isPopout = this.router.url.startsWith('/panel/');
+    this.isPopoutWindow = this.router.url.startsWith('/panel/');
 
-    if (isPopout) {
-      console.log('[StateManagement] Pop-out window detected - URL watching DISABLED');
+    if (this.isPopoutWindow) {
+      console.log('[StateManagement] Pop-out window detected - URL watching DISABLED, API calls DISABLED');
       // Pop-out windows receive state via BroadcastChannel, not URL
       // Do not initialize from URL or watch URL changes
+      // Do not make API calls
     } else {
       console.log('[StateManagement] Main window detected - URL watching ENABLED');
       this.initializeFromUrl();
@@ -208,28 +210,38 @@ export class StateManagementService implements OnDestroy {
     console.log('🔵 Result filters:', newFilters);
 
     this.updateState({ filters: newFilters });
-    this.syncStateToUrl();
 
-    // Trigger API search if we have model selections
-    if (newFilters.modelCombos && newFilters.modelCombos.length > 0) {
-      console.log('🔵 Triggering fetchVehicleData()');
-      this.fetchVehicleData().subscribe({
-        next: () => console.log('🟢 Data fetched successfully'),
-        error: (err) => console.error('🔴 Fetch failed:', err),
-      });
+    if (!this.isPopoutWindow) {
+      this.syncStateToUrl();
+
+      // Trigger API search if we have model selections
+      if (newFilters.modelCombos && newFilters.modelCombos.length > 0) {
+        console.log('🔵 Triggering fetchVehicleData()');
+        this.fetchVehicleData().subscribe({
+          next: () => console.log('🟢 Data fetched successfully'),
+          error: (err) => console.error('🔴 Fetch failed:', err),
+        });
+      } else {
+        console.log('🔵 No models selected, clearing results');
+        this.updateState({
+          results: [],
+          totalResults: 0,
+          error: null,
+        });
+      }
     } else {
-      console.log('🔵 No models selected, clearing results');
-      this.updateState({
-        results: [],
-        totalResults: 0,
-        error: null,
-      });
+      console.log('[StateManagement] Pop-out window: Ignoring state update (read-only)');
     }
   }
   /**
    * Update pagination and sync to URL
    */
   updatePage(page: number): void {
+    if (this.isPopoutWindow) {
+      console.log('[StateManagement] Pop-out window: Ignoring updatePage (read-only)');
+      return;
+    }
+
     const currentFilters = this.stateSubject.value.filters;
     const newFilters = { ...currentFilters, page };
 
@@ -246,6 +258,11 @@ export class StateManagementService implements OnDestroy {
    * Update sorting and sync to URL
    */
   updateSort(sort: string, sortDirection: 'asc' | 'desc'): void {
+    if (this.isPopoutWindow) {
+      console.log('[StateManagement] Pop-out window: Ignoring updateSort (read-only)');
+      return;
+    }
+
     const currentFilters = this.stateSubject.value.filters;
     const newFilters = {
       ...currentFilters,
