@@ -34,11 +34,11 @@ export class PanelPopoutService {
     // Restore any panels that were popped out before page refresh
     this.restorePopoutsFromStorage();
 
-    // Subscribe to state changes and broadcast to all pop-outs
-    this.stateService.filters$.subscribe(filters => {
+    // Subscribe to state changes and broadcast FULL state to all pop-outs
+    this.stateService.state$.subscribe(state => {
       this.broadcastToAll({
         type: 'STATE_UPDATE',
-        filters
+        state  // Send complete AppState (filters, results, loading, error, totalResults)
       });
     });
 
@@ -247,12 +247,12 @@ export class PanelPopoutService {
         break;
 
       case 'PANEL_READY':
-        // Pop-out is ready - send current state
+        // Pop-out is ready - send current FULL state
         console.log('Pop-out panel ready, sending current state');
-        const currentFilters = this.stateService.getCurrentFilters();
+        const currentState = this.stateService.getCurrentState();
         this.broadcastToPanel(panelId, {
           type: 'STATE_UPDATE',
-          filters: currentFilters
+          state: currentState  // Send complete AppState
         });
         break;
 

@@ -478,6 +478,28 @@ export class StateManagementService implements OnDestroy {
     return error.message || 'An unexpected error occurred.';
   }
 
+  // ========== POP-OUT SUPPORT ==========
+
+  /**
+   * Get current state snapshot
+   * Used by pop-out service to send initial state to new pop-outs
+   */
+  public getCurrentState(): AppState {
+    return this.stateSubject.value;
+  }
+
+  /**
+   * Directly update state without making API calls
+   * Used by pop-out windows to sync state from main window
+   */
+  public syncStateFromExternal(state: Partial<AppState>): void {
+    const currentState = this.stateSubject.value;
+    this.stateSubject.next({
+      ...currentState,
+      ...state
+    });
+  }
+
   // ========== CLEANUP ==========
 
   ngOnDestroy(): void {

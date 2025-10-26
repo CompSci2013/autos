@@ -528,6 +528,7 @@ kubectl rollout status deployment/autos-backend -n autos
 docs/
 ├── design/                                    # Design documents
 │   ├── milestone-003-base-table-design.md     # BaseDataTable specification
+│   ├── panel-popout-architecture.md           # Pop-out panels with state sync
 │   └── [future milestones]
 ├── snapshots/                                 # Point-in-time analysis
 │   └── [analysis snapshots]
@@ -631,7 +632,51 @@ docs/
 - Understanding table architecture patterns
 - Adding features to BaseDataTableComponent
 
-#### 4. Analysis Snapshots
+#### 4. Panel Pop-Out Architecture
+
+**File:** `docs/design/panel-popout-architecture.md`
+
+**Purpose:** Complete design specification for panel pop-out feature with bidirectional state synchronization
+
+**Current Status:** ✅ **FULLY IMPLEMENTED** (feature/cross-grid branch)
+
+**Topics Covered:**
+
+- Problem statement (MOVE vs COPY semantics, state synchronization)
+- Architecture design (main window as single source of truth)
+- MOVE semantics implementation (panel removal/restoration)
+- Bidirectional BroadcastChannel communication
+- Cross-window state synchronization
+- Data flow diagrams
+- Implementation details (PanelPopoutService, PanelPopoutComponent)
+- Testing scenarios
+
+**Key Principles:**
+
+1. **Main Window Owns All State**
+   - Main window's URL is single source of truth
+   - Pop-out window's URL is irrelevant
+   - All state updates flow through main window's StateManagementService
+
+2. **MOVE Semantics**
+   - Panel removed from grid when popped out
+   - Panel restored to original location when pop-out closes
+   - Persistence across page refreshes
+
+3. **Bidirectional Communication**
+   - Pop-out sends user actions to main window via BroadcastChannel
+   - Main window updates state and broadcasts back to all pop-outs
+   - No direct state updates from pop-out components
+
+**When to Reference:**
+
+- Understanding pop-out panel architecture
+- Debugging cross-window communication issues
+- Adding new message types for state synchronization
+- Extending pop-out functionality to other panels
+- Onboarding developers to multi-window features
+
+#### 5. Analysis Snapshots
 
 **Directory:** `docs/snapshots/`
 
@@ -790,6 +835,30 @@ kubectl get deployment autos-frontend -n autos -o yaml | grep image
 
 ## Changelog
 
+### 2025-10-26 (v1.4.0)
+
+- **Added Panel Pop-Out Feature** (feature/cross-grid branch)
+  - Complete design document: `docs/design/panel-popout-architecture.md`
+  - MOVE semantics: panels removed from grid when popped out, restored on close
+  - Bidirectional BroadcastChannel state synchronization
+  - Main window URL remains single source of truth
+  - Pop-out windows don't update their own state
+  - Supports multi-monitor workflows
+- **Implemented N-Grid Architecture**
+  - Refactored from hardcoded left/right grids to array-based system
+  - GridConfig model for unlimited grid support
+  - Map-based GridTransferService
+  - Dynamic grid rendering with *ngFor
+- **Added PanelPopoutService and PanelPopoutComponent**
+  - Window lifecycle management
+  - Cross-window message handling
+  - State persistence across page refreshes
+  - Automatic panel restoration on pop-out failure
+- **Updated CLAUDE.md Documentation section**
+  - Added Panel Pop-Out Architecture reference
+  - Updated documentation structure
+  - Added key principles and when-to-reference guidance
+
 ### 2025-10-18 (v1.3.0)
 
 - **Updated Milestone 003 status** to reflect partial implementation
@@ -830,9 +899,9 @@ kubectl get deployment autos-frontend -n autos -o yaml | grep image
 
 ---
 
-**Last Updated:** 2025-10-18  
-**Maintained By:** Claude (with odin)  
-**Version:** 1.3.0
+**Last Updated:** 2025-10-26
+**Maintained By:** Claude (with odin)
+**Version:** 1.4.0
 
 ---
 
