@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, NgZone } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -31,7 +31,8 @@ export class PanelPopoutComponent implements OnInit, OnDestroy {
 
   constructor(
     private route: ActivatedRoute,
-    private stateService: StateManagementService
+    private stateService: StateManagementService,
+    private ngZone: NgZone
   ) {}
 
   ngOnInit(): void {
@@ -85,42 +86,46 @@ export class PanelPopoutComponent implements OnInit, OnDestroy {
   private handleMessage(message: any): void {
     console.log('[PopOut] Received message:', message.type);
 
-    switch (message.type) {
-      case 'STATE_UPDATE':
-        // Handle state updates from main window
-        // Sync FULL state to local StateManagementService
-        if (message.state) {
-          console.log('[PopOut] Syncing full state:', {
-            filters: message.state.filters,
-            resultsCount: message.state.results?.length,
-            loading: message.state.loading,
-            error: message.state.error,
-            totalResults: message.state.totalResults
-          });
+    // BroadcastChannel callbacks run outside Angular's zone
+    // We need to run inside the zone to trigger change detection
+    this.ngZone.run(() => {
+      switch (message.type) {
+        case 'STATE_UPDATE':
+          // Handle state updates from main window
+          // Sync FULL state to local StateManagementService
+          if (message.state) {
+            console.log('[PopOut] Syncing full state:', {
+              filters: message.state.filters,
+              resultsCount: message.state.results?.length,
+              loading: message.state.loading,
+              error: message.state.error,
+              totalResults: message.state.totalResults
+            });
 
-          this.stateService.syncStateFromExternal(message.state);
+            this.stateService.syncStateFromExternal(message.state);
 
-          // Update local UI state
-          this.currentFilters = message.state.filters;
-          console.log('[PopOut] Updated currentFilters:', this.currentFilters);
-          console.log('[PopOut] hasActiveFilters:', this.hasActiveFilters);
+            // Update local UI state
+            this.currentFilters = message.state.filters;
+            console.log('[PopOut] Updated currentFilters:', this.currentFilters);
+            console.log('[PopOut] hasActiveFilters:', this.hasActiveFilters);
 
-          // Update picker selections
-          if (message.state.filters.modelCombos) {
-            this.pickerInitialSelections = [...message.state.filters.modelCombos];
-          } else {
-            this.pickerInitialSelections = [];
+            // Update picker selections
+            if (message.state.filters.modelCombos) {
+              this.pickerInitialSelections = [...message.state.filters.modelCombos];
+            } else {
+              this.pickerInitialSelections = [];
+            }
           }
-        }
-        break;
-      case 'CLEAR_SELECTION':
-        this.pickerClearTrigger++;
-        this.currentFilters = {};
-        this.pickerInitialSelections = [];
-        break;
-      default:
-        console.log('Unknown message type:', message.type);
-    }
+          break;
+        case 'CLEAR_SELECTION':
+          this.pickerClearTrigger++;
+          this.currentFilters = {};
+          this.pickerInitialSelections = [];
+          break;
+        default:
+          console.log('Unknown message type:', message.type);
+      }
+    });
   }
 
   // Event handlers
