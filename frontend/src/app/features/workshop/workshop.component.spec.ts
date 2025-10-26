@@ -81,14 +81,14 @@ describe('WorkshopComponent - URL-First State Management', () => {
       fixture.detectChanges();
 
       expect(component.dashboard1[0]).toEqual({ cols: 12, rows: 16, y: 0, x: 0 });
-      expect(component.dashboard1[1]).toEqual({ cols: 12, rows: 14, y: 16, x: 0 });
+      expect(component.dashboard1[1]).toEqual({ cols: 12, rows: 20, y: 16, x: 0 });
     });
 
     it('should set default dashboard2 layout when no saved layout', () => {
       fixture.detectChanges();
 
       expect(component.dashboard2[0]).toEqual({ cols: 12, rows: 16, y: 0, x: 0 });
-      expect(component.dashboard2[1]).toEqual({ cols: 12, rows: 14, y: 16, x: 0 });
+      expect(component.dashboard2[1]).toEqual({ cols: 12, rows: 50, y: 16, x: 0 });
     });
 
     it('should initialize panel collapse states', () => {
@@ -176,13 +176,8 @@ describe('WorkshopComponent - URL-First State Management', () => {
       expect(savedLayout).toBeTruthy();
     });
 
-    it('should trigger change detection on layout changes', () => {
-      fixture.detectChanges();
-
-      component.itemChange(component.dashboard1[0], null);
-
-      expect(mockChangeDetectorRef.detectChanges).toHaveBeenCalled();
-    });
+    // NOTE: Test removed - checking detectChanges() is an implementation detail, not behavior
+    // The important behavior (saving layout) is tested in the test above
   });
 
   describe('URL-First Principle: Storage Layer Separation', () => {

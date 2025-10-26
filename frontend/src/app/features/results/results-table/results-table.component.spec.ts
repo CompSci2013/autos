@@ -5,7 +5,7 @@ import {
   tick,
 } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { of, BehaviorSubject, throwError } from 'rxjs';
+import { of, BehaviorSubject, throwError, Subject } from 'rxjs';
 import { ResultsTableComponent } from './results-table.component';
 import { StateManagementService } from '../../../core/services/state-management.service';
 import { ApiService } from '../../../services/api.service';
@@ -497,9 +497,10 @@ describe('ResultsTableComponent', () => {
 
     it('should set loading state while fetching instances', fakeAsync(() => {
       const vehicle = createVehicleResult({ vehicle_id: 'vehicle-123' });
+      const instancesSubject = new Subject<any>();
 
       mockApiService.getVehicleInstances.and.returnValue(
-        of(createVehicleInstancesResponse('vehicle-123', []))
+        instancesSubject.asObservable()
       );
 
       component.onRowExpand(vehicle);
@@ -507,6 +508,9 @@ describe('ResultsTableComponent', () => {
       // Immediately after expansion, should be loading
       expect(component.loadingInstances.has('vehicle-123')).toBe(true);
 
+      // Complete the observable
+      instancesSubject.next(createVehicleInstancesResponse('vehicle-123', []));
+      instancesSubject.complete();
       tick();
 
       // After completion, should not be loading
@@ -515,9 +519,10 @@ describe('ResultsTableComponent', () => {
 
     it('should clear loading state on error', fakeAsync(() => {
       const vehicle = createVehicleResult({ vehicle_id: 'vehicle-123' });
+      const instancesSubject = new Subject<any>();
 
       mockApiService.getVehicleInstances.and.returnValue(
-        throwError({ status: 500, message: 'Server error' })
+        instancesSubject.asObservable()
       );
 
       spyOn(console, 'error');
@@ -526,6 +531,8 @@ describe('ResultsTableComponent', () => {
 
       expect(component.loadingInstances.has('vehicle-123')).toBe(true);
 
+      // Emit error
+      instancesSubject.error({ status: 500, message: 'Server error' });
       tick();
 
       expect(component.loadingInstances.has('vehicle-123')).toBe(false);
@@ -799,23 +806,30 @@ describe('ResultsTableComponent', () => {
     it('should handle multiple vehicles expanding simultaneously', fakeAsync(() => {
       const vehicle1 = createVehicleResult({ vehicle_id: 'vehicle-1' });
       const vehicle2 = createVehicleResult({ vehicle_id: 'vehicle-2' });
+      const subject1 = new Subject<any>();
+      const subject2 = new Subject<any>();
 
-      mockApiService.getVehicleInstances.and.returnValue(
-        of(createVehicleInstancesResponse('any', []))
+      // Return different subjects for each call
+      mockApiService.getVehicleInstances.and.returnValues(
+        subject1.asObservable(),
+        subject2.asObservable()
       );
 
       component.onRowExpand(vehicle1);
       component.onRowExpand(vehicle2);
 
-      // Allow microtasks to complete so loading state is set
-      tick();
-
+      // Both should be loading
       expect(component.loadingInstances.has('vehicle-1')).toBe(true);
       expect(component.loadingInstances.has('vehicle-2')).toBe(true);
 
-      // Allow observables to complete
+      // Complete both observables
+      subject1.next(createVehicleInstancesResponse('vehicle-1', []));
+      subject1.complete();
+      subject2.next(createVehicleInstancesResponse('vehicle-2', []));
+      subject2.complete();
       tick();
 
+      // Both should be done loading
       expect(component.loadingInstances.size).toBe(0);
     }));
 

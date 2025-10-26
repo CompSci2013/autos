@@ -63,13 +63,15 @@ describe('RouteStateService - URL-First State Management', () => {
 
   describe('Reading URL Parameters', () => {
     beforeEach(() => {
-      mockActivatedRoute.snapshot.queryParams = {
+      const params = {
         models: 'Ford:F-150,Chevrolet:Corvette',
         page: '2',
         size: '50',
         yearMin: '1960',
         yearMax: '1980',
       };
+      mockActivatedRoute.snapshot.queryParams = params;
+      queryParamsSubject.next(params); // Emit to observable so watchParam gets initial value
     });
 
     it('should get current params synchronously', () => {
@@ -121,7 +123,7 @@ describe('RouteStateService - URL-First State Management', () => {
       queryParamsSubject.next({ page: '2' });
 
       setTimeout(() => {
-        expect(values).toEqual(['1', '2']); // No duplicate
+        expect(values).toEqual(['2', '1', '2']); // Initial '2' from beforeEach, then '1', then '2' (duplicate '1' filtered by distinctUntilChanged)
         done();
       }, 50);
     });
