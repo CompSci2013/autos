@@ -2,6 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ChangeDetectorRef } from '@angular/core';
 import { WorkshopComponent } from './workshop.component';
 import { StateManagementService } from '../../core/services/state-management.service';
+import { GridTransferService } from '../../core/services/grid-transfer.service';
+import { PanelPopoutService } from '../../core/services/panel-popout.service';
 import { BehaviorSubject } from 'rxjs';
 import { SearchFilters, ManufacturerModelSelection } from '../../models';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
@@ -10,8 +12,11 @@ describe('WorkshopComponent - URL-First State Management', () => {
   let component: WorkshopComponent;
   let fixture: ComponentFixture<WorkshopComponent>;
   let mockStateService: jasmine.SpyObj<StateManagementService>;
+  let mockGridTransfer: jasmine.SpyObj<GridTransferService>;
+  let mockPopoutService: jasmine.SpyObj<PanelPopoutService>;
   let mockChangeDetectorRef: jasmine.SpyObj<ChangeDetectorRef>;
   let filtersSubject: BehaviorSubject<SearchFilters>;
+  let gridsSubject: BehaviorSubject<Map<string, any[]>>;
 
   beforeEach(async () => {
     // Create filters subject
@@ -20,6 +25,9 @@ describe('WorkshopComponent - URL-First State Management', () => {
       size: 20,
     });
 
+    // Create grids subject
+    gridsSubject = new BehaviorSubject<Map<string, any[]>>(new Map());
+
     // Create mock state service
     mockStateService = jasmine.createSpyObj('StateManagementService', [
       'updateFilters',
@@ -27,17 +35,42 @@ describe('WorkshopComponent - URL-First State Management', () => {
       'getCurrentFilters',
     ]);
 
+    // Create mock grid transfer service
+    mockGridTransfer = jasmine.createSpyObj('GridTransferService', [
+      'setGrids',
+      'addItem',
+      'removeItem',
+      'transferItem',
+    ]);
+
+    // Make setGrids() update the gridsSubject to simulate real behavior
+    mockGridTransfer.setGrids.and.callFake((gridsMap: Map<string, any[]>) => {
+      gridsSubject.next(gridsMap);
+    });
+
+    // Create mock popout service
+    mockPopoutService = jasmine.createSpyObj('PanelPopoutService', [
+      'popOutPanel',
+      'closePopout',
+    ]);
+
     mockChangeDetectorRef = jasmine.createSpyObj('ChangeDetectorRef', ['detectChanges']);
 
-    // Add observable property
+    // Add observable properties
     Object.defineProperty(mockStateService, 'filters$', {
       get: () => filtersSubject.asObservable(),
+    });
+
+    Object.defineProperty(mockGridTransfer, 'grids$', {
+      get: () => gridsSubject.asObservable(),
     });
 
     await TestBed.configureTestingModule({
       declarations: [WorkshopComponent],
       providers: [
         { provide: StateManagementService, useValue: mockStateService },
+        { provide: GridTransferService, useValue: mockGridTransfer },
+        { provide: PanelPopoutService, useValue: mockPopoutService },
         { provide: ChangeDetectorRef, useValue: mockChangeDetectorRef },
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -59,43 +92,58 @@ describe('WorkshopComponent - URL-First State Management', () => {
       expect(component).toBeTruthy();
     });
 
-    it('should initialize Gridster options', () => {
+    it('should initialize grids array', () => {
       fixture.detectChanges();
 
-      expect(component.options1).toBeDefined();
-      expect(component.options2).toBeDefined();
-      expect(component.options1.gridType).toBe('fit');
-      expect(component.options2.gridType).toBe('fit');
+      expect(component.grids).toBeDefined();
+      expect(component.grids.length).toBe(2);
+      expect(component.grids[0].id).toBe('grid-0');
+      expect(component.grids[1].id).toBe('grid-1');
     });
 
-    it('should initialize with default dashboard layout', () => {
+    it('should initialize Gridster options for each grid', () => {
       fixture.detectChanges();
 
-      expect(component.dashboard1).toBeDefined();
-      expect(component.dashboard2).toBeDefined();
-      expect(component.dashboard1.length).toBe(2); // Picker Comparison + Results Demo
-      expect(component.dashboard2.length).toBe(2); // Picker + Results
+      expect(component.grids[0].options).toBeDefined();
+      expect(component.grids[1].options).toBeDefined();
+      expect(component.grids[0].options.gridType).toBe('fit');
+      expect(component.grids[1].options.gridType).toBe('fit');
     });
 
-    it('should set default dashboard1 layout when no saved layout', () => {
+    it('should initialize with default panel layout when no saved state', () => {
       fixture.detectChanges();
 
-      expect(component.dashboard1[0]).toEqual({ cols: 12, rows: 16, y: 0, x: 0 });
-      expect(component.dashboard1[1]).toEqual({ cols: 12, rows: 20, y: 16, x: 0 });
+      expect(component.grids[0].items).toBeDefined();
+      expect(component.grids[1].items).toBeDefined();
+      expect(component.grids[0].items.length).toBe(1); // Picker in left grid
+      expect(component.grids[1].items.length).toBe(1); // Results in right grid
     });
 
-    it('should set default dashboard2 layout when no saved layout', () => {
+    it('should set default grid-0 layout when no saved state', () => {
       fixture.detectChanges();
 
-      expect(component.dashboard2[0]).toEqual({ cols: 12, rows: 16, y: 0, x: 0 });
-      expect(component.dashboard2[1]).toEqual({ cols: 12, rows: 50, y: 16, x: 0 });
+      const pickerPanel = component.grids[0].items[0];
+      expect(pickerPanel.cols).toBe(2);
+      expect(pickerPanel.rows).toBe(3);
+      expect(pickerPanel.panelType).toBe('picker');
     });
 
-    it('should initialize panel collapse states', () => {
-      expect(component.demoCollapsed).toBe(false);
-      expect(component.pickerCollapsed).toBe(false);
-      expect(component.resultsCollapsed).toBe(false);
-      expect(component.pickerComparisonCollapsed).toBe(false);
+    it('should set default grid-1 layout when no saved state', () => {
+      fixture.detectChanges();
+
+      const resultsPanel = component.grids[1].items[0];
+      expect(resultsPanel.cols).toBe(2);
+      expect(resultsPanel.rows).toBe(3);
+      expect(resultsPanel.panelType).toBe('results');
+    });
+
+    it('should initialize panel collapse states map', () => {
+      fixture.detectChanges();
+
+      expect(component.panelCollapseStates).toBeDefined();
+      expect(component.panelCollapseStates instanceof Map).toBe(true);
+      expect(component.panelCollapseStates.get('grid-0')).toBe(false);
+      expect(component.panelCollapseStates.get('grid-1')).toBe(false);
     });
 
     it('should subscribe to state filters on init', () => {
@@ -106,89 +154,82 @@ describe('WorkshopComponent - URL-First State Management', () => {
   });
 
   describe('UI Preferences: localStorage Persistence', () => {
-    it('should load saved layout1 from localStorage', () => {
-      const savedLayout = [
-        { cols: 6, rows: 20, y: 0, x: 0 },
-        { cols: 6, rows: 20, y: 0, x: 6 },
-      ];
-      localStorage.setItem('autos-workshop-layout1', JSON.stringify(savedLayout));
+    it('should load saved grid state from localStorage', () => {
+      const savedState = {
+        'grid-0': [{ cols: 2, rows: 2, y: 0, x: 0, id: 'picker-1', panelType: 'picker' as 'picker' }],
+        'grid-1': [{ cols: 2, rows: 3, y: 0, x: 0, id: 'results-1', panelType: 'results' as 'results' }],
+      };
+      localStorage.setItem('autos-workshop-multi-grid-state', JSON.stringify(savedState));
 
       fixture = TestBed.createComponent(WorkshopComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
 
-      expect(component.dashboard1).toEqual(savedLayout);
+      expect(component.grids[0].items).toEqual(savedState['grid-0']);
+      expect(component.grids[1].items).toEqual(savedState['grid-1']);
     });
 
-    it('should load saved layout2 from localStorage', () => {
-      const savedLayout = [
-        { cols: 12, rows: 10, y: 0, x: 0 },
-        { cols: 12, rows: 10, y: 10, x: 0 },
-      ];
-      localStorage.setItem('autos-workshop-layout2', JSON.stringify(savedLayout));
+    it('should load partial grid state from localStorage', () => {
+      const savedState = {
+        'grid-0': [
+          { cols: 1, rows: 2, y: 0, x: 0, id: 'picker-1', panelType: 'picker' as 'picker' },
+          { cols: 1, rows: 2, y: 2, x: 0, id: 'results-1', panelType: 'results' as 'results' },
+        ],
+      };
+      localStorage.setItem('autos-workshop-multi-grid-state', JSON.stringify(savedState));
 
       fixture = TestBed.createComponent(WorkshopComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
 
-      expect(component.dashboard2).toEqual(savedLayout);
+      expect(component.grids[0].items).toEqual(savedState['grid-0']);
+      expect(component.grids[1].items).toEqual([]); // grid-1 not in saved state
     });
 
-    it('should save layouts to localStorage', () => {
+    it('should save grid state to localStorage', () => {
       fixture.detectChanges();
 
-      component.dashboard1 = [{ cols: 12, rows: 30, y: 0, x: 0 }];
-      component.dashboard2 = [{ cols: 6, rows: 15, y: 0, x: 0 }];
+      component.grids[0].items = [{ cols: 2, rows: 3, y: 0, x: 0, id: 'test-1', panelType: 'picker' as 'picker' }];
+      component.grids[1].items = [{ cols: 1, rows: 2, y: 0, x: 0, id: 'test-2', panelType: 'results' as 'results' }];
 
-      component.saveLayouts();
+      // Trigger save via private method (called by onGridChange)
+      (component as any).saveGridState();
 
-      const savedLayout1 = localStorage.getItem('autos-workshop-layout1');
-      const savedLayout2 = localStorage.getItem('autos-workshop-layout2');
+      const savedState = localStorage.getItem('autos-workshop-multi-grid-state');
+      expect(savedState).toBeTruthy();
 
-      expect(savedLayout1).toBeTruthy();
-      expect(savedLayout2).toBeTruthy();
-      expect(JSON.parse(savedLayout1!)).toEqual(component.dashboard1);
-      expect(JSON.parse(savedLayout2!)).toEqual(component.dashboard2);
+      const parsed = JSON.parse(savedState!);
+      expect(parsed['grid-0']).toEqual(component.grids[0].items);
+      expect(parsed['grid-1']).toEqual(component.grids[1].items);
     });
 
-    it('should save layouts on item change', () => {
+    it('should save grid state on item change', () => {
       fixture.detectChanges();
 
-      const initialLayout = [...component.dashboard1];
-      component.dashboard1[0] = { cols: 6, rows: 20, y: 0, x: 0 };
+      const initialItems = [...component.grids[0].items];
+      const testItem = { cols: 3, rows: 4, y: 0, x: 0, id: 'changed-panel', panelType: 'picker' as 'picker' };
+      component.grids[0].items = [testItem];
 
-      component.itemChange(component.dashboard1[0], null);
+      component.onGridChange('grid-0', testItem, null);
 
-      const savedLayout = localStorage.getItem('autos-workshop-layout1');
-      expect(savedLayout).toBeTruthy();
-      expect(JSON.parse(savedLayout!)).not.toEqual(initialLayout);
+      const savedState = localStorage.getItem('autos-workshop-multi-grid-state');
+      expect(savedState).toBeTruthy();
+
+      const parsed = JSON.parse(savedState!);
+      expect(parsed['grid-0']).not.toEqual(initialItems);
+      expect(parsed['grid-0']).toEqual([testItem]);
     });
-
-    it('should save layouts on item resize', () => {
-      fixture.detectChanges();
-
-      const item = { cols: 12, rows: 25, y: 0, x: 0 };
-      component.dashboard1[0] = item;
-
-      component.itemResize(item, null);
-
-      const savedLayout = localStorage.getItem('autos-workshop-layout1');
-      expect(savedLayout).toBeTruthy();
-    });
-
-    // NOTE: Test removed - checking detectChanges() is an implementation detail, not behavior
-    // The important behavior (saving layout) is tested in the test above
   });
 
   describe('URL-First Principle: Storage Layer Separation', () => {
-    it('should store layout in localStorage, NOT in URL', () => {
+    it('should store grid layout in localStorage, NOT in URL', () => {
       fixture.detectChanges();
 
-      component.dashboard1 = [{ cols: 8, rows: 20, y: 0, x: 0 }];
-      component.saveLayouts();
+      component.grids[0].items = [{ cols: 3, rows: 4, y: 0, x: 0, id: 'test', panelType: 'picker' as 'picker' }];
+      (component as any).saveGridState();
 
       // Layout saved to localStorage
-      expect(localStorage.getItem('autos-workshop-layout1')).toBeTruthy();
+      expect(localStorage.getItem('autos-workshop-multi-grid-state')).toBeTruthy();
 
       // Should NOT call updateFilters (URL updates)
       expect(mockStateService.updateFilters).not.toHaveBeenCalled();
@@ -197,8 +238,8 @@ describe('WorkshopComponent - URL-First State Management', () => {
     it('should store panel collapse states locally, NOT in URL', () => {
       fixture.detectChanges();
 
-      component.pickerCollapsed = true;
-      component.resultsCollapsed = true;
+      component.panelCollapseStates.set('grid-0', true);
+      component.panelCollapseStates.set('grid-1', true);
 
       // Panel states are component properties (not in URL)
       expect(mockStateService.updateFilters).not.toHaveBeenCalled();
@@ -422,27 +463,39 @@ describe('WorkshopComponent - URL-First State Management', () => {
       fixture.detectChanges();
     });
 
-    it('should configure drag handlers correctly', () => {
-      expect(component.options1.draggable?.enabled).toBe(true);
-      expect(component.options1.draggable?.dragHandleClass).toBe('drag-handler');
-      expect(component.options1.draggable?.ignoreContent).toBe(true);
+    it('should configure drag handlers correctly for all grids', () => {
+      component.grids.forEach(grid => {
+        expect(grid.options.draggable?.enabled).toBe(true);
+        expect(grid.options.draggable?.dragHandleClass).toBe('drag-handle');
+        expect(grid.options.draggable?.ignoreContentClass).toBe('no-drag');
+      });
     });
 
-    it('should configure resize handlers correctly', () => {
-      expect(component.options1.resizable?.enabled).toBe(true);
-      expect(component.options2.resizable?.enabled).toBe(true);
+    it('should configure resize handlers correctly for all grids', () => {
+      component.grids.forEach(grid => {
+        expect(grid.options.resizable?.enabled).toBe(true);
+      });
     });
 
-    it('should have grid configuration for 12-column layout', () => {
-      expect(component.options1.minCols).toBe(12);
-      expect(component.options1.maxCols).toBe(12);
-      expect(component.options2.minCols).toBe(12);
-      expect(component.options2.maxCols).toBe(12);
+    it('should have consistent grid configuration across all grids', () => {
+      component.grids.forEach(grid => {
+        expect(grid.options.gridType).toBe('fit');
+        expect(grid.options.compactType).toBeDefined(); // CompactType.None
+        expect(grid.options.swap).toBe(false);
+        expect(grid.options.pushItems).toBe(true);
+      });
     });
 
-    it('should configure swap behavior differently for grids', () => {
-      expect(component.options1.swap).toBe(true);
-      expect(component.options2.swap).toBe(false);
+    it('should have drag stop callbacks configured', () => {
+      component.grids.forEach(grid => {
+        expect(grid.options.draggable?.stop).toBeDefined();
+      });
+    });
+
+    it('should have empty cell drop callbacks configured', () => {
+      component.grids.forEach(grid => {
+        expect(grid.options.emptyCellDropCallback).toBeDefined();
+      });
     });
   });
 
@@ -455,20 +508,25 @@ describe('WorkshopComponent - URL-First State Management', () => {
       expect(component.selectionCount).toBe(0);
     });
 
-    it('should handle rapid layout changes', () => {
+    it('should handle rapid grid layout changes', () => {
       fixture.detectChanges();
 
-      component.dashboard1 = [{ cols: 12, rows: 10, y: 0, x: 0 }];
-      component.itemChange(component.dashboard1[0], null);
+      const item1 = { cols: 2, rows: 2, y: 0, x: 0, id: 'test-1', panelType: 'picker' as 'picker' };
+      const item2 = { cols: 2, rows: 3, y: 0, x: 0, id: 'test-1', panelType: 'picker' as 'picker' };
+      const item3 = { cols: 2, rows: 4, y: 0, x: 0, id: 'test-1', panelType: 'picker' as 'picker' };
 
-      component.dashboard1 = [{ cols: 12, rows: 20, y: 0, x: 0 }];
-      component.itemChange(component.dashboard1[0], null);
+      component.grids[0].items = [item1];
+      component.onGridChange('grid-0', item1, null);
 
-      component.dashboard1 = [{ cols: 12, rows: 30, y: 0, x: 0 }];
-      component.itemChange(component.dashboard1[0], null);
+      component.grids[0].items = [item2];
+      component.onGridChange('grid-0', item2, null);
 
-      const savedLayout = localStorage.getItem('autos-workshop-layout1');
-      expect(JSON.parse(savedLayout!)[0].rows).toBe(30); // Latest state
+      component.grids[0].items = [item3];
+      component.onGridChange('grid-0', item3, null);
+
+      const savedState = localStorage.getItem('autos-workshop-multi-grid-state');
+      const parsed = JSON.parse(savedState!);
+      expect(parsed['grid-0'][0].rows).toBe(4); // Latest state
     });
 
     it('should preserve other filter properties', () => {
@@ -483,6 +541,18 @@ describe('WorkshopComponent - URL-First State Management', () => {
       expect(component.currentFilters.yearMin).toBe(1960);
       expect(component.currentFilters.yearMax).toBe(1980);
       expect(component.currentFilters.page).toBe(3);
+    });
+
+    it('should handle empty grid state from localStorage', () => {
+      localStorage.setItem('autos-workshop-multi-grid-state', JSON.stringify({}));
+
+      fixture = TestBed.createComponent(WorkshopComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+
+      // Empty saved state means grids have no panels (user cleared them)
+      expect(component.grids[0].items.length).toBe(0);
+      expect(component.grids[1].items.length).toBe(0);
     });
   });
 });
