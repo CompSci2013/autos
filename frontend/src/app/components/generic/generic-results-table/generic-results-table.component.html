@@ -43,7 +43,7 @@
           <!-- Dynamic columns from config -->
           <th
             *ngFor="let column of getVisibleColumns()"
-            [nzWidth]="column.width"
+            [nzWidth]="column.width || null"
             [nzSortFn]="column.sortable ? true : null"
             [nzSortOrder]="sortColumn === column.key ? (sortDirection === 'asc' ? 'ascend' : 'descend') : null"
             (nzSortOrderChange)="onSort({ column: column.key, direction: $event === 'ascend' ? 'asc' : $event === 'descend' ? 'desc' : null })">

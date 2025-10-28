@@ -87,7 +87,7 @@ export class GenericDiscoveryPageComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(state => {
         this.hasResults = state.results.length > 0;
-        this.resultsCount = state.total;
+        this.resultsCount = state.totalResults;
       });
   }
 

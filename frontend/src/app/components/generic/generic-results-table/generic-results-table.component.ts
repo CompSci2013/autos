@@ -59,6 +59,9 @@ export class GenericResultsTableComponent implements OnInit, OnDestroy {
   instancesCache: Map<string, EntityInstance[]> = new Map();
   loadingInstances: Set<string> = new Set();
 
+  // Current filters (tracked for refresh)
+  private currentFilters: any = { page: 1, size: 20 };
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -89,7 +92,7 @@ export class GenericResultsTableComponent implements OnInit, OnDestroy {
 
     // Get entity metadata
     this.entityType = config.entity.type;
-    this.instanceType = config.entity.instanceType;
+    this.instanceType = config.entity.instanceType || 'instance';
     this.primaryKey = config.entity.primaryKey;
 
     // Build columns from config
@@ -198,6 +201,7 @@ export class GenericResultsTableComponent implements OnInit, OnDestroy {
     this.stateService.filters$
       .pipe(takeUntil(this.destroy$))
       .subscribe(filters => {
+        this.currentFilters = filters;
         this.currentPage = filters.page || 1;
         this.pageSize = filters.size || 20;
         this.sortColumn = filters.sort || null;
@@ -358,10 +362,7 @@ export class GenericResultsTableComponent implements OnInit, OnDestroy {
    */
   refresh(): void {
     // Trigger a new fetch with current filters
-    const currentState = this.stateService.state$.getValue ? this.stateService.state$.getValue() : null;
-    if (currentState) {
-      this.stateService.updateFilters({ ...currentState.filters });
-    }
+    this.stateService.updateFilters({ ...this.currentFilters });
   }
 }
 
