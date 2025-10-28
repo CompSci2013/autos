@@ -1,0 +1,507 @@
+{
+  "domain": {
+    "id": "aircraft",
+    "name": "Aviation Data Explorer",
+    "version": "1.0.0",
+    "description": "Explore aviation data across manufacturers, models, variants, and registrations",
+    "icon": "plane",
+    "author": "AUTOS Team",
+    "lastUpdated": "2025-10-28T00:00:00Z"
+  },
+
+  "dataSource": {
+    "type": "rest",
+    "endpoints": {
+      "search": "/api/aircraft/search",
+      "details": "/api/aircraft/details",
+      "instances": "/api/aircraft/registrations",
+      "counts": "/api/aircraft/manufacturer-model-counts"
+    },
+    "authentication": {
+      "type": "none"
+    },
+    "pagination": {
+      "type": "page",
+      "defaultSize": 20,
+      "maxSize": 100,
+      "sizeOptions": [10, 20, 50, 100]
+    }
+  },
+
+  "entity": {
+    "type": "aircraft",
+    "instanceType": "registration",
+    "primaryKey": "aircraft_id",
+    "displayField": "manufacturer",
+    "fields": [
+      {
+        "key": "aircraft_id",
+        "label": "Aircraft ID",
+        "type": "string",
+        "searchable": true,
+        "sortable": true,
+        "filterable": false,
+        "required": true,
+        "description": "Unique identifier for aircraft model/variant combination"
+      },
+      {
+        "key": "manufacturer",
+        "label": "Manufacturer",
+        "type": "string",
+        "searchable": true,
+        "sortable": true,
+        "filterable": true,
+        "required": true,
+        "description": "Aircraft manufacturer (e.g., Boeing, Airbus)"
+      },
+      {
+        "key": "model",
+        "label": "Model",
+        "type": "string",
+        "searchable": true,
+        "sortable": true,
+        "filterable": true,
+        "required": true,
+        "description": "Aircraft model designation (e.g., 737, A320)"
+      },
+      {
+        "key": "variant",
+        "label": "Variant",
+        "type": "string",
+        "searchable": true,
+        "sortable": true,
+        "filterable": true,
+        "required": false,
+        "description": "Model variant (e.g., 737-800, A320neo)"
+      },
+      {
+        "key": "year_built",
+        "label": "Year Built",
+        "type": "number",
+        "searchable": false,
+        "sortable": true,
+        "filterable": true,
+        "required": true,
+        "description": "Year of manufacture"
+      },
+      {
+        "key": "aircraft_type",
+        "label": "Aircraft Type",
+        "type": "string",
+        "searchable": true,
+        "sortable": true,
+        "filterable": true,
+        "required": true,
+        "description": "Aircraft classification (e.g., Narrow-body, Wide-body, Regional)"
+      },
+      {
+        "key": "engine_type",
+        "label": "Engine Type",
+        "type": "string",
+        "searchable": true,
+        "sortable": true,
+        "filterable": true,
+        "required": false,
+        "description": "Engine classification (e.g., Turbofan, Turboprop)"
+      },
+      {
+        "key": "max_range_nm",
+        "label": "Max Range (nm)",
+        "type": "number",
+        "searchable": false,
+        "sortable": true,
+        "filterable": true,
+        "required": false,
+        "description": "Maximum range in nautical miles"
+      },
+      {
+        "key": "cruise_speed_kts",
+        "label": "Cruise Speed (kts)",
+        "type": "number",
+        "searchable": false,
+        "sortable": true,
+        "filterable": true,
+        "required": false,
+        "description": "Typical cruise speed in knots"
+      },
+      {
+        "key": "seating_capacity",
+        "label": "Seating Capacity",
+        "type": "number",
+        "searchable": false,
+        "sortable": true,
+        "filterable": true,
+        "required": false,
+        "description": "Typical seating configuration"
+      },
+      {
+        "key": "data_source",
+        "label": "Data Source",
+        "type": "string",
+        "searchable": false,
+        "sortable": true,
+        "filterable": true,
+        "required": true,
+        "description": "Source of aircraft data (e.g., FAA, EASA)"
+      },
+      {
+        "key": "ingested_at",
+        "label": "Ingested At",
+        "type": "date",
+        "format": "iso8601",
+        "searchable": false,
+        "sortable": true,
+        "filterable": false,
+        "required": false,
+        "description": "Timestamp when data was ingested into system"
+      }
+    ],
+    "hierarchies": [
+      {
+        "id": "manufacturer-model-variant",
+        "name": "Manufacturer → Model → Variant",
+        "levels": [
+          {
+            "key": "manufacturer",
+            "label": "Manufacturer",
+            "valueField": "manufacturer",
+            "displayField": "manufacturer"
+          },
+          {
+            "key": "model",
+            "label": "Model",
+            "parentKey": "manufacturer",
+            "valueField": "model",
+            "displayField": "model"
+          },
+          {
+            "key": "variant",
+            "label": "Variant",
+            "parentKey": "model",
+            "valueField": "variant",
+            "displayField": "variant"
+          }
+        ],
+        "separator": " "
+      }
+    ]
+  },
+
+  "filters": {
+    "textSearch": {
+      "enabled": true,
+      "placeholder": "Search aircraft by manufacturer, model, or registration...",
+      "fields": ["manufacturer", "model", "variant", "aircraft_id"]
+    },
+    "columnFilters": [
+      {
+        "key": "manufacturer",
+        "label": "Manufacturer",
+        "type": "text",
+        "placeholder": "Filter by manufacturer..."
+      },
+      {
+        "key": "model",
+        "label": "Model",
+        "type": "text",
+        "placeholder": "Filter by model..."
+      },
+      {
+        "key": "aircraft_type",
+        "label": "Aircraft Type",
+        "type": "select",
+        "allowCustom": true,
+        "options": [
+          { "value": "Narrow-body", "label": "Narrow-body" },
+          { "value": "Wide-body", "label": "Wide-body" },
+          { "value": "Regional", "label": "Regional" },
+          { "value": "Turboprop", "label": "Turboprop" },
+          { "value": "Business Jet", "label": "Business Jet" },
+          { "value": "Cargo", "label": "Cargo" }
+        ]
+      },
+      {
+        "key": "engine_type",
+        "label": "Engine Type",
+        "type": "select",
+        "allowCustom": true,
+        "options": [
+          { "value": "Turbofan", "label": "Turbofan" },
+          { "value": "Turboprop", "label": "Turboprop" },
+          { "value": "Turbojet", "label": "Turbojet" },
+          { "value": "Piston", "label": "Piston" }
+        ]
+      },
+      {
+        "key": "dataSource",
+        "label": "Data Source",
+        "type": "select",
+        "options": [
+          { "value": "FAA", "label": "FAA", "color": "blue" },
+          { "value": "EASA", "label": "EASA", "color": "green" },
+          { "value": "ICAO", "label": "ICAO", "color": "orange" }
+        ]
+      }
+    ],
+    "rangeFilters": [
+      {
+        "key": "year_built",
+        "label": "Year Built",
+        "type": "number",
+        "min": 1950,
+        "max": 2025,
+        "step": 1
+      },
+      {
+        "key": "max_range_nm",
+        "label": "Max Range (nm)",
+        "type": "number",
+        "min": 0,
+        "max": 10000,
+        "step": 100
+      },
+      {
+        "key": "seating_capacity",
+        "label": "Seating Capacity",
+        "type": "number",
+        "min": 1,
+        "max": 600,
+        "step": 10
+      }
+    ],
+    "defaultFilters": {}
+  },
+
+  "picker": {
+    "mode": "both",
+    "multiSelect": true,
+    "showCounts": true,
+    "expandDefault": false,
+    "columns": [
+      {
+        "key": "manufacturer",
+        "label": "Manufacturer",
+        "width": "200px",
+        "sortable": true,
+        "searchable": true
+      },
+      {
+        "key": "model",
+        "label": "Model",
+        "width": "150px",
+        "sortable": true,
+        "searchable": true
+      },
+      {
+        "key": "variant",
+        "label": "Variant",
+        "width": "150px",
+        "sortable": true,
+        "searchable": true
+      },
+      {
+        "key": "count",
+        "label": "Count",
+        "width": "100px",
+        "sortable": true,
+        "searchable": false
+      }
+    ],
+    "treeConfig": {
+      "maxDepth": 3,
+      "lazyLoad": false,
+      "searchable": true
+    }
+  },
+
+  "ui": {
+    "theme": {
+      "primaryColor": "#0066cc",
+      "accentColor": "#00a0e3"
+    },
+    "branding": {
+      "title": "Aviation Explorer",
+      "subtitle": "Aircraft Data Explorer",
+      "logo": "assets/aviation-logo.svg"
+    },
+    "table": {
+      "columns": [
+        {
+          "key": "manufacturer",
+          "label": "Manufacturer",
+          "width": "180px",
+          "sortable": true,
+          "filterable": true,
+          "filterType": "text",
+          "hideable": true,
+          "defaultHidden": false,
+          "format": {
+            "type": "text"
+          }
+        },
+        {
+          "key": "model",
+          "label": "Model",
+          "width": "150px",
+          "sortable": true,
+          "filterable": true,
+          "filterType": "text",
+          "hideable": true,
+          "defaultHidden": false,
+          "format": {
+            "type": "text"
+          }
+        },
+        {
+          "key": "variant",
+          "label": "Variant",
+          "width": "150px",
+          "sortable": true,
+          "filterable": true,
+          "filterType": "text",
+          "hideable": true,
+          "defaultHidden": false,
+          "format": {
+            "type": "text"
+          }
+        },
+        {
+          "key": "year_built",
+          "label": "Year Built",
+          "width": "120px",
+          "sortable": true,
+          "filterable": true,
+          "filterType": "number",
+          "hideable": true,
+          "defaultHidden": false,
+          "format": {
+            "type": "number",
+            "options": {
+              "precision": 0
+            }
+          }
+        },
+        {
+          "key": "aircraft_type",
+          "label": "Type",
+          "width": "150px",
+          "sortable": true,
+          "filterable": true,
+          "filterType": "select",
+          "hideable": true,
+          "defaultHidden": false,
+          "format": {
+            "type": "text"
+          }
+        },
+        {
+          "key": "engine_type",
+          "label": "Engine",
+          "width": "130px",
+          "sortable": true,
+          "filterable": true,
+          "filterType": "select",
+          "hideable": true,
+          "defaultHidden": false,
+          "format": {
+            "type": "text"
+          }
+        },
+        {
+          "key": "max_range_nm",
+          "label": "Max Range (nm)",
+          "width": "140px",
+          "sortable": true,
+          "filterable": false,
+          "hideable": true,
+          "defaultHidden": false,
+          "format": {
+            "type": "number",
+            "options": {
+              "precision": 0
+            }
+          }
+        },
+        {
+          "key": "cruise_speed_kts",
+          "label": "Cruise Speed (kts)",
+          "width": "160px",
+          "sortable": true,
+          "filterable": false,
+          "hideable": true,
+          "defaultHidden": false,
+          "format": {
+            "type": "number",
+            "options": {
+              "precision": 0
+            }
+          }
+        },
+        {
+          "key": "seating_capacity",
+          "label": "Seats",
+          "width": "100px",
+          "sortable": true,
+          "filterable": false,
+          "hideable": true,
+          "defaultHidden": false,
+          "format": {
+            "type": "number",
+            "options": {
+              "precision": 0
+            }
+          }
+        },
+        {
+          "key": "data_source",
+          "label": "Data Source",
+          "width": "120px",
+          "sortable": true,
+          "filterable": true,
+          "filterType": "select",
+          "hideable": true,
+          "defaultHidden": false,
+          "format": {
+            "type": "badge",
+            "options": {
+              "badgeColors": {
+                "FAA": "blue",
+                "EASA": "green",
+                "ICAO": "orange"
+              }
+            }
+          },
+          "cellRenderer": "badge"
+        },
+        {
+          "key": "aircraft_id",
+          "label": "Aircraft ID",
+          "width": "auto",
+          "sortable": true,
+          "filterable": false,
+          "hideable": true,
+          "defaultHidden": false,
+          "format": {
+            "type": "text"
+          },
+          "cellRenderer": "monospace"
+        }
+      ],
+      "defaultSort": {
+        "column": "manufacturer",
+        "direction": "asc"
+      },
+      "expandable": true,
+      "expansionConfig": {
+        "mode": "inline",
+        "lazyLoad": true,
+        "maxInstances": 8
+      }
+    },
+    "layout": {
+      "defaultView": "discover",
+      "enableWorkshop": true,
+      "enablePopouts": true
+    }
+  }
+}
