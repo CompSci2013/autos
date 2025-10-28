@@ -6,12 +6,14 @@ import {
   DataSourceAdapterBase,
   DataSourceQuery,
   DataSourceResponse,
-  DataSourceInstancesResponse,
-  DataSourceAggregationsResponse,
-  AggregationBucket
+  InstanceResponse,
+  AggregationResponse,
+  AggregationBucket,
+  Entity,
+  EntityInstance
 } from '../models/generic';
-import { Entity, EntityInstance } from '../models/generic';
 import { DomainConfigService } from '../services/generic';
+import { environment } from '../../environments/environment';
 
 /**
  * Transport Vehicle Result Entity
@@ -106,7 +108,8 @@ export class TransportDomainAdapter extends DataSourceAdapterBase<
     private http: HttpClient
   ) {
     super();
-    this.apiUrl = this.domainConfig.getApiUrl();
+    // Use environment API URL
+    this.apiUrl = environment.apiUrl || '/api/v1';
   }
 
   /**

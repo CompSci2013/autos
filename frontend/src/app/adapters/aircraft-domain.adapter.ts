@@ -6,12 +6,14 @@ import {
   DataSourceAdapterBase,
   DataSourceQuery,
   DataSourceResponse,
-  DataSourceInstancesResponse,
-  DataSourceAggregationsResponse,
-  AggregationBucket
+  InstanceResponse,
+  AggregationResponse,
+  AggregationBucket,
+  Entity,
+  EntityInstance
 } from '../models/generic';
-import { Entity, EntityInstance } from '../models/generic';
 import { DomainConfigService } from '../services/generic';
+import { environment } from '../../environments/environment';
 
 /**
  * Aircraft Result Entity
@@ -77,7 +79,8 @@ export class AircraftDomainAdapter extends DataSourceAdapterBase<
     private http: HttpClient
   ) {
     super();
-    this.apiUrl = this.domainConfig.getApiUrl();
+    // Use environment API URL
+    this.apiUrl = environment.apiUrl || '/api/v1';
   }
 
   /**
@@ -106,7 +109,7 @@ export class AircraftDomainAdapter extends DataSourceAdapterBase<
   fetchInstances(
     entityId: string,
     count: number = 8
-  ): Observable<DataSourceInstancesResponse<EntityInstance<AircraftInstance>>> {
+  ): Observable<InstanceResponse<EntityInstance<AircraftInstance>>> {
     const params = new HttpParams().set('count', count.toString());
     const endpoint = `${this.apiUrl}/aircraft/registrations/${entityId}`;
 
@@ -126,7 +129,7 @@ export class AircraftDomainAdapter extends DataSourceAdapterBase<
   /**
    * Fetch aggregations (manufacturer-model-variant counts)
    */
-  fetchAggregations(): Observable<DataSourceAggregationsResponse> {
+  fetchAggregations(): Observable<AggregationResponse> {
     const endpoint = `${this.apiUrl}/aircraft/manufacturer-model-variant-counts`;
 
     console.log('[AircraftDomainAdapter] Fetching aggregations');
