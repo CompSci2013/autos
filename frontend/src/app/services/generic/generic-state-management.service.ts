@@ -72,8 +72,9 @@ export class GenericStateManagementService<
   );
 
   public results$ = this.state$.pipe(
-    map(state => state.results),
-    distinctUntilChanged()
+    map(state => state.results)
+    // Removed distinctUntilChanged() to ensure results updates always propagate
+    // This fixes the issue where subsequent picker selections don't update the results table
   );
 
   public loading$ = this.state$.pipe(

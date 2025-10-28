@@ -110,10 +110,7 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
       .subscribe((filters) => {
         console.log('ResultsTable: Filters updated from URL:', filters);
 
-        // Convert SearchFilters → TableQueryParams
-        this.tableQueryParams = this.convertToTableParams(filters);
-
-        // Update data source with new models
+        // Update data source with new models FIRST
         if (filters.modelCombos && filters.modelCombos.length > 0) {
           const modelsParam = filters.modelCombos
             .map((c) => `${c.manufacturer}:${c.model}`)
@@ -122,6 +119,10 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
         } else {
           this.dataSource.updateModels('');
         }
+
+        // Convert SearchFilters → TableQueryParams
+        // IMPORTANT: Always create NEW object reference to trigger change detection in BaseDataTable
+        this.tableQueryParams = { ...this.convertToTableParams(filters) };
       });
   }
 
@@ -146,6 +147,8 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
         yearMax: filters.yearMax,
         bodyClass: filters.bodyClass,
         dataSource: filters.dataSource,
+        // Include models so BaseDataTableComponent detects changes
+        _models: filters.modelCombos?.map(c => `${c.manufacturer}:${c.model}`).join(',') || ''
       },
     };
   }

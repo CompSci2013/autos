@@ -46,8 +46,9 @@ export class StateManagementService implements OnDestroy {
   );
 
   public results$ = this.state$.pipe(
-    map((state) => state.results),
-    distinctUntilChanged()
+    map((state) => state.results)
+    // Removed distinctUntilChanged() to ensure results updates always propagate
+    // This fixes the issue where subsequent picker selections don't update the results table
   );
 
   public loading$ = this.state$.pipe(
@@ -154,7 +155,10 @@ export class StateManagementService implements OnDestroy {
 
   private updateState(updates: Partial<AppState>): void {
     const current = this.stateSubject.value;
-    this.stateSubject.next({ ...current, ...updates });
+    const newState = { ...current, ...updates };
+    console.log('🔵 StateManagement.updateState() called. Results changing from', current.results.length, 'to', newState.results.length);
+    this.stateSubject.next(newState);
+    console.log('🔵 StateManagement.updateState() emitted. Current value now:', this.stateSubject.value.results.length);
   }
 
   private syncStateToUrl(): void {
@@ -329,6 +333,7 @@ export class StateManagementService implements OnDestroy {
       )
       .pipe(
         tap((response) => {
+          console.log('🟢 StateManagement: fetchVehicleData() SUCCESS - updating state with', response.results.length, 'results');
           // Update state on success
           this.updateState({
             results: response.results,
@@ -336,6 +341,7 @@ export class StateManagementService implements OnDestroy {
             loading: false,
             error: null,
           });
+          console.log('🟢 StateManagement: State updated, stateSubject now has', this.stateSubject.value.results.length, 'results');
         }),
         catchError((error) => {
           // Update state on error

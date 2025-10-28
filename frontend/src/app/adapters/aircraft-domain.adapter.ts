@@ -118,6 +118,7 @@ export class AircraftDomainAdapter extends DataSourceAdapterBase<
     return this.http.get<any>(endpoint, { params }).pipe(
       map(response => ({
         entityId: response.aircraft_id || entityId,
+        parentId: entityId,
         instances: (response.registrations || []).map((reg: any) =>
           this.transformInstance(reg, entityId)
         ),

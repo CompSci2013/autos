@@ -138,7 +138,7 @@ export class TransportDomainAdapter extends DataSourceAdapterBase<
   fetchInstances(
     entityId: string,
     count: number = 8
-  ): Observable<DataSourceInstancesResponse<EntityInstance<TransportRegistration>>> {
+  ): Observable<InstanceResponse<EntityInstance<TransportRegistration>>> {
     const params = new HttpParams().set('count', count.toString());
     const endpoint = `${this.apiUrl}/transport/registrations/${entityId}`;
 
@@ -147,6 +147,7 @@ export class TransportDomainAdapter extends DataSourceAdapterBase<
     return this.http.get<any>(endpoint, { params }).pipe(
       map(response => ({
         entityId: response.transport_id || entityId,
+        parentId: entityId,
         instances: (response.registrations || []).map((reg: any) =>
           this.transformInstance(reg, entityId)
         ),
@@ -161,7 +162,7 @@ export class TransportDomainAdapter extends DataSourceAdapterBase<
    * NOTE: This returns a MATRIX/GRID structure, not a tree.
    * Each bucket represents a manufacturer-state combination.
    */
-  fetchAggregations(): Observable<DataSourceAggregationsResponse> {
+  fetchAggregations(): Observable<AggregationResponse> {
     const endpoint = `${this.apiUrl}/transport/manufacturer-state-combinations`;
 
     console.log('[TransportDomainAdapter] Fetching manufacturer-state combinations');

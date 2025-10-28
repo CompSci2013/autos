@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil, debounceTime } from 'rxjs/operators';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
@@ -115,7 +115,8 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
 
   constructor(
     private stateService: StateManagementService,
-    private apiService: ApiService // Keep temporarily for loadVehicleInstances
+    private apiService: ApiService, // Keep temporarily for loadVehicleInstances
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -133,7 +134,11 @@ export class VehicleResultsTableComponent implements OnInit, OnDestroy {
     this.stateService.results$
       .pipe(takeUntil(this.destroy$))
       .subscribe((results) => {
+        console.log('🟣 VehicleResultsTable: results$ emitted with', results.length, 'results');
         this.results = results;
+        // Manually trigger change detection to ensure UI updates
+        this.cdr.markForCheck();
+        console.log('🟣 VehicleResultsTable: Updated this.results and called markForCheck()');
       });
 
     // Subscribe to loading state

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, ChangeDetectorRef } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Entity, EntityInstance, DomainFilters } from '../../../models/generic';
@@ -67,7 +67,8 @@ export class GenericResultsTableComponent implements OnInit, OnDestroy {
   constructor(
     private stateService: GenericStateManagementService,
     private dataService: GenericDataService,
-    private domainConfig: DomainConfigService
+    private domainConfig: DomainConfigService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -186,6 +187,8 @@ export class GenericResultsTableComponent implements OnInit, OnDestroy {
       .subscribe(results => {
         this.results = results;
         console.log('[GenericResultsTable] Results updated:', results.length);
+        // Manually trigger change detection to ensure UI updates
+        this.cdr.markForCheck();
       });
 
     // Subscribe to loading state
