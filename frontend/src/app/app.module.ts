@@ -71,6 +71,9 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 // Shared Module (contains BaseDataTableComponent)
 import { SharedModule } from './shared/shared.module';
 
+// Generic Module (configuration-driven components)
+import { GenericModule } from './components/generic';
+
 // Feature components
 import { ManufacturerModelTablePickerComponent } from './features/picker/manufacturer-model-table-picker/manufacturer-model-table-picker.component';
 import { TablePickerComponent } from './features/picker/table-picker/table-picker.component';
@@ -123,6 +126,8 @@ import { PanelPopoutComponent } from './features/panel-popout/panel-popout.compo
     GridsterModule,
     // Shared Module (BaseDataTableComponent)
     SharedModule,
+    // Generic Module (configuration-driven components)
+    GenericModule,
   ],
   providers: [{ provide: NZ_I18N, useValue: en_US }],
   bootstrap: [AppComponent],

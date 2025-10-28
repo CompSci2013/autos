@@ -12,6 +12,7 @@ import {
 } from '../../models/generic';
 import { DomainConfigService } from './domain-config.service';
 import { VehiclesDomainAdapter } from '../../adapters/vehicles-domain.adapter';
+import { AircraftDomainAdapter } from '../../adapters/aircraft-domain.adapter';
 import { LegacyApiAdapter } from '../../adapters/legacy-api.adapter';
 import { ApiService } from '../api.service';
 import { environment } from '../../../environments/environment';
@@ -95,8 +96,8 @@ export class GenericDataService<
         return new VehiclesDomainAdapter(this.domainConfig, this.http) as any;
 
       case 'aircraft':
-        // Future: return new AircraftDomainAdapter(this.domainConfig, this.http) as any;
-        throw new Error(`Domain adapter not yet implemented: ${domainId}`);
+        console.log('[GenericDataService] Creating AircraftDomainAdapter');
+        return new AircraftDomainAdapter(this.domainConfig, this.http) as any;
 
       case 'flora':
         // Future: return new FloraDomainAdapter(this.domainConfig, this.http) as any;

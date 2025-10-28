@@ -1,0 +1,89 @@
+<nz-card [nzTitle]="title" [nzExtra]="extraTemplate" [nzLoading]="loading">
+  <!-- Error message -->
+  <nz-alert
+    *ngIf="error"
+    nzType="error"
+    [nzMessage]="error"
+    nzCloseable
+    (nzOnClose)="error = null"
+    style="margin-bottom: 16px">
+  </nz-alert>
+
+  <!-- Search -->
+  <nz-input-group [nzPrefix]="prefixIconSearch" style="margin-bottom: 16px;">
+    <input
+      nz-input
+      placeholder="Search..."
+      [(ngModel)]="searchValue"
+      (ngModelChange)="onSearch($event)" />
+  </nz-input-group>
+
+  <!-- Tree mode -->
+  <nz-tree
+    *ngIf="mode === 'tree' || (mode === 'both' && treeData.length > 0)"
+    [nzData]="treeData"
+    [nzCheckable]="multiSelect"
+    [nzExpandAll]="false"
+    [nzSearchValue]="searchValue"
+    (nzClick)="onTreeNodeClick($event)">
+  </nz-tree>
+
+  <!-- Table mode -->
+  <nz-table
+    *ngIf="mode === 'table' || mode === 'both'"
+    [nzData]="filteredData"
+    [nzShowPagination]="false"
+    [nzScroll]="{ y: '400px' }"
+    nzSize="small">
+    <thead>
+      <tr>
+        <th *ngFor="let level of hierarchyLevels">{{ level.label }}</th>
+        <th *ngIf="showCounts">Count</th>
+        <th *ngIf="multiSelect" nzWidth="80px">Select</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr
+        *ngFor="let row of filteredData"
+        [class.selected]="row.selected"
+        (click)="onTableRowSelect(row)"
+        style="cursor: pointer;">
+        <td *ngFor="let level of hierarchyLevels">
+          <span [style.padding-left.px]="row.level * 16">
+            {{ row[level.key] }}
+          </span>
+        </td>
+        <td *ngIf="showCounts">{{ row.count }}</td>
+        <td *ngIf="multiSelect">
+          <label nz-checkbox [(ngModel)]="row.selected" (click)="$event.stopPropagation()"></label>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+
+  <!-- Selection summary -->
+  <div *ngIf="hasSelections()" style="margin-top: 16px; padding: 8px; background: #f0f2f5; border-radius: 4px;">
+    <strong>Selected:</strong> {{ getSelectedCount() }} item(s)
+  </div>
+</nz-card>
+
+<!-- Extra template (actions) -->
+<ng-template #extraTemplate>
+  <button nz-button nzType="default" nzSize="small" (click)="clearAll()" [disabled]="!hasSelections()">
+    <i nz-icon nzType="close"></i> Clear
+  </button>
+  <button
+    *ngIf="multiSelect"
+    nz-button
+    nzType="primary"
+    nzSize="small"
+    (click)="selectAll()"
+    style="margin-left: 8px;">
+    <i nz-icon nzType="check"></i> Select All
+  </button>
+</ng-template>
+
+<!-- Search icon -->
+<ng-template #prefixIconSearch>
+  <i nz-icon nzType="search"></i>
+</ng-template>

@@ -1,0 +1,87 @@
+.discovery-page {
+  min-height: 100vh;
+  background: #f0f2f5;
+}
+
+.page-header {
+  background: white;
+  border-bottom: 1px solid #e8e8e8;
+  padding: 24px 32px;
+  margin-bottom: 24px;
+
+  .header-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .domain-icon {
+      font-size: 28px;
+      color: #1890ff;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 600;
+      color: #262626;
+    }
+  }
+}
+
+.page-content {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 24px 24px;
+}
+
+.picker-section {
+  margin-bottom: 24px;
+}
+
+.selection-summary {
+  margin-bottom: 24px;
+
+  .summary-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+
+    .summary-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .success-icon {
+        font-size: 18px;
+        color: #52c41a;
+      }
+
+      .summary-text {
+        font-size: 14px;
+        color: #262626;
+      }
+    }
+  }
+
+  .selected-items-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    .selected-item-tag {
+      margin: 0;
+      padding: 4px 12px;
+      font-size: 13px;
+    }
+  }
+}
+
+.results-section {
+  margin-bottom: 24px;
+}
+
+.empty-state {
+  margin-top: 48px;
+  text-align: center;
+}

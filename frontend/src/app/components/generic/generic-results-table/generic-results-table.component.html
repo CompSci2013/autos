@@ -1,0 +1,159 @@
+<nz-card [nzTitle]="entityType + ' Results'" [nzExtra]="extraTemplate">
+  <!-- Loading State -->
+  <nz-spin [nzSpinning]="loading" nzTip="Loading results...">
+    <!-- Error State -->
+    <nz-alert
+      *ngIf="error"
+      nzType="error"
+      [nzMessage]="error"
+      nzShowIcon
+      nzCloseable
+      (nzOnClose)="error = null"
+      class="error-alert">
+    </nz-alert>
+
+    <!-- Empty State -->
+    <nz-empty
+      *ngIf="!loading && !error && results.length === 0"
+      nzNotFoundContent="No results found">
+    </nz-empty>
+
+    <!-- Results Table -->
+    <nz-table
+      *ngIf="!loading && !error && results.length > 0"
+      #resultsTable
+      [nzData]="results"
+      [nzFrontPagination]="false"
+      [nzTotal]="total"
+      [nzPageSize]="pageSize"
+      [nzPageIndex]="currentPage"
+      [nzPageSizeOptions]="pageSizeOptions"
+      [nzShowSizeChanger]="true"
+      [nzShowTotal]="totalTemplate"
+      (nzPageIndexChange)="onPageChange($event)"
+      (nzPageSizeChange)="onPageSizeChange($event)"
+      nzSize="small"
+      [nzScroll]="{ x: '1200px' }">
+
+      <thead>
+        <tr>
+          <!-- Expansion column -->
+          <th *ngIf="enableExpansion" nzWidth="50px"></th>
+
+          <!-- Dynamic columns from config -->
+          <th
+            *ngFor="let column of getVisibleColumns()"
+            [nzWidth]="column.width"
+            [nzSortFn]="column.sortable ? true : null"
+            [nzSortOrder]="sortColumn === column.key ? (sortDirection === 'asc' ? 'ascend' : 'descend') : null"
+            (nzSortOrderChange)="onSort({ column: column.key, direction: $event === 'ascend' ? 'asc' : $event === 'descend' ? 'desc' : null })">
+            {{ column.label }}
+          </th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <ng-template ngFor let-entity [ngForOf]="resultsTable.data">
+          <!-- Main row -->
+          <tr>
+            <!-- Expansion toggle -->
+            <td *ngIf="enableExpansion">
+              <button
+                nz-button
+                nzType="link"
+                nzSize="small"
+                (click)="onRowExpand(entity)">
+                <span
+                  nz-icon
+                  [nzType]="isRowExpanded(entity) ? 'caret-down' : 'caret-right'"
+                  nzTheme="outline">
+                </span>
+              </button>
+            </td>
+
+            <!-- Data columns -->
+            <td *ngFor="let column of getVisibleColumns()">
+              <!-- Badge rendering -->
+              <nz-badge
+                *ngIf="isBadgeColumn(column)"
+                [nzStatus]="getBadgeColor(getCellValue(entity, column), column)"
+                [nzText]="formatCellValue(getCellValue(entity, column), column)">
+              </nz-badge>
+
+              <!-- Regular text rendering -->
+              <span *ngIf="!isBadgeColumn(column)">
+                {{ formatCellValue(getCellValue(entity, column), column) }}
+              </span>
+            </td>
+          </tr>
+
+          <!-- Expanded row for instances -->
+          <tr *ngIf="enableExpansion && isRowExpanded(entity)" class="expansion-row">
+            <td [attr.colspan]="getVisibleColumns().length + 1" class="expansion-cell">
+              <!-- Loading instances -->
+              <div *ngIf="isLoadingInstances(entity)" class="instances-loading">
+                <nz-spin nzSimple [nzSize]="'small'"></nz-spin>
+                <span class="loading-text">Loading {{ instanceType }}s...</span>
+              </div>
+
+              <!-- Instances list -->
+              <div *ngIf="!isLoadingInstances(entity)" class="instances-container">
+                <div class="instances-header">
+                  <h4>{{ instanceType | titlecase }}s ({{ getInstances(entity).length }})</h4>
+                </div>
+
+                <nz-table
+                  #instancesTable
+                  [nzData]="getInstances(entity)"
+                  [nzFrontPagination]="false"
+                  [nzShowPagination]="false"
+                  nzSize="small"
+                  class="instances-table">
+                  <thead>
+                    <tr>
+                      <th *ngFor="let key of getInstances(entity)[0] | keyvalue | slice:0:6">
+                        {{ key.key | titlecase }}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let instance of instancesTable.data">
+                      <td *ngFor="let key of instance | keyvalue | slice:0:6">
+                        {{ key.value }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </nz-table>
+
+                <!-- Empty instances state -->
+                <nz-empty
+                  *ngIf="getInstances(entity).length === 0"
+                  nzNotFoundContent="No {{ instanceType }}s found"
+                  [nzNotFoundImage]="'simple'">
+                </nz-empty>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </tbody>
+    </nz-table>
+  </nz-spin>
+</nz-card>
+
+<!-- Extra template (top-right actions) -->
+<ng-template #extraTemplate>
+  <button
+    nz-button
+    nzType="default"
+    nzSize="small"
+    (click)="refresh()"
+    [disabled]="loading">
+    <span nz-icon nzType="reload" nzTheme="outline"></span>
+    Refresh
+  </button>
+</ng-template>
+
+<!-- Total template (pagination footer) -->
+<ng-template #totalTemplate let-total>
+  Total {{ total }} {{ entityType }}s
+</ng-template>

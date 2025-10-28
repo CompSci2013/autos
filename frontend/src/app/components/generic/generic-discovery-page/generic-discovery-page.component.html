@@ -1,0 +1,66 @@
+<div class="discovery-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <span nz-icon [nzType]="domainIcon" class="domain-icon"></span>
+      <h1>{{ domainName }}</h1>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="page-content">
+    <!-- Hierarchical Picker Section -->
+    <div class="picker-section">
+      <app-generic-hierarchical-picker
+        [initialSelections]="selectedItems"
+        (selectionChange)="onSelectionChange($event)">
+      </app-generic-hierarchical-picker>
+    </div>
+
+    <!-- Selection Summary -->
+    <div class="selection-summary" *ngIf="selectedItems.length > 0">
+      <nz-card nzSize="small">
+        <div class="summary-content">
+          <div class="summary-info">
+            <span nz-icon nzType="check-circle" nzTheme="fill" class="success-icon"></span>
+            <span class="summary-text">
+              <strong>{{ selectedItems.length }}</strong> item{{ selectedItems.length === 1 ? '' : 's' }} selected
+            </span>
+          </div>
+
+          <button
+            nz-button
+            nzType="default"
+            nzSize="small"
+            (click)="clearSelections()">
+            <span nz-icon nzType="close" nzTheme="outline"></span>
+            Clear Selections
+          </button>
+        </div>
+
+        <!-- Selected items list -->
+        <div class="selected-items-list">
+          <nz-tag
+            *ngFor="let item of selectedItems"
+            nzColor="blue"
+            class="selected-item-tag">
+            {{ item.display }}
+          </nz-tag>
+        </div>
+      </nz-card>
+    </div>
+
+    <!-- Results Section -->
+    <div class="results-section" *ngIf="hasResults">
+      <app-generic-results-table [enableExpansion]="true"></app-generic-results-table>
+    </div>
+
+    <!-- Empty State (no selections) -->
+    <div class="empty-state" *ngIf="selectedItems.length === 0">
+      <nz-empty
+        nzNotFoundContent="Select items from the picker above to view results"
+        [nzNotFoundImage]="'simple'">
+      </nz-empty>
+    </div>
+  </div>
+</div>
