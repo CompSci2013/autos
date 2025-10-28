@@ -53,7 +53,7 @@ export class DomainConfigService {
   /**
    * Currently active domain ID
    */
-  private activeDomainId: string = 'vehicles'; // Default domain
+  private activeDomainId: string = 'transport'; // Default domain
 
   /**
    * Configuration file path template
@@ -66,10 +66,10 @@ export class DomainConfigService {
    * Initialize service by loading the default domain
    * Call this in AppComponent.ngOnInit()
    *
-   * @param domainId Domain ID to load (default: 'vehicles')
+   * @param domainId Domain ID to load (default: 'transport')
    * @returns Observable of the loaded configuration
    */
-  initialize(domainId: string = 'vehicles'): Observable<DomainConfig> {
+  initialize(domainId: string = 'transport'): Observable<DomainConfig> {
     console.log(`[DomainConfigService] Initializing with domain: ${domainId}`);
     return this.loadDomain(domainId);
   }

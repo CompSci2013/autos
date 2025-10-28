@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://autos.minilab/api/v1',
+  apiUrl: 'http://transportation.minilab/api/v1',
 
   /**
    * Feature flag: Use generic architecture
@@ -10,5 +10,5 @@ export const environment = {
    *
    * This allows parallel testing and safe rollback during Phase 2.
    */
-  useGenericArchitecture: false
+  useGenericArchitecture: true
 };

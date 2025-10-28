@@ -117,13 +117,13 @@ export class TransportDomainAdapter extends DataSourceAdapterBase<
    */
   fetch(query: DataSourceQuery): Observable<DataSourceResponse<Entity<TransportVehicleResult>>> {
     const params = this.buildQueryParams(query.filters);
-    const endpoint = `${this.apiUrl}/transport/search`;
+    const endpoint = `${this.apiUrl}/aircraft`;
 
-    console.log('[TransportDomainAdapter] Fetching transport vehicles:', { endpoint, params: params.toString() });
+    console.log('[TransportDomainAdapter] Fetching aircraft:', { endpoint, params: params.toString() });
 
     return this.http.get<any>(endpoint, { params }).pipe(
       map(response => ({
-        results: (response.results || []).map((vehicle: any) => this.transformEntity(vehicle)),
+        results: (response.items || []).map((vehicle: any) => this.transformEntity(vehicle)),
         total: response.total || 0,
         page: response.page || 1,
         size: response.size || 20,
@@ -137,21 +137,18 @@ export class TransportDomainAdapter extends DataSourceAdapterBase<
    */
   fetchInstances(
     entityId: string,
-    count: number = 8
+    count?: number
   ): Observable<InstanceResponse<EntityInstance<TransportRegistration>>> {
-    const params = new HttpParams().set('count', count.toString());
-    const endpoint = `${this.apiUrl}/transport/registrations/${entityId}`;
+    const endpoint = `${this.apiUrl}/aircraft/${entityId}`;
 
-    console.log('[TransportDomainAdapter] Fetching registrations:', { entityId, count });
+    console.log('[TransportDomainAdapter] Fetching aircraft details:', { entityId });
 
-    return this.http.get<any>(endpoint, { params }).pipe(
+    return this.http.get<any>(endpoint).pipe(
       map(response => ({
-        entityId: response.transport_id || entityId,
+        entityId: response.transport_id || response.id || entityId,
         parentId: entityId,
-        instances: (response.registrations || []).map((reg: any) =>
-          this.transformInstance(reg, entityId)
-        ),
-        total: response.total || 0
+        instances: [this.transformInstance(response, entityId)],
+        total: 1
       }))
     );
   }
@@ -163,7 +160,7 @@ export class TransportDomainAdapter extends DataSourceAdapterBase<
    * Each bucket represents a manufacturer-state combination.
    */
   fetchAggregations(): Observable<AggregationResponse> {
-    const endpoint = `${this.apiUrl}/transport/manufacturer-state-combinations`;
+    const endpoint = `${this.apiUrl}/manufacturer-state-combinations`;
 
     console.log('[TransportDomainAdapter] Fetching manufacturer-state combinations');
 

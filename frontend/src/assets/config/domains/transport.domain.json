@@ -158,11 +158,11 @@
     "type": "rest",
     "baseUrl": "/api/v1",
     "endpoints": {
-      "search": "/transport/search",
-      "details": "/transport/details",
-      "instances": "/transport/registrations",
-      "counts": "/transport/manufacturer-state-combinations",
-      "statistics": "/transport/statistics"
+      "search": "/aircraft",
+      "details": "/aircraft",
+      "instances": "/aircraft",
+      "counts": "/manufacturer-state-combinations",
+      "statistics": "/statistics"
     },
     "pagination": {
       "type": "offset",
@@ -236,6 +236,40 @@
         "step": 1
       }
     ]
+  },
+  "picker": {
+    "mode": "both",
+    "multiSelect": true,
+    "showCounts": true,
+    "expandDefault": false,
+    "columns": [
+      {
+        "key": "manufacturer",
+        "label": "Manufacturer",
+        "width": "200px",
+        "sortable": true,
+        "searchable": true
+      },
+      {
+        "key": "state",
+        "label": "State",
+        "width": "100px",
+        "sortable": true,
+        "searchable": true
+      },
+      {
+        "key": "count",
+        "label": "Count",
+        "width": "120px",
+        "sortable": true,
+        "searchable": false
+      }
+    ],
+    "matrixConfig": {
+      "enabled": true,
+      "rowKey": "manufacturer",
+      "columnKey": "state"
+    }
   },
   "ui": {
     "picker": {
