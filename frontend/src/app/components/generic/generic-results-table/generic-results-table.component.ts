@@ -135,8 +135,7 @@ export class GenericResultsTableComponent implements OnInit, OnDestroy {
         filterable: colConfig.filterable !== false,
         hideable: colConfig.hideable !== false,
         visible: !colConfig.defaultHidden,
-        type: this.mapColumnType(colConfig.format?.type || 'text'),
-        format: colConfig.format
+        formatter: this.createFormatter(colConfig.format)
       };
 
       columns.push(column);
@@ -146,22 +145,32 @@ export class GenericResultsTableComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Map config format type to TableColumn type
+   * Create formatter function based on column format configuration
    */
-  private mapColumnType(formatType: string): 'text' | 'number' | 'date' | 'badge' | 'link' {
-    switch (formatType) {
-      case 'number':
-        return 'number';
-      case 'date':
-      case 'datetime':
-        return 'date';
-      case 'badge':
-        return 'badge';
-      case 'link':
-        return 'link';
-      default:
-        return 'text';
+  private createFormatter(formatConfig: any): ((value: any, row: any) => string | number) | undefined {
+    if (!formatConfig) {
+      return undefined;
     }
+
+    return (value: any, row: any) => {
+      if (value === null || value === undefined) {
+        return '-';
+      }
+
+      switch (formatConfig.type) {
+        case 'number':
+          const precision = formatConfig.options?.precision ?? 0;
+          return typeof value === 'number' ? value.toFixed(precision) : value;
+        case 'date':
+        case 'datetime':
+          const date = typeof value === 'string' ? new Date(value) : value;
+          return !isNaN(date?.getTime()) ? date.toLocaleDateString() : '-';
+        case 'badge':
+        case 'text':
+        default:
+          return String(value);
+      }
+    };
   }
 
   /**
@@ -182,7 +191,7 @@ export class GenericResultsTableComponent implements OnInit, OnDestroy {
       .subscribe(state => {
         this.loading = state.loading;
         this.error = state.error;
-        this.total = state.total;
+        this.total = state.totalResults;
       });
 
     // Subscribe to filters (for pagination/sort)
@@ -316,70 +325,18 @@ export class GenericResultsTableComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Format cell value based on column format config
+   * Format cell value using column formatter if available
    */
-  formatCellValue(value: any, column: TableColumn): string {
+  formatCellValue(value: any, column: TableColumn, entity: Entity): string | number {
+    if (column.formatter) {
+      return column.formatter(value, entity);
+    }
+
     if (value === null || value === undefined) {
       return '-';
     }
 
-    const format = column.format;
-    if (!format) {
-      return String(value);
-    }
-
-    switch (format.type) {
-      case 'number':
-        return this.formatNumber(value, format.options);
-      case 'date':
-      case 'datetime':
-        return this.formatDate(value, format.options);
-      case 'badge':
-      case 'text':
-      default:
-        return String(value);
-    }
-  }
-
-  /**
-   * Format number value
-   */
-  private formatNumber(value: number, options?: any): string {
-    const precision = options?.precision ?? 0;
-    return value.toFixed(precision);
-  }
-
-  /**
-   * Format date value
-   */
-  private formatDate(value: string | Date, options?: any): string {
-    const date = typeof value === 'string' ? new Date(value) : value;
-
-    if (isNaN(date.getTime())) {
-      return '-';
-    }
-
-    // Simple formatting - can be enhanced with date-fns or similar
-    return date.toLocaleDateString();
-  }
-
-  /**
-   * Get badge color for value
-   */
-  getBadgeColor(value: any, column: TableColumn): string {
-    const format = column.format;
-    if (!format?.options?.badgeColors) {
-      return 'default';
-    }
-
-    return format.options.badgeColors[value] || 'default';
-  }
-
-  /**
-   * Check if column should render as badge
-   */
-  isBadgeColumn(column: TableColumn): boolean {
-    return column.format?.type === 'badge';
+    return String(value);
   }
 
   /**
@@ -400,6 +357,12 @@ export class GenericResultsTableComponent implements OnInit, OnDestroy {
    * Refresh data
    */
   refresh(): void {
-    this.stateService.refreshData();
+    // Trigger a new fetch with current filters
+    const currentState = this.stateService.state$.getValue ? this.stateService.state$.getValue() : null;
+    if (currentState) {
+      this.stateService.updateFilters({ ...currentState.filters });
+    }
   }
 }
+
+

@@ -73,17 +73,7 @@
 
             <!-- Data columns -->
             <td *ngFor="let column of getVisibleColumns()">
-              <!-- Badge rendering -->
-              <nz-badge
-                *ngIf="isBadgeColumn(column)"
-                [nzStatus]="getBadgeColor(getCellValue(entity, column), column)"
-                [nzText]="formatCellValue(getCellValue(entity, column), column)">
-              </nz-badge>
-
-              <!-- Regular text rendering -->
-              <span *ngIf="!isBadgeColumn(column)">
-                {{ formatCellValue(getCellValue(entity, column), column) }}
-              </span>
+              {{ formatCellValue(getCellValue(entity, column), column, entity) }}
             </td>
           </tr>
 

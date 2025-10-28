@@ -494,8 +494,7 @@ export class GenericStateManagementService<
           results: response.results,
           totalResults: response.total,
           loading: false,
-          error: null,
-          metadata: response.metadata
+          error: null
         });
       }),
       map(() => void 0),

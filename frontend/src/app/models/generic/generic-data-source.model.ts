@@ -134,7 +134,7 @@ export interface GenericDataSource<
   /**
    * Optional: Get current query state
    */
-  getCurrentQuery?(): DataSourceQuery;
+  getCurrentQuery?(): DataSourceQuery | undefined;
 
   /**
    * Optional: Clear any cached data
