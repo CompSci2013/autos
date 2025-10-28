@@ -13,6 +13,7 @@ import {
 import { DomainConfigService } from './domain-config.service';
 import { VehiclesDomainAdapter } from '../../adapters/vehicles-domain.adapter';
 import { AircraftDomainAdapter } from '../../adapters/aircraft-domain.adapter';
+import { TransportDomainAdapter } from '../../adapters/transport-domain.adapter';
 import { LegacyApiAdapter } from '../../adapters/legacy-api.adapter';
 import { ApiService } from '../api.service';
 import { environment } from '../../../environments/environment';
@@ -98,6 +99,10 @@ export class GenericDataService<
       case 'aircraft':
         console.log('[GenericDataService] Creating AircraftDomainAdapter');
         return new AircraftDomainAdapter(this.domainConfig, this.http) as any;
+
+      case 'transport':
+        console.log('[GenericDataService] Creating TransportDomainAdapter');
+        return new TransportDomainAdapter(this.domainConfig, this.http) as any;
 
       case 'flora':
         // Future: return new FloraDomainAdapter(this.domainConfig, this.http) as any;

@@ -10,4 +10,5 @@
 // Domain adapters
 export * from './vehicles-domain.adapter';
 export * from './aircraft-domain.adapter';
+export * from './transport-domain.adapter';
 export * from './legacy-api.adapter';

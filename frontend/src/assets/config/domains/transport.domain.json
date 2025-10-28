@@ -1,0 +1,415 @@
+{
+  "$schema": "../domain-config.schema.json",
+  "domain": {
+    "id": "transport",
+    "name": "Multi-Modal Transport Explorer",
+    "description": "Unified search across planes, automobiles, and marine vessels",
+    "version": "1.0.0",
+    "icon": "car",
+    "tags": ["transport", "aviation", "automotive", "marine", "multi-modal"]
+  },
+  "entity": {
+    "type": "transport_vehicle",
+    "label": "Transport Vehicle",
+    "pluralLabel": "Transport Vehicles",
+    "primaryKey": "transport_id",
+    "displayName": "{manufacturer} {model} ({transport_type})",
+    "instanceType": "registration",
+    "instanceLabel": "Registration",
+    "instancePluralLabel": "Registrations",
+    "fields": [
+      {
+        "key": "transport_id",
+        "label": "Transport ID",
+        "type": "string",
+        "required": true,
+        "indexed": true
+      },
+      {
+        "key": "transport_type",
+        "label": "Transport Type",
+        "type": "string",
+        "required": true,
+        "enum": ["plane", "automobile", "marine"]
+      },
+      {
+        "key": "registration_id",
+        "label": "Registration ID",
+        "type": "string",
+        "required": true,
+        "description": "N-number for planes, VIN for automobiles, IMO for marine"
+      },
+      {
+        "key": "manufacturer",
+        "label": "Manufacturer",
+        "type": "string",
+        "indexed": true
+      },
+      {
+        "key": "model",
+        "label": "Model",
+        "type": "string",
+        "indexed": true
+      },
+      {
+        "key": "year",
+        "label": "Year",
+        "type": "number",
+        "indexed": true
+      },
+      {
+        "key": "category",
+        "label": "Category",
+        "type": "string",
+        "description": "Aircraft type, body class, vessel type"
+      },
+      {
+        "key": "registration_status",
+        "label": "Status",
+        "type": "string"
+      },
+      {
+        "key": "location",
+        "label": "Location",
+        "type": "object",
+        "nested": {
+          "city": { "type": "string", "label": "City" },
+          "state_province": { "type": "string", "label": "State/Province" },
+          "country": { "type": "string", "label": "Country" }
+        }
+      },
+      {
+        "key": "plane_data",
+        "label": "Aircraft Data",
+        "type": "object",
+        "conditional": { "field": "transport_type", "equals": "plane" },
+        "nested": {
+          "n_number": { "type": "string", "label": "N-Number" },
+          "serial_number": { "type": "string", "label": "Serial Number" },
+          "aircraft_type": { "type": "string", "label": "Aircraft Type" },
+          "engine_count": { "type": "number", "label": "Engine Count" },
+          "engine_manufacturer": { "type": "string", "label": "Engine Manufacturer" },
+          "engine_model": { "type": "string", "label": "Engine Model" }
+        }
+      },
+      {
+        "key": "automobile_data",
+        "label": "Automobile Data",
+        "type": "object",
+        "conditional": { "field": "transport_type", "equals": "automobile" },
+        "nested": {
+          "vin": { "type": "string", "label": "VIN" },
+          "make_id": { "type": "number", "label": "Make ID" },
+          "model_id": { "type": "number", "label": "Model ID" },
+          "body_class": { "type": "string", "label": "Body Class" }
+        }
+      },
+      {
+        "key": "marine_data",
+        "label": "Marine Data",
+        "type": "object",
+        "conditional": { "field": "transport_type", "equals": "marine" },
+        "nested": {
+          "imo_number": { "type": "string", "label": "IMO Number" },
+          "vessel_type": { "type": "string", "label": "Vessel Type" },
+          "gross_tonnage": { "type": "number", "label": "Gross Tonnage" }
+        }
+      }
+    ],
+    "hierarchies": [
+      {
+        "id": "manufacturer-state",
+        "name": "Manufacturer × State",
+        "description": "Two-dimensional grid: Manufacturer crossed with State/Province",
+        "type": "matrix",
+        "levels": [
+          {
+            "key": "manufacturer",
+            "label": "Manufacturer",
+            "indexed": true,
+            "sortable": true
+          },
+          {
+            "key": "state_province",
+            "label": "State/Province",
+            "indexed": true,
+            "sortable": true,
+            "path": "location.state_province"
+          }
+        ]
+      },
+      {
+        "id": "transport-type",
+        "name": "Transport Type",
+        "description": "Filter by transport mode",
+        "type": "flat",
+        "levels": [
+          {
+            "key": "transport_type",
+            "label": "Transport Type",
+            "indexed": true,
+            "enum": ["plane", "automobile", "marine"]
+          }
+        ]
+      }
+    ]
+  },
+  "dataSource": {
+    "type": "rest",
+    "baseUrl": "/api/v1",
+    "endpoints": {
+      "search": "/transport/search",
+      "details": "/transport/details",
+      "instances": "/transport/registrations",
+      "counts": "/transport/manufacturer-state-combinations",
+      "statistics": "/transport/statistics"
+    },
+    "pagination": {
+      "type": "offset",
+      "defaultSize": 20,
+      "sizeOptions": [10, 20, 50, 100],
+      "maxSize": 100
+    },
+    "cache": {
+      "enabled": true,
+      "ttl": 300000,
+      "strategy": "memory"
+    }
+  },
+  "filters": {
+    "textSearch": {
+      "enabled": true,
+      "placeholder": "Search registration, manufacturer, model...",
+      "fields": ["registration_id", "manufacturer", "model"],
+      "debounce": 300
+    },
+    "columnFilters": [
+      {
+        "key": "transport_type",
+        "label": "Transport Type",
+        "type": "select",
+        "options": [
+          { "value": "plane", "label": "Plane" },
+          { "value": "automobile", "label": "Automobile" },
+          { "value": "marine", "label": "Marine" }
+        ]
+      },
+      {
+        "key": "manufacturer",
+        "label": "Manufacturer",
+        "type": "text"
+      },
+      {
+        "key": "model",
+        "label": "Model",
+        "type": "text"
+      },
+      {
+        "key": "category",
+        "label": "Category",
+        "type": "text"
+      },
+      {
+        "key": "registration_status",
+        "label": "Status",
+        "type": "select",
+        "options": [
+          { "value": "active", "label": "Active" },
+          { "value": "stored", "label": "Stored" },
+          { "value": "deregistered", "label": "Deregistered" }
+        ]
+      },
+      {
+        "key": "state_province",
+        "label": "State/Province",
+        "type": "text",
+        "path": "location.state_province"
+      }
+    ],
+    "rangeFilters": [
+      {
+        "key": "year",
+        "label": "Year",
+        "type": "number",
+        "min": 1900,
+        "max": 2025,
+        "step": 1
+      }
+    ]
+  },
+  "ui": {
+    "picker": {
+      "mode": "both",
+      "multiSelect": true,
+      "defaultExpanded": false,
+      "showCounts": true,
+      "matrixView": {
+        "enabled": true,
+        "description": "Select manufacturer-state combinations",
+        "rowHeader": "Manufacturer",
+        "columnHeader": "State/Province",
+        "cellDisplay": "count"
+      }
+    },
+    "table": {
+      "defaultSort": {
+        "column": "year",
+        "direction": "desc"
+      },
+      "rowActions": ["view", "expand"],
+      "bulkActions": ["export"],
+      "expandable": true,
+      "columns": [
+        {
+          "key": "transport_type",
+          "label": "Type",
+          "width": "100px",
+          "sortable": true,
+          "filterable": true,
+          "format": {
+            "type": "badge",
+            "options": {
+              "badgeColors": {
+                "plane": "blue",
+                "automobile": "green",
+                "marine": "cyan"
+              }
+            }
+          }
+        },
+        {
+          "key": "registration_id",
+          "label": "Registration",
+          "width": "150px",
+          "sortable": true,
+          "filterable": true
+        },
+        {
+          "key": "manufacturer",
+          "label": "Manufacturer",
+          "width": "150px",
+          "sortable": true,
+          "filterable": true
+        },
+        {
+          "key": "model",
+          "label": "Model",
+          "width": "150px",
+          "sortable": true,
+          "filterable": true
+        },
+        {
+          "key": "year",
+          "label": "Year",
+          "width": "100px",
+          "sortable": true,
+          "filterable": true,
+          "format": {
+            "type": "number",
+            "options": { "precision": 0 }
+          }
+        },
+        {
+          "key": "category",
+          "label": "Category",
+          "width": "150px",
+          "sortable": true,
+          "filterable": true
+        },
+        {
+          "key": "location.state_province",
+          "label": "State/Province",
+          "width": "120px",
+          "sortable": true,
+          "filterable": true
+        },
+        {
+          "key": "location.city",
+          "label": "City",
+          "width": "120px",
+          "sortable": true,
+          "defaultHidden": true
+        },
+        {
+          "key": "registration_status",
+          "label": "Status",
+          "width": "120px",
+          "sortable": true,
+          "filterable": true,
+          "format": {
+            "type": "badge",
+            "options": {
+              "badgeColors": {
+                "active": "success",
+                "stored": "warning",
+                "deregistered": "default"
+              }
+            }
+          }
+        },
+        {
+          "key": "plane_data.n_number",
+          "label": "N-Number",
+          "width": "120px",
+          "conditional": { "field": "transport_type", "equals": "plane" },
+          "defaultHidden": true
+        },
+        {
+          "key": "plane_data.engine_count",
+          "label": "Engines",
+          "width": "100px",
+          "conditional": { "field": "transport_type", "equals": "plane" },
+          "defaultHidden": true,
+          "format": {
+            "type": "number",
+            "options": { "precision": 0 }
+          }
+        }
+      ]
+    },
+    "detail": {
+      "layout": "tabs",
+      "tabs": [
+        {
+          "key": "overview",
+          "label": "Overview",
+          "fields": [
+            "transport_type",
+            "registration_id",
+            "manufacturer",
+            "model",
+            "year",
+            "category",
+            "registration_status"
+          ]
+        },
+        {
+          "key": "location",
+          "label": "Location",
+          "fields": ["location.city", "location.state_province", "location.country"]
+        },
+        {
+          "key": "specific",
+          "label": "Type-Specific Data",
+          "conditional": true,
+          "fields": [
+            "plane_data",
+            "automobile_data",
+            "marine_data"
+          ]
+        }
+      ]
+    }
+  },
+  "metadata": {
+    "author": "Claude",
+    "created": "2025-10-28",
+    "lastModified": "2025-10-28",
+    "notes": [
+      "Multi-modal transport domain with planes, automobiles, and marine vessels",
+      "Uses two-dimensional (matrix) hierarchy: Manufacturer × State/Province",
+      "Supports discriminated union with conditional nested data",
+      "Demonstrates flexibility of configuration-driven approach"
+    ]
+  }
+}
