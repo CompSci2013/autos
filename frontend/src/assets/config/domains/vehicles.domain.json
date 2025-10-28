@@ -1,0 +1,350 @@
+{
+  "domain": {
+    "id": "vehicles",
+    "name": "Automotive Data Explorer",
+    "version": "1.0.0",
+    "description": "Explore automotive data from NHTSA and other sources with manufacturer-model hierarchy and VIN-level instances",
+    "icon": "car",
+    "author": "AUTOS Team",
+    "lastUpdated": "2025-10-28T00:00:00Z"
+  },
+
+  "dataSource": {
+    "type": "elasticsearch",
+    "endpoints": {
+      "search": "/api/search/vehicle-details",
+      "details": "/api/search/vehicle-details",
+      "instances": "/api/search/vehicle-instances",
+      "counts": "/api/search/manufacturer-model-counts"
+    },
+    "authentication": {
+      "type": "none"
+    },
+    "pagination": {
+      "type": "page",
+      "defaultSize": 20,
+      "maxSize": 100,
+      "sizeOptions": [10, 20, 50, 100]
+    },
+    "elasticsearch": {
+      "index": "autos-unified",
+      "compositeKey": "make_model_year"
+    }
+  },
+
+  "entity": {
+    "type": "vehicle",
+    "instanceType": "vin",
+    "primaryKey": "vehicle_id",
+    "displayField": "manufacturer",
+    "fields": [
+      {
+        "key": "vehicle_id",
+        "label": "Vehicle ID",
+        "type": "string",
+        "searchable": true,
+        "sortable": true,
+        "filterable": false,
+        "required": true,
+        "description": "Unique identifier for vehicle model/year combination"
+      },
+      {
+        "key": "manufacturer",
+        "label": "Manufacturer",
+        "type": "string",
+        "searchable": true,
+        "sortable": true,
+        "filterable": true,
+        "required": true,
+        "description": "Vehicle manufacturer (e.g., Ford, Chevrolet)"
+      },
+      {
+        "key": "model",
+        "label": "Model",
+        "type": "string",
+        "searchable": true,
+        "sortable": true,
+        "filterable": true,
+        "required": true,
+        "description": "Vehicle model name (e.g., F-150, Corvette)"
+      },
+      {
+        "key": "year",
+        "label": "Year",
+        "type": "number",
+        "searchable": false,
+        "sortable": true,
+        "filterable": true,
+        "required": true,
+        "description": "Model year"
+      },
+      {
+        "key": "body_class",
+        "label": "Body Class",
+        "type": "string",
+        "searchable": true,
+        "sortable": true,
+        "filterable": true,
+        "required": false,
+        "description": "Vehicle body classification (e.g., Pickup, Sedan, SUV)"
+      },
+      {
+        "key": "data_source",
+        "label": "Data Source",
+        "type": "string",
+        "searchable": false,
+        "sortable": true,
+        "filterable": true,
+        "required": true,
+        "description": "Source of vehicle data (e.g., NHTSA, DMV)"
+      },
+      {
+        "key": "ingested_at",
+        "label": "Ingested At",
+        "type": "date",
+        "format": "iso8601",
+        "searchable": false,
+        "sortable": true,
+        "filterable": false,
+        "required": false,
+        "description": "Timestamp when data was ingested into system"
+      }
+    ],
+    "hierarchies": [
+      {
+        "id": "manufacturer-model",
+        "name": "Manufacturer → Model",
+        "levels": [
+          {
+            "key": "manufacturer",
+            "label": "Manufacturer",
+            "valueField": "manufacturer",
+            "displayField": "manufacturer"
+          },
+          {
+            "key": "model",
+            "label": "Model",
+            "parentKey": "manufacturer",
+            "valueField": "model",
+            "displayField": "model"
+          }
+        ],
+        "separator": " "
+      }
+    ]
+  },
+
+  "filters": {
+    "textSearch": {
+      "enabled": true,
+      "placeholder": "Search vehicles by manufacturer, model, or ID...",
+      "fields": ["manufacturer", "model", "vehicle_id", "body_class"]
+    },
+    "columnFilters": [
+      {
+        "key": "manufacturer",
+        "label": "Manufacturer",
+        "type": "text",
+        "placeholder": "Filter by manufacturer..."
+      },
+      {
+        "key": "model",
+        "label": "Model",
+        "type": "text",
+        "placeholder": "Filter by model..."
+      },
+      {
+        "key": "bodyClass",
+        "label": "Body Class",
+        "type": "select",
+        "allowCustom": true,
+        "options": [
+          { "value": "Sedan", "label": "Sedan" },
+          { "value": "SUV", "label": "SUV" },
+          { "value": "Pickup", "label": "Pickup" },
+          { "value": "Coupe", "label": "Coupe" },
+          { "value": "Convertible", "label": "Convertible" },
+          { "value": "Hatchback", "label": "Hatchback" },
+          { "value": "Van", "label": "Van" },
+          { "value": "Wagon", "label": "Wagon" }
+        ]
+      },
+      {
+        "key": "dataSource",
+        "label": "Data Source",
+        "type": "select",
+        "options": [
+          { "value": "NHTSA", "label": "NHTSA", "color": "blue" },
+          { "value": "DMV", "label": "DMV", "color": "green" },
+          { "value": "CarFax", "label": "CarFax", "color": "orange" }
+        ]
+      }
+    ],
+    "rangeFilters": [
+      {
+        "key": "year",
+        "label": "Year",
+        "type": "number",
+        "min": 1900,
+        "max": 2025,
+        "step": 1
+      }
+    ],
+    "defaultFilters": {}
+  },
+
+  "picker": {
+    "mode": "both",
+    "multiSelect": true,
+    "showCounts": true,
+    "expandDefault": false,
+    "columns": [
+      {
+        "key": "manufacturer",
+        "label": "Manufacturer",
+        "width": "200px",
+        "sortable": true,
+        "searchable": true
+      },
+      {
+        "key": "model",
+        "label": "Model",
+        "width": "200px",
+        "sortable": true,
+        "searchable": true
+      },
+      {
+        "key": "count",
+        "label": "Count",
+        "width": "120px",
+        "sortable": true,
+        "searchable": false
+      }
+    ],
+    "treeConfig": {
+      "maxDepth": 2,
+      "lazyLoad": false,
+      "searchable": true
+    }
+  },
+
+  "ui": {
+    "theme": {
+      "primaryColor": "#1890ff",
+      "accentColor": "#52c41a"
+    },
+    "branding": {
+      "title": "AUTOS",
+      "subtitle": "Automotive Data Explorer",
+      "logo": "assets/autos-logo.svg"
+    },
+    "table": {
+      "columns": [
+        {
+          "key": "manufacturer",
+          "label": "Manufacturer",
+          "width": "180px",
+          "sortable": true,
+          "filterable": true,
+          "filterType": "text",
+          "hideable": true,
+          "defaultHidden": false,
+          "format": {
+            "type": "text"
+          }
+        },
+        {
+          "key": "model",
+          "label": "Model",
+          "width": "180px",
+          "sortable": true,
+          "filterable": true,
+          "filterType": "text",
+          "hideable": true,
+          "defaultHidden": false,
+          "format": {
+            "type": "text"
+          }
+        },
+        {
+          "key": "year",
+          "label": "Year",
+          "width": "120px",
+          "sortable": true,
+          "filterable": true,
+          "filterType": "number",
+          "hideable": true,
+          "defaultHidden": false,
+          "format": {
+            "type": "number",
+            "options": {
+              "precision": 0
+            }
+          }
+        },
+        {
+          "key": "body_class",
+          "label": "Body Class",
+          "width": "150px",
+          "sortable": true,
+          "filterable": true,
+          "filterType": "text",
+          "hideable": true,
+          "defaultHidden": false,
+          "format": {
+            "type": "text"
+          }
+        },
+        {
+          "key": "data_source",
+          "label": "Data Source",
+          "width": "180px",
+          "sortable": true,
+          "filterable": true,
+          "filterType": "select",
+          "hideable": true,
+          "defaultHidden": false,
+          "format": {
+            "type": "badge",
+            "options": {
+              "badgeColors": {
+                "NHTSA": "blue",
+                "DMV": "green",
+                "CarFax": "orange"
+              }
+            }
+          },
+          "cellRenderer": "badge"
+        },
+        {
+          "key": "vehicle_id",
+          "label": "Vehicle ID",
+          "width": "auto",
+          "sortable": true,
+          "filterable": false,
+          "hideable": true,
+          "defaultHidden": false,
+          "format": {
+            "type": "text"
+          },
+          "cellRenderer": "monospace"
+        }
+      ],
+      "defaultSort": {
+        "column": "manufacturer",
+        "direction": "asc"
+      },
+      "expandable": true,
+      "expansionConfig": {
+        "mode": "inline",
+        "lazyLoad": true,
+        "maxInstances": 8
+      }
+    },
+    "layout": {
+      "defaultView": "discover",
+      "enableWorkshop": true,
+      "enablePopouts": true
+    }
+  }
+}
