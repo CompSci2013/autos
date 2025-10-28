@@ -146,6 +146,8 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
         yearMax: filters.yearMax,
         bodyClass: filters.bodyClass,
         dataSource: filters.dataSource,
+        // Include modelCombos to trigger change detection in BaseDataTable
+        _modelCombos: filters.modelCombos?.map(c => `${c.manufacturer}:${c.model}`).join(',') || '',
       },
     };
   }
