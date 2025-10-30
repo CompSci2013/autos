@@ -87,7 +87,6 @@ export class QueryControlComponent implements OnInit {
 
   // Manufacturer multi-select state
   manufacturerList: string[] = [];
-  filteredManufacturerList: string[] = [];
   selectedManufacturersArray: string[] = [];
   isLoadingManufacturers = false;
 
@@ -113,9 +112,8 @@ export class QueryControlComponent implements OnInit {
       this.rangeMax = undefined;
       this.rangeDialogVisible = true;
     } else if (field.type === 'multiselect') {
-      // Manufacturer dropdown - just show the dropdown, don't open modal
+      // Manufacturer dropdown - clear selections, nz-select handles filtering
       this.selectedManufacturersArray = [];
-      this.filteredManufacturerList = [...this.manufacturerList];
     } else if (field.type === 'string' || field.type === 'number') {
       this.stringValue = undefined;
       this.stringDialogVisible = true;
@@ -208,8 +206,8 @@ export class QueryControlComponent implements OnInit {
         this.manufacturerList = response.data
           .map((item) => item.manufacturer)
           .sort((a, b) => a.localeCompare(b));
-        this.filteredManufacturerList = [...this.manufacturerList];
         this.isLoadingManufacturers = false;
+        console.log('Loaded manufacturers:', this.manufacturerList.length);
       },
       error: (error) => {
         console.error('Error loading manufacturers:', error);

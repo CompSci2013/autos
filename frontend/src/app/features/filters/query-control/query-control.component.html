@@ -26,9 +26,10 @@
       [(ngModel)]="selectedManufacturersArray"
       (ngModelChange)="onManufacturerSelectionChange()"
       [nzLoading]="isLoadingManufacturers"
+      nzNotFoundContent="No manufacturers found"
     >
       <nz-option
-        *ngFor="let manufacturer of filteredManufacturerList"
+        *ngFor="let manufacturer of manufacturerList"
         [nzValue]="manufacturer"
         [nzLabel]="manufacturer"
       ></nz-option>
