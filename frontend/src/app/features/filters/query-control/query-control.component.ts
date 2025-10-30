@@ -1,6 +1,10 @@
-import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { ApiService } from '../../../services/api.service';
 import { RequestCoordinatorService } from '../../../core/services/request-coordinator.service';
+import { StateManagementService } from '../../../core/services/state-management.service';
+import { SearchFilters } from '../../../models/search-filters.model';
 
 /**
  * Field definition for query control dropdown
@@ -25,18 +29,33 @@ export interface QueryFilter {
   rangeMax?: number;
 }
 
+/**
+ * Active filter chip for display
+ */
+export interface FilterChip {
+  field: string;
+  label: string;
+  displayValue: string;
+  color: string;
+}
+
 @Component({
   selector: 'app-query-control',
   templateUrl: './query-control.component.html',
   styleUrls: ['./query-control.component.scss'],
 })
-export class QueryControlComponent implements OnInit {
+export class QueryControlComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
+
   // ========== OUTPUTS ==========
 
   /** Emits when a filter is added */
   @Output() filterAdd = new EventEmitter<QueryFilter>();
 
   // ========== STATE ==========
+
+  /** Active filter chips for display */
+  activeFilterChips: FilterChip[] = [];
 
   /** Available fields for querying */
   queryFields: QueryField[] = [
@@ -119,11 +138,22 @@ export class QueryControlComponent implements OnInit {
 
   constructor(
     private apiService: ApiService,
-    private requestCoordinator: RequestCoordinatorService
+    private requestCoordinator: RequestCoordinatorService,
+    private stateService: StateManagementService
   ) {}
 
   ngOnInit(): void {
-    // Manufacturers loaded on-demand when field is selected
+    // Subscribe to filter state changes to display active filter chips
+    this.stateService.filters$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((filters) => {
+        this.activeFilterChips = this.buildFilterChips(filters);
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   // ========== COMPUTED PROPERTIES ==========
@@ -463,6 +493,97 @@ export class QueryControlComponent implements OnInit {
           this.isLoadingYearRange = false;
         },
       });
+  }
+
+  // ========== FILTER CHIPS ==========
+
+  /**
+   * Build filter chips from current filter state
+   * Transforms filter state into visual chips for display
+   */
+  private buildFilterChips(filters: SearchFilters): FilterChip[] {
+    const chips: FilterChip[] = [];
+
+    // Manufacturer filter
+    if (filters.manufacturer) {
+      chips.push({
+        field: 'manufacturer',
+        label: 'Manufacturer',
+        displayValue: filters.manufacturer,
+        color: 'blue',
+      });
+    }
+
+    // Model filter
+    if (filters.model) {
+      chips.push({
+        field: 'model',
+        label: 'Model',
+        displayValue: filters.model,
+        color: 'cyan',
+      });
+    }
+
+    // Year range filter
+    if (filters.yearMin !== undefined || filters.yearMax !== undefined) {
+      const min = filters.yearMin || 'Any';
+      const max = filters.yearMax || 'Any';
+      chips.push({
+        field: 'year',
+        label: 'Year',
+        displayValue: `${min} - ${max}`,
+        color: 'green',
+      });
+    }
+
+    // Body class filter
+    if (filters.bodyClass) {
+      chips.push({
+        field: 'bodyClass',
+        label: 'Body Class',
+        displayValue: filters.bodyClass,
+        color: 'orange',
+      });
+    }
+
+    // Data source filter
+    if (filters.dataSource) {
+      chips.push({
+        field: 'dataSource',
+        label: 'Data Source',
+        displayValue: filters.dataSource,
+        color: 'purple',
+      });
+    }
+
+    return chips;
+  }
+
+  /**
+   * Remove a filter when chip is closed
+   * Updates state to remove the filter parameter from URL
+   */
+  removeFilter(field: string): void {
+    console.log('Removing filter:', field);
+
+    // Build update object to clear the filter
+    const updates: Partial<SearchFilters> = {};
+
+    if (field === 'manufacturer') {
+      updates.manufacturer = undefined;
+    } else if (field === 'model') {
+      updates.model = undefined;
+    } else if (field === 'year') {
+      updates.yearMin = undefined;
+      updates.yearMax = undefined;
+    } else if (field === 'bodyClass') {
+      updates.bodyClass = undefined;
+    } else if (field === 'dataSource') {
+      updates.dataSource = undefined;
+    }
+
+    // Update state (setting to undefined removes from URL)
+    this.stateService.updateFilters(updates);
   }
 
 }

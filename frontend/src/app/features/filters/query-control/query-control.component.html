@@ -17,6 +17,20 @@
     </nz-select>
   </div>
 
+  <!-- Active Filter Chips -->
+  <div class="filter-chips" *ngIf="activeFilterChips.length > 0">
+    <span class="chips-label">Active Filters:</span>
+    <nz-tag
+      *ngFor="let chip of activeFilterChips"
+      [nzColor]="chip.color"
+      nzMode="closeable"
+      (nzOnClose)="removeFilter(chip.field)"
+      class="filter-chip"
+    >
+      <strong>{{ chip.label }}:</strong> {{ chip.displayValue }}
+    </nz-tag>
+  </div>
+
   <!-- Range Input Dialog (for year, etc.) -->
   <nz-modal
     [(nzVisible)]="rangeDialogVisible"
