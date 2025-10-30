@@ -295,6 +295,8 @@ export class StateManagementService implements OnDestroy {
     // Build unique cache key from filters
     const cacheKey = this.buildCacheKey('vehicle-details', filters);
 
+    console.log('🔵 StateManagement: Fetching via RequestCoordinator, key:', cacheKey);
+
     // Execute through coordinator
     return this.requestCoordinator
       .execute(
