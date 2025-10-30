@@ -1,12 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
-import { takeUntil, map } from 'rxjs/operators';
+import { takeUntil } from 'rxjs/operators';
 import { StateManagementService } from '../../../core/services/state-management.service';
-import { RequestCoordinatorService } from '../../../core/services/request-coordinator.service';
 import { ApiService } from '../../../services/api.service';
 import { VehicleResult, VehicleInstance, SearchFilters } from '../../../models';
 import { TableColumn, TableQueryParams } from '../../../shared/models';
-import { VehicleDataSourceAdapter } from './vehicle-data-source.adapter';
 
 /**
  * Results-Table Component
@@ -43,6 +41,11 @@ import { VehicleDataSourceAdapter } from './vehicle-data-source.adapter';
 })
 export class ResultsTableComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+
+  // Pre-fetched data from StateManagement (URL-driven)
+  results: VehicleResult[] = [];
+  totalResults = 0;
+  isLoading = false;
 
   // Column configuration (matches VehicleResultsTableComponent)
   columns: TableColumn<VehicleResult>[] = [
@@ -101,9 +104,6 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
     },
   ];
 
-  // Data source adapter
-  dataSource: VehicleDataSourceAdapter;
-
   // Query params for BaseDataTable (initialized from current state)
   tableQueryParams: TableQueryParams;
 
@@ -113,48 +113,44 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
 
   constructor(
     private stateService: StateManagementService,
-    private apiService: ApiService,
-    private requestCoordinator: RequestCoordinatorService
+    private apiService: ApiService
   ) {
-    // Initialize data source adapter with RequestCoordinator for deduplication
-    this.dataSource = new VehicleDataSourceAdapter(
-      this.apiService,
-      this.requestCoordinator
-    );
-
     // Initialize tableQueryParams from current state BEFORE template renders
-    // This ensures BaseDataTable gets the correct filters on first render
     const currentFilters = this.stateService.getCurrentFilters();
     this.tableQueryParams = this.convertToTableParams(currentFilters);
-
-    // Update data source with current models
-    if (currentFilters.modelCombos && currentFilters.modelCombos.length > 0) {
-      const modelsParam = currentFilters.modelCombos
-        .map((c) => `${c.manufacturer}:${c.model}`)
-        .join(',');
-      this.dataSource.updateModels(modelsParam);
-    }
   }
 
   ngOnInit(): void {
-    // Subscribe to state changes (from URL)
+    // Subscribe to results from StateManagement (pre-fetched via URL changes)
+    this.stateService.results$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((results) => {
+        console.log('ResultsTable: Results updated from StateManagement:', results.length);
+        this.results = results;
+      });
+
+    // Subscribe to total results count
+    this.stateService.totalResults$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((total) => {
+        console.log('ResultsTable: Total results updated:', total);
+        this.totalResults = total;
+      });
+
+    // Subscribe to loading state
+    this.stateService.loading$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((loading) => {
+        console.log('ResultsTable: Loading state updated:', loading);
+        this.isLoading = loading;
+      });
+
+    // Subscribe to filters to update tableQueryParams (for pagination/sort state)
     this.stateService.filters$
       .pipe(takeUntil(this.destroy$))
       .subscribe((filters) => {
         console.log('ResultsTable: Filters updated from URL:', filters);
-
-        // Convert SearchFilters → TableQueryParams
         this.tableQueryParams = this.convertToTableParams(filters);
-
-        // Update data source with new models
-        if (filters.modelCombos && filters.modelCombos.length > 0) {
-          const modelsParam = filters.modelCombos
-            .map((c) => `${c.manufacturer}:${c.model}`)
-            .join(',');
-          this.dataSource.updateModels(modelsParam);
-        } else {
-          this.dataSource.updateModels('');
-        }
       });
   }
 

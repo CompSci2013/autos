@@ -36,7 +36,7 @@
     </div>
     <div class="toolbar-right">
       <span class="result-count" *ngIf="!isLoading">
-        {{ totalCount }} {{ totalCount === 1 ? "result" : "results" }}
+        {{ totalCount || 0 }} {{ (totalCount || 0) === 1 ? "result" : "results" }}
       </span>
     </div>
   </div>
@@ -46,7 +46,7 @@
     #basicTable
     [nzData]="tableData"
     [nzLoading]="isLoading"
-    [nzTotal]="totalCount"
+    [nzTotal]="totalCount || 0"
     [nzPageSize]="pageSize"
     [nzPageIndex]="currentPage"
     [nzFrontPagination]="false"
