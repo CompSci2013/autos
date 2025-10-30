@@ -104,12 +104,8 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
   // Data source adapter
   dataSource: VehicleDataSourceAdapter;
 
-  // Query params for BaseDataTable (non-optional, with default)
-  tableQueryParams: TableQueryParams = {
-    page: 1,
-    size: 20,
-    filters: {},
-  };
+  // Query params for BaseDataTable (initialized from current state)
+  tableQueryParams: TableQueryParams;
 
   // Row expansion state
   expandedRowInstances = new Map<string, VehicleInstance[]>();
@@ -125,6 +121,19 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
       this.apiService,
       this.requestCoordinator
     );
+
+    // Initialize tableQueryParams from current state BEFORE template renders
+    // This ensures BaseDataTable gets the correct filters on first render
+    const currentFilters = this.stateService.getCurrentFilters();
+    this.tableQueryParams = this.convertToTableParams(currentFilters);
+
+    // Update data source with current models
+    if (currentFilters.modelCombos && currentFilters.modelCombos.length > 0) {
+      const modelsParam = currentFilters.modelCombos
+        .map((c) => `${c.manufacturer}:${c.model}`)
+        .join(',');
+      this.dataSource.updateModels(modelsParam);
+    }
   }
 
   ngOnInit(): void {
