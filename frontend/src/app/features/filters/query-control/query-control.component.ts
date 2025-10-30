@@ -95,7 +95,7 @@ export class QueryControlComponent implements OnInit {
   constructor(private apiService: ApiService) {}
 
   ngOnInit(): void {
-    this.loadManufacturers();
+    // Manufacturers loaded on-demand when field is selected
   }
 
   // ========== FIELD SELECTION ==========
@@ -112,8 +112,11 @@ export class QueryControlComponent implements OnInit {
       this.rangeMax = undefined;
       this.rangeDialogVisible = true;
     } else if (field.type === 'multiselect') {
-      // Manufacturer dropdown - clear selections, nz-select handles filtering
+      // Manufacturer dropdown - load data from API and clear selections
       this.selectedManufacturersArray = [];
+      if (field.key === 'manufacturer') {
+        this.loadManufacturers();
+      }
     } else if (field.type === 'string' || field.type === 'number') {
       this.stringValue = undefined;
       this.stringDialogVisible = true;
@@ -199,15 +202,18 @@ export class QueryControlComponent implements OnInit {
 
   loadManufacturers(): void {
     this.isLoadingManufacturers = true;
+    console.log('Loading manufacturers from API...');
+
     // Fetch all manufacturers (use large page size to get all)
     this.apiService.getManufacturerModelCombinations(1, 10000).subscribe({
       next: (response) => {
-        // Extract unique manufacturers and sort alphabetically
-        this.manufacturerList = response.data
-          .map((item) => item.manufacturer)
-          .sort((a, b) => a.localeCompare(b));
+        // Extract unique manufacturers (using Set for safety) and sort alphabetically
+        const uniqueManufacturers = Array.from(
+          new Set(response.data.map((item) => item.manufacturer))
+        );
+        this.manufacturerList = uniqueManufacturers.sort((a, b) => a.localeCompare(b));
         this.isLoadingManufacturers = false;
-        console.log('Loaded manufacturers:', this.manufacturerList.length);
+        console.log('Loaded manufacturers:', this.manufacturerList.length, 'unique values');
       },
       error: (error) => {
         console.error('Error loading manufacturers:', error);
@@ -217,7 +223,9 @@ export class QueryControlComponent implements OnInit {
   }
 
   onManufacturerSelectionChange(): void {
-    if (!this.currentField || this.selectedManufacturersArray.length === 0) return;
+    if (!this.currentField) return;
+
+    console.log('Manufacturer selection changed:', this.selectedManufacturersArray);
 
     const filter: QueryFilter = {
       field: this.currentField.key,

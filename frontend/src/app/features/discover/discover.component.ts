@@ -336,9 +336,14 @@ export class DiscoverComponent implements OnInit, OnDestroy {
       }
     } else if (filter.type === 'multiselect') {
       // Handle multiselect filters (manufacturer)
-      if (filter.field === 'manufacturer' && filter.values && filter.values.length > 0) {
-        // Join multiple manufacturers with comma (backend should support splitting)
-        updates.manufacturer = filter.values.join(',');
+      if (filter.field === 'manufacturer') {
+        if (filter.values && filter.values.length > 0) {
+          // Join multiple manufacturers with comma
+          updates.manufacturer = filter.values.join(',');
+        } else {
+          // Clear manufacturer filter when array is empty
+          updates.manufacturer = undefined;
+        }
       }
     } else {
       // Handle string/number filters
