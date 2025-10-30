@@ -113,11 +113,10 @@ export class StateManagementService implements OnDestroy {
       filters,
     });
 
-    // NEW: Auto-fetch data on initialization if we have model selections
-    if (filters.modelCombos && filters.modelCombos.length > 0) {
-      console.log('[StateManagement] Auto-fetching data on initialization');
-      this.fetchVehicleData().pipe(take(1)).subscribe();
-    }
+    // Always auto-fetch data on initialization (supports filtered and unfiltered)
+    // Backend supports empty modelCombos (returns all vehicles)
+    console.log('[StateManagement] Auto-fetching data on initialization');
+    this.fetchVehicleData().pipe(take(1)).subscribe();
   }
 
   private watchUrlChanges(): void {
@@ -139,15 +138,14 @@ export class StateManagementService implements OnDestroy {
           );
           this.updateState({ filters });
 
-          // NEW: Trigger data fetch if we have model selections
-          if (filters.modelCombos && filters.modelCombos.length > 0) {
-            console.log('🟡 watchUrlChanges: Triggering fetchVehicleData()');
-            this.fetchVehicleData().subscribe({
-              next: () => console.log('🟢 watchUrlChanges: Data fetched'),
-              error: (err) =>
-                console.error('🔴 watchUrlChanges: Fetch failed:', err),
-            });
-          }
+          // Always trigger data fetch (supports both filtered and unfiltered queries)
+          // Backend supports empty modelCombos (returns all vehicles)
+          console.log('🟡 watchUrlChanges: Triggering fetchVehicleData()');
+          this.fetchVehicleData().subscribe({
+            next: () => console.log('🟢 watchUrlChanges: Data fetched'),
+            error: (err) =>
+              console.error('🔴 watchUrlChanges: Fetch failed:', err),
+          });
         }
       });
   }
