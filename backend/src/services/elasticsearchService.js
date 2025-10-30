@@ -168,16 +168,19 @@ async function getVehicleDetails(options = {}) {
       };
     }
 
-    // Apply filters (case-insensitive partial matching using wildcard on analyzed fields)
+    // Apply filters (case-insensitive matching on analyzed fields)
     if (filters.manufacturer) {
       // Handle comma-separated manufacturers (OR logic)
       const manufacturers = filters.manufacturer.split(',').map(m => m.trim()).filter(m => m);
 
       if (manufacturers.length === 1) {
-        // Single manufacturer: use simple wildcard
+        // Single manufacturer: use match query for analyzed field
         query.bool.filter.push({
-          wildcard: {
-            manufacturer: `*${manufacturers[0].toLowerCase()}*`,
+          match: {
+            manufacturer: {
+              query: manufacturers[0],
+              operator: 'and' // All terms must match
+            },
           },
         });
       } else if (manufacturers.length > 1) {
@@ -185,8 +188,11 @@ async function getVehicleDetails(options = {}) {
         query.bool.filter.push({
           bool: {
             should: manufacturers.map(mfr => ({
-              wildcard: {
-                manufacturer: `*${mfr.toLowerCase()}*`,
+              match: {
+                manufacturer: {
+                  query: mfr,
+                  operator: 'and'
+                },
               },
             })),
             minimum_should_match: 1,
@@ -197,8 +203,11 @@ async function getVehicleDetails(options = {}) {
 
     if (filters.model) {
       query.bool.filter.push({
-        wildcard: {
-          model: `*${filters.model.toLowerCase()}*`,
+        match: {
+          model: {
+            query: filters.model,
+            operator: 'and'
+          },
         },
       });
     }
@@ -221,16 +230,22 @@ async function getVehicleDetails(options = {}) {
 
     if (filters.bodyClass) {
       query.bool.filter.push({
-        wildcard: {
-          body_class: `*${filters.bodyClass.toLowerCase()}*`,
+        match: {
+          body_class: {
+            query: filters.bodyClass,
+            operator: 'and'
+          },
         },
       });
     }
 
     if (filters.dataSource) {
       query.bool.filter.push({
-        wildcard: {
-          data_source: `*${filters.dataSource.toLowerCase()}*`,
+        match: {
+          data_source: {
+            query: filters.dataSource,
+            operator: 'and'
+          },
         },
       });
     }
