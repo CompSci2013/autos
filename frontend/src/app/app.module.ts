@@ -72,11 +72,9 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { SharedModule } from './shared/shared.module';
 
 // Feature components
-import { ManufacturerModelTablePickerComponent } from './features/picker/manufacturer-model-table-picker/manufacturer-model-table-picker.component';
 import { TablePickerComponent } from './features/picker/table-picker/table-picker.component';
 import { SelectedItemsChipsComponent } from './features/picker/table-picker/selected-items-chips/selected-items-chips.component';
 import { DiscoverComponent } from './features/discover/discover.component';
-import { VehicleResultsTableComponent } from './features/results/vehicle-results-table/vehicle-results-table.component';
 import { ResultsTableComponent } from './features/results/results-table/results-table.component';
 import { WorkshopComponent } from './features/workshop/workshop.component';
 import { HomeComponent } from './features/home/home.component';
@@ -86,11 +84,9 @@ import { PanelPopoutComponent } from './features/panel-popout/panel-popout.compo
 @NgModule({
   declarations: [
     AppComponent,
-    ManufacturerModelTablePickerComponent,
     TablePickerComponent,
     SelectedItemsChipsComponent,
     DiscoverComponent,
-    VehicleResultsTableComponent,
     ResultsTableComponent,
     WorkshopComponent,
     HomeComponent,
