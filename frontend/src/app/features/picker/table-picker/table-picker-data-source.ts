@@ -7,69 +7,72 @@ import {
   TableResponse,
 } from '../../../shared/models/table-data-source.model';
 import { ApiService } from '../../../services/api.service';
-import { PickerRow, ModelDetail } from '../../../models/vehicle.model';
 
 /**
- * Manufacturer summary row for picker table
- * Each row represents one manufacturer with aggregate data
+ * Flat picker row for table picker
+ * Each row represents one manufacturer-model combination
  */
-export interface ManufacturerSummaryRow {
+export interface PickerFlatRow {
   manufacturer: string;
-  totalCount: number;
-  modelCount: number;
-  models: ModelDetail[]; // Stored for expansion
-  key: string;
+  model: string;
+  count: number;
+  key: string; // "Manufacturer|Model"
 }
 
 /**
  * TablePickerDataSource
  *
- * Returns manufacturer summary rows (one per manufacturer)
- * Models are stored in each row and displayed on expansion
+ * Returns flat picker rows (one per manufacturer-model combination)
+ * All combinations are visible without expansion
  */
 @Injectable()
 export class TablePickerDataSource
-  implements TableDataSource<ManufacturerSummaryRow>
+  implements TableDataSource<PickerFlatRow>
 {
-  private allManufacturers: ManufacturerSummaryRow[] = [];
+  private allRows: PickerFlatRow[] = [];
   private dataLoaded = false;
 
   constructor(private apiService: ApiService) {}
 
   /**
-   * Fetch data - loads all manufacturers once, then filters in memory
+   * Fetch data - loads all manufacturer-model combinations once, then filters in memory
    */
   fetch(
     params: TableQueryParams
-  ): Observable<TableResponse<ManufacturerSummaryRow>> {
+  ): Observable<TableResponse<PickerFlatRow>> {
     // If data already loaded, filter and return from memory
     if (this.dataLoaded) {
       return of(this.filterAndPaginate(params));
     }
 
-    // First load: fetch all data from API and transform to manufacturer summaries
+    // First load: fetch all data from API and transform to flat rows
     console.log('TablePickerDataSource: Loading all data (one-time)');
 
-    // Match original picker: page=1, size=100, NO third parameter
     return this.apiService.getManufacturerModelCombinations(1, 100).pipe(
       tap((response) => {
-        // Transform hierarchical API response to manufacturer summary rows
-        this.allManufacturers = response.data.map((mfr) => ({
-          manufacturer: mfr.manufacturer,
-          totalCount: mfr.count,
-          modelCount: mfr.models.length,
-          models: mfr.models, // Store models for expansion
-          key: mfr.manufacturer,
-        }));
+        // Transform hierarchical API response to flat rows
+        this.allRows = [];
+        response.data.forEach((mfr) => {
+          mfr.models.forEach((model) => {
+            this.allRows.push({
+              manufacturer: mfr.manufacturer,
+              model: model.model,
+              count: model.count,
+              key: `${mfr.manufacturer}|${model.model}`,
+            });
+          });
+        });
 
-        // Sort by manufacturer name
-        this.allManufacturers.sort((a, b) =>
-          a.manufacturer.localeCompare(b.manufacturer)
-        );
+        // Sort by manufacturer, then model
+        this.allRows.sort((a, b) => {
+          const mfrCompare = a.manufacturer.localeCompare(b.manufacturer);
+          if (mfrCompare !== 0) return mfrCompare;
+          return a.model.localeCompare(b.model);
+        });
 
         this.dataLoaded = true;
         console.log(
-          `TablePickerDataSource: Loaded ${this.allManufacturers.length} manufacturers`
+          `TablePickerDataSource: Loaded ${this.allRows.length} manufacturer-model combinations`
         );
       }),
       map(() => this.filterAndPaginate(params))
@@ -77,25 +80,16 @@ export class TablePickerDataSource
   }
 
   /**
-   * Filter and paginate manufacturer summaries in memory
-   * CRITICAL: Model filter searches across ALL manufacturers' models
-   */
-  /**
-   * Filter and paginate manufacturer summaries in memory
-   * CRITICAL: Model filter searches across ALL manufacturers' models
-   */
-  /**
-   * Filter and paginate manufacturer summaries in memory
-   * CRITICAL: Model filter searches across ALL manufacturers' models
+   * Filter and paginate flat rows in memory
    */
   private filterAndPaginate(
     params: TableQueryParams
-  ): TableResponse<ManufacturerSummaryRow> {
-    let filtered = [...this.allManufacturers];
+  ): TableResponse<PickerFlatRow> {
+    let filtered = [...this.allRows];
 
     // Apply filters
     if (params.filters) {
-      // Manufacturer name filter (filters rows)
+      // Manufacturer name filter
       if (params.filters['manufacturer']) {
         const value = String(params.filters['manufacturer']).toLowerCase();
         filtered = filtered.filter((row) =>
@@ -103,25 +97,12 @@ export class TablePickerDataSource
         );
       }
 
-      // Model name filter (filters models array AND shows only matching manufacturers)
+      // Model name filter
       if (params.filters['model']) {
         const value = String(params.filters['model']).toLowerCase();
-
-        // Filter manufacturers that have matching models
-        filtered = filtered
-          .filter((row) =>
-            row.models.some((m) => m.model.toLowerCase().includes(value))
-          )
-          // Create new row objects with filtered models array
-          .map((row) => ({
-            ...row,
-            models: row.models.filter((m) =>
-              m.model.toLowerCase().includes(value)
-            ),
-            modelCount: row.models.filter((m) =>
-              m.model.toLowerCase().includes(value)
-            ).length,
-          }));
+        filtered = filtered.filter((row) =>
+          row.model.toLowerCase().includes(value)
+        );
       }
     }
 
@@ -154,7 +135,7 @@ export class TablePickerDataSource
    * Reset data (force reload on next fetch)
    */
   reset(): void {
-    this.allManufacturers = [];
+    this.allRows = [];
     this.dataLoaded = false;
   }
 }

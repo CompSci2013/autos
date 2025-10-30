@@ -1,119 +1,54 @@
 <div class="table-picker-container">
-  <!-- BaseDataTable with expandable manufacturer rows -->
+  <!-- BaseDataTable with flat manufacturer-model rows -->
   <app-base-data-table
     [tableId]="'table-picker'"
     [columns]="columns"
     [dataSource]="dataSource"
     [queryParams]="tableQueryParams"
-    [expandable]="true"
     [maxTableHeight]="'400px'"
     (queryParamsChange)="onTableQueryChange($event)"
-    (rowExpand)="onRowExpand($event)"
-    (expandAll)="onExpandAll()"
-    (collapseAll)="onCollapseAll()"
   >
-    <!-- Custom cell rendering for manufacturer rows -->
+    <!-- Custom cell rendering for flat rows -->
     <ng-template #cellTemplate let-column="column" let-row="row">
       <ng-container [ngSwitch]="column.key">
-        <!-- Manufacturer column with parent checkbox -->
+        <!-- Manufacturer column with checkbox -->
         <ng-container *ngSwitchCase="'manufacturer'">
           <label
             nz-checkbox
             [nzIndeterminate]="
-              getManufacturerCheckboxState($any(row)) === 'indeterminate'
+              getManufacturerCheckboxState($any(row).manufacturer) === 'indeterminate'
             "
-            [nzChecked]="getManufacturerCheckboxState($any(row)) === 'checked'"
-            (nzCheckedChange)="onManufacturerCheckboxChange($any(row), $event)"
+            [nzChecked]="getManufacturerCheckboxState($any(row).manufacturer) === 'checked'"
+            (nzCheckedChange)="onManufacturerCheckboxChange($any(row).manufacturer, $event)"
             (click)="$event.stopPropagation()"
           >
-            <strong>{{ $any(row).manufacturer }}</strong>
-            <span
-              class="selection-info"
-              *ngIf="getSelectionCount($any(row).manufacturer) > 0"
-            >
-              ({{ getSelectionCount($any(row).manufacturer) }} of
-              {{ $any(row).modelCount }} selected)
-            </span>
+            {{ $any(row).manufacturer }}
           </label>
         </ng-container>
 
-        <!-- Model Count column - shows count for collapsed rows -->
-        <ng-container *ngSwitchCase="'modelCount'">
-          <span class="count-cell">
-            {{ $any(row).modelCount }}
-            {{ $any(row).modelCount === 1 ? "model" : "models" }}
-          </span>
+        <!-- Model column with checkbox -->
+        <ng-container *ngSwitchCase="'model'">
+          <label
+            nz-checkbox
+            [nzChecked]="isRowSelected($any(row))"
+            (nzCheckedChange)="
+              onModelCheckboxChange(
+                $any(row).manufacturer,
+                $any(row).model,
+                $event
+              )
+            "
+            (click)="$event.stopPropagation()"
+          >
+            {{ $any(row).model }}
+          </label>
         </ng-container>
-
-        <!-- Model column - empty for manufacturer summary rows -->
-        <span *ngSwitchCase="'model'">
-          <!-- Empty - models shown in expansion -->
-        </span>
 
         <!-- Default rendering -->
         <span *ngSwitchDefault>
           {{ $any(row)[column.key] }}
         </span>
       </ng-container>
-    </ng-template>
-
-    <!-- Expansion content: model checkboxes -->
-    <!-- Expansion content: model checkboxes in table format -->
-    <ng-template #expansionTemplate let-row="row">
-      <div class="expansion-content">
-        <nz-table
-          #modelsTable
-          [nzData]="$any(row).models"
-          [nzShowPagination]="false"
-          [nzFrontPagination]="false"
-          [nzPageSize]="1000"
-          nzSize="small"
-          class="models-table"
-        >
-          <tbody>
-            <tr *ngFor="let model of modelsTable.data">
-              <!-- Manufacturer column (repeated for each model) -->
-              <td class="manufacturer-cell">
-                <label
-                  nz-checkbox
-                  [nzIndeterminate]="
-                    getManufacturerCheckboxState($any(row)) === 'indeterminate'
-                  "
-                  [nzChecked]="
-                    getManufacturerCheckboxState($any(row)) === 'checked'
-                  "
-                  (nzCheckedChange)="
-                    onManufacturerCheckboxChange($any(row), $event)
-                  "
-                  (click)="$event.stopPropagation()"
-                >
-                  <strong>{{ $any(row).manufacturer }}</strong>
-                </label>
-              </td>
-
-              <!-- Model column (individual model checkbox) -->
-              <td class="model-cell">
-                <label
-                  nz-checkbox
-                  [nzChecked]="
-                    isModelSelected($any(row).manufacturer, model.model)
-                  "
-                  (nzCheckedChange)="
-                    onModelCheckboxChange(
-                      $any(row).manufacturer,
-                      model.model,
-                      $event
-                    )
-                  "
-                  (click)="$event.stopPropagation()"
-                >
-                  {{ model.model }}
-                </label>
-              </td>
-            </tr>
-          </tbody>
-        </nz-table>
-      </div>
     </ng-template>
   </app-base-data-table>
 
