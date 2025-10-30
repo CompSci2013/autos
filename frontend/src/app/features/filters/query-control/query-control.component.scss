@@ -92,12 +92,20 @@
 // Manufacturer Multi-Select Dialog Styles
 .manufacturer-dialog-content {
   .field-info {
-    margin-bottom: 16px;
+    margin-bottom: 12px;
 
     .field-description {
       font-size: 13px;
       color: #8c8c8c;
       margin: 0;
+    }
+  }
+
+  .search-input {
+    margin-bottom: 16px;
+
+    input {
+      font-size: 14px;
     }
   }
 

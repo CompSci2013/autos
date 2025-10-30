@@ -114,10 +114,24 @@
           <p class="field-description">Select one or more manufacturers to filter results.</p>
         </div>
 
+        <!-- Search Input -->
+        <nz-input-group [nzPrefix]="prefixIconSearch" class="search-input">
+          <input
+            nz-input
+            placeholder="Type to search manufacturers..."
+            [(ngModel)]="manufacturerSearchTerm"
+            (ngModelChange)="onManufacturerSearchChange()"
+            #searchInput
+          />
+        </nz-input-group>
+        <ng-template #prefixIconSearch>
+          <i nz-icon nzType="search"></i>
+        </ng-template>
+
         <nz-spin [nzSpinning]="isLoadingManufacturers">
           <div class="manufacturer-list">
             <div
-              *ngFor="let manufacturer of manufacturerList"
+              *ngFor="let manufacturer of filteredManufacturers"
               class="manufacturer-item"
               (click)="toggleManufacturer(manufacturer)"
             >
@@ -130,8 +144,8 @@
               </label>
             </div>
           </div>
-          <div *ngIf="manufacturerList.length === 0 && !isLoadingManufacturers" class="no-data">
-            No manufacturers found
+          <div *ngIf="filteredManufacturers.length === 0 && !isLoadingManufacturers" class="no-data">
+            No manufacturers match your search
           </div>
         </nz-spin>
 

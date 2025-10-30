@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { ApiService } from '../../../services/api.service';
 import { RequestCoordinatorService } from '../../../core/services/request-coordinator.service';
 
@@ -103,6 +103,10 @@ export class QueryControlComponent implements OnInit {
   // Temporary staging for dialog selections (before Apply)
   tempSelectedManufacturers: string[] = [];
 
+  // Search functionality
+  manufacturerSearchTerm: string = '';
+  @ViewChild('searchInput') searchInput?: ElementRef<HTMLInputElement>;
+
   // Loading states
   isLoadingManufacturers = false;
   isLoadingModels = false;
@@ -119,6 +123,19 @@ export class QueryControlComponent implements OnInit {
 
   ngOnInit(): void {
     // Manufacturers loaded on-demand when field is selected
+  }
+
+  // ========== COMPUTED PROPERTIES ==========
+
+  get filteredManufacturers(): string[] {
+    if (!this.manufacturerSearchTerm.trim()) {
+      return this.manufacturerList;
+    }
+
+    const searchLower = this.manufacturerSearchTerm.toLowerCase();
+    return this.manufacturerList.filter(manufacturer =>
+      manufacturer.toLowerCase().includes(searchLower)
+    );
   }
 
   // ========== FIELD SELECTION ==========
@@ -142,7 +159,13 @@ export class QueryControlComponent implements OnInit {
       if (field.key === 'manufacturer') {
         this.loadManufacturers();
         this.tempSelectedManufacturers = [...this.selectedManufacturersArray]; // Copy current selections
+        this.manufacturerSearchTerm = ''; // Clear search
         this.manufacturerDialogVisible = true;
+
+        // Auto-focus search input after dialog opens
+        setTimeout(() => {
+          this.searchInput?.nativeElement?.focus();
+        }, 200);
       }
     } else if (field.type === 'string' || field.type === 'number') {
       this.stringValue = undefined;
@@ -203,6 +226,10 @@ export class QueryControlComponent implements OnInit {
 
   // ========== MANUFACTURER MULTI-SELECT DIALOG ==========
 
+  onManufacturerSearchChange(): void {
+    // Just trigger change detection - filteredManufacturers getter handles the filtering
+  }
+
   toggleManufacturer(manufacturer: string): void {
     const index = this.tempSelectedManufacturers.indexOf(manufacturer);
     if (index === -1) {
@@ -229,6 +256,7 @@ export class QueryControlComponent implements OnInit {
 
     this.filterAdd.emit(filter);
     this.manufacturerDialogVisible = false;
+    this.manufacturerSearchTerm = ''; // Clear search
     this.selectedField = undefined;
     this.currentField = undefined;
   }
@@ -237,6 +265,7 @@ export class QueryControlComponent implements OnInit {
     // Discard temporary selections
     this.tempSelectedManufacturers = [];
     this.manufacturerDialogVisible = false;
+    this.manufacturerSearchTerm = ''; // Clear search
     this.selectedField = undefined;
     this.currentField = undefined;
   }
