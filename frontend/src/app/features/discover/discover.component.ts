@@ -141,14 +141,43 @@ export class DiscoverComponent implements OnInit, OnDestroy {
         grid.items = state[grid.id] || [];
         this.panelCollapseStates.set(grid.id, false);
       });
+
+      // Migration: Check if query-control panel exists in grid-0
+      const grid0Items = this.grids[0].items;
+      const hasQueryControl = grid0Items.some(item => item.panelType === 'query-control');
+
+      if (!hasQueryControl) {
+        // Add query-control panel at the top
+        console.log('Migrating layout: Adding query-control panel to grid-0');
+
+        // Shift existing panels down
+        grid0Items.forEach(item => {
+          if (item.y !== undefined) {
+            item.y += 2; // Shift down by 2 rows to make room
+          }
+        });
+
+        // Add query-control panel at top
+        grid0Items.unshift({
+          cols: 12,
+          rows: 2,
+          y: 0,
+          x: 0,
+          id: 'query-control-1',
+          panelType: 'query-control'
+        });
+
+        // Save updated state
+        this.saveGridState();
+      }
     } else {
       // Initialize with default panels
       this.grids[0].items = [
-        { cols: 2, rows: 2, y: 0, x: 0, id: 'query-control-1', panelType: 'query-control' },
-        { cols: 2, rows: 4, y: 2, x: 0, id: 'picker-1', panelType: 'picker' }
+        { cols: 12, rows: 2, y: 0, x: 0, id: 'query-control-1', panelType: 'query-control' },
+        { cols: 12, rows: 16, y: 2, x: 0, id: 'picker-1', panelType: 'picker' }
       ];
       this.grids[1].items = [
-        { cols: 2, rows: 3, y: 0, x: 0, id: 'results-1', panelType: 'results' }
+        { cols: 12, rows: 14, y: 0, x: 0, id: 'results-1', panelType: 'results' }
       ];
     }
 
