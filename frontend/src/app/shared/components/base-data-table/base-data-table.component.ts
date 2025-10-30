@@ -54,6 +54,9 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
   /** Whether rows can be expanded */
   @Input() expandable = false;
 
+  /** Whether to show column management buttons (Manage Columns, Reset Columns) */
+  @Input() showColumnManagement = true;
+
   /** Loading state from parent */
   @Input() loading = false;
 
