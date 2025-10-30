@@ -24,6 +24,8 @@ import { NzCollapseModule } from 'ng-zorro-antd/collapse';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { NzTabsModule } from 'ng-zorro-antd/tabs';
+import { NzSelectModule } from 'ng-zorro-antd/select';
+import { NzModalModule } from 'ng-zorro-antd/modal';
 
 // Import icon definitions
 import {
@@ -80,6 +82,7 @@ import { WorkshopComponent } from './features/workshop/workshop.component';
 import { HomeComponent } from './features/home/home.component';
 import { NavigationComponent } from './core/navigation/navigation.component';
 import { PanelPopoutComponent } from './features/panel-popout/panel-popout.component';
+import { QueryControlComponent } from './features/filters/query-control/query-control.component';
 
 @NgModule({
   declarations: [
@@ -92,6 +95,7 @@ import { PanelPopoutComponent } from './features/panel-popout/panel-popout.compo
     HomeComponent,
     NavigationComponent,
     PanelPopoutComponent,
+    QueryControlComponent,
   ],
   imports: [
     BrowserModule,
@@ -113,6 +117,8 @@ import { PanelPopoutComponent } from './features/panel-popout/panel-popout.compo
     NzButtonModule,
     NzMenuModule,
     NzTabsModule,
+    NzSelectModule,
+    NzModalModule,
     // Angular CDK
     DragDropModule,
     // Grid Layout

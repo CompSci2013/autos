@@ -5,6 +5,7 @@
       <p class="subtitle">Drag panels between grids. Layout is saved automatically.</p>
     </div>
     <div class="actions">
+      <app-query-control (filterAdd)="onFilterAdd($event)"></app-query-control>
       <div class="filters-summary" *ngIf="hasActiveFilters">
         <span class="summary-label">Active:</span>
         <span class="summary-count">{{ selectionCount }} model(s)</span>

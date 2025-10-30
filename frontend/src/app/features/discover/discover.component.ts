@@ -9,6 +9,7 @@ import { SearchFilters } from '../../models/search-filters.model';
 import { WorkspacePanel } from '../../models/workspace-panel.model';
 import { GridConfig } from '../../models/grid-config.model';
 import { GridsterConfig, GridType, CompactType } from 'angular-gridster2';
+import { QueryFilter } from '../filters/query-control/query-control.component';
 
 /**
  * DiscoverPageComponent - AUTOS with Grid Workspace
@@ -285,6 +286,38 @@ export class DiscoverComponent implements OnInit, OnDestroy {
     console.log('Discover: Clear all triggered');
     this.pickerClearTrigger++;
     this.stateService.resetFilters();
+  }
+
+  onFilterAdd(filter: QueryFilter): void {
+    console.log('Discover: Query filter added:', filter);
+
+    const updates: Partial<SearchFilters> = {};
+
+    // Map filter to SearchFilters properties
+    if (filter.type === 'range') {
+      // Handle range filters (year)
+      if (filter.field === 'year') {
+        if (filter.rangeMin !== undefined) {
+          updates.yearMin = filter.rangeMin;
+        }
+        if (filter.rangeMax !== undefined) {
+          updates.yearMax = filter.rangeMax;
+        }
+      }
+    } else {
+      // Handle string/number filters
+      if (filter.field === 'manufacturer') {
+        updates.manufacturer = filter.value as string;
+      } else if (filter.field === 'model') {
+        updates.model = filter.value as string;
+      } else if (filter.field === 'body_class') {
+        updates.bodyClass = filter.value as string;
+      } else if (filter.field === 'data_source') {
+        updates.dataSource = filter.value as string;
+      }
+    }
+
+    this.stateService.updateFilters(updates);
   }
 
   get hasActiveFilters(): boolean {

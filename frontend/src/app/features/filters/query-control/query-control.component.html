@@ -1,0 +1,98 @@
+<div class="query-control">
+  <!-- Field Selector Dropdown -->
+  <nz-select
+    class="field-selector"
+    nzPlaceHolder="Add filter by field..."
+    nzShowSearch
+    nzAllowClear
+    [(ngModel)]="selectedField"
+    (ngModelChange)="onFieldSelect($event)"
+  >
+    <nz-option
+      *ngFor="let field of queryFields"
+      [nzValue]="field.key"
+      [nzLabel]="field.label"
+    ></nz-option>
+  </nz-select>
+
+  <!-- Range Input Dialog (for year, etc.) -->
+  <nz-modal
+    [(nzVisible)]="rangeDialogVisible"
+    nzTitle="Set Range Filter"
+    [nzOkDisabled]="!isRangeValid()"
+    (nzOnOk)="onRangeDialogOk()"
+    (nzOnCancel)="onRangeDialogCancel()"
+    nzOkText="Apply"
+    nzCancelText="Cancel"
+  >
+    <ng-container *nzModalContent>
+      <div class="range-dialog-content">
+        <div class="field-info">
+          <label class="field-label">{{ currentField?.label }}</label>
+          <p class="field-description">Enter minimum and/or maximum values. At least one is required.</p>
+        </div>
+
+        <div class="range-inputs">
+          <div class="range-input-group">
+            <label>Minimum</label>
+            <nz-input-number
+              [(ngModel)]="rangeMin"
+              [nzPlaceHolder]="'Min ' + currentField?.label"
+              style="width: 100%"
+            ></nz-input-number>
+          </div>
+
+          <div class="range-separator">to</div>
+
+          <div class="range-input-group">
+            <label>Maximum</label>
+            <nz-input-number
+              [(ngModel)]="rangeMax"
+              [nzPlaceHolder]="'Max ' + currentField?.label"
+              style="width: 100%"
+            ></nz-input-number>
+          </div>
+        </div>
+
+        <nz-alert
+          *ngIf="rangeMin !== undefined && rangeMax !== undefined && rangeMin > rangeMax"
+          nzType="error"
+          nzMessage="Minimum cannot be greater than maximum"
+          nzShowIcon
+          class="validation-alert"
+        ></nz-alert>
+      </div>
+    </ng-container>
+  </nz-modal>
+
+  <!-- String/Number Input Dialog -->
+  <nz-modal
+    [(nzVisible)]="stringDialogVisible"
+    [nzTitle]="'Filter by ' + currentField?.label"
+    [nzOkDisabled]="!isStringValid()"
+    (nzOnOk)="onStringDialogOk()"
+    (nzOnCancel)="onStringDialogCancel()"
+    nzOkText="Apply"
+    nzCancelText="Cancel"
+  >
+    <ng-container *nzModalContent>
+      <div class="string-dialog-content">
+        <div class="field-info">
+          <label class="field-label">{{ currentField?.label }}</label>
+          <p class="field-description" *ngIf="currentField?.placeholder">
+            {{ currentField?.placeholder }}
+          </p>
+        </div>
+
+        <nz-input-group>
+          <input
+            nz-input
+            [(ngModel)]="stringValue"
+            [placeholder]="currentField?.placeholder || 'Enter value'"
+            (keyup.enter)="isStringValid() && onStringDialogOk()"
+          />
+        </nz-input-group>
+      </div>
+    </ng-container>
+  </nz-modal>
+</div>

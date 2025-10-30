@@ -1,0 +1,78 @@
+.query-control {
+  .field-selector {
+    width: 280px;
+    min-width: 200px;
+  }
+}
+
+// Range Dialog Styles
+.range-dialog-content {
+  .field-info {
+    margin-bottom: 20px;
+
+    .field-label {
+      font-size: 16px;
+      font-weight: 600;
+      color: #262626;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .field-description {
+      font-size: 13px;
+      color: #8c8c8c;
+      margin: 0;
+    }
+  }
+
+  .range-inputs {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    margin-bottom: 16px;
+
+    .range-input-group {
+      flex: 1;
+
+      label {
+        display: block;
+        font-size: 13px;
+        font-weight: 500;
+        color: #595959;
+        margin-bottom: 6px;
+      }
+    }
+
+    .range-separator {
+      font-size: 14px;
+      color: #8c8c8c;
+      padding-bottom: 8px;
+      font-weight: 500;
+    }
+  }
+
+  .validation-alert {
+    margin-top: 12px;
+  }
+}
+
+// String Dialog Styles
+.string-dialog-content {
+  .field-info {
+    margin-bottom: 16px;
+
+    .field-label {
+      font-size: 16px;
+      font-weight: 600;
+      color: #262626;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .field-description {
+      font-size: 13px;
+      color: #8c8c8c;
+      margin: 0;
+    }
+  }
+}
