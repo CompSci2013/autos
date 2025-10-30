@@ -162,18 +162,42 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
     // Use bracket notation for optional filters
     const filters = params.filters || {};
 
-    this.stateService.updateFilters({
+    // Only update filters that are defined (don't overwrite with undefined)
+    const updates: any = {
       page: params.page,
       size: params.size,
-      sort: params.sortBy,
-      sortDirection: params.sortOrder,
-      manufacturer: filters['manufacturer'],
-      model: filters['model'],
-      yearMin: filters['yearMin'],
-      yearMax: filters['yearMax'],
-      bodyClass: filters['bodyClass'],
-      dataSource: filters['dataSource'],
-    });
+    };
+
+    // Only include sort params if defined
+    if (params.sortBy !== undefined) {
+      updates.sort = params.sortBy;
+    }
+    if (params.sortOrder !== undefined) {
+      updates.sortDirection = params.sortOrder;
+    }
+
+    // Only include filter params if they exist in the params
+    // This prevents overwriting Query Control filters with undefined
+    if ('manufacturer' in filters && filters['manufacturer'] !== undefined) {
+      updates.manufacturer = filters['manufacturer'];
+    }
+    if ('model' in filters && filters['model'] !== undefined) {
+      updates.model = filters['model'];
+    }
+    if ('yearMin' in filters && filters['yearMin'] !== undefined) {
+      updates.yearMin = filters['yearMin'];
+    }
+    if ('yearMax' in filters && filters['yearMax'] !== undefined) {
+      updates.yearMax = filters['yearMax'];
+    }
+    if ('bodyClass' in filters && filters['bodyClass'] !== undefined) {
+      updates.bodyClass = filters['bodyClass'];
+    }
+    if ('dataSource' in filters && filters['dataSource'] !== undefined) {
+      updates.dataSource = filters['dataSource'];
+    }
+
+    this.stateService.updateFilters(updates);
   }
 
   /**
