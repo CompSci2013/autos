@@ -262,18 +262,36 @@ async function getVehicleDetails(options = {}) {
 
 /**
  * Get distinct manufacturers for filter dropdown
+ * @param {string} searchTerm - Optional search term to filter manufacturers
+ * @param {number} limit - Maximum number of results (default: 1000)
  * @returns {Array} - Sorted array of manufacturer names
  */
-async function getDistinctManufacturers() {
+async function getDistinctManufacturers(searchTerm = '', limit = 1000) {
   try {
+    // Build query based on search term
+    let query = { match_all: {} };
+
+    if (searchTerm && searchTerm.trim()) {
+      // Use wildcard query for case-insensitive partial matching
+      query = {
+        wildcard: {
+          'manufacturer.keyword': {
+            value: `*${searchTerm}*`,
+            case_insensitive: true,
+          },
+        },
+      };
+    }
+
     const response = await esClient.search({
       index: ELASTICSEARCH_INDEX,
       size: 0,
+      query: query,
       aggs: {
         manufacturers: {
           terms: {
             field: 'manufacturer.keyword',
-            size: 1000,
+            size: limit,
             order: { _key: 'asc' },
           },
         },

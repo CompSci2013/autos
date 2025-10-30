@@ -242,16 +242,30 @@ async function getVehicleInstancesHandler(req, res, next) {
  * Unified controller for filter options endpoint
  * GET /api/v1/filters/:fieldName
  *
+ * Query parameters:
+ *   - search: Optional search term for filtering results (currently supported for manufacturers)
+ *   - limit: Optional limit for number of results (default: 1000)
+ *
  * Routes to appropriate service function based on fieldName parameter
  */
 async function getFilterOptionsHandler(req, res, next) {
   try {
     const { fieldName } = req.params;
+    const { search = '', limit = 1000 } = req.query;
+
+    // Validate limit parameter
+    const limitNum = parseInt(limit);
+    if (limitNum < 1 || limitNum > 5000) {
+      return res.status(400).json({
+        error: 'Invalid limit parameter',
+        message: 'limit must be between 1 and 5000',
+      });
+    }
 
     // Route to appropriate service function
     switch (fieldName) {
       case 'manufacturers': {
-        const manufacturers = await getDistinctManufacturers();
+        const manufacturers = await getDistinctManufacturers(search, limitNum);
         return res.json({ manufacturers });
       }
 

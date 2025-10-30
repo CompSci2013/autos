@@ -106,6 +106,7 @@ export class QueryControlComponent implements OnInit {
   // Search functionality
   manufacturerSearchTerm: string = '';
   @ViewChild('searchInput') searchInput?: ElementRef<HTMLInputElement>;
+  private searchDebounceTimer: any;
 
   // Loading states
   isLoadingManufacturers = false;
@@ -128,14 +129,8 @@ export class QueryControlComponent implements OnInit {
   // ========== COMPUTED PROPERTIES ==========
 
   get filteredManufacturers(): string[] {
-    if (!this.manufacturerSearchTerm.trim()) {
-      return this.manufacturerList;
-    }
-
-    const searchLower = this.manufacturerSearchTerm.toLowerCase();
-    return this.manufacturerList.filter(manufacturer =>
-      manufacturer.toLowerCase().includes(searchLower)
-    );
+    // Server-side filtering now - just return the list
+    return this.manufacturerList;
   }
 
   // ========== FIELD SELECTION ==========
@@ -157,10 +152,10 @@ export class QueryControlComponent implements OnInit {
     } else if (field.type === 'multiselect') {
       // Show manufacturer dialog
       if (field.key === 'manufacturer') {
-        this.loadManufacturers();
         this.tempSelectedManufacturers = [...this.selectedManufacturersArray]; // Copy current selections
         this.manufacturerSearchTerm = ''; // Clear search
         this.manufacturerDialogVisible = true;
+        this.loadManufacturers(''); // Load with no search filter initially
 
         // Auto-focus search input after dialog opens
         setTimeout(() => {
@@ -227,11 +222,17 @@ export class QueryControlComponent implements OnInit {
   // ========== MANUFACTURER MULTI-SELECT DIALOG ==========
 
   onManufacturerSearchChange(): void {
-    // Just trigger change detection - filteredManufacturers getter handles the filtering
+    // Debounce search to avoid excessive API calls
+    clearTimeout(this.searchDebounceTimer);
+    this.searchDebounceTimer = setTimeout(() => {
+      this.loadManufacturers(this.manufacturerSearchTerm);
+    }, 300); // 300ms debounce
   }
 
   clearManufacturerSearch(): void {
     this.manufacturerSearchTerm = '';
+    // Reload manufacturers with no search filter
+    this.loadManufacturers('');
     // Re-focus the search input after clearing
     setTimeout(() => {
       this.searchInput?.nativeElement?.focus();
@@ -304,21 +305,21 @@ export class QueryControlComponent implements OnInit {
 
   // ========== FILTER DATA LOADING (ON-DEMAND WITH CACHING) ==========
 
-  loadManufacturers(): void {
-    if (this.manufacturerList.length > 0) {
-      console.log('Manufacturers already loaded from cache');
-      return; // Already loaded
-    }
-
+  loadManufacturers(searchTerm: string = ''): void {
     this.isLoadingManufacturers = true;
-    console.log('Loading manufacturers from API...');
+    console.log('Loading manufacturers from API with search:', searchTerm);
+
+    // Create unique cache key based on search term
+    const cacheKey = searchTerm
+      ? `filters/manufacturers?search=${searchTerm}`
+      : 'filters/manufacturers';
 
     this.requestCoordinator
       .execute(
-        'filters/manufacturers',
-        () => this.apiService.getDistinctManufacturers(),
+        cacheKey,
+        () => this.apiService.getDistinctManufacturers(searchTerm),
         {
-          cacheTime: 300000, // Cache for 5 minutes
+          cacheTime: 300000, // Cache for 5 minutes per search term
           deduplication: true,
           retryAttempts: 2,
         }

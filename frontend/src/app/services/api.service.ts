@@ -104,19 +104,33 @@ export class ApiService {
   /**
    * Unified filter options endpoint
    * @param fieldName - 'manufacturers', 'models', 'body-classes', 'data-sources', or 'year-range'
+   * @param search - Optional search term for filtering (currently supported for manufacturers)
+   * @param limit - Optional limit for number of results (default: 1000)
    * @returns Observable with field-specific response format
    */
-  getFilterOptions(fieldName: string): Observable<any> {
+  getFilterOptions(fieldName: string, search?: string, limit?: number): Observable<any> {
+    let params = new HttpParams();
+
+    if (search) {
+      params = params.set('search', search);
+    }
+    if (limit !== undefined) {
+      params = params.set('limit', limit.toString());
+    }
+
     return this.http.get<any>(
-      `${this.apiUrl}/filters/${fieldName}`
+      `${this.apiUrl}/filters/${fieldName}`,
+      { params: params }
     );
   }
 
   /**
    * Convenience method: Get distinct manufacturers
+   * @param search - Optional search term for filtering manufacturers
+   * @param limit - Optional limit for number of results (default: 1000)
    */
-  getDistinctManufacturers(): Observable<{ manufacturers: string[] }> {
-    return this.getFilterOptions('manufacturers');
+  getDistinctManufacturers(search?: string, limit?: number): Observable<{ manufacturers: string[] }> {
+    return this.getFilterOptions('manufacturers', search, limit);
   }
 
   /**
