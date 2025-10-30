@@ -284,6 +284,9 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
           this.totalCount = response.total;
           this.isLoading = false;
 
+          // Trigger change detection (required for OnPush strategy)
+          this.cdr.markForCheck();
+
           // Only emit to parent if this was user-initiated (not hydration)
           // Prevents circular feedback loop with ResultsTableComponent
           if (userInitiated) {
@@ -296,6 +299,8 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
         error: (error) => {
           console.error('Failed to fetch table data:', error);
           this.isLoading = false;
+          // Trigger change detection on error as well
+          this.cdr.markForCheck();
         },
       });
   }
