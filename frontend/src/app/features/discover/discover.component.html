@@ -23,10 +23,6 @@
       [attr.data-grid-id]="grid.id"
       [style.border-color]="grid.borderColor">
 
-      <div class="grid-header">
-        <h3>{{ grid.name }}</h3>
-      </div>
-
       <gridster [options]="grid.options">
         <gridster-item *ngFor="let item of grid.items" [item]="item">
           <div class="panel-container">
