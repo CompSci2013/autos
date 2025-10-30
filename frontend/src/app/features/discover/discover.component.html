@@ -5,7 +5,6 @@
       <p class="subtitle">Drag panels between grids. Layout is saved automatically.</p>
     </div>
     <div class="actions">
-      <app-query-control (filterAdd)="onFilterAdd($event)"></app-query-control>
       <div class="filters-summary" *ngIf="hasActiveFilters">
         <span class="summary-label">Active:</span>
         <span class="summary-count">{{ selectionCount }} model(s)</span>
@@ -53,6 +52,11 @@
             <div class="panel-content no-drag" [hidden]="item.panelType === 'picker' && getPanelCollapseState(grid.id)">
               <!-- Dynamic panel content based on panelType -->
               <div *ngIf="item.panelType === 'picker'">
+                <!-- Query Control (only in left grid) -->
+                <div *ngIf="grid.id === 'grid-0'" class="query-control-wrapper">
+                  <app-query-control (filterAdd)="onFilterAdd($event)"></app-query-control>
+                </div>
+
                 <app-table-picker
                   [initialSelections]="pickerInitialSelections"
                   [clearTrigger]="pickerClearTrigger"

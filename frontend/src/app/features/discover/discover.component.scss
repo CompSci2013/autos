@@ -173,6 +173,12 @@ gridster {
   &.no-drag {
     cursor: default;
   }
+
+  .query-control-wrapper {
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e8e8e8;
+  }
 }
 
 // Gridster drag preview
