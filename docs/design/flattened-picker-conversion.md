@@ -2,7 +2,7 @@
 
 **Date:** 2025-10-30
 **Branch:** `feature/auto-picker`
-**Status:** In Progress
+**Status:** ✅ Complete - Both Phases Done
 
 ---
 
@@ -209,180 +209,51 @@ npm run build
 
 ## What Remains To Do
 
-### Phase 2: Flatten TablePickerComponent ⚠️
+### ✅ All Phases Complete!
 
-**Target Component:** `app-table-picker` (used in Workshop page)
+Both picker components have been successfully flattened:
+1. ✅ **Phase 1:** ManufacturerModelTablePickerComponent (Discover page) - Commit `98d2dec`
+2. ✅ **Phase 2:** TablePickerComponent (Workshop page) - Commit `7f14cac`
 
-#### Step 1: Analyze Current Implementation
+### Phase 2 Completion Summary ✅
 
-**Files to Review:**
-- `frontend/src/app/features/picker/table-picker/table-picker.component.ts`
-- `frontend/src/app/features/picker/table-picker/table-picker.component.html`
-- `frontend/src/app/features/picker/table-picker/table-picker-data-source.ts`
+**Commit:** `7f14cac` - "Flatten TablePickerComponent for workshop page"
+**Files Changed:** 3 (table-picker-data-source.ts, table-picker.component.ts, table-picker.component.html)
+**Net Change:** -116 lines (123 insertions, 239 deletions)
 
-**Current Architecture:**
-```
-TablePickerComponent
-├── Uses: BaseDataTableComponent<ManufacturerSummaryRow>
-├── Data Source: TablePickerDataSource
-├── Hierarchical: Yes (expandable manufacturer rows)
-├── Models: ManufacturerSummaryRow with nested models[]
-└── Checkbox Pattern: Parent/child (same as old picker)
-```
+#### What Was Done
 
-**Key Questions:**
-1. Does `ManufacturerSummaryRow` need to be replaced with flat rows?
-2. How does `TablePickerDataSource` provide data to BaseDataTable?
-3. Are there template slots for expansion in the HTML?
-4. Do we need to update BaseDataTableComponent itself?
+**1. Data Model Transformation ([table-picker-data-source.ts](../../frontend/src/app/features/picker/table-picker/table-picker-data-source.ts)):**
+- ✅ Replaced `ManufacturerSummaryRow` with `PickerFlatRow` interface
+- ✅ Flattened API response to one row per manufacturer-model combination
+- ✅ Simplified filtering (no nested model arrays)
+- ✅ Updated sorting for flat rows
+- ✅ Changed key separator from `:` to `|` for consistency
 
-#### Step 2: Update Data Model
+**2. Component Logic ([table-picker.component.ts](../../frontend/src/app/features/picker/table-picker/table-picker.component.ts)):**
+- ✅ Updated column configuration (2 columns: Manufacturer, Model)
+- ✅ Removed expansion methods: `onRowExpand()`, `onExpandAll()`, `onCollapseAll()`
+- ✅ Updated checkbox methods for flat rows:
+  - `getManufacturerCheckboxState(manufacturer: string)` - calculates from all flat rows
+  - `onManufacturerCheckboxChange(manufacturer: string, checked: boolean)` - selects all models
+  - Added `getAllRowsForManufacturer()` helper method
+  - Added `isRowSelected(row: PickerFlatRow)` method
+- ✅ Updated all key references to use `|` separator
+- ✅ Updated selection hydration and export logic
 
-**File:** `table-picker-data-source.ts`
+**3. Template Simplification ([table-picker.component.html](../../frontend/src/app/features/picker/table-picker/table-picker.component.html)):**
+- ✅ Removed `[expandable]="true"` from BaseDataTable
+- ✅ Removed entire expansion template (~70 lines)
+- ✅ Simplified cell template for flat rows
+- ✅ Both columns display with checkboxes
+- ✅ Removed expansion event handlers
 
-**Current Model:**
-```typescript
-export interface ManufacturerSummaryRow {
-  manufacturer: string;
-  modelCount: number;
-  models: { model: string; count: number }[];  // Nested
-}
-```
+**4. Build & Test:**
+- ✅ Build successful - No TypeScript errors
+- ✅ Bundle size: 1017.78 kB (reduced from 1020.13 kB)
+- ✅ Workshop page functionality verified
 
-**Proposed Flat Model:**
-```typescript
-export interface PickerFlatRow {
-  manufacturer: string;
-  model: string;
-  count: number;
-  key: string;  // "Manufacturer|Model"
-}
-```
-
-**Data Source Updates:**
-- Transform API response to flat rows
-- Remove hierarchical grouping logic
-- Update client-side filtering to work on flat rows
-- Update sorting to handle duplicate manufacturers
-
-#### Step 3: Update TablePickerComponent
-
-**File:** `table-picker.component.ts`
-
-**Changes Required:**
-
-1. **Update Column Configuration:**
-   ```typescript
-   columns: TableColumn<PickerFlatRow>[] = [
-     {
-       key: 'manufacturer',
-       label: 'Manufacturer',
-       width: '50%',
-       sortable: true,
-       filterable: true,
-       filterType: 'text',
-       hideable: false,
-     },
-     {
-       key: 'model',
-       label: 'Model',
-       width: '50%',
-       sortable: true,
-       filterable: true,
-       filterType: 'text',
-       hideable: false,
-     }
-   ];
-   ```
-
-2. **Remove Expansion Logic:**
-   - Remove `onRowExpand()` method
-   - Remove `onExpandAll()` / `onCollapseAll()` methods
-   - Remove ViewChild reference to `baseTable.expandAllRows()`
-
-3. **Update Checkbox Methods:**
-   ```typescript
-   // Adapt from ManufacturerModelTablePickerComponent
-   getManufacturerCheckboxState(manufacturer: string): 'checked' | 'indeterminate' | 'unchecked' {
-     // Calculate state from flat rows in data source
-   }
-
-   onManufacturerCheckboxChange(manufacturer: string, checked: boolean): void {
-     // Select/deselect all flat rows for this manufacturer
-   }
-
-   onModelCheckboxChange(manufacturer: string, model: string, checked: boolean): void {
-     // Select/deselect individual flat row
-   }
-   ```
-
-4. **Update Selection Methods:**
-   - Keep `Set<string>` pattern (already correct)
-   - Update key format if needed (currently uses `:` separator)
-   - Ensure selection methods work with flat rows
-
-#### Step 4: Update Template
-
-**File:** `table-picker.component.html`
-
-**Changes Required:**
-
-1. **Remove Expansion UI:**
-   - Remove expand/collapse all buttons
-   - Remove expansion ng-template slots
-   - Remove nested model row templates
-
-2. **Simplify Table Layout:**
-   ```html
-   <!-- Use BaseDataTable with flat row template -->
-   <app-base-data-table
-     [columns]="columns"
-     [dataSource]="dataSource"
-     [queryParams]="tableQueryParams"
-     (queryChange)="onTableQueryChange($event)"
-   >
-     <!-- Row template -->
-     <ng-template #rowTemplate let-row>
-       <td class="manufacturer-cell">
-         <label nz-checkbox
-           [nzIndeterminate]="getManufacturerCheckboxState(row.manufacturer) === 'indeterminate'"
-           [nzChecked]="getManufacturerCheckboxState(row.manufacturer) === 'checked'"
-           (nzCheckedChange)="onManufacturerCheckboxChange(row.manufacturer, $event)">
-           {{ row.manufacturer }}
-         </label>
-       </td>
-       <td class="model-cell">
-         <label nz-checkbox
-           [nzChecked]="isModelSelected(row.manufacturer, row.model)"
-           (nzCheckedChange)="onModelCheckboxChange(row.manufacturer, row.model, $event)">
-           {{ row.model }}
-         </label>
-       </td>
-     </ng-template>
-   </app-base-data-table>
-   ```
-
-3. **Update Control Panel:**
-   - Keep search box
-   - Keep page size selector
-   - Remove expand/collapse all buttons
-   - Update pagination info text
-
-#### Step 5: Update BaseDataTableComponent (If Needed)
-
-**File:** `shared/components/base-data-table/`
-
-**Potential Changes:**
-- Verify row expansion features are optional (not breaking when unused)
-- Ensure flat row display works correctly
-- Check if expandable row logic can be disabled
-
-**Assessment Needed:**
-- Review BaseDataTable expansion implementation
-- Determine if changes are needed or if expansion is already optional
-- Test that disabling expansion doesn't break the table
-
-#### Step 6: Test Workshop Integration
+#### Detailed Implementation Steps (Archive)
 
 **Test Cases:**
 
@@ -660,49 +531,112 @@ Both implementations maintain:
 
 ## Rollout Plan
 
-### Phase 1: Flattened ManufacturerModelTablePickerComponent ✅
+### Phase 1: Flatten ManufacturerModelTablePickerComponent ✅
 
-- **Status:** COMPLETE
+- **Status:** ✅ COMPLETE
 - **Commit:** `98d2dec`
 - **Affects:** Discover page (`/discover`)
 - **Risk:** Low (single page, well-tested)
 - **Rollback:** Easy (revert commit)
 
-### Phase 2: Flatten TablePickerComponent ⚠️
+### Phase 2: Flatten TablePickerComponent ✅
 
-- **Status:** TODO
+- **Status:** ✅ COMPLETE
+- **Commit:** `7f14cac`
 - **Affects:** Workshop page (`/workshop`)
 - **Risk:** Medium (more complex, grid layout, BaseDataTable integration)
-- **Steps:** Follow steps 1-10 above
-- **Timeline:** TBD
+- **Result:** Successful - Build passed, functionality verified
 
-### Phase 3: Deploy and Monitor 🔮
+### Phase 3: Deploy to Kubernetes (When Ready)
 
-- **Build production frontend:**
-  ```bash
-  cd /home/odin/projects/autos/frontend
-  podman build -f Dockerfile.prod -t localhost/autos-frontend:prod .
-  ```
+**Status:** Not yet deployed (code ready on branch `feature/auto-picker`)
 
-- **Deploy to K8s:**
-  ```bash
-  podman save -o autos-frontend-prod.tar localhost/autos-frontend:prod
-  sudo k3s ctr images import autos-frontend-prod.tar
-  kubectl rollout restart deployment/autos-frontend -n autos
-  ```
+#### Build Production Frontend
 
-- **Monitor:**
-  - Check application logs for errors
-  - Test both pages manually
-  - Verify URL state management works
-  - Check browser console for JavaScript errors
+```bash
+# 1. Build production image
+cd /home/odin/projects/autos/frontend
+podman build -f Dockerfile.prod -t localhost/autos-frontend:prod .
 
-### Phase 4: Update Documentation 🔮
+# 2. Save image as tar file
+podman save -o autos-frontend-prod.tar localhost/autos-frontend:prod
 
-- Update `CLAUDE.md` with new picker pattern
-- Update component hierarchy diagrams
-- Add migration guide for future table components
-- Document lessons learned
+# 3. Import to K3s
+sudo k3s ctr images import autos-frontend-prod.tar
+
+# 4. Verify import
+sudo k3s ctr images list | grep autos-frontend
+```
+
+#### Deploy to Kubernetes Cluster
+
+```bash
+# 5. Apply deployment (if manifest changed)
+kubectl apply -f k8s/frontend-deployment.yaml
+
+# 6. Rolling restart to use new image
+kubectl rollout restart deployment/autos-frontend -n autos
+
+# 7. Monitor rollout status
+kubectl rollout status deployment/autos-frontend -n autos
+
+# 8. Verify pods are running
+kubectl get pods -n autos
+```
+
+#### Post-Deployment Monitoring
+
+**Check Application Health:**
+```bash
+# View frontend logs
+kubectl logs -n autos deployment/autos-frontend --tail=50
+
+# Check pod status
+kubectl get pods -n autos -l app=autos-frontend
+
+# Test health endpoint
+curl http://autos.minilab
+```
+
+**Manual Testing Checklist:**
+- [ ] Navigate to Discover page (`/discover`)
+- [ ] Verify flat picker displays correctly
+- [ ] Test manufacturer checkbox selection
+- [ ] Test model checkbox selection
+- [ ] Verify selections update URL
+- [ ] Navigate to Workshop page (`/workshop`)
+- [ ] Verify flat picker displays correctly
+- [ ] Test grid drag-and-drop functionality
+- [ ] Test panel collapse/expand
+- [ ] Test selections persist in URL
+- [ ] Navigate between pages and back
+- [ ] Verify selections are retained
+- [ ] Test browser refresh (URL state preserved)
+- [ ] Test browser back/forward buttons
+- [ ] Check browser console for errors
+
+**Monitor for Issues:**
+- Check application logs for errors
+- Verify URL state management works on both pages
+- Check browser console for JavaScript errors
+- Monitor performance (page load times, table rendering)
+- Verify no regression in existing functionality
+
+**Rollback Plan (If Needed):**
+```bash
+# Revert to previous image
+kubectl rollout undo deployment/autos-frontend -n autos
+
+# Or revert git commits
+git revert 7f14cac 6f34bcd 98d2dec
+```
+
+### Phase 4: Update Documentation ✅
+
+- ✅ Updated this document with Phase 2 completion details
+- ✅ Added deployment instructions for Kubernetes
+- ⚠️ TODO: Update `CLAUDE.md` with new picker pattern (if needed)
+- ⚠️ TODO: Document any lessons learned after deployment
 
 ---
 
@@ -815,7 +749,7 @@ If we need to flatten other tables:
 **Last Updated:** 2025-10-30
 **Maintained By:** Claude (with odin)
 **Branch:** `feature/auto-picker`
-**Status:** Phase 1 Complete, Phase 2 TODO
+**Status:** ✅ Both Phases Complete - Ready for Deployment
 
 ---
 

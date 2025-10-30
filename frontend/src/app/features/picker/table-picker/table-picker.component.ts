@@ -12,6 +12,7 @@ import {
   ChangeDetectionStrategy, // ADD THIS
 } from '@angular/core';
 import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { ManufacturerModelSelection } from '../../../models';
 import { TableColumn, TableQueryParams } from '../../../shared/models';
 import {
@@ -83,6 +84,10 @@ export class TablePickerComponent implements OnInit, OnDestroy, OnChanges {
   // Track last clear trigger
   private lastClearTrigger = 0;
 
+  // Track pending hydration (selections to apply after data loads)
+  private pendingHydration: ManufacturerModelSelection[] = [];
+  private dataLoaded = false;
+
   constructor(
     dataSource: TablePickerDataSource,
     private cdr: ChangeDetectorRef // ADD THIS
@@ -92,6 +97,21 @@ export class TablePickerComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnInit(): void {
     console.log('TablePickerComponent: Initialized');
+
+    // Subscribe to data source to know when data is loaded
+    // This ensures hydration happens AFTER data is available
+    this.dataSource.fetch(this.tableQueryParams).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      this.dataLoaded = true;
+      console.log('TablePickerComponent: Data loaded, applying pending hydration');
+
+      // Apply any pending hydration
+      if (this.pendingHydration.length > 0) {
+        this.hydrateSelections();
+        this.cdr.markForCheck();
+      }
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -104,7 +124,8 @@ export class TablePickerComponent implements OnInit, OnDestroy, OnChanges {
         console.log('TablePickerComponent: Clear trigger fired');
         this.lastClearTrigger = newValue;
         this.selectedRows.clear();
-        this.cdr.markForCheck(); // ADD THIS
+        this.pendingHydration = [];
+        this.cdr.markForCheck();
       }
     }
 
@@ -114,8 +135,18 @@ export class TablePickerComponent implements OnInit, OnDestroy, OnChanges {
         'TablePickerComponent: Initial selections changed:',
         this.initialSelections
       );
-      this.hydrateSelections();
-      this.cdr.markForCheck(); // ADD THIS
+
+      // Store for pending hydration
+      this.pendingHydration = this.initialSelections || [];
+
+      // If data already loaded, hydrate immediately
+      // Otherwise, wait for data to load (ngOnInit subscription)
+      if (this.dataLoaded) {
+        this.hydrateSelections();
+        this.cdr.markForCheck();
+      } else {
+        console.log('TablePickerComponent: Data not loaded yet, deferring hydration');
+      }
     }
   }
 
@@ -125,25 +156,26 @@ export class TablePickerComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   /**
-   * Hydrate selections from initialSelections input
+   * Hydrate selections from pendingHydration
+   * CRITICAL: Only call after data is loaded
    */
   private hydrateSelections(): void {
     // Clear existing selections first (idempotent operation)
     this.selectedRows.clear();
 
-    // If no initial selections provided, nothing to hydrate
-    if (!this.initialSelections || this.initialSelections.length === 0) {
+    // If no pending selections, nothing to hydrate
+    if (!this.pendingHydration || this.pendingHydration.length === 0) {
       return;
     }
 
     // Add each selection to the Set (using | separator to match data source)
-    this.initialSelections.forEach((selection) => {
+    this.pendingHydration.forEach((selection) => {
       const key = `${selection.manufacturer}|${selection.model}`;
       this.selectedRows.add(key);
     });
 
     console.log(
-      `TablePickerComponent: Hydrated ${this.initialSelections.length} selections`
+      `TablePickerComponent: Hydrated ${this.pendingHydration.length} selections from URL state`
     );
   }
 
