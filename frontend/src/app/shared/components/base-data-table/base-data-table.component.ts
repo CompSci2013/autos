@@ -145,11 +145,11 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
       .pipe(debounceTime(400), takeUntil(this.destroy$))
       .subscribe(() => {
         this.currentPage = 1; // Reset to first page on filter change
-        this.fetchData();
+        this.fetchData(true); // User-initiated: filter changed
       });
 
-    // Initial data fetch
-    this.fetchData();
+    // Initial data fetch (hydration - NOT user-initiated)
+    this.fetchData(false);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -190,8 +190,8 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
         return;
       }
 
-      console.log('🔄 QueryParams changed, fetching data');
-      this.fetchData();
+      console.log('🔄 QueryParams changed, fetching data (hydration from parent)');
+      this.fetchData(false); // Hydration from parent - NOT user-initiated
     }
   }
 
@@ -252,7 +252,16 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
 
   // ========== DATA FETCHING ==========
 
-  fetchData(): void {
+  /**
+   * Fetch table data from data source
+   *
+   * @param userInitiated - Whether this fetch was triggered by user interaction
+   *                        (true) or by component hydration (false)
+   *
+   * IMPORTANT: Only emits queryParamsChange when userInitiated=true to prevent
+   * circular feedback loops. See docs/bugfix-circular-fetch-loop.md
+   */
+  fetchData(userInitiated: boolean = false): void {
     if (this.isReorderingColumns) {
       return; // Don't fetch during column reordering
     }
@@ -275,8 +284,14 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
           this.totalCount = response.total;
           this.isLoading = false;
 
-          // Emit query params to parent
-          this.queryParamsChange.emit(params);
+          // Only emit to parent if this was user-initiated (not hydration)
+          // Prevents circular feedback loop with ResultsTableComponent
+          if (userInitiated) {
+            console.log('✅ User-initiated fetch complete, emitting queryParamsChange');
+            this.queryParamsChange.emit(params);
+          } else {
+            console.log('⏭️ Hydration fetch complete, NOT emitting (prevents circular loop)');
+          }
         },
         error: (error) => {
           console.error('Failed to fetch table data:', error);
@@ -361,14 +376,14 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
 
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.fetchData();
+    this.fetchData(true); // User-initiated: clicked pagination
   }
 
   onPageSizeChange(size: number): void {
     this.pageSize = size;
     this.currentPage = 1; // Reset to first page
     this.savePreferences();
-    this.fetchData();
+    this.fetchData(true); // User-initiated: changed page size
   }
 
   // ========== SORTING ==========
@@ -382,7 +397,7 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
       this.sortBy = columnKey;
       this.sortOrder = 'asc';
     }
-    this.fetchData();
+    this.fetchData(true); // User-initiated: clicked column header
   }
 
   // ========== FILTERING ==========
@@ -400,7 +415,7 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
   clearFilters(): void {
     this.filters = {};
     this.currentPage = 1;
-    this.fetchData();
+    this.fetchData(true); // User-initiated: clicked clear filters
   }
 
   // ========== COLUMN MANAGEMENT ==========
