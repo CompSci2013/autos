@@ -170,11 +170,29 @@ async function getVehicleDetails(options = {}) {
 
     // Apply filters (case-insensitive partial matching using wildcard on analyzed fields)
     if (filters.manufacturer) {
-      query.bool.filter.push({
-        wildcard: {
-          manufacturer: `*${filters.manufacturer.toLowerCase()}*`,
-        },
-      });
+      // Handle comma-separated manufacturers (OR logic)
+      const manufacturers = filters.manufacturer.split(',').map(m => m.trim()).filter(m => m);
+
+      if (manufacturers.length === 1) {
+        // Single manufacturer: use simple wildcard
+        query.bool.filter.push({
+          wildcard: {
+            manufacturer: `*${manufacturers[0].toLowerCase()}*`,
+          },
+        });
+      } else if (manufacturers.length > 1) {
+        // Multiple manufacturers: use should clause (OR logic)
+        query.bool.filter.push({
+          bool: {
+            should: manufacturers.map(mfr => ({
+              wildcard: {
+                manufacturer: `*${mfr.toLowerCase()}*`,
+              },
+            })),
+            minimum_should_match: 1,
+          },
+        });
+      }
     }
 
     if (filters.model) {
