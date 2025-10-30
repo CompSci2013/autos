@@ -161,6 +161,10 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
 
   /**
    * Convert SearchFilters (app-level) to TableQueryParams (component-level)
+   *
+   * IMPORTANT: Query Control filters (manufacturer, model, year, etc.) are NOT
+   * passed to table filter inputs. Those are URL-driven and managed by Query Control.
+   * Table filter inputs are for ADDITIONAL user-typed filtering within displayed results.
    */
   private convertToTableParams(filters: SearchFilters): TableQueryParams {
     return {
@@ -169,13 +173,12 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
       sortBy: filters.sort,
       sortOrder: filters.sortDirection,
       filters: {
-        manufacturer: filters.manufacturer,
-        model: filters.model,
-        yearMin: filters.yearMin,
-        yearMax: filters.yearMax,
-        bodyClass: filters.bodyClass,
-        dataSource: filters.dataSource,
-        // Include modelCombos to trigger change detection in BaseDataTable
+        // Do NOT include Query Control filters here:
+        // - manufacturer, model, yearMin, yearMax, bodyClass, dataSource
+        // Those are applied at fetch time by StateManagementService
+        // Table filter inputs should always be empty unless user types in them
+
+        // Include modelCombos for change detection only (not a visible filter)
         _modelCombos: filters.modelCombos?.map(c => `${c.manufacturer}:${c.model}`).join(',') || '',
       },
     };
