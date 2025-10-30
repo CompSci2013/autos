@@ -68,12 +68,7 @@
                 </app-table-picker>
               </div>
               <div *ngIf="item.panelType === 'results'">
-                <div *ngIf="hasActiveFilters; else noFilters">
-                  <app-results-table></app-results-table>
-                </div>
-                <ng-template #noFilters>
-                  <nz-empty nzNotFoundContent="Select models from the picker to see results"></nz-empty>
-                </ng-template>
+                <app-results-table></app-results-table>
               </div>
             </div>
           </div>
