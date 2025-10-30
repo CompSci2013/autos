@@ -152,7 +152,22 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
       .pipe(debounceTime(400), takeUntil(this.destroy$))
       .subscribe(() => {
         this.currentPage = 1; // Reset to first page on filter change
-        this.fetchData(true); // User-initiated: filter changed
+
+        // In data mode, emit event to parent instead of fetching
+        if (this.data !== undefined) {
+          const params: TableQueryParams = {
+            page: this.currentPage,
+            size: this.pageSize,
+            sortBy: this.sortBy,
+            sortOrder: this.sortOrder,
+            filters: this.filters,
+          };
+          console.log('📄 onFilterChange (data mode): Emitting queryParamsChange:', params);
+          this.queryParamsChange.emit(params);
+        } else {
+          // dataSource mode: fetch directly
+          this.fetchData(true); // User-initiated: filter changed
+        }
       });
 
     // Initial data fetch (hydration - NOT user-initiated)
@@ -426,14 +441,44 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
 
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.fetchData(true); // User-initiated: clicked pagination
+
+    // In data mode, emit event to parent instead of fetching
+    if (this.data !== undefined) {
+      const params: TableQueryParams = {
+        page: this.currentPage,
+        size: this.pageSize,
+        sortBy: this.sortBy,
+        sortOrder: this.sortOrder,
+        filters: this.filters,
+      };
+      console.log('📄 onPageChange (data mode): Emitting queryParamsChange:', params);
+      this.queryParamsChange.emit(params);
+    } else {
+      // dataSource mode: fetch directly
+      this.fetchData(true); // User-initiated: clicked pagination
+    }
   }
 
   onPageSizeChange(size: number): void {
     this.pageSize = size;
     this.currentPage = 1; // Reset to first page
     this.savePreferences();
-    this.fetchData(true); // User-initiated: changed page size
+
+    // In data mode, emit event to parent instead of fetching
+    if (this.data !== undefined) {
+      const params: TableQueryParams = {
+        page: this.currentPage,
+        size: this.pageSize,
+        sortBy: this.sortBy,
+        sortOrder: this.sortOrder,
+        filters: this.filters,
+      };
+      console.log('📄 onPageSizeChange (data mode): Emitting queryParamsChange:', params);
+      this.queryParamsChange.emit(params);
+    } else {
+      // dataSource mode: fetch directly
+      this.fetchData(true); // User-initiated: changed page size
+    }
   }
 
   // ========== SORTING ==========
@@ -447,7 +492,22 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
       this.sortBy = columnKey;
       this.sortOrder = 'asc';
     }
-    this.fetchData(true); // User-initiated: clicked column header
+
+    // In data mode, emit event to parent instead of fetching
+    if (this.data !== undefined) {
+      const params: TableQueryParams = {
+        page: this.currentPage,
+        size: this.pageSize,
+        sortBy: this.sortBy,
+        sortOrder: this.sortOrder,
+        filters: this.filters,
+      };
+      console.log('📄 onSort (data mode): Emitting queryParamsChange:', params);
+      this.queryParamsChange.emit(params);
+    } else {
+      // dataSource mode: fetch directly
+      this.fetchData(true); // User-initiated: clicked column header
+    }
   }
 
   // ========== FILTERING ==========
@@ -465,7 +525,22 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
   clearFilters(): void {
     this.filters = {};
     this.currentPage = 1;
-    this.fetchData(true); // User-initiated: clicked clear filters
+
+    // In data mode, emit event to parent instead of fetching
+    if (this.data !== undefined) {
+      const params: TableQueryParams = {
+        page: this.currentPage,
+        size: this.pageSize,
+        sortBy: this.sortBy,
+        sortOrder: this.sortOrder,
+        filters: this.filters,
+      };
+      console.log('📄 clearFilters (data mode): Emitting queryParamsChange:', params);
+      this.queryParamsChange.emit(params);
+    } else {
+      // dataSource mode: fetch directly
+      this.fetchData(true); // User-initiated: clicked clear filters
+    }
   }
 
   // ========== COLUMN MANAGEMENT ==========
