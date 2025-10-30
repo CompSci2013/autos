@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil, map } from 'rxjs/operators';
 import { StateManagementService } from '../../../core/services/state-management.service';
+import { RequestCoordinatorService } from '../../../core/services/request-coordinator.service';
 import { ApiService } from '../../../services/api.service';
 import { VehicleResult, VehicleInstance, SearchFilters } from '../../../models';
 import { TableColumn, TableQueryParams } from '../../../shared/models';
@@ -116,10 +117,14 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
 
   constructor(
     private stateService: StateManagementService,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private requestCoordinator: RequestCoordinatorService
   ) {
-    // Initialize data source adapter
-    this.dataSource = new VehicleDataSourceAdapter(this.apiService);
+    // Initialize data source adapter with RequestCoordinator for deduplication
+    this.dataSource = new VehicleDataSourceAdapter(
+      this.apiService,
+      this.requestCoordinator
+    );
   }
 
   ngOnInit(): void {
