@@ -230,6 +230,14 @@ export class QueryControlComponent implements OnInit {
     // Just trigger change detection - filteredManufacturers getter handles the filtering
   }
 
+  clearManufacturerSearch(): void {
+    this.manufacturerSearchTerm = '';
+    // Re-focus the search input after clearing
+    setTimeout(() => {
+      this.searchInput?.nativeElement?.focus();
+    }, 0);
+  }
+
   toggleManufacturer(manufacturer: string): void {
     const index = this.tempSelectedManufacturers.indexOf(manufacturer);
     if (index === -1) {

@@ -115,7 +115,7 @@
         </div>
 
         <!-- Search Input -->
-        <nz-input-group [nzPrefix]="prefixIconSearch" class="search-input">
+        <nz-input-group [nzPrefix]="prefixIconSearch" [nzSuffix]="suffixClearButton" class="search-input">
           <input
             nz-input
             placeholder="Type to search manufacturers..."
@@ -126,6 +126,18 @@
         </nz-input-group>
         <ng-template #prefixIconSearch>
           <i nz-icon nzType="search"></i>
+        </ng-template>
+        <ng-template #suffixClearButton>
+          <button
+            nz-button
+            nzType="text"
+            nzSize="small"
+            *ngIf="manufacturerSearchTerm"
+            (click)="clearManufacturerSearch()"
+            class="clear-button"
+          >
+            <i nz-icon nzType="close-circle" nzTheme="fill"></i>
+          </button>
         </ng-template>
 
         <nz-spin [nzSpinning]="isLoadingManufacturers">

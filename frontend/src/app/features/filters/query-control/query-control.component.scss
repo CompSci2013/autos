@@ -107,6 +107,24 @@
     input {
       font-size: 14px;
     }
+
+    .clear-button {
+      display: flex;
+      align-items: center;
+      padding: 0;
+      height: 20px;
+      cursor: pointer;
+      color: rgba(0, 0, 0, 0.45);
+      transition: color 0.3s;
+
+      &:hover {
+        color: rgba(0, 0, 0, 0.85);
+      }
+
+      i {
+        font-size: 14px;
+      }
+    }
   }
 
   .manufacturer-list {
