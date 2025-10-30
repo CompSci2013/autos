@@ -23,25 +23,13 @@ export class VehicleDataSourceAdapter implements TableDataSource<VehicleResult> 
   /**
    * Fetch vehicle results from API
    * Transforms API response to match TableResponse interface
-   * 
+   *
    * @param params Query parameters from BaseDataTableComponent
    * @returns Observable of table response with vehicle results
+   *
+   * Note: If modelsParam is empty, API will return all vehicles (filtered by other criteria)
    */
   fetch(params: TableQueryParams): Observable<TableResponse<VehicleResult>> {
-    // Don't fetch if no models selected
-    if (!this.modelsParam) {
-      return new Observable((observer) => {
-        observer.next({
-          results: [],
-          total: 0,
-          page: params.page,
-          size: params.size,
-          totalPages: 0,
-        });
-        observer.complete();
-      });
-    }
-
     // Extract filters from params
     const filters = params.filters || {};
 

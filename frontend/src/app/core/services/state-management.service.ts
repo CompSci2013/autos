@@ -299,10 +299,10 @@ export class StateManagementService implements OnDestroy {
   fetchVehicleData(): Observable<VehicleDetailsResponse> {
     const filters = this.getCurrentFilters();
 
-    // Don't make API call if no models selected
-    if (!filters.modelCombos || filters.modelCombos.length === 0) {
-      return throwError(() => new Error('No models selected'));
-    }
+    // Build models param (empty string if no models selected - returns all vehicles)
+    const modelsParam = filters.modelCombos && filters.modelCombos.length > 0
+      ? this.buildModelsParam(filters.modelCombos)
+      : '';
 
     // Build unique cache key from filters
     const cacheKey = this.buildCacheKey('vehicle-details', filters);
@@ -313,7 +313,7 @@ export class StateManagementService implements OnDestroy {
         cacheKey,
         () =>
           this.apiService.getVehicleDetails(
-            this.buildModelsParam(filters.modelCombos),
+            modelsParam,
             filters.page || 1,
             filters.size || 20,
             this.buildFilterParams(filters),

@@ -47,9 +47,13 @@ export class ApiService {
     sortOrder?: 'asc' | 'desc'
   ): Observable<VehicleDetailsResponse> {
     let params = new HttpParams()
-      .set('models', models)
       .set('page', page.toString())
       .set('size', size.toString());
+
+    // Only set models param if not empty (empty = return all vehicles)
+    if (models && models.trim() !== '') {
+      params = params.set('models', models);
+    }
 
     // Add filter parameters if provided
     if (filters) {
