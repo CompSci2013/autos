@@ -97,21 +97,8 @@ export class TablePickerComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnInit(): void {
     console.log('TablePickerComponent: Initialized');
-
-    // Subscribe to data source to know when data is loaded
-    // This ensures hydration happens AFTER data is available
-    this.dataSource.fetch(this.tableQueryParams).pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(() => {
-      this.dataLoaded = true;
-      console.log('TablePickerComponent: Data loaded, applying pending hydration');
-
-      // Apply any pending hydration
-      if (this.pendingHydration.length > 0) {
-        this.hydrateSelections();
-        this.cdr.markForCheck();
-      }
-    });
+    // Data loading is handled by BaseDataTable
+    // We listen to (dataLoaded) event in template to know when data arrives
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -177,6 +164,21 @@ export class TablePickerComponent implements OnInit, OnDestroy, OnChanges {
     console.log(
       `TablePickerComponent: Hydrated ${this.pendingHydration.length} selections from URL state`
     );
+  }
+
+  /**
+   * Handle data loaded event from BaseDataTable
+   * Called when data fetch completes successfully
+   */
+  onDataLoaded(): void {
+    this.dataLoaded = true;
+    console.log('TablePickerComponent: Data loaded event received');
+
+    // Apply any pending hydration
+    if (this.pendingHydration.length > 0) {
+      this.hydrateSelections();
+      this.cdr.markForCheck();
+    }
   }
 
   /**

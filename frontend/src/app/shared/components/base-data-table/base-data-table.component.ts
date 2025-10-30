@@ -65,6 +65,9 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
   /** Emits when query parameters change */
   @Output() queryParamsChange = new EventEmitter<TableQueryParams>();
 
+  /** Emits when data is successfully loaded */
+  @Output() dataLoaded = new EventEmitter<void>();
+
   /** Emits when a row is expanded */
   @Output() rowExpand = new EventEmitter<T>();
 
@@ -287,13 +290,16 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
           // Trigger change detection (required for OnPush strategy)
           this.cdr.markForCheck();
 
+          // Always emit dataLoaded (for components that need to know when data arrives)
+          this.dataLoaded.emit();
+
           // Only emit to parent if this was user-initiated (not hydration)
           // Prevents circular feedback loop with ResultsTableComponent
           if (userInitiated) {
             console.log('✅ User-initiated fetch complete, emitting queryParamsChange');
             this.queryParamsChange.emit(params);
           } else {
-            console.log('⏭️ Hydration fetch complete, NOT emitting (prevents circular loop)');
+            console.log('⏭️ Hydration fetch complete, NOT emitting queryParamsChange (prevents circular loop)');
           }
         },
         error: (error) => {

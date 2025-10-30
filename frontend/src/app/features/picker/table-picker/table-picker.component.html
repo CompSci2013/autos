@@ -7,6 +7,7 @@
     [queryParams]="tableQueryParams"
     [maxTableHeight]="'400px'"
     [showColumnManagement]="false"
+    (dataLoaded)="onDataLoaded()"
     (queryParamsChange)="onTableQueryChange($event)"
   >
     <!-- Custom cell rendering for flat rows -->
