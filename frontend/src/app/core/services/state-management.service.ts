@@ -211,21 +211,13 @@ export class StateManagementService implements OnDestroy {
     this.updateState({ filters: newFilters });
     this.syncStateToUrl();
 
-    // Trigger API search if we have model selections
-    if (newFilters.modelCombos && newFilters.modelCombos.length > 0) {
-      console.log('🔵 Triggering fetchVehicleData()');
-      this.fetchVehicleData().subscribe({
-        next: () => console.log('🟢 Data fetched successfully'),
-        error: (err) => console.error('🔴 Fetch failed:', err),
-      });
-    } else {
-      console.log('🔵 No models selected, clearing results');
-      this.updateState({
-        results: [],
-        totalResults: 0,
-        error: null,
-      });
-    }
+    // Always trigger API search (supports both filtered and unfiltered queries)
+    // Backend supports empty modelCombos (returns all vehicles)
+    console.log('🔵 Triggering fetchVehicleData()');
+    this.fetchVehicleData().subscribe({
+      next: () => console.log('🟢 Data fetched successfully'),
+      error: (err) => console.error('🔴 Fetch failed:', err),
+    });
   }
   /**
    * Update pagination and sync to URL
@@ -237,10 +229,8 @@ export class StateManagementService implements OnDestroy {
     this.updateState({ filters: newFilters });
     this.syncStateToUrl();
 
-    // Trigger API search
-    if (newFilters.modelCombos && newFilters.modelCombos.length > 0) {
-      this.fetchVehicleData().subscribe();
-    }
+    // Always trigger API search (supports both filtered and unfiltered)
+    this.fetchVehicleData().subscribe();
   }
 
   /**
@@ -258,10 +248,8 @@ export class StateManagementService implements OnDestroy {
     this.updateState({ filters: newFilters });
     this.syncStateToUrl();
 
-    // Trigger API search
-    if (newFilters.modelCombos && newFilters.modelCombos.length > 0) {
-      this.fetchVehicleData().subscribe();
-    }
+    // Always trigger API search (supports both filtered and unfiltered)
+    this.fetchVehicleData().subscribe();
   }
 
   /**

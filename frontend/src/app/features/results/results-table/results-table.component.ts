@@ -10,11 +10,30 @@ import { VehicleDataSourceAdapter } from './vehicle-data-source.adapter';
 /**
  * Results-Table Component
  *
- * First implementation using BaseDataTableComponent.
- * Demonstrates proper data source adapter pattern and state management integration.
+ * Displays vehicle search results with pagination, sorting, and row expansion.
+ * Uses BaseDataTableComponent for consistent table behavior.
  *
- * This component is placed on the Workshop page ABOVE the grid container
- * to showcase the reusable base table in action.
+ * STATE OWNERSHIP (Angular Best Practice - Single Responsibility):
+ * ----------------------------------------------------------------
+ * This component READS filter state but NEVER WRITES it.
+ * Only Query Control component writes filter state.
+ *
+ * Writes (owns):
+ *   - page: Current page number
+ *   - size: Results per page
+ *   - sort: Sort column
+ *   - sortDirection: Sort order (asc/desc)
+ *
+ * Reads (does not own):
+ *   - manufacturer: Filter by manufacturer (Query Control)
+ *   - model: Filter by model (Query Control)
+ *   - yearMin/yearMax: Year range filter (Query Control)
+ *   - bodyClass: Body class filter (Query Control)
+ *   - dataSource: Data source filter (Query Control)
+ *   - modelCombos: Selected manufacturer-model pairs (Picker)
+ *
+ * This clear separation prevents state conflicts and follows the
+ * Single Responsibility Principle.
  */
 @Component({
   selector: 'app-results-table',
@@ -154,50 +173,28 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
 
   /**
    * Handle table query changes (user interactions)
-   * Convert TableQueryParams → SearchFilters and update state
+   *
+   * IMPORTANT: Results table only manages pagination and sort state.
+   * Filter state is owned exclusively by Query Control component.
+   * This follows Angular best practices for state ownership and single responsibility.
+   *
+   * State Ownership:
+   * - Results Table: page, size, sort, sortDirection
+   * - Query Control: manufacturer, model, year, bodyClass, dataSource
    */
   onTableQueryChange(params: TableQueryParams): void {
-    console.log('ResultsTable: Table query changed:', params);
+    console.log('ResultsTable: Table query changed (pagination/sort only):', params);
 
-    // Use bracket notation for optional filters
-    const filters = params.filters || {};
-
-    // Only update filters that are defined (don't overwrite with undefined)
-    const updates: any = {
+    // Only update pagination and sort - never filters
+    // Filters are owned by Query Control and read-only for this component
+    this.stateService.updateFilters({
       page: params.page,
       size: params.size,
-    };
-
-    // Only include sort params if defined
-    if (params.sortBy !== undefined) {
-      updates.sort = params.sortBy;
-    }
-    if (params.sortOrder !== undefined) {
-      updates.sortDirection = params.sortOrder;
-    }
-
-    // Only include filter params if they exist in the params
-    // This prevents overwriting Query Control filters with undefined
-    if ('manufacturer' in filters && filters['manufacturer'] !== undefined) {
-      updates.manufacturer = filters['manufacturer'];
-    }
-    if ('model' in filters && filters['model'] !== undefined) {
-      updates.model = filters['model'];
-    }
-    if ('yearMin' in filters && filters['yearMin'] !== undefined) {
-      updates.yearMin = filters['yearMin'];
-    }
-    if ('yearMax' in filters && filters['yearMax'] !== undefined) {
-      updates.yearMax = filters['yearMax'];
-    }
-    if ('bodyClass' in filters && filters['bodyClass'] !== undefined) {
-      updates.bodyClass = filters['bodyClass'];
-    }
-    if ('dataSource' in filters && filters['dataSource'] !== undefined) {
-      updates.dataSource = filters['dataSource'];
-    }
-
-    this.stateService.updateFilters(updates);
+      sort: params.sortBy || undefined,
+      sortDirection: params.sortOrder || undefined,
+      // Explicitly do NOT update filter properties here
+      // Query Control is the sole owner of filter state
+    });
   }
 
   /**
