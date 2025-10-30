@@ -77,6 +77,7 @@ export class QueryControlComponent implements OnInit {
   /** Dialog visibility */
   rangeDialogVisible = false;
   stringDialogVisible = false;
+  manufacturerDialogVisible = false;
 
   /** Dialog values */
   rangeMin?: number;
@@ -98,6 +99,9 @@ export class QueryControlComponent implements OnInit {
   selectedModelsArray: string[] = [];
   selectedBodyClassesArray: string[] = [];
   selectedDataSourcesArray: string[] = [];
+
+  // Temporary staging for dialog selections (before Apply)
+  tempSelectedManufacturers: string[] = [];
 
   // Loading states
   isLoadingManufacturers = false;
@@ -134,10 +138,11 @@ export class QueryControlComponent implements OnInit {
         this.rangeDialogVisible = true;
       }
     } else if (field.type === 'multiselect') {
-      // Load appropriate dropdown data
+      // Show manufacturer dialog
       if (field.key === 'manufacturer') {
-        this.selectedManufacturersArray = [];
         this.loadManufacturers();
+        this.tempSelectedManufacturers = [...this.selectedManufacturersArray]; // Copy current selections
+        this.manufacturerDialogVisible = true;
       }
     } else if (field.type === 'string' || field.type === 'number') {
       this.stringValue = undefined;
@@ -194,6 +199,46 @@ export class QueryControlComponent implements OnInit {
     this.selectedField = undefined;
     this.currentField = undefined;
     this.stringValue = undefined;
+  }
+
+  // ========== MANUFACTURER MULTI-SELECT DIALOG ==========
+
+  toggleManufacturer(manufacturer: string): void {
+    const index = this.tempSelectedManufacturers.indexOf(manufacturer);
+    if (index === -1) {
+      // Add to selection
+      this.tempSelectedManufacturers.push(manufacturer);
+    } else {
+      // Remove from selection
+      this.tempSelectedManufacturers.splice(index, 1);
+    }
+  }
+
+  onManufacturerDialogOk(): void {
+    if (!this.currentField) return;
+
+    // Apply temporary selections to actual array
+    this.selectedManufacturersArray = [...this.tempSelectedManufacturers];
+
+    const filter: QueryFilter = {
+      field: this.currentField.key,
+      fieldLabel: this.currentField.label,
+      type: 'multiselect',
+      values: this.selectedManufacturersArray,
+    };
+
+    this.filterAdd.emit(filter);
+    this.manufacturerDialogVisible = false;
+    this.selectedField = undefined;
+    this.currentField = undefined;
+  }
+
+  onManufacturerDialogCancel(): void {
+    // Discard temporary selections
+    this.tempSelectedManufacturers = [];
+    this.manufacturerDialogVisible = false;
+    this.selectedField = undefined;
+    this.currentField = undefined;
   }
 
   // ========== VALIDATION ==========
@@ -382,20 +427,4 @@ export class QueryControlComponent implements OnInit {
       });
   }
 
-  // ========== SELECTION CHANGE HANDLERS ==========
-
-  onManufacturerSelectionChange(): void {
-    if (!this.currentField) return;
-
-    console.log('Manufacturer selection changed:', this.selectedManufacturersArray);
-
-    const filter: QueryFilter = {
-      field: this.currentField.key,
-      fieldLabel: this.currentField.label,
-      type: 'multiselect',
-      values: this.selectedManufacturersArray,
-    };
-
-    this.filterAdd.emit(filter);
-  }
 }

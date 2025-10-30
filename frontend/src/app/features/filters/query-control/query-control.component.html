@@ -15,32 +15,6 @@
         [nzLabel]="field.label"
       ></nz-option>
     </nz-select>
-
-    <!-- Manufacturer Multi-Select Dropdown with Checkboxes -->
-    <nz-select
-      *ngIf="selectedField === 'manufacturer'"
-      class="value-selector"
-      nzMode="multiple"
-      nzPlaceHolder="Select manufacturers (Ford, Chevrolet, etc.)..."
-      nzShowSearch
-      nzAllowClear
-      [nzMaxTagCount]="3"
-      [(ngModel)]="selectedManufacturersArray"
-      (ngModelChange)="onManufacturerSelectionChange()"
-      [nzLoading]="isLoadingManufacturers"
-      nzNotFoundContent="No manufacturers found"
-    >
-      <nz-option
-        *ngFor="let manufacturer of manufacturerList"
-        [nzValue]="manufacturer"
-        [nzLabel]="manufacturer"
-        nzCustomContent
-      >
-        <label nz-checkbox [ngModel]="selectedManufacturersArray.indexOf(manufacturer) !== -1" style="width: 100%; margin: 0;">
-          {{ manufacturer }}
-        </label>
-      </nz-option>
-    </nz-select>
   </div>
 
   <!-- Range Input Dialog (for year, etc.) -->
@@ -120,6 +94,51 @@
             (keyup.enter)="isStringValid() && onStringDialogOk()"
           />
         </nz-input-group>
+      </div>
+    </ng-container>
+  </nz-modal>
+
+  <!-- Manufacturer Multi-Select Dialog -->
+  <nz-modal
+    [(nzVisible)]="manufacturerDialogVisible"
+    nzTitle="Select Manufacturers"
+    nzWidth="600px"
+    (nzOnOk)="onManufacturerDialogOk()"
+    (nzOnCancel)="onManufacturerDialogCancel()"
+    nzOkText="Apply"
+    nzCancelText="Cancel"
+  >
+    <ng-container *nzModalContent>
+      <div class="manufacturer-dialog-content">
+        <div class="field-info">
+          <p class="field-description">Select one or more manufacturers to filter results.</p>
+        </div>
+
+        <nz-spin [nzSpinning]="isLoadingManufacturers">
+          <div class="manufacturer-list">
+            <div
+              *ngFor="let manufacturer of manufacturerList"
+              class="manufacturer-item"
+              (click)="toggleManufacturer(manufacturer)"
+            >
+              <label nz-checkbox
+                [ngModel]="tempSelectedManufacturers.indexOf(manufacturer) !== -1"
+                (ngModelChange)="toggleManufacturer(manufacturer)"
+                (click)="$event.stopPropagation()"
+              >
+                {{ manufacturer }}
+              </label>
+            </div>
+          </div>
+          <div *ngIf="manufacturerList.length === 0 && !isLoadingManufacturers" class="no-data">
+            No manufacturers found
+          </div>
+        </nz-spin>
+
+        <div class="selection-summary" *ngIf="tempSelectedManufacturers.length > 0">
+          <strong>Selected ({{ tempSelectedManufacturers.length }}):</strong>
+          {{ tempSelectedManufacturers.join(', ') }}
+        </div>
       </div>
     </ng-container>
   </nz-modal>
