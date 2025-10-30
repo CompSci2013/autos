@@ -144,7 +144,8 @@ export class DiscoverComponent implements OnInit, OnDestroy {
     } else {
       // Initialize with default panels
       this.grids[0].items = [
-        { cols: 2, rows: 3, y: 0, x: 0, id: 'picker-1', panelType: 'picker' }
+        { cols: 2, rows: 2, y: 0, x: 0, id: 'query-control-1', panelType: 'query-control' },
+        { cols: 2, rows: 4, y: 2, x: 0, id: 'picker-1', panelType: 'picker' }
       ];
       this.grids[1].items = [
         { cols: 2, rows: 3, y: 0, x: 0, id: 'results-1', panelType: 'results' }

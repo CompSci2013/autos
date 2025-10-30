@@ -1,19 +1,39 @@
 <div class="query-control">
-  <!-- Field Selector Dropdown -->
-  <nz-select
-    class="field-selector"
-    nzPlaceHolder="Add filter by field..."
-    nzShowSearch
-    nzAllowClear
-    [(ngModel)]="selectedField"
-    (ngModelChange)="onFieldSelect($event)"
-  >
-    <nz-option
-      *ngFor="let field of queryFields"
-      [nzValue]="field.key"
-      [nzLabel]="field.label"
-    ></nz-option>
-  </nz-select>
+  <div class="query-control-row">
+    <!-- Field Selector Dropdown -->
+    <nz-select
+      class="field-selector"
+      nzPlaceHolder="Add filter by field..."
+      nzShowSearch
+      nzAllowClear
+      [(ngModel)]="selectedField"
+      (ngModelChange)="onFieldSelect($event)"
+    >
+      <nz-option
+        *ngFor="let field of queryFields"
+        [nzValue]="field.key"
+        [nzLabel]="field.label"
+      ></nz-option>
+    </nz-select>
+
+    <!-- Manufacturer Multi-Select Dropdown -->
+    <nz-select
+      *ngIf="selectedField === 'manufacturer'"
+      class="value-selector"
+      nzMode="multiple"
+      nzPlaceHolder="Select manufacturers..."
+      nzShowSearch
+      [(ngModel)]="selectedManufacturersArray"
+      (ngModelChange)="onManufacturerSelectionChange()"
+      [nzLoading]="isLoadingManufacturers"
+    >
+      <nz-option
+        *ngFor="let manufacturer of filteredManufacturerList"
+        [nzValue]="manufacturer"
+        [nzLabel]="manufacturer"
+      ></nz-option>
+    </nz-select>
+  </div>
 
   <!-- Range Input Dialog (for year, etc.) -->
   <nz-modal
@@ -92,71 +112,6 @@
             (keyup.enter)="isStringValid() && onStringDialogOk()"
           />
         </nz-input-group>
-      </div>
-    </ng-container>
-  </nz-modal>
-
-  <!-- Manufacturer Multi-Select Dialog -->
-  <nz-modal
-    [(nzVisible)]="manufacturerDialogVisible"
-    [nzTitle]="'Filter by ' + currentField?.label"
-    [nzOkDisabled]="!isManufacturerValid()"
-    (nzOnOk)="onManufacturerDialogOk()"
-    (nzOnCancel)="onManufacturerDialogCancel()"
-    nzOkText="Apply"
-    nzCancelText="Cancel"
-    [nzWidth]="500"
-  >
-    <ng-container *nzModalContent>
-      <div class="manufacturer-dialog-content">
-        <div class="field-info">
-          <label class="field-label">{{ currentField?.label }}</label>
-          <p class="field-description">
-            Select one or more manufacturers to filter results. Use search to quickly find manufacturers.
-          </p>
-        </div>
-
-        <!-- Search Input -->
-        <nz-input-group [nzPrefix]="searchIcon" class="search-input">
-          <input
-            nz-input
-            [(ngModel)]="manufacturerSearchText"
-            (ngModelChange)="onManufacturerSearch($event)"
-            placeholder="Search manufacturers..."
-          />
-        </nz-input-group>
-        <ng-template #searchIcon>
-          <i nz-icon nzType="search" nzTheme="outline"></i>
-        </ng-template>
-
-        <!-- Selection Summary -->
-        <div class="selection-summary" *ngIf="selectedManufacturers.size > 0">
-          <span class="summary-text">
-            {{ selectedManufacturers.size }} manufacturer(s) selected
-          </span>
-        </div>
-
-        <!-- Manufacturer List with Checkboxes -->
-        <div class="manufacturer-list-container">
-          <nz-spin [nzSpinning]="isLoadingManufacturers">
-            <div class="manufacturer-list">
-              <div
-                *ngFor="let manufacturer of filteredManufacturerList"
-                class="manufacturer-item"
-                (click)="toggleManufacturer(manufacturer)"
-              >
-                <label nz-checkbox [nzChecked]="isManufacturerSelected(manufacturer)" (click)="$event.stopPropagation()">
-                  {{ manufacturer }}
-                </label>
-              </div>
-
-              <nz-empty
-                *ngIf="filteredManufacturerList.length === 0 && !isLoadingManufacturers"
-                nzNotFoundContent="No manufacturers found"
-              ></nz-empty>
-            </div>
-          </nz-spin>
-        </div>
       </div>
     </ng-container>
   </nz-modal>

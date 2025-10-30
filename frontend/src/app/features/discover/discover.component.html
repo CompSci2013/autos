@@ -29,7 +29,12 @@
             <div class="panel-header drag-handle">
               <span class="panel-title">
                 <i nz-icon nzType="drag" nzTheme="outline"></i>
-                {{ item.panelType === 'picker' ? 'Model Picker' : 'Vehicle Results' }}
+                <ng-container [ngSwitch]="item.panelType">
+                  <ng-container *ngSwitchCase="'picker'">Model Picker</ng-container>
+                  <ng-container *ngSwitchCase="'results'">Vehicle Results</ng-container>
+                  <ng-container *ngSwitchCase="'query-control'">Query Control</ng-container>
+                  <ng-container *ngSwitchDefault>Panel</ng-container>
+                </ng-container>
               </span>
               <div class="panel-actions">
                 <i
@@ -51,12 +56,10 @@
             </div>
             <div class="panel-content no-drag" [hidden]="item.panelType === 'picker' && getPanelCollapseState(grid.id)">
               <!-- Dynamic panel content based on panelType -->
+              <div *ngIf="item.panelType === 'query-control'">
+                <app-query-control (filterAdd)="onFilterAdd($event)"></app-query-control>
+              </div>
               <div *ngIf="item.panelType === 'picker'">
-                <!-- Query Control (only in left grid) -->
-                <div *ngIf="grid.id === 'grid-0'" class="query-control-wrapper">
-                  <app-query-control (filterAdd)="onFilterAdd($event)"></app-query-control>
-                </div>
-
                 <app-table-picker
                   [initialSelections]="pickerInitialSelections"
                   [clearTrigger]="pickerClearTrigger"
