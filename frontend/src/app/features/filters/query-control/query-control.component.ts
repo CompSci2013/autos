@@ -1,5 +1,6 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { ApiService } from '../../../services/api.service';
+import { RequestCoordinatorService } from '../../../core/services/request-coordinator.service';
 
 /**
  * Field definition for query control dropdown
@@ -85,14 +86,32 @@ export class QueryControlComponent implements OnInit {
   /** Currently selected field definition */
   currentField?: QueryField;
 
-  // Manufacturer multi-select state
+  // Filter data lists (loaded on-demand)
   manufacturerList: string[] = [];
+  modelList: string[] = [];
+  bodyClassList: string[] = [];
+  dataSourceList: string[] = [];
+  yearRange: { min: number; max: number } | null = null;
+
+  // Selected values
   selectedManufacturersArray: string[] = [];
+  selectedModelsArray: string[] = [];
+  selectedBodyClassesArray: string[] = [];
+  selectedDataSourcesArray: string[] = [];
+
+  // Loading states
   isLoadingManufacturers = false;
+  isLoadingModels = false;
+  isLoadingBodyClasses = false;
+  isLoadingDataSources = false;
+  isLoadingYearRange = false;
 
   // ========== LIFECYCLE ==========
 
-  constructor(private apiService: ApiService) {}
+  constructor(
+    private apiService: ApiService,
+    private requestCoordinator: RequestCoordinatorService
+  ) {}
 
   ngOnInit(): void {
     // Manufacturers loaded on-demand when field is selected
@@ -106,15 +125,18 @@ export class QueryControlComponent implements OnInit {
 
     this.currentField = field;
 
-    // Show appropriate dialog based on field type
+    // Load data on-demand based on field type
     if (field.type === 'range') {
-      this.rangeMin = undefined;
-      this.rangeMax = undefined;
-      this.rangeDialogVisible = true;
+      if (field.key === 'year') {
+        this.loadYearRange();
+        this.rangeMin = undefined;
+        this.rangeMax = undefined;
+        this.rangeDialogVisible = true;
+      }
     } else if (field.type === 'multiselect') {
-      // Manufacturer dropdown - load data from API and clear selections
-      this.selectedManufacturersArray = [];
+      // Load appropriate dropdown data
       if (field.key === 'manufacturer') {
+        this.selectedManufacturersArray = [];
         this.loadManufacturers();
       }
     } else if (field.type === 'string' || field.type === 'number') {
@@ -198,29 +220,169 @@ export class QueryControlComponent implements OnInit {
     return !!this.stringValue && this.stringValue.trim().length > 0;
   }
 
-  // ========== MANUFACTURER MULTI-SELECT DROPDOWN ==========
+  // ========== FILTER DATA LOADING (ON-DEMAND WITH CACHING) ==========
 
   loadManufacturers(): void {
+    if (this.manufacturerList.length > 0) {
+      console.log('Manufacturers already loaded from cache');
+      return; // Already loaded
+    }
+
     this.isLoadingManufacturers = true;
     console.log('Loading manufacturers from API...');
 
-    // Fetch all manufacturers (use large page size to get all)
-    this.apiService.getManufacturerModelCombinations(1, 10000).subscribe({
-      next: (response) => {
-        // Extract unique manufacturers (using Set for safety) and sort alphabetically
-        const uniqueManufacturers = Array.from(
-          new Set(response.data.map((item) => item.manufacturer))
-        );
-        this.manufacturerList = uniqueManufacturers.sort((a, b) => a.localeCompare(b));
-        this.isLoadingManufacturers = false;
-        console.log('Loaded manufacturers:', this.manufacturerList.length, 'unique values');
-      },
-      error: (error) => {
-        console.error('Error loading manufacturers:', error);
-        this.isLoadingManufacturers = false;
-      },
-    });
+    this.requestCoordinator
+      .execute(
+        'filters/manufacturers',
+        () => this.apiService.getDistinctManufacturers(),
+        {
+          cacheTime: 300000, // Cache for 5 minutes
+          deduplication: true,
+          retryAttempts: 2,
+        }
+      )
+      .subscribe({
+        next: (response) => {
+          this.manufacturerList = response.manufacturers;
+          this.isLoadingManufacturers = false;
+          console.log('Loaded manufacturers:', this.manufacturerList.length);
+        },
+        error: (error) => {
+          console.error('Error loading manufacturers:', error);
+          this.isLoadingManufacturers = false;
+        },
+      });
   }
+
+  loadModels(): void {
+    if (this.modelList.length > 0) {
+      console.log('Models already loaded from cache');
+      return; // Already loaded
+    }
+
+    this.isLoadingModels = true;
+    console.log('Loading models from API...');
+
+    this.requestCoordinator
+      .execute(
+        'filters/models',
+        () => this.apiService.getDistinctModels(),
+        {
+          cacheTime: 300000, // Cache for 5 minutes
+          deduplication: true,
+          retryAttempts: 2,
+        }
+      )
+      .subscribe({
+        next: (response) => {
+          this.modelList = response.models;
+          this.isLoadingModels = false;
+          console.log('Loaded models:', this.modelList.length);
+        },
+        error: (error) => {
+          console.error('Error loading models:', error);
+          this.isLoadingModels = false;
+        },
+      });
+  }
+
+  loadBodyClasses(): void {
+    if (this.bodyClassList.length > 0) {
+      console.log('Body classes already loaded from cache');
+      return; // Already loaded
+    }
+
+    this.isLoadingBodyClasses = true;
+    console.log('Loading body classes from API...');
+
+    this.requestCoordinator
+      .execute(
+        'filters/body-classes',
+        () => this.apiService.getDistinctBodyClasses(),
+        {
+          cacheTime: 300000, // Cache for 5 minutes
+          deduplication: true,
+          retryAttempts: 2,
+        }
+      )
+      .subscribe({
+        next: (response) => {
+          this.bodyClassList = response.body_classes;
+          this.isLoadingBodyClasses = false;
+          console.log('Loaded body classes:', this.bodyClassList.length);
+        },
+        error: (error) => {
+          console.error('Error loading body classes:', error);
+          this.isLoadingBodyClasses = false;
+        },
+      });
+  }
+
+  loadDataSources(): void {
+    if (this.dataSourceList.length > 0) {
+      console.log('Data sources already loaded from cache');
+      return; // Already loaded
+    }
+
+    this.isLoadingDataSources = true;
+    console.log('Loading data sources from API...');
+
+    this.requestCoordinator
+      .execute(
+        'filters/data-sources',
+        () => this.apiService.getDistinctDataSources(),
+        {
+          cacheTime: 300000, // Cache for 5 minutes
+          deduplication: true,
+          retryAttempts: 2,
+        }
+      )
+      .subscribe({
+        next: (response) => {
+          this.dataSourceList = response.data_sources;
+          this.isLoadingDataSources = false;
+          console.log('Loaded data sources:', this.dataSourceList.length);
+        },
+        error: (error) => {
+          console.error('Error loading data sources:', error);
+          this.isLoadingDataSources = false;
+        },
+      });
+  }
+
+  loadYearRange(): void {
+    if (this.yearRange !== null) {
+      console.log('Year range already loaded from cache');
+      return; // Already loaded
+    }
+
+    this.isLoadingYearRange = true;
+    console.log('Loading year range from API...');
+
+    this.requestCoordinator
+      .execute(
+        'filters/year-range',
+        () => this.apiService.getYearRange(),
+        {
+          cacheTime: 300000, // Cache for 5 minutes
+          deduplication: true,
+          retryAttempts: 2,
+        }
+      )
+      .subscribe({
+        next: (response) => {
+          this.yearRange = response;
+          this.isLoadingYearRange = false;
+          console.log('Loaded year range:', this.yearRange);
+        },
+        error: (error) => {
+          console.error('Error loading year range:', error);
+          this.isLoadingYearRange = false;
+        },
+      });
+  }
+
+  // ========== SELECTION CHANGE HANDLERS ==========
 
   onManufacturerSelectionChange(): void {
     if (!this.currentField) return;

@@ -260,7 +260,149 @@ async function getVehicleDetails(options = {}) {
   }
 }
 
+/**
+ * Get distinct manufacturers for filter dropdown
+ * @returns {Array} - Sorted array of manufacturer names
+ */
+async function getDistinctManufacturers() {
+  try {
+    const response = await esClient.search({
+      index: ELASTICSEARCH_INDEX,
+      size: 0,
+      aggs: {
+        manufacturers: {
+          terms: {
+            field: 'manufacturer.keyword',
+            size: 1000,
+            order: { _key: 'asc' },
+          },
+        },
+      },
+    });
+
+    return response.aggregations.manufacturers.buckets.map((bucket) => bucket.key);
+  } catch (error) {
+    console.error('Error fetching manufacturers:', error);
+    throw new Error(`Failed to fetch manufacturers: ${error.message}`);
+  }
+}
+
+/**
+ * Get distinct models for filter dropdown
+ * @returns {Array} - Sorted array of model names
+ */
+async function getDistinctModels() {
+  try {
+    const response = await esClient.search({
+      index: ELASTICSEARCH_INDEX,
+      size: 0,
+      aggs: {
+        models: {
+          terms: {
+            field: 'model.keyword',
+            size: 2000,
+            order: { _key: 'asc' },
+          },
+        },
+      },
+    });
+
+    return response.aggregations.models.buckets.map((bucket) => bucket.key);
+  } catch (error) {
+    console.error('Error fetching models:', error);
+    throw new Error(`Failed to fetch models: ${error.message}`);
+  }
+}
+
+/**
+ * Get distinct body classes for filter dropdown
+ * @returns {Array} - Sorted array of body class names
+ */
+async function getDistinctBodyClasses() {
+  try {
+    const response = await esClient.search({
+      index: ELASTICSEARCH_INDEX,
+      size: 0,
+      aggs: {
+        body_classes: {
+          terms: {
+            field: 'body_class.keyword',
+            size: 100,
+            order: { _key: 'asc' },
+          },
+        },
+      },
+    });
+
+    return response.aggregations.body_classes.buckets.map((bucket) => bucket.key);
+  } catch (error) {
+    console.error('Error fetching body classes:', error);
+    throw new Error(`Failed to fetch body classes: ${error.message}`);
+  }
+}
+
+/**
+ * Get distinct data sources for filter dropdown
+ * @returns {Array} - Sorted array of data source names
+ */
+async function getDistinctDataSources() {
+  try {
+    const response = await esClient.search({
+      index: ELASTICSEARCH_INDEX,
+      size: 0,
+      aggs: {
+        data_sources: {
+          terms: {
+            field: 'data_source.keyword',
+            size: 50,
+            order: { _key: 'asc' },
+          },
+        },
+      },
+    });
+
+    return response.aggregations.data_sources.buckets.map((bucket) => bucket.key);
+  } catch (error) {
+    console.error('Error fetching data sources:', error);
+    throw new Error(`Failed to fetch data sources: ${error.message}`);
+  }
+}
+
+/**
+ * Get year range for filter dropdown
+ * @returns {Object} - {min: number, max: number}
+ */
+async function getYearRange() {
+  try {
+    const response = await esClient.search({
+      index: ELASTICSEARCH_INDEX,
+      size: 0,
+      aggs: {
+        year_stats: {
+          stats: {
+            field: 'year',
+          },
+        },
+      },
+    });
+
+    const stats = response.aggregations.year_stats;
+    return {
+      min: Math.floor(stats.min),
+      max: Math.ceil(stats.max),
+    };
+  } catch (error) {
+    console.error('Error fetching year range:', error);
+    throw new Error(`Failed to fetch year range: ${error.message}`);
+  }
+}
+
 module.exports = {
   getManufacturerModelCombinations,
   getVehicleDetails,
+  getDistinctManufacturers,
+  getDistinctModels,
+  getDistinctBodyClasses,
+  getDistinctDataSources,
+  getYearRange,
 };

@@ -98,4 +98,52 @@ export class ApiService {
       { params }
     );
   }
+
+  // ========== FILTER ENDPOINTS ==========
+
+  /**
+   * Unified filter options endpoint
+   * @param fieldName - 'manufacturers', 'models', 'body-classes', 'data-sources', or 'year-range'
+   * @returns Observable with field-specific response format
+   */
+  getFilterOptions(fieldName: string): Observable<any> {
+    return this.http.get<any>(
+      `${this.apiUrl}/filters/${fieldName}`
+    );
+  }
+
+  /**
+   * Convenience method: Get distinct manufacturers
+   */
+  getDistinctManufacturers(): Observable<{ manufacturers: string[] }> {
+    return this.getFilterOptions('manufacturers');
+  }
+
+  /**
+   * Convenience method: Get distinct models
+   */
+  getDistinctModels(): Observable<{ models: string[] }> {
+    return this.getFilterOptions('models');
+  }
+
+  /**
+   * Convenience method: Get distinct body classes
+   */
+  getDistinctBodyClasses(): Observable<{ body_classes: string[] }> {
+    return this.getFilterOptions('body-classes');
+  }
+
+  /**
+   * Convenience method: Get distinct data sources
+   */
+  getDistinctDataSources(): Observable<{ data_sources: string[] }> {
+    return this.getFilterOptions('data-sources');
+  }
+
+  /**
+   * Convenience method: Get year range
+   */
+  getYearRange(): Observable<{ min: number; max: number }> {
+    return this.getFilterOptions('year-range');
+  }
 }

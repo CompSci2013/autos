@@ -1,6 +1,11 @@
 const {
   getManufacturerModelCombinations,
   getVehicleDetails,
+  getDistinctManufacturers,
+  getDistinctModels,
+  getDistinctBodyClasses,
+  getDistinctDataSources,
+  getYearRange,
 } = require('../services/elasticsearchService');
 
 /**
@@ -233,8 +238,58 @@ async function getVehicleInstancesHandler(req, res, next) {
   }
 }
 
+/**
+ * Unified controller for filter options endpoint
+ * GET /api/v1/filters/:fieldName
+ *
+ * Routes to appropriate service function based on fieldName parameter
+ */
+async function getFilterOptionsHandler(req, res, next) {
+  try {
+    const { fieldName } = req.params;
+
+    // Route to appropriate service function
+    switch (fieldName) {
+      case 'manufacturers': {
+        const manufacturers = await getDistinctManufacturers();
+        return res.json({ manufacturers });
+      }
+
+      case 'models': {
+        const models = await getDistinctModels();
+        return res.json({ models });
+      }
+
+      case 'body-classes': {
+        const body_classes = await getDistinctBodyClasses();
+        return res.json({ body_classes });
+      }
+
+      case 'data-sources': {
+        const data_sources = await getDistinctDataSources();
+        return res.json({ data_sources });
+      }
+
+      case 'year-range': {
+        const year_range = await getYearRange();
+        return res.json(year_range);
+      }
+
+      default:
+        return res.status(400).json({
+          error: 'Invalid field name',
+          message: `Field "${fieldName}" is not supported. Valid fields: manufacturers, models, body-classes, data-sources, year-range`,
+        });
+    }
+  } catch (error) {
+    console.error(`Error fetching filter options for ${req.params.fieldName}:`, error);
+    next(error);
+  }
+}
+
 module.exports = {
   getManufacturerModelCombinationsHandler,
   getVehicleDetailsHandler,
   getVehicleInstancesHandler,
+  getFilterOptionsHandler,
 };

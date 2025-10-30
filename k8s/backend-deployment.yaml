@@ -17,13 +17,13 @@ spec:
       labels:
         app: autos-backend
         tier: backend
-        version: v1.2.5
+        version: v1.3.0
     spec:
       nodeSelector:
         kubernetes.io/hostname: thor
       containers:
       - name: backend
-        image: localhost/autos-backend:v1.2.8
+        image: localhost/autos-backend:v1.3.0
         imagePullPolicy: Never
         ports:
         - containerPort: 3000
