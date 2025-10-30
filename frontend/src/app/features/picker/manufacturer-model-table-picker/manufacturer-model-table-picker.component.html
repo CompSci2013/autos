@@ -13,7 +13,7 @@
       />
     </div>
 
-    <!-- Controls Row: Page Size + Expand/Collapse -->
+    <!-- Controls Row: Page Size -->
     <div class="controls-row">
       <!-- Visible Rows Dropdown -->
       <div class="page-size-control">
@@ -29,28 +29,8 @@
           </option>
         </select>
         <span class="total-info"
-          >of {{ filteredGroups.length }} manufacturers</span
+          >of {{ filteredRows.length }} combinations</span
         >
-      </div>
-
-      <!-- Expand/Collapse All Controls -->
-      <div class="expand-controls">
-        <button
-          type="button"
-          class="btn-expand"
-          (click)="expandAll()"
-          title="Expand all manufacturers"
-        >
-          Expand All
-        </button>
-        <button
-          type="button"
-          class="btn-collapse"
-          (click)="collapseAll()"
-          title="Collapse all manufacturers"
-        >
-          Collapse All
-        </button>
       </div>
     </div>
   </div>
@@ -65,7 +45,7 @@
     <div class="table-scroll-wrapper">
       <nz-table
         #vehicleTable
-        [nzData]="visibleGroups"
+        [nzData]="visibleRows"
         [nzShowPagination]="false"
         [nzFrontPagination]="false"
         nzSize="middle"
@@ -77,91 +57,39 @@
           </tr>
         </thead>
         <tbody>
-          <ng-container *ngFor="let group of vehicleTable.data">
-            <!-- COLLAPSED STATE: Single row for this manufacturer -->
-            <ng-container *ngIf="!group.expanded">
-              <tr class="collapsed-row clickable">
-                <td
-                  colspan="2"
-                  (click)="toggleManufacturer(group.manufacturer)"
-                >
-                  <div class="collapsed-content">
-                    <label
-                      nz-checkbox
-                      [nzIndeterminate]="
-                        getParentCheckboxState(group.manufacturer) ===
-                        'indeterminate'
-                      "
-                      [nzChecked]="
-                        getParentCheckboxState(group.manufacturer) === 'checked'
-                      "
-                      (nzCheckedChange)="
-                        onParentCheckboxChange(group.manufacturer, $event)
-                      "
-                      (click)="$event.stopPropagation()"
-                    >
-                      <strong>{{ group.manufacturer }}</strong>
-                    </label>
-                    <span class="selection-info">
-                      ({{ group.models.length }} models,
-                      {{ getSelectedModelCount(group.manufacturer) }} selected)
-                    </span>
-                    <span class="expand-icon">[+]</span>
-                  </div>
-                </td>
-              </tr>
-            </ng-container>
+          <tr *ngFor="let row of vehicleTable.data">
+            <!-- Manufacturer column with checkbox -->
+            <td class="manufacturer-cell">
+              <label
+                nz-checkbox
+                [nzIndeterminate]="
+                  getManufacturerCheckboxState(row.manufacturer) ===
+                  'indeterminate'
+                "
+                [nzChecked]="
+                  getManufacturerCheckboxState(row.manufacturer) === 'checked'
+                "
+                (nzCheckedChange)="
+                  onManufacturerCheckboxChange(row.manufacturer, $event)
+                "
+              >
+                {{ row.manufacturer }}
+              </label>
+            </td>
 
-            <!-- EXPANDED STATE: One row per model (manufacturer repeats) -->
-            <ng-container *ngIf="group.expanded">
-              <tr *ngFor="let model of group.models" class="expanded-row">
-                <!-- Manufacturer cell (repeats on every model row for sorting) -->
-                <td
-                  class="manufacturer-cell clickable"
-                  (click)="toggleManufacturer(group.manufacturer)"
-                >
-                  <div class="manufacturer-content">
-                    <label
-                      nz-checkbox
-                      [nzIndeterminate]="
-                        getParentCheckboxState(group.manufacturer) ===
-                        'indeterminate'
-                      "
-                      [nzChecked]="
-                        getParentCheckboxState(group.manufacturer) === 'checked'
-                      "
-                      (nzCheckedChange)="
-                        onParentCheckboxChange(group.manufacturer, $event)
-                      "
-                      (click)="$event.stopPropagation()"
-                    >
-                      <strong>{{ group.manufacturer }}</strong>
-                    </label>
-                    <span class="collapse-icon">[−]</span>
-                  </div>
-                </td>
-
-                <!-- Model cell -->
-                <td class="model-cell">
-                  <label
-                    nz-checkbox
-                    [nzChecked]="
-                      isModelSelected(group.manufacturer, model.model)
-                    "
-                    (nzCheckedChange)="
-                      onChildCheckboxChange(
-                        group.manufacturer,
-                        model.model,
-                        $event
-                      )
-                    "
-                  >
-                    {{ model.model }}
-                  </label>
-                </td>
-              </tr>
-            </ng-container>
-          </ng-container>
+            <!-- Model column with checkbox -->
+            <td class="model-cell">
+              <label
+                nz-checkbox
+                [nzChecked]="isRowSelected(row)"
+                (nzCheckedChange)="
+                  onModelCheckboxChange(row.manufacturer, row.model, $event)
+                "
+              >
+                {{ row.model }}
+              </label>
+            </td>
+          </tr>
         </tbody>
       </nz-table>
     </div>

@@ -12,8 +12,6 @@ import { ApiService } from '../../../services/api.service';
 import { Subscription } from 'rxjs';
 import {
   PickerRow,
-  ModelDetail,
-  ManufacturerGroup,
   ManufacturerModelSelection,
 } from '../../../models';
 
@@ -32,8 +30,7 @@ export class ManufacturerModelTablePickerComponent
   @Input() initialSelections: ManufacturerModelSelection[] = [];
 
   allRows: PickerRow[] = [];
-  manufacturerGroups: ManufacturerGroup[] = [];
-  filteredGroups: ManufacturerGroup[] = [];
+  filteredRows: PickerRow[] = [];
   selectedRows = new Set<string>();
 
   currentPage: number = 1;
@@ -124,7 +121,6 @@ export class ManufacturerModelTablePickerComponent
             return a.model.localeCompare(b.model);
           });
 
-          this.manufacturerGroups = this.groupByManufacturer(this.allRows);
           this.applyFilter();
           this.loading = false;
 
@@ -139,72 +135,50 @@ export class ManufacturerModelTablePickerComponent
       });
   }
 
-  private groupByManufacturer(flatData: PickerRow[]): ManufacturerGroup[] {
-    const grouped = new Map<string, ManufacturerGroup>();
-
-    for (const row of flatData) {
-      if (!grouped.has(row.manufacturer)) {
-        grouped.set(row.manufacturer, {
-          manufacturer: row.manufacturer,
-          totalCount: 0,
-          models: [],
-          expanded: false, // Default to collapsed
-        });
-      }
-
-      const group = grouped.get(row.manufacturer)!;
-      group.totalCount += row.count;
-      group.models.push({ model: row.model, count: row.count });
-    }
-
-    return Array.from(grouped.values()).sort((a, b) =>
-      a.manufacturer.localeCompare(b.manufacturer)
-    );
-  }
-
-  getParentCheckboxState(
+  /**
+   * Get checkbox state for a manufacturer in the flat table
+   * Checks all rows with this manufacturer to determine state
+   */
+  getManufacturerCheckboxState(
     manufacturer: string
   ): 'checked' | 'indeterminate' | 'unchecked' {
-    const models = this.getModelsForManufacturer(manufacturer);
-    if (!models || models.length === 0) return 'unchecked';
+    const manufacturerRows = this.filteredRows.filter(
+      (row) => row.manufacturer === manufacturer
+    );
+    if (manufacturerRows.length === 0) return 'unchecked';
 
-    const checkedCount = models.filter((m) =>
-      this.selectedRows.has(`${manufacturer}|${m.model}`)
+    const checkedCount = manufacturerRows.filter((row) =>
+      this.selectedRows.has(row.key)
     ).length;
 
     if (checkedCount === 0) return 'unchecked';
-    if (checkedCount === models.length) return 'checked';
+    if (checkedCount === manufacturerRows.length) return 'checked';
     return 'indeterminate';
   }
 
-  private getModelsForManufacturer(manufacturer: string): ModelDetail[] {
-    const group = this.filteredGroups.find(
-      (g) => g.manufacturer === manufacturer
+  /**
+   * Handle manufacturer checkbox change
+   * Selects/deselects all models for this manufacturer
+   */
+  onManufacturerCheckboxChange(manufacturer: string, checked: boolean): void {
+    const manufacturerRows = this.filteredRows.filter(
+      (row) => row.manufacturer === manufacturer
     );
-    return group ? group.models : [];
-  }
 
-  getSelectedModelCount(manufacturer: string): number {
-    const models = this.getModelsForManufacturer(manufacturer);
-    return models.filter((m) =>
-      this.selectedRows.has(`${manufacturer}|${m.model}`)
-    ).length;
-  }
-
-  onParentCheckboxChange(manufacturer: string, checked: boolean): void {
-    const models = this.getModelsForManufacturer(manufacturer);
-
-    models.forEach((model) => {
-      const key = `${manufacturer}|${model.model}`;
+    manufacturerRows.forEach((row) => {
       if (checked) {
-        this.selectedRows.add(key);
+        this.selectedRows.add(row.key);
       } else {
-        this.selectedRows.delete(key);
+        this.selectedRows.delete(row.key);
       }
     });
   }
 
-  onChildCheckboxChange(
+  /**
+   * Handle model checkbox change
+   * Selects/deselects a single model
+   */
+  onModelCheckboxChange(
     manufacturer: string,
     model: string,
     checked: boolean
@@ -217,68 +191,38 @@ export class ManufacturerModelTablePickerComponent
     }
   }
 
-  isModelSelected(manufacturer: string, model: string): boolean {
-    return this.selectedRows.has(`${manufacturer}|${model}`);
-  }
-
-  toggleManufacturer(manufacturer: string): void {
-    const group = this.filteredGroups.find(
-      (g) => g.manufacturer === manufacturer
-    );
-    if (group) {
-      group.expanded = !group.expanded;
-    }
-  }
-
-  // NEW: Expand all manufacturers
-  expandAll(): void {
-    this.filteredGroups.forEach((group) => {
-      group.expanded = true;
-    });
-  }
-
-  // NEW: Collapse all manufacturers
-  collapseAll(): void {
-    this.filteredGroups.forEach((group) => {
-      group.expanded = false;
-    });
+  /**
+   * Check if a specific row is selected
+   */
+  isRowSelected(row: PickerRow): boolean {
+    return this.selectedRows.has(row.key);
   }
 
   selectAll(): void {
-    this.visibleGroups.forEach((group) => {
-      group.models.forEach((model) => {
-        const key = `${group.manufacturer}|${model.model}`;
-        this.selectedRows.add(key);
-      });
+    this.visibleRows.forEach((row) => {
+      this.selectedRows.add(row.key);
     });
   }
 
   deselectAll(): void {
-    this.visibleGroups.forEach((group) => {
-      group.models.forEach((model) => {
-        const key = `${group.manufacturer}|${model.model}`;
-        this.selectedRows.delete(key);
-      });
+    this.visibleRows.forEach((row) => {
+      this.selectedRows.delete(row.key);
     });
   }
 
   get allVisibleSelected(): boolean {
-    if (this.visibleGroups.length === 0) return false;
+    if (this.visibleRows.length === 0) return false;
 
-    return this.visibleGroups.every((group) =>
-      group.models.every((model) =>
-        this.selectedRows.has(`${group.manufacturer}|${model.model}`)
-      )
+    return this.visibleRows.every((row) =>
+      this.selectedRows.has(row.key)
     );
   }
 
   get someVisibleSelected(): boolean {
-    if (this.visibleGroups.length === 0) return false;
+    if (this.visibleRows.length === 0) return false;
 
-    const hasAnySelected = this.visibleGroups.some((group) =>
-      group.models.some((model) =>
-        this.selectedRows.has(`${group.manufacturer}|${model.model}`)
-      )
+    const hasAnySelected = this.visibleRows.some((row) =>
+      this.selectedRows.has(row.key)
     );
 
     return hasAnySelected && !this.allVisibleSelected;
@@ -286,13 +230,13 @@ export class ManufacturerModelTablePickerComponent
 
   applyFilter(): void {
     if (!this.searchTerm.trim()) {
-      this.filteredGroups = this.manufacturerGroups;
+      this.filteredRows = this.allRows;
     } else {
       const term = this.searchTerm.toLowerCase();
-      this.filteredGroups = this.manufacturerGroups.filter(
-        (group) =>
-          group.manufacturer.toLowerCase().includes(term) ||
-          group.models.some((m) => m.model.toLowerCase().includes(term))
+      this.filteredRows = this.allRows.filter(
+        (row) =>
+          row.manufacturer.toLowerCase().includes(term) ||
+          row.model.toLowerCase().includes(term)
       );
     }
     this.currentPage = 1;
@@ -307,14 +251,14 @@ export class ManufacturerModelTablePickerComponent
     this.savePageSizePreference();
   }
 
-  get visibleGroups(): ManufacturerGroup[] {
+  get visibleRows(): PickerRow[] {
     const start = (this.currentPage - 1) * this.pageSize;
     const end = start + this.pageSize;
-    return this.filteredGroups.slice(start, end);
+    return this.filteredRows.slice(start, end);
   }
 
   get totalPages(): number {
-    return Math.ceil(this.filteredGroups.length / this.pageSize);
+    return Math.ceil(this.filteredRows.length / this.pageSize);
   }
 
   get hasPreviousPage(): boolean {
@@ -431,44 +375,6 @@ export class ManufacturerModelTablePickerComponent
     this.onApply();
   }
 
-  /**
-   * CRITICAL: Generate flat table data for NG-ZORRO table
-   * This getter is what [nzData] binds to in the template
-   * Converts hierarchical manufacturer groups into displayable rows
-   */
-  get tableData(): any[] {
-    const data: any[] = [];
-
-    this.visibleGroups.forEach((group) => {
-      if (group.expanded) {
-        // Expanded: show each model as separate row
-        group.models.forEach((model) => {
-          data.push({
-            manufacturer: group.manufacturer,
-            model: model.model,
-            count: model.count,
-            isExpanded: true,
-            isCollapsed: false,
-            modelCount: group.models.length,
-            selectedCount: this.getSelectedModelCount(group.manufacturer),
-          });
-        });
-      } else {
-        // Collapsed: show single manufacturer summary row
-        data.push({
-          manufacturer: group.manufacturer,
-          model: '',
-          count: group.totalCount,
-          isExpanded: false,
-          isCollapsed: true,
-          modelCount: group.models.length,
-          selectedCount: this.getSelectedModelCount(group.manufacturer),
-        });
-      }
-    });
-
-    return data;
-  }
 
   private loadPageSizePreference(): void {
     const saved = localStorage.getItem('vehiclePickerPageSize');
