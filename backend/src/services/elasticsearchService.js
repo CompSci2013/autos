@@ -137,24 +137,36 @@ async function getVehicleDetails(options = {}) {
   } = options;
 
   try {
-    // Build boolean query with should clauses for each manufacturer-model pair
-    const shouldClauses = modelCombos.map((combo) => ({
-      bool: {
-        must: [
-          { term: { 'manufacturer.keyword': combo.manufacturer } },
-          { term: { 'model.keyword': combo.model } },
-        ],
-      },
-    }));
-
     // Build the main query
-    const query = {
-      bool: {
-        should: shouldClauses,
-        minimum_should_match: 1,
-        filter: [],
-      },
-    };
+    let query;
+
+    if (modelCombos.length > 0) {
+      // Build boolean query with should clauses for each manufacturer-model pair
+      const shouldClauses = modelCombos.map((combo) => ({
+        bool: {
+          must: [
+            { term: { 'manufacturer.keyword': combo.manufacturer } },
+            { term: { 'model.keyword': combo.model } },
+          ],
+        },
+      }));
+
+      query = {
+        bool: {
+          should: shouldClauses,
+          minimum_should_match: 1,
+          filter: [],
+        },
+      };
+    } else {
+      // No model combos specified - match all vehicles
+      query = {
+        bool: {
+          must: [{ match_all: {} }],
+          filter: [],
+        },
+      };
+    }
 
     // Apply filters (case-insensitive partial matching using wildcard on analyzed fields)
     if (filters.manufacturer) {

@@ -49,7 +49,8 @@ async function getManufacturerModelCombinationsHandler(req, res, next) {
  * GET /api/v1/vehicles/details
  *
  * Query parameters:
- *   - models: Comma-separated manufacturer:model pairs (e.g., "Ford:F-150,Chevrolet:Corvette")
+ *   - models: Comma-separated manufacturer:model pairs (optional, e.g., "Ford:F-150,Chevrolet:Corvette")
+ *             If omitted, returns all vehicles (filtered by other criteria)
  *   - page: Page number (default: 1)
  *   - size: Results per page (default: 20, max: 100)
  *   - manufacturer: Filter by manufacturer (optional)
@@ -78,30 +79,25 @@ async function getVehicleDetailsHandler(req, res, next) {
       sortOrder = 'asc',
     } = req.query;
 
-    // Validate models parameter
-    if (!models || models.trim() === '') {
-      return res.status(400).json({
-        error: 'Missing required parameter',
-        message:
-          'Query parameter "models" is required (e.g., models=Ford:F-150,Chevrolet:Corvette)',
+    // Parse models parameter into array of {manufacturer, model} objects (optional)
+    let modelCombos = [];
+    if (models && models.trim() !== '') {
+      modelCombos = models.split(',').map((combo) => {
+        const [mfr, mdl] = combo.split(':');
+
+        if (!mfr || !mdl) {
+          throw new Error(
+            `Invalid model format: "${combo}". Expected format: "Manufacturer:Model"`
+          );
+        }
+
+        return {
+          manufacturer: mfr.trim(),
+          model: mdl.trim(),
+        };
       });
     }
-
-    // Parse models parameter into array of {manufacturer, model} objects
-    const modelCombos = models.split(',').map((combo) => {
-      const [mfr, mdl] = combo.split(':');
-
-      if (!mfr || !mdl) {
-        throw new Error(
-          `Invalid model format: "${combo}". Expected format: "Manufacturer:Model"`
-        );
-      }
-
-      return {
-        manufacturer: mfr.trim(),
-        model: mdl.trim(),
-      };
-    });
+    // If no models specified, will return all vehicles (filtered by other criteria)
 
     // Validate pagination parameters
     const pageNum = parseInt(page);
