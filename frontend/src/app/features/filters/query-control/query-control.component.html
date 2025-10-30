@@ -16,13 +16,15 @@
       ></nz-option>
     </nz-select>
 
-    <!-- Manufacturer Multi-Select Dropdown -->
+    <!-- Manufacturer Multi-Select Dropdown with Checkboxes -->
     <nz-select
       *ngIf="selectedField === 'manufacturer'"
       class="value-selector"
       nzMode="multiple"
-      nzPlaceHolder="Select manufacturers..."
+      nzPlaceHolder="Select manufacturers (Ford, Chevrolet, etc.)..."
       nzShowSearch
+      nzAllowClear
+      [nzMaxTagCount]="3"
       [(ngModel)]="selectedManufacturersArray"
       (ngModelChange)="onManufacturerSelectionChange()"
       [nzLoading]="isLoadingManufacturers"
