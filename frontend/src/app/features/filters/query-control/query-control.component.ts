@@ -1,4 +1,5 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { ApiService } from '../../../services/api.service';
 
 /**
  * Field definition for query control dropdown
@@ -6,7 +7,7 @@ import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 export interface QueryField {
   key: string;
   label: string;
-  type: 'string' | 'number' | 'range';
+  type: 'string' | 'number' | 'range' | 'multiselect';
   placeholder?: string;
 }
 
@@ -16,8 +17,9 @@ export interface QueryField {
 export interface QueryFilter {
   field: string;
   fieldLabel: string;
-  type: 'string' | 'number' | 'range';
+  type: 'string' | 'number' | 'range' | 'multiselect';
   value?: string | number;
+  values?: string[]; // For multiselect
   rangeMin?: number;
   rangeMax?: number;
 }
@@ -40,8 +42,8 @@ export class QueryControlComponent implements OnInit {
     {
       key: 'manufacturer',
       label: 'Manufacturer',
-      type: 'string',
-      placeholder: 'e.g., Ford, Chevrolet',
+      type: 'multiselect',
+      placeholder: 'Select manufacturers',
     },
     {
       key: 'model',
@@ -74,6 +76,7 @@ export class QueryControlComponent implements OnInit {
   /** Dialog visibility */
   rangeDialogVisible = false;
   stringDialogVisible = false;
+  manufacturerDialogVisible = false;
 
   /** Dialog values */
   rangeMin?: number;
@@ -83,9 +86,20 @@ export class QueryControlComponent implements OnInit {
   /** Currently selected field definition */
   currentField?: QueryField;
 
+  // Manufacturer multi-select state
+  manufacturerList: string[] = [];
+  filteredManufacturerList: string[] = [];
+  selectedManufacturers: Set<string> = new Set();
+  manufacturerSearchText = '';
+  isLoadingManufacturers = false;
+
   // ========== LIFECYCLE ==========
 
-  ngOnInit(): void {}
+  constructor(private apiService: ApiService) {}
+
+  ngOnInit(): void {
+    this.loadManufacturers();
+  }
 
   // ========== FIELD SELECTION ==========
 
@@ -100,6 +114,11 @@ export class QueryControlComponent implements OnInit {
       this.rangeMin = undefined;
       this.rangeMax = undefined;
       this.rangeDialogVisible = true;
+    } else if (field.type === 'multiselect') {
+      this.selectedManufacturers.clear();
+      this.manufacturerSearchText = '';
+      this.filteredManufacturerList = [...this.manufacturerList];
+      this.manufacturerDialogVisible = true;
     } else if (field.type === 'string' || field.type === 'number') {
       this.stringValue = undefined;
       this.stringDialogVisible = true;
@@ -179,5 +198,80 @@ export class QueryControlComponent implements OnInit {
 
   isStringValid(): boolean {
     return !!this.stringValue && this.stringValue.trim().length > 0;
+  }
+
+  // ========== MANUFACTURER MULTI-SELECT DIALOG ==========
+
+  loadManufacturers(): void {
+    this.isLoadingManufacturers = true;
+    // Fetch all manufacturers (use large page size to get all)
+    this.apiService.getManufacturerModelCombinations(1, 10000).subscribe({
+      next: (response) => {
+        // Extract unique manufacturers and sort alphabetically
+        this.manufacturerList = response.data
+          .map((item) => item.manufacturer)
+          .sort((a, b) => a.localeCompare(b));
+        this.filteredManufacturerList = [...this.manufacturerList];
+        this.isLoadingManufacturers = false;
+      },
+      error: (error) => {
+        console.error('Error loading manufacturers:', error);
+        this.isLoadingManufacturers = false;
+      },
+    });
+  }
+
+  onManufacturerSearch(searchText: string): void {
+    this.manufacturerSearchText = searchText;
+    if (!searchText.trim()) {
+      this.filteredManufacturerList = [...this.manufacturerList];
+    } else {
+      const search = searchText.toLowerCase();
+      this.filteredManufacturerList = this.manufacturerList.filter((mfr) =>
+        mfr.toLowerCase().includes(search)
+      );
+    }
+  }
+
+  toggleManufacturer(manufacturer: string): void {
+    if (this.selectedManufacturers.has(manufacturer)) {
+      this.selectedManufacturers.delete(manufacturer);
+    } else {
+      this.selectedManufacturers.add(manufacturer);
+    }
+  }
+
+  isManufacturerSelected(manufacturer: string): boolean {
+    return this.selectedManufacturers.has(manufacturer);
+  }
+
+  onManufacturerDialogOk(): void {
+    if (!this.currentField || this.selectedManufacturers.size === 0) return;
+
+    const filter: QueryFilter = {
+      field: this.currentField.key,
+      fieldLabel: this.currentField.label,
+      type: 'multiselect',
+      values: Array.from(this.selectedManufacturers),
+    };
+
+    this.filterAdd.emit(filter);
+    this.manufacturerDialogVisible = false;
+    this.selectedField = undefined;
+    this.currentField = undefined;
+    this.selectedManufacturers.clear();
+    this.manufacturerSearchText = '';
+  }
+
+  onManufacturerDialogCancel(): void {
+    this.manufacturerDialogVisible = false;
+    this.selectedField = undefined;
+    this.currentField = undefined;
+    this.selectedManufacturers.clear();
+    this.manufacturerSearchText = '';
+  }
+
+  isManufacturerValid(): boolean {
+    return this.selectedManufacturers.size > 0;
   }
 }

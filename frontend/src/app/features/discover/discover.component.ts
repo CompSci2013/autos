@@ -304,6 +304,12 @@ export class DiscoverComponent implements OnInit, OnDestroy {
           updates.yearMax = filter.rangeMax;
         }
       }
+    } else if (filter.type === 'multiselect') {
+      // Handle multiselect filters (manufacturer)
+      if (filter.field === 'manufacturer' && filter.values && filter.values.length > 0) {
+        // Join multiple manufacturers with comma (backend should support splitting)
+        updates.manufacturer = filter.values.join(',');
+      }
     } else {
       // Handle string/number filters
       if (filter.field === 'manufacturer') {
