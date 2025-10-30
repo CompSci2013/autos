@@ -34,7 +34,12 @@
         *ngFor="let manufacturer of manufacturerList"
         [nzValue]="manufacturer"
         [nzLabel]="manufacturer"
-      ></nz-option>
+        nzCustomContent
+      >
+        <label nz-checkbox [ngModel]="selectedManufacturersArray.indexOf(manufacturer) !== -1" style="width: 100%; margin: 0;">
+          {{ manufacturer }}
+        </label>
+      </nz-option>
     </nz-select>
   </div>
 
