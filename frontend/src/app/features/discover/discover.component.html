@@ -1,34 +1,79 @@
-<div class="discover-page">
-  <div class="page-header">
-    <h1>Discover Vehicles</h1>
-    <p class="subtitle">
-      Select manufacturer and model combinations to explore classic automobiles
-    </p>
+<div class="workspace-container">
+  <div class="workspace-header">
+    <div>
+      <h2>Discover Vehicles</h2>
+      <p class="subtitle">Drag panels between grids. Layout is saved automatically.</p>
+    </div>
+    <div class="actions">
+      <div class="filters-summary" *ngIf="hasActiveFilters">
+        <span class="summary-label">Active:</span>
+        <span class="summary-count">{{ selectionCount }} model(s)</span>
+        <button nz-button nzType="primary" nzDanger nzSize="small" (click)="onClearAll()">
+          Clear All
+        </button>
+      </div>
+    </div>
   </div>
 
-  <div class="page-content">
-    <!-- Active Filters Summary -->
-    <div class="filters-summary" *ngIf="hasActiveFilters">
-      <div class="summary-content">
-        <span class="summary-label">Active Filters:</span>
-        <span class="summary-count">{{ selectionCount }} model(s) selected</span>
-      </div>
-      <button type="button" class="btn-clear-all" (click)="onClearAll()">
-        Clear All
-      </button>
-    </div>
+  <div class="grids-container">
+    <!-- Dynamic Grid Rendering -->
+    <div
+      *ngFor="let grid of grids; let i = index"
+      class="grid-wrapper"
+      [attr.data-grid-id]="grid.id"
+      [style.border-color]="grid.borderColor">
 
-    <!-- Vehicle Picker Component -->
-    <div class="picker-section">
-      <app-manufacturer-model-table-picker
-        [clearTrigger]="pickerClearTrigger"
-        [initialSelections]="pickerInitialSelections"
-        (selectionChange)="onPickerSelectionChange($event)"
-      >
-      </app-manufacturer-model-table-picker>
+      <gridster [options]="grid.options">
+        <gridster-item *ngFor="let item of grid.items" [item]="item">
+          <div class="panel-container">
+            <div class="panel-header drag-handle">
+              <span class="panel-title">
+                <i nz-icon nzType="drag" nzTheme="outline"></i>
+                <ng-container [ngSwitch]="item.panelType">
+                  <ng-container *ngSwitchCase="'picker'">Model Picker</ng-container>
+                  <ng-container *ngSwitchCase="'results'">Vehicle Results</ng-container>
+                  <ng-container *ngSwitchCase="'query-control'">Query Control</ng-container>
+                  <ng-container *ngSwitchDefault>Panel</ng-container>
+                </ng-container>
+              </span>
+              <div class="panel-actions">
+                <i
+                  nz-icon
+                  nzType="export"
+                  nzTheme="outline"
+                  nz-tooltip="Pop out to new window"
+                  (click)="popOutPanel(grid.id, item); $event.stopPropagation()"
+                  class="action-icon popout-icon"
+                ></i>
+                <i
+                  nz-icon
+                  [nzType]="item.panelType === 'picker' ? (getPanelCollapseState(grid.id) ? 'down' : 'up') : 'close'"
+                  nzTheme="outline"
+                  (click)="item.panelType === 'picker' ? togglePanelCollapse(grid.id) : removePanel(item, grid.id)"
+                  class="action-icon"
+                ></i>
+              </div>
+            </div>
+            <div class="panel-content no-drag" [hidden]="item.panelType === 'picker' && getPanelCollapseState(grid.id)">
+              <!-- Dynamic panel content based on panelType -->
+              <div *ngIf="item.panelType === 'query-control'">
+                <app-query-control (filterAdd)="onFilterAdd($event)"></app-query-control>
+              </div>
+              <div *ngIf="item.panelType === 'picker'">
+                <app-table-picker
+                  [initialSelections]="pickerInitialSelections"
+                  [clearTrigger]="pickerClearTrigger"
+                  (selectionChange)="onPickerSelectionChange($event)"
+                >
+                </app-table-picker>
+              </div>
+              <div *ngIf="item.panelType === 'results'">
+                <app-results-table></app-results-table>
+              </div>
+            </div>
+          </div>
+        </gridster-item>
+      </gridster>
     </div>
-
-    <!-- Vehicle Results Table -->
-    <app-vehicle-results-table></app-vehicle-results-table>
   </div>
 </div>

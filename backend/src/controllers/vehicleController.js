@@ -1,6 +1,11 @@
 const {
   getManufacturerModelCombinations,
   getVehicleDetails,
+  getDistinctManufacturers,
+  getDistinctModels,
+  getDistinctBodyClasses,
+  getDistinctDataSources,
+  getYearRange,
 } = require('../services/elasticsearchService');
 
 /**
@@ -44,7 +49,8 @@ async function getManufacturerModelCombinationsHandler(req, res, next) {
  * GET /api/v1/vehicles/details
  *
  * Query parameters:
- *   - models: Comma-separated manufacturer:model pairs (e.g., "Ford:F-150,Chevrolet:Corvette")
+ *   - models: Comma-separated manufacturer:model pairs (optional, e.g., "Ford:F-150,Chevrolet:Corvette")
+ *             If omitted, returns all vehicles (filtered by other criteria)
  *   - page: Page number (default: 1)
  *   - size: Results per page (default: 20, max: 100)
  *   - manufacturer: Filter by manufacturer (optional)
@@ -73,30 +79,25 @@ async function getVehicleDetailsHandler(req, res, next) {
       sortOrder = 'asc',
     } = req.query;
 
-    // Validate models parameter
-    if (!models || models.trim() === '') {
-      return res.status(400).json({
-        error: 'Missing required parameter',
-        message:
-          'Query parameter "models" is required (e.g., models=Ford:F-150,Chevrolet:Corvette)',
+    // Parse models parameter into array of {manufacturer, model} objects (optional)
+    let modelCombos = [];
+    if (models && models.trim() !== '') {
+      modelCombos = models.split(',').map((combo) => {
+        const [mfr, mdl] = combo.split(':');
+
+        if (!mfr || !mdl) {
+          throw new Error(
+            `Invalid model format: "${combo}". Expected format: "Manufacturer:Model"`
+          );
+        }
+
+        return {
+          manufacturer: mfr.trim(),
+          model: mdl.trim(),
+        };
       });
     }
-
-    // Parse models parameter into array of {manufacturer, model} objects
-    const modelCombos = models.split(',').map((combo) => {
-      const [mfr, mdl] = combo.split(':');
-
-      if (!mfr || !mdl) {
-        throw new Error(
-          `Invalid model format: "${combo}". Expected format: "Manufacturer:Model"`
-        );
-      }
-
-      return {
-        manufacturer: mfr.trim(),
-        model: mdl.trim(),
-      };
-    });
+    // If no models specified, will return all vehicles (filtered by other criteria)
 
     // Validate pagination parameters
     const pageNum = parseInt(page);
@@ -233,8 +234,72 @@ async function getVehicleInstancesHandler(req, res, next) {
   }
 }
 
+/**
+ * Unified controller for filter options endpoint
+ * GET /api/v1/filters/:fieldName
+ *
+ * Query parameters:
+ *   - search: Optional search term for filtering results (currently supported for manufacturers)
+ *   - limit: Optional limit for number of results (default: 1000)
+ *
+ * Routes to appropriate service function based on fieldName parameter
+ */
+async function getFilterOptionsHandler(req, res, next) {
+  try {
+    const { fieldName } = req.params;
+    const { search = '', limit = 1000 } = req.query;
+
+    // Validate limit parameter
+    const limitNum = parseInt(limit);
+    if (limitNum < 1 || limitNum > 5000) {
+      return res.status(400).json({
+        error: 'Invalid limit parameter',
+        message: 'limit must be between 1 and 5000',
+      });
+    }
+
+    // Route to appropriate service function
+    switch (fieldName) {
+      case 'manufacturers': {
+        const manufacturers = await getDistinctManufacturers(search, limitNum);
+        return res.json({ manufacturers });
+      }
+
+      case 'models': {
+        const models = await getDistinctModels();
+        return res.json({ models });
+      }
+
+      case 'body-classes': {
+        const body_classes = await getDistinctBodyClasses();
+        return res.json({ body_classes });
+      }
+
+      case 'data-sources': {
+        const data_sources = await getDistinctDataSources();
+        return res.json({ data_sources });
+      }
+
+      case 'year-range': {
+        const year_range = await getYearRange();
+        return res.json(year_range);
+      }
+
+      default:
+        return res.status(400).json({
+          error: 'Invalid field name',
+          message: `Field "${fieldName}" is not supported. Valid fields: manufacturers, models, body-classes, data-sources, year-range`,
+        });
+    }
+  } catch (error) {
+    console.error(`Error fetching filter options for ${req.params.fieldName}:`, error);
+    next(error);
+  }
+}
+
 module.exports = {
   getManufacturerModelCombinationsHandler,
   getVehicleDetailsHandler,
   getVehicleInstancesHandler,
+  getFilterOptionsHandler,
 };

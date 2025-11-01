@@ -2,10 +2,12 @@
   <!-- Toolbar -->
   <div class="table-toolbar">
     <div class="toolbar-left">
-      <button nz-button nzType="default" (click)="openColumnManager()">
-        <i nz-icon nzType="setting" nzTheme="outline"></i>
-        Manage Columns
-      </button>
+      <ng-container *ngIf="showColumnManagement">
+        <button nz-button nzType="default" (click)="openColumnManager()">
+          <i nz-icon nzType="setting" nzTheme="outline"></i>
+          Manage Columns
+        </button>
+      </ng-container>
       <button
         nz-button
         nzType="default"
@@ -15,10 +17,12 @@
         <i nz-icon nzType="close-circle" nzTheme="outline"></i>
         Clear Filters
       </button>
-      <button nz-button nzType="default" (click)="resetColumns()">
-        <i nz-icon nzType="reload" nzTheme="outline"></i>
-        Reset Columns</button
-      ><!-- Add these two buttons only when expandable is true -->
+      <ng-container *ngIf="showColumnManagement">
+        <button nz-button nzType="default" (click)="resetColumns()">
+          <i nz-icon nzType="reload" nzTheme="outline"></i>
+          Reset Columns</button
+        >
+      </ng-container><!-- Add these two buttons only when expandable is true -->
       <ng-container *ngIf="expandable">
         <button nz-button nzType="default" (click)="onExpandAll()">
           <i nz-icon nzType="down" nzTheme="outline"></i>
@@ -32,7 +36,7 @@
     </div>
     <div class="toolbar-right">
       <span class="result-count" *ngIf="!isLoading">
-        {{ totalCount }} {{ totalCount === 1 ? "result" : "results" }}
+        {{ totalCount || 0 }} {{ (totalCount || 0) === 1 ? "result" : "results" }}
       </span>
     </div>
   </div>
@@ -42,12 +46,12 @@
     #basicTable
     [nzData]="tableData"
     [nzLoading]="isLoading"
-    [nzTotal]="totalCount"
+    [nzTotal]="totalCount || 0"
     [nzPageSize]="pageSize"
     [nzPageIndex]="currentPage"
     [nzFrontPagination]="false"
     [nzShowSizeChanger]="true"
-    [nzPageSizeOptions]="[10, 20, 50, 100]"
+    [nzPageSizeOptions]="[5, 10, 25, 50, 100]"
     (nzPageIndexChange)="onPageChange($event)"
     (nzPageSizeChange)="onPageSizeChange($event)"
     nzSize="small"

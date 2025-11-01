@@ -1,7 +1,9 @@
 <app-base-data-table
   [tableId]="'results-table'"
   [columns]="columns"
-  [dataSource]="dataSource"
+  [data]="results"
+  [totalCount]="totalResults"
+  [loading]="isLoading"
   [queryParams]="tableQueryParams"
   [expandable]="true"
   [maxTableHeight]="'500px'"

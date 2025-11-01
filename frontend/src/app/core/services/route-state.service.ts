@@ -156,9 +156,9 @@ export class RouteStateService {
     // Body style (legacy)
     if (params['bodyStyle']) filters.bodyStyle = params['bodyStyle'];
 
-    // Pagination
-    if (params['page']) filters.page = parseInt(params['page'], 10);
-    if (params['size']) filters.size = parseInt(params['size'], 10);
+    // Pagination (with defaults to ensure consistent cache keys)
+    filters.page = params['page'] ? parseInt(params['page'], 10) : 1;
+    filters.size = params['size'] ? parseInt(params['size'], 10) : 20;
 
     // Sorting
     if (params['sort']) filters.sort = params['sort'];

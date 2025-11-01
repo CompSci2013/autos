@@ -47,9 +47,13 @@ export class ApiService {
     sortOrder?: 'asc' | 'desc'
   ): Observable<VehicleDetailsResponse> {
     let params = new HttpParams()
-      .set('models', models)
       .set('page', page.toString())
       .set('size', size.toString());
+
+    // Only set models param if not empty (empty = return all vehicles)
+    if (models && models.trim() !== '') {
+      params = params.set('models', models);
+    }
 
     // Add filter parameters if provided
     if (filters) {
@@ -97,5 +101,67 @@ export class ApiService {
       `${this.apiUrl}/vehicles/${vehicleId}/instances`,
       { params }
     );
+  }
+
+  // ========== FILTER ENDPOINTS ==========
+
+  /**
+   * Unified filter options endpoint
+   * @param fieldName - 'manufacturers', 'models', 'body-classes', 'data-sources', or 'year-range'
+   * @param search - Optional search term for filtering (currently supported for manufacturers)
+   * @param limit - Optional limit for number of results (default: 1000)
+   * @returns Observable with field-specific response format
+   */
+  getFilterOptions(fieldName: string, search?: string, limit?: number): Observable<any> {
+    let params = new HttpParams();
+
+    if (search) {
+      params = params.set('search', search);
+    }
+    if (limit !== undefined) {
+      params = params.set('limit', limit.toString());
+    }
+
+    return this.http.get<any>(
+      `${this.apiUrl}/filters/${fieldName}`,
+      { params: params }
+    );
+  }
+
+  /**
+   * Convenience method: Get distinct manufacturers
+   * @param search - Optional search term for filtering manufacturers
+   * @param limit - Optional limit for number of results (default: 1000)
+   */
+  getDistinctManufacturers(search?: string, limit?: number): Observable<{ manufacturers: string[] }> {
+    return this.getFilterOptions('manufacturers', search, limit);
+  }
+
+  /**
+   * Convenience method: Get distinct models
+   */
+  getDistinctModels(): Observable<{ models: string[] }> {
+    return this.getFilterOptions('models');
+  }
+
+  /**
+   * Convenience method: Get distinct body classes
+   */
+  getDistinctBodyClasses(): Observable<{ body_classes: string[] }> {
+    return this.getFilterOptions('body-classes');
+  }
+
+  /**
+   * Convenience method: Get distinct data sources
+   */
+  getDistinctDataSources(): Observable<{ data_sources: string[] }> {
+    return this.getFilterOptions('data-sources');
+  }
+
+  /**
+   * Convenience method: Get year range
+   */
+  getYearRange(): Observable<{ min: number; max: number }> {
+    return this.getFilterOptions('year-range');
   }
 }

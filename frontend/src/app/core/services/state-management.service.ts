@@ -71,8 +71,19 @@ export class StateManagementService implements OnDestroy {
     private apiService: ApiService,
     private requestCoordinator: RequestCoordinatorService
   ) {
-    this.initializeFromUrl();
-    this.watchUrlChanges();
+    // Detect if we're in a pop-out window
+    const isPopout = this.router.url.startsWith('/panel/');
+
+    if (isPopout) {
+      console.log('[StateManagement] Pop-out window detected - URL watching DISABLED');
+      // Pop-out windows receive initial state via BroadcastChannel, not URL
+      // Do not initialize from URL or watch URL changes
+      // BUT pop-outs CAN make API calls for pagination/sorting/filtering
+    } else {
+      console.log('[StateManagement] Main window detected - URL watching ENABLED');
+      this.initializeFromUrl();
+      this.watchUrlChanges();
+    }
   }
 
   // ========== INITIALIZATION ==========
@@ -102,11 +113,10 @@ export class StateManagementService implements OnDestroy {
       filters,
     });
 
-    // NEW: Auto-fetch data on initialization if we have model selections
-    if (filters.modelCombos && filters.modelCombos.length > 0) {
-      console.log('[StateManagement] Auto-fetching data on initialization');
-      this.fetchVehicleData().pipe(take(1)).subscribe();
-    }
+    // Always auto-fetch data on initialization (supports filtered and unfiltered)
+    // Backend supports empty modelCombos (returns all vehicles)
+    console.log('[StateManagement] Auto-fetching data on initialization');
+    this.fetchVehicleData().pipe(take(1)).subscribe();
   }
 
   private watchUrlChanges(): void {
@@ -128,15 +138,14 @@ export class StateManagementService implements OnDestroy {
           );
           this.updateState({ filters });
 
-          // NEW: Trigger data fetch if we have model selections
-          if (filters.modelCombos && filters.modelCombos.length > 0) {
-            console.log('🟡 watchUrlChanges: Triggering fetchVehicleData()');
-            this.fetchVehicleData().subscribe({
-              next: () => console.log('🟢 watchUrlChanges: Data fetched'),
-              error: (err) =>
-                console.error('🔴 watchUrlChanges: Fetch failed:', err),
-            });
-          }
+          // Always trigger data fetch (supports both filtered and unfiltered queries)
+          // Backend supports empty modelCombos (returns all vehicles)
+          console.log('🟡 watchUrlChanges: Triggering fetchVehicleData()');
+          this.fetchVehicleData().subscribe({
+            next: () => console.log('🟢 watchUrlChanges: Data fetched'),
+            error: (err) =>
+              console.error('🔴 watchUrlChanges: Fetch failed:', err),
+          });
         }
       });
   }
@@ -200,21 +209,13 @@ export class StateManagementService implements OnDestroy {
     this.updateState({ filters: newFilters });
     this.syncStateToUrl();
 
-    // Trigger API search if we have model selections
-    if (newFilters.modelCombos && newFilters.modelCombos.length > 0) {
-      console.log('🔵 Triggering fetchVehicleData()');
-      this.fetchVehicleData().subscribe({
-        next: () => console.log('🟢 Data fetched successfully'),
-        error: (err) => console.error('🔴 Fetch failed:', err),
-      });
-    } else {
-      console.log('🔵 No models selected, clearing results');
-      this.updateState({
-        results: [],
-        totalResults: 0,
-        error: null,
-      });
-    }
+    // Always trigger API search (supports both filtered and unfiltered queries)
+    // Backend supports empty modelCombos (returns all vehicles)
+    console.log('🔵 Triggering fetchVehicleData()');
+    this.fetchVehicleData().subscribe({
+      next: () => console.log('🟢 Data fetched successfully'),
+      error: (err) => console.error('🔴 Fetch failed:', err),
+    });
   }
   /**
    * Update pagination and sync to URL
@@ -226,10 +227,8 @@ export class StateManagementService implements OnDestroy {
     this.updateState({ filters: newFilters });
     this.syncStateToUrl();
 
-    // Trigger API search
-    if (newFilters.modelCombos && newFilters.modelCombos.length > 0) {
-      this.fetchVehicleData().subscribe();
-    }
+    // Always trigger API search (supports both filtered and unfiltered)
+    this.fetchVehicleData().subscribe();
   }
 
   /**
@@ -247,10 +246,8 @@ export class StateManagementService implements OnDestroy {
     this.updateState({ filters: newFilters });
     this.syncStateToUrl();
 
-    // Trigger API search
-    if (newFilters.modelCombos && newFilters.modelCombos.length > 0) {
-      this.fetchVehicleData().subscribe();
-    }
+    // Always trigger API search (supports both filtered and unfiltered)
+    this.fetchVehicleData().subscribe();
   }
 
   /**
@@ -288,13 +285,15 @@ export class StateManagementService implements OnDestroy {
   fetchVehicleData(): Observable<VehicleDetailsResponse> {
     const filters = this.getCurrentFilters();
 
-    // Don't make API call if no models selected
-    if (!filters.modelCombos || filters.modelCombos.length === 0) {
-      return throwError(() => new Error('No models selected'));
-    }
+    // Build models param (empty string if no models selected - returns all vehicles)
+    const modelsParam = filters.modelCombos && filters.modelCombos.length > 0
+      ? this.buildModelsParam(filters.modelCombos)
+      : '';
 
     // Build unique cache key from filters
     const cacheKey = this.buildCacheKey('vehicle-details', filters);
+
+    console.log('🔵 StateManagement: Fetching via RequestCoordinator, key:', cacheKey);
 
     // Execute through coordinator
     return this.requestCoordinator
@@ -302,7 +301,7 @@ export class StateManagementService implements OnDestroy {
         cacheKey,
         () =>
           this.apiService.getVehicleDetails(
-            this.buildModelsParam(filters.modelCombos),
+            modelsParam,
             filters.page || 1,
             filters.size || 20,
             this.buildFilterParams(filters),
@@ -476,6 +475,35 @@ export class StateManagementService implements OnDestroy {
       return 'Server error. Please try again later.';
     }
     return error.message || 'An unexpected error occurred.';
+  }
+
+  // ========== POP-OUT SUPPORT ==========
+
+  /**
+   * Get current state snapshot
+   * Used by pop-out service to send initial state to new pop-outs
+   */
+  public getCurrentState(): AppState {
+    return this.stateSubject.value;
+  }
+
+  /**
+   * Directly update state without making API calls
+   * Used by pop-out windows to sync state from main window
+   */
+  public syncStateFromExternal(state: Partial<AppState>): void {
+    const currentState = this.stateSubject.value;
+    const newState = {
+      ...currentState,
+      ...state
+    };
+    console.log('[StateManagement] syncStateFromExternal:', {
+      currentResults: currentState.results?.length,
+      newResults: newState.results?.length,
+      currentFilters: currentState.filters,
+      newFilters: newState.filters
+    });
+    this.stateSubject.next(newState);
   }
 
   // ========== CLEANUP ==========

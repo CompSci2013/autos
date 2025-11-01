@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { 
+const {
   getManufacturerModelCombinationsHandler,
   getVehicleDetailsHandler,
-  getVehicleInstancesHandler
+  getVehicleInstancesHandler,
+  getFilterOptionsHandler,
 } = require('../controllers/vehicleController');
 
 /**
@@ -32,13 +33,29 @@ router.get('/vehicles/details', getVehicleDetailsHandler);
 /**
  * GET /api/v1/vehicles/:vehicleId/instances
  * Returns synthetic VIN-level data for a specific vehicle specification
- * 
+ *
  * Path parameters:
  *   - vehicleId: Vehicle specification ID (e.g., nhtsa-ford-mustang-1967)
- * 
+ *
  * Query parameters:
  *   - count: Number of VIN instances to generate (default: 8, max: 20)
  */
 router.get('/vehicles/:vehicleId/instances', getVehicleInstancesHandler);
+
+/**
+ * GET /api/v1/filters/:fieldName
+ * Returns distinct values for the specified filter field
+ *
+ * Path parameters:
+ *   - fieldName: manufacturers, models, body-classes, data-sources, or year-range
+ *
+ * Response format varies by field:
+ *   - manufacturers: { manufacturers: string[] }
+ *   - models: { models: string[] }
+ *   - body-classes: { body_classes: string[] }
+ *   - data-sources: { data_sources: string[] }
+ *   - year-range: { min: number, max: number }
+ */
+router.get('/filters/:fieldName', getFilterOptionsHandler);
 
 module.exports = router;

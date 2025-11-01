@@ -1,0 +1,589 @@
+import { Component, OnInit, OnDestroy, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { ApiService } from '../../../services/api.service';
+import { RequestCoordinatorService } from '../../../core/services/request-coordinator.service';
+import { StateManagementService } from '../../../core/services/state-management.service';
+import { SearchFilters } from '../../../models/search-filters.model';
+
+/**
+ * Field definition for query control dropdown
+ */
+export interface QueryField {
+  key: string;
+  label: string;
+  type: 'string' | 'number' | 'range' | 'multiselect';
+  placeholder?: string;
+}
+
+/**
+ * Query filter value from dialog
+ */
+export interface QueryFilter {
+  field: string;
+  fieldLabel: string;
+  type: 'string' | 'number' | 'range' | 'multiselect';
+  value?: string | number;
+  values?: string[]; // For multiselect
+  rangeMin?: number;
+  rangeMax?: number;
+}
+
+/**
+ * Active filter chip for display
+ */
+export interface FilterChip {
+  field: string;
+  label: string;
+  displayValue: string;
+  color: string;
+}
+
+@Component({
+  selector: 'app-query-control',
+  templateUrl: './query-control.component.html',
+  styleUrls: ['./query-control.component.scss'],
+})
+export class QueryControlComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
+
+  // ========== OUTPUTS ==========
+
+  /** Emits when a filter is added */
+  @Output() filterAdd = new EventEmitter<QueryFilter>();
+
+  // ========== STATE ==========
+
+  /** Active filter chips for display */
+  activeFilterChips: FilterChip[] = [];
+
+  /** Available fields for querying */
+  queryFields: QueryField[] = [
+    {
+      key: 'manufacturer',
+      label: 'Manufacturer',
+      type: 'multiselect',
+      placeholder: 'Select manufacturers',
+    },
+    {
+      key: 'model',
+      label: 'Model',
+      type: 'string',
+      placeholder: 'e.g., F-150, Corvette',
+    },
+    {
+      key: 'year',
+      label: 'Year',
+      type: 'range',
+    },
+    {
+      key: 'body_class',
+      label: 'Body Class',
+      type: 'string',
+      placeholder: 'e.g., Pickup, Sedan',
+    },
+    {
+      key: 'data_source',
+      label: 'Data Source',
+      type: 'string',
+      placeholder: 'e.g., NHTSA',
+    },
+  ];
+
+  /** Selected field from dropdown */
+  selectedField?: string;
+
+  /** Dialog visibility */
+  rangeDialogVisible = false;
+  stringDialogVisible = false;
+  manufacturerDialogVisible = false;
+
+  /** Dialog values */
+  rangeMin?: number;
+  rangeMax?: number;
+  stringValue?: string;
+
+  /** Currently selected field definition */
+  currentField?: QueryField;
+
+  // Filter data lists (loaded on-demand)
+  manufacturerList: string[] = [];
+  modelList: string[] = [];
+  bodyClassList: string[] = [];
+  dataSourceList: string[] = [];
+  yearRange: { min: number; max: number } | null = null;
+
+  // Selected values
+  selectedManufacturersArray: string[] = [];
+  selectedModelsArray: string[] = [];
+  selectedBodyClassesArray: string[] = [];
+  selectedDataSourcesArray: string[] = [];
+
+  // Temporary staging for dialog selections (before Apply)
+  tempSelectedManufacturers: string[] = [];
+
+  // Search functionality
+  manufacturerSearchTerm: string = '';
+  @ViewChild('searchInput') searchInput?: ElementRef<HTMLInputElement>;
+  private searchDebounceTimer: any;
+
+  // Loading states
+  isLoadingManufacturers = false;
+  isLoadingModels = false;
+  isLoadingBodyClasses = false;
+  isLoadingDataSources = false;
+  isLoadingYearRange = false;
+
+  // ========== LIFECYCLE ==========
+
+  constructor(
+    private apiService: ApiService,
+    private requestCoordinator: RequestCoordinatorService,
+    private stateService: StateManagementService
+  ) {}
+
+  ngOnInit(): void {
+    // Subscribe to filter state changes to display active filter chips
+    this.stateService.filters$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((filters) => {
+        this.activeFilterChips = this.buildFilterChips(filters);
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  // ========== COMPUTED PROPERTIES ==========
+
+  get filteredManufacturers(): string[] {
+    // Server-side filtering now - just return the list
+    return this.manufacturerList;
+  }
+
+  // ========== FIELD SELECTION ==========
+
+  onFieldSelect(fieldKey: string): void {
+    const field = this.queryFields.find((f) => f.key === fieldKey);
+    if (!field) return;
+
+    this.currentField = field;
+
+    // Load data on-demand based on field type
+    if (field.type === 'range') {
+      if (field.key === 'year') {
+        this.loadYearRange();
+        this.rangeMin = undefined;
+        this.rangeMax = undefined;
+        this.rangeDialogVisible = true;
+      }
+    } else if (field.type === 'multiselect') {
+      // Show manufacturer dialog
+      if (field.key === 'manufacturer') {
+        this.tempSelectedManufacturers = [...this.selectedManufacturersArray]; // Copy current selections
+        this.manufacturerSearchTerm = ''; // Clear search
+        this.manufacturerDialogVisible = true;
+        this.loadManufacturers(''); // Load with no search filter initially
+
+        // Auto-focus search input after dialog opens
+        setTimeout(() => {
+          this.searchInput?.nativeElement?.focus();
+        }, 200);
+      }
+    } else if (field.type === 'string' || field.type === 'number') {
+      this.stringValue = undefined;
+      this.stringDialogVisible = true;
+    }
+  }
+
+  // ========== RANGE DIALOG ==========
+
+  onRangeDialogOk(): void {
+    if (!this.currentField) return;
+
+    const filter: QueryFilter = {
+      field: this.currentField.key,
+      fieldLabel: this.currentField.label,
+      type: 'range',
+      rangeMin: this.rangeMin,
+      rangeMax: this.rangeMax,
+    };
+
+    this.filterAdd.emit(filter);
+    this.rangeDialogVisible = false;
+    this.selectedField = undefined;
+    this.currentField = undefined;
+  }
+
+  onRangeDialogCancel(): void {
+    this.rangeDialogVisible = false;
+    this.selectedField = undefined;
+    this.currentField = undefined;
+  }
+
+  // ========== STRING/NUMBER DIALOG ==========
+
+  onStringDialogOk(): void {
+    if (!this.currentField || !this.stringValue) return;
+
+    const filter: QueryFilter = {
+      field: this.currentField.key,
+      fieldLabel: this.currentField.label,
+      type: this.currentField.type,
+      value: this.stringValue,
+    };
+
+    this.filterAdd.emit(filter);
+    this.stringDialogVisible = false;
+    this.selectedField = undefined;
+    this.currentField = undefined;
+    this.stringValue = undefined;
+  }
+
+  onStringDialogCancel(): void {
+    this.stringDialogVisible = false;
+    this.selectedField = undefined;
+    this.currentField = undefined;
+    this.stringValue = undefined;
+  }
+
+  // ========== MANUFACTURER MULTI-SELECT DIALOG ==========
+
+  onManufacturerSearchChange(): void {
+    // Debounce search to avoid excessive API calls
+    clearTimeout(this.searchDebounceTimer);
+    this.searchDebounceTimer = setTimeout(() => {
+      this.loadManufacturers(this.manufacturerSearchTerm);
+    }, 300); // 300ms debounce
+  }
+
+  clearManufacturerSearch(): void {
+    this.manufacturerSearchTerm = '';
+    // Reload manufacturers with no search filter
+    this.loadManufacturers('');
+    // Re-focus the search input after clearing
+    setTimeout(() => {
+      this.searchInput?.nativeElement?.focus();
+    }, 0);
+  }
+
+  toggleManufacturer(manufacturer: string): void {
+    const index = this.tempSelectedManufacturers.indexOf(manufacturer);
+    if (index === -1) {
+      // Add to selection
+      this.tempSelectedManufacturers.push(manufacturer);
+    } else {
+      // Remove from selection
+      this.tempSelectedManufacturers.splice(index, 1);
+    }
+  }
+
+  onManufacturerDialogOk(): void {
+    if (!this.currentField) return;
+
+    // Apply temporary selections to actual array
+    this.selectedManufacturersArray = [...this.tempSelectedManufacturers];
+
+    const filter: QueryFilter = {
+      field: this.currentField.key,
+      fieldLabel: this.currentField.label,
+      type: 'multiselect',
+      values: this.selectedManufacturersArray,
+    };
+
+    this.filterAdd.emit(filter);
+    this.manufacturerDialogVisible = false;
+    this.manufacturerSearchTerm = ''; // Clear search
+    this.selectedField = undefined;
+    this.currentField = undefined;
+  }
+
+  onManufacturerDialogCancel(): void {
+    // Discard temporary selections
+    this.tempSelectedManufacturers = [];
+    this.manufacturerDialogVisible = false;
+    this.manufacturerSearchTerm = ''; // Clear search
+    this.selectedField = undefined;
+    this.currentField = undefined;
+  }
+
+  // ========== VALIDATION ==========
+
+  isRangeValid(): boolean {
+    // At least one value must be set
+    if (this.rangeMin === undefined && this.rangeMax === undefined) {
+      return false;
+    }
+
+    // If both are set, min must be <= max
+    if (
+      this.rangeMin !== undefined &&
+      this.rangeMax !== undefined &&
+      this.rangeMin > this.rangeMax
+    ) {
+      return false;
+    }
+
+    return true;
+  }
+
+  isStringValid(): boolean {
+    return !!this.stringValue && this.stringValue.trim().length > 0;
+  }
+
+  // ========== FILTER DATA LOADING (ON-DEMAND WITH CACHING) ==========
+
+  loadManufacturers(searchTerm: string = ''): void {
+    this.isLoadingManufacturers = true;
+    console.log('Loading manufacturers from API with search:', searchTerm);
+
+    // Create unique cache key based on search term
+    const cacheKey = searchTerm
+      ? `filters/manufacturers?search=${searchTerm}`
+      : 'filters/manufacturers';
+
+    this.requestCoordinator
+      .execute(
+        cacheKey,
+        () => this.apiService.getDistinctManufacturers(searchTerm),
+        {
+          cacheTime: 300000, // Cache for 5 minutes per search term
+          deduplication: true,
+          retryAttempts: 2,
+        }
+      )
+      .subscribe({
+        next: (response) => {
+          this.manufacturerList = response.manufacturers;
+          this.isLoadingManufacturers = false;
+          console.log('Loaded manufacturers:', this.manufacturerList.length);
+        },
+        error: (error) => {
+          console.error('Error loading manufacturers:', error);
+          this.isLoadingManufacturers = false;
+        },
+      });
+  }
+
+  loadModels(): void {
+    if (this.modelList.length > 0) {
+      console.log('Models already loaded from cache');
+      return; // Already loaded
+    }
+
+    this.isLoadingModels = true;
+    console.log('Loading models from API...');
+
+    this.requestCoordinator
+      .execute(
+        'filters/models',
+        () => this.apiService.getDistinctModels(),
+        {
+          cacheTime: 300000, // Cache for 5 minutes
+          deduplication: true,
+          retryAttempts: 2,
+        }
+      )
+      .subscribe({
+        next: (response) => {
+          this.modelList = response.models;
+          this.isLoadingModels = false;
+          console.log('Loaded models:', this.modelList.length);
+        },
+        error: (error) => {
+          console.error('Error loading models:', error);
+          this.isLoadingModels = false;
+        },
+      });
+  }
+
+  loadBodyClasses(): void {
+    if (this.bodyClassList.length > 0) {
+      console.log('Body classes already loaded from cache');
+      return; // Already loaded
+    }
+
+    this.isLoadingBodyClasses = true;
+    console.log('Loading body classes from API...');
+
+    this.requestCoordinator
+      .execute(
+        'filters/body-classes',
+        () => this.apiService.getDistinctBodyClasses(),
+        {
+          cacheTime: 300000, // Cache for 5 minutes
+          deduplication: true,
+          retryAttempts: 2,
+        }
+      )
+      .subscribe({
+        next: (response) => {
+          this.bodyClassList = response.body_classes;
+          this.isLoadingBodyClasses = false;
+          console.log('Loaded body classes:', this.bodyClassList.length);
+        },
+        error: (error) => {
+          console.error('Error loading body classes:', error);
+          this.isLoadingBodyClasses = false;
+        },
+      });
+  }
+
+  loadDataSources(): void {
+    if (this.dataSourceList.length > 0) {
+      console.log('Data sources already loaded from cache');
+      return; // Already loaded
+    }
+
+    this.isLoadingDataSources = true;
+    console.log('Loading data sources from API...');
+
+    this.requestCoordinator
+      .execute(
+        'filters/data-sources',
+        () => this.apiService.getDistinctDataSources(),
+        {
+          cacheTime: 300000, // Cache for 5 minutes
+          deduplication: true,
+          retryAttempts: 2,
+        }
+      )
+      .subscribe({
+        next: (response) => {
+          this.dataSourceList = response.data_sources;
+          this.isLoadingDataSources = false;
+          console.log('Loaded data sources:', this.dataSourceList.length);
+        },
+        error: (error) => {
+          console.error('Error loading data sources:', error);
+          this.isLoadingDataSources = false;
+        },
+      });
+  }
+
+  loadYearRange(): void {
+    if (this.yearRange !== null) {
+      console.log('Year range already loaded from cache');
+      return; // Already loaded
+    }
+
+    this.isLoadingYearRange = true;
+    console.log('Loading year range from API...');
+
+    this.requestCoordinator
+      .execute(
+        'filters/year-range',
+        () => this.apiService.getYearRange(),
+        {
+          cacheTime: 300000, // Cache for 5 minutes
+          deduplication: true,
+          retryAttempts: 2,
+        }
+      )
+      .subscribe({
+        next: (response) => {
+          this.yearRange = response;
+          this.isLoadingYearRange = false;
+          console.log('Loaded year range:', this.yearRange);
+        },
+        error: (error) => {
+          console.error('Error loading year range:', error);
+          this.isLoadingYearRange = false;
+        },
+      });
+  }
+
+  // ========== FILTER CHIPS ==========
+
+  /**
+   * Build filter chips from current filter state
+   * Transforms filter state into visual chips for display
+   */
+  private buildFilterChips(filters: SearchFilters): FilterChip[] {
+    const chips: FilterChip[] = [];
+
+    // Manufacturer filter
+    if (filters.manufacturer) {
+      chips.push({
+        field: 'manufacturer',
+        label: 'Manufacturer',
+        displayValue: filters.manufacturer,
+        color: 'blue',
+      });
+    }
+
+    // Model filter
+    if (filters.model) {
+      chips.push({
+        field: 'model',
+        label: 'Model',
+        displayValue: filters.model,
+        color: 'cyan',
+      });
+    }
+
+    // Year range filter
+    if (filters.yearMin !== undefined || filters.yearMax !== undefined) {
+      const min = filters.yearMin || 'Any';
+      const max = filters.yearMax || 'Any';
+      chips.push({
+        field: 'year',
+        label: 'Year',
+        displayValue: `${min} - ${max}`,
+        color: 'green',
+      });
+    }
+
+    // Body class filter
+    if (filters.bodyClass) {
+      chips.push({
+        field: 'bodyClass',
+        label: 'Body Class',
+        displayValue: filters.bodyClass,
+        color: 'orange',
+      });
+    }
+
+    // Data source filter
+    if (filters.dataSource) {
+      chips.push({
+        field: 'dataSource',
+        label: 'Data Source',
+        displayValue: filters.dataSource,
+        color: 'purple',
+      });
+    }
+
+    return chips;
+  }
+
+  /**
+   * Remove a filter when chip is closed
+   * Updates state to remove the filter parameter from URL
+   */
+  removeFilter(field: string): void {
+    console.log('Removing filter:', field);
+
+    // Build update object to clear the filter
+    const updates: Partial<SearchFilters> = {};
+
+    if (field === 'manufacturer') {
+      updates.manufacturer = undefined;
+    } else if (field === 'model') {
+      updates.model = undefined;
+    } else if (field === 'year') {
+      updates.yearMin = undefined;
+      updates.yearMax = undefined;
+    } else if (field === 'bodyClass') {
+      updates.bodyClass = undefined;
+    } else if (field === 'dataSource') {
+      updates.dataSource = undefined;
+    }
+
+    // Update state (setting to undefined removes from URL)
+    this.stateService.updateFilters(updates);
+  }
+
+}

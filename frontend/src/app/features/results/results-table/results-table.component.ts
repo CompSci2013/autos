@@ -1,20 +1,38 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
-import { takeUntil, map } from 'rxjs/operators';
+import { takeUntil } from 'rxjs/operators';
 import { StateManagementService } from '../../../core/services/state-management.service';
 import { ApiService } from '../../../services/api.service';
 import { VehicleResult, VehicleInstance, SearchFilters } from '../../../models';
 import { TableColumn, TableQueryParams } from '../../../shared/models';
-import { VehicleDataSourceAdapter } from './vehicle-data-source.adapter';
 
 /**
  * Results-Table Component
  *
- * First implementation using BaseDataTableComponent.
- * Demonstrates proper data source adapter pattern and state management integration.
+ * Displays vehicle search results with pagination, sorting, and row expansion.
+ * Uses BaseDataTableComponent for consistent table behavior.
  *
- * This component is placed on the Workshop page ABOVE the grid container
- * to showcase the reusable base table in action.
+ * STATE OWNERSHIP (Angular Best Practice - Single Responsibility):
+ * ----------------------------------------------------------------
+ * This component READS filter state but NEVER WRITES it.
+ * Only Query Control component writes filter state.
+ *
+ * Writes (owns):
+ *   - page: Current page number
+ *   - size: Results per page
+ *   - sort: Sort column
+ *   - sortDirection: Sort order (asc/desc)
+ *
+ * Reads (does not own):
+ *   - manufacturer: Filter by manufacturer (Query Control)
+ *   - model: Filter by model (Query Control)
+ *   - yearMin/yearMax: Year range filter (Query Control)
+ *   - bodyClass: Body class filter (Query Control)
+ *   - dataSource: Data source filter (Query Control)
+ *   - modelCombos: Selected manufacturer-model pairs (Picker)
+ *
+ * This clear separation prevents state conflicts and follows the
+ * Single Responsibility Principle.
  */
 @Component({
   selector: 'app-results-table',
@@ -23,6 +41,11 @@ import { VehicleDataSourceAdapter } from './vehicle-data-source.adapter';
 })
 export class ResultsTableComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+
+  // Pre-fetched data from StateManagement (URL-driven)
+  results: VehicleResult[] = [];
+  totalResults = 0;
+  isLoading = false;
 
   // Column configuration (matches VehicleResultsTableComponent)
   columns: TableColumn<VehicleResult>[] = [
@@ -81,15 +104,8 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
     },
   ];
 
-  // Data source adapter
-  dataSource: VehicleDataSourceAdapter;
-
-  // Query params for BaseDataTable (non-optional, with default)
-  tableQueryParams: TableQueryParams = {
-    page: 1,
-    size: 20,
-    filters: {},
-  };
+  // Query params for BaseDataTable (initialized from current state)
+  tableQueryParams: TableQueryParams;
 
   // Row expansion state
   expandedRowInstances = new Map<string, VehicleInstance[]>();
@@ -99,29 +115,42 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
     private stateService: StateManagementService,
     private apiService: ApiService
   ) {
-    // Initialize data source adapter
-    this.dataSource = new VehicleDataSourceAdapter(this.apiService);
+    // Initialize tableQueryParams from current state BEFORE template renders
+    const currentFilters = this.stateService.getCurrentFilters();
+    this.tableQueryParams = this.convertToTableParams(currentFilters);
   }
 
   ngOnInit(): void {
-    // Subscribe to state changes (from URL)
+    // Subscribe to results from StateManagement (pre-fetched via URL changes)
+    this.stateService.results$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((results) => {
+        console.log('ResultsTable: Results updated from StateManagement:', results.length);
+        this.results = results;
+      });
+
+    // Subscribe to total results count
+    this.stateService.totalResults$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((total) => {
+        console.log('ResultsTable: Total results updated:', total);
+        this.totalResults = total;
+      });
+
+    // Subscribe to loading state
+    this.stateService.loading$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((loading) => {
+        console.log('ResultsTable: Loading state updated:', loading);
+        this.isLoading = loading;
+      });
+
+    // Subscribe to filters to update tableQueryParams (for pagination/sort state)
     this.stateService.filters$
       .pipe(takeUntil(this.destroy$))
       .subscribe((filters) => {
         console.log('ResultsTable: Filters updated from URL:', filters);
-
-        // Convert SearchFilters → TableQueryParams
         this.tableQueryParams = this.convertToTableParams(filters);
-
-        // Update data source with new models
-        if (filters.modelCombos && filters.modelCombos.length > 0) {
-          const modelsParam = filters.modelCombos
-            .map((c) => `${c.manufacturer}:${c.model}`)
-            .join(',');
-          this.dataSource.updateModels(modelsParam);
-        } else {
-          this.dataSource.updateModels('');
-        }
       });
   }
 
@@ -132,6 +161,10 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
 
   /**
    * Convert SearchFilters (app-level) to TableQueryParams (component-level)
+   *
+   * IMPORTANT: Query Control filters (manufacturer, model, year, etc.) are NOT
+   * passed to table filter inputs. Those are URL-driven and managed by Query Control.
+   * Table filter inputs are for ADDITIONAL user-typed filtering within displayed results.
    */
   private convertToTableParams(filters: SearchFilters): TableQueryParams {
     return {
@@ -140,37 +173,40 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
       sortBy: filters.sort,
       sortOrder: filters.sortDirection,
       filters: {
-        manufacturer: filters.manufacturer,
-        model: filters.model,
-        yearMin: filters.yearMin,
-        yearMax: filters.yearMax,
-        bodyClass: filters.bodyClass,
-        dataSource: filters.dataSource,
+        // Do NOT include Query Control filters here:
+        // - manufacturer, model, yearMin, yearMax, bodyClass, dataSource
+        // Those are applied at fetch time by StateManagementService
+        // Table filter inputs should always be empty unless user types in them
+
+        // Include modelCombos for change detection only (not a visible filter)
+        _modelCombos: filters.modelCombos?.map(c => `${c.manufacturer}:${c.model}`).join(',') || '',
       },
     };
   }
 
   /**
    * Handle table query changes (user interactions)
-   * Convert TableQueryParams → SearchFilters and update state
+   *
+   * IMPORTANT: Results table only manages pagination and sort state.
+   * Filter state is owned exclusively by Query Control component.
+   * This follows Angular best practices for state ownership and single responsibility.
+   *
+   * State Ownership:
+   * - Results Table: page, size, sort, sortDirection
+   * - Query Control: manufacturer, model, year, bodyClass, dataSource
    */
   onTableQueryChange(params: TableQueryParams): void {
-    console.log('ResultsTable: Table query changed:', params);
+    console.log('ResultsTable: Table query changed (pagination/sort only):', params);
 
-    // Use bracket notation for optional filters
-    const filters = params.filters || {};
-
+    // Only update pagination and sort - never filters
+    // Filters are owned by Query Control and read-only for this component
     this.stateService.updateFilters({
       page: params.page,
       size: params.size,
-      sort: params.sortBy,
-      sortDirection: params.sortOrder,
-      manufacturer: filters['manufacturer'],
-      model: filters['model'],
-      yearMin: filters['yearMin'],
-      yearMax: filters['yearMax'],
-      bodyClass: filters['bodyClass'],
-      dataSource: filters['dataSource'],
+      sort: params.sortBy || undefined,
+      sortDirection: params.sortOrder || undefined,
+      // Explicitly do NOT update filter properties here
+      // Query Control is the sole owner of filter state
     });
   }
 

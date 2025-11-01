@@ -24,6 +24,8 @@ import { NzCollapseModule } from 'ng-zorro-antd/collapse';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { NzTabsModule } from 'ng-zorro-antd/tabs';
+import { NzSelectModule } from 'ng-zorro-antd/select';
+import { NzModalModule } from 'ng-zorro-antd/modal';
 
 // Import icon definitions
 import {
@@ -39,7 +41,10 @@ import {
   UpOutline,
   DownOutline,
   CloseCircleOutline,
+  CloseOutline,
   InboxOutline,
+  ExportOutline,
+  LineChartOutline,
 } from '@ant-design/icons-angular/icons';
 
 // Register icons
@@ -56,7 +61,10 @@ const icons = [
   UpOutline,
   DownOutline,
   CloseCircleOutline,
+  CloseOutline,
   InboxOutline,
+  ExportOutline,
+  LineChartOutline,
 ];
 
 // Angular CDK
@@ -66,28 +74,28 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { SharedModule } from './shared/shared.module';
 
 // Feature components
-import { ManufacturerModelTablePickerComponent } from './features/picker/manufacturer-model-table-picker/manufacturer-model-table-picker.component';
 import { TablePickerComponent } from './features/picker/table-picker/table-picker.component';
 import { SelectedItemsChipsComponent } from './features/picker/table-picker/selected-items-chips/selected-items-chips.component';
 import { DiscoverComponent } from './features/discover/discover.component';
-import { VehicleResultsTableComponent } from './features/results/vehicle-results-table/vehicle-results-table.component';
 import { ResultsTableComponent } from './features/results/results-table/results-table.component';
 import { WorkshopComponent } from './features/workshop/workshop.component';
 import { HomeComponent } from './features/home/home.component';
 import { NavigationComponent } from './core/navigation/navigation.component';
+import { PanelPopoutComponent } from './features/panel-popout/panel-popout.component';
+import { QueryControlComponent } from './features/filters/query-control/query-control.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    ManufacturerModelTablePickerComponent,
     TablePickerComponent,
     SelectedItemsChipsComponent,
     DiscoverComponent,
-    VehicleResultsTableComponent,
     ResultsTableComponent,
     WorkshopComponent,
     HomeComponent,
     NavigationComponent,
+    PanelPopoutComponent,
+    QueryControlComponent,
   ],
   imports: [
     BrowserModule,
@@ -109,6 +117,8 @@ import { NavigationComponent } from './core/navigation/navigation.component';
     NzButtonModule,
     NzMenuModule,
     NzTabsModule,
+    NzSelectModule,
+    NzModalModule,
     // Angular CDK
     DragDropModule,
     // Grid Layout
