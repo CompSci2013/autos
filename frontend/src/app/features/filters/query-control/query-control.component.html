@@ -25,16 +25,21 @@
       [nzColor]="chip.color"
       nzMode="closeable"
       (nzOnClose)="removeFilter(chip.field)"
-      class="filter-chip"
+      (click)="editFilter(chip.field)"
+      class="filter-chip clickable"
+      nz-tooltip
+      [nzTooltipTitle]="chip.label + ': ' + chip.displayValue + ' (Click to edit)'"
     >
-      <strong>{{ chip.label }}:</strong> {{ chip.displayValue }}
+      <span class="chip-content">
+        <strong>{{ chip.label }}:</strong> {{ chip.displayValue }}
+      </span>
     </nz-tag>
   </div>
 
-  <!-- Range Input Dialog (for year, etc.) -->
+  <!-- Year Range Dialog (using NG-ZORRO Year Picker) -->
   <nz-modal
     [(nzVisible)]="rangeDialogVisible"
-    nzTitle="Set Range Filter"
+    nzTitle="Select Year Range"
     [nzOkDisabled]="!isRangeValid()"
     (nzOnOk)="onRangeDialogOk()"
     (nzOnCancel)="onRangeDialogCancel()"
@@ -45,35 +50,30 @@
       <div class="range-dialog-content">
         <div class="field-info">
           <label class="field-label">{{ currentField?.label }}</label>
-          <p class="field-description">Enter minimum and/or maximum values. At least one is required.</p>
+          <p class="field-description">Select a year range to filter results. You can select just a start year, end year, or both.</p>
         </div>
 
-        <div class="range-inputs">
-          <div class="range-input-group">
-            <label>Minimum</label>
-            <nz-input-number
-              [(ngModel)]="rangeMin"
-              [nzPlaceHolder]="'Min ' + currentField?.label"
-              style="width: 100%"
-            ></nz-input-number>
-          </div>
+        <div class="year-range-picker">
+          <nz-range-picker
+            nzMode="year"
+            nzFormat="yyyy"
+            [(ngModel)]="yearDateRange"
+            [nzPlaceHolder]="['Start Year', 'End Year']"
+            (ngModelChange)="onYearRangeChange($event)"
+            style="width: 100%"
+          ></nz-range-picker>
+        </div>
 
-          <div class="range-separator">to</div>
-
-          <div class="range-input-group">
-            <label>Maximum</label>
-            <nz-input-number
-              [(ngModel)]="rangeMax"
-              [nzPlaceHolder]="'Max ' + currentField?.label"
-              style="width: 100%"
-            ></nz-input-number>
-          </div>
+        <div class="year-range-display" *ngIf="rangeMin || rangeMax">
+          <nz-tag nzColor="blue">
+            Range: {{ rangeMin || 'Any' }} - {{ rangeMax || 'Any' }}
+          </nz-tag>
         </div>
 
         <nz-alert
           *ngIf="rangeMin !== undefined && rangeMax !== undefined && rangeMin > rangeMax"
           nzType="error"
-          nzMessage="Minimum cannot be greater than maximum"
+          nzMessage="Start year cannot be after end year"
           nzShowIcon
           class="validation-alert"
         ></nz-alert>
@@ -119,6 +119,7 @@
     nzWidth="600px"
     (nzOnOk)="onManufacturerDialogOk()"
     (nzOnCancel)="onManufacturerDialogCancel()"
+    (nzAfterOpen)="onManufacturerDialogOpened()"
     nzOkText="Apply"
     nzCancelText="Cancel"
   >
@@ -155,9 +156,13 @@
         </ng-template>
 
         <nz-spin [nzSpinning]="isLoadingManufacturers">
-          <div class="manufacturer-list">
+          <cdk-virtual-scroll-viewport
+            #manufacturerViewport
+            itemSize="40"
+            class="manufacturer-list"
+            style="height: 480px;">
             <div
-              *ngFor="let manufacturer of filteredManufacturers"
+              *cdkVirtualFor="let manufacturer of filteredManufacturers"
               class="manufacturer-item"
               (click)="toggleManufacturer(manufacturer)"
             >
@@ -169,7 +174,7 @@
                 {{ manufacturer }}
               </label>
             </div>
-          </div>
+          </cdk-virtual-scroll-viewport>
           <div *ngIf="filteredManufacturers.length === 0 && !isLoadingManufacturers" class="no-data">
             No manufacturers match your search
           </div>
@@ -178,6 +183,234 @@
         <div class="selection-summary" *ngIf="tempSelectedManufacturers.length > 0">
           <strong>Selected ({{ tempSelectedManufacturers.length }}):</strong>
           {{ tempSelectedManufacturers.join(', ') }}
+        </div>
+      </div>
+    </ng-container>
+  </nz-modal>
+
+  <!-- Model Multi-Select Dialog -->
+  <nz-modal
+    [(nzVisible)]="modelDialogVisible"
+    nzTitle="Select Models"
+    nzWidth="600px"
+    (nzOnOk)="onModelDialogOk()"
+    (nzOnCancel)="onModelDialogCancel()"
+    (nzAfterOpen)="onModelDialogOpened()"
+    nzOkText="Apply"
+    nzCancelText="Cancel"
+  >
+    <ng-container *nzModalContent>
+      <div class="model-dialog-content">
+        <div class="field-info">
+          <p class="field-description">Select one or more models to filter results.</p>
+        </div>
+
+        <!-- Search Input -->
+        <nz-input-group [nzPrefix]="prefixIconSearchModel" [nzSuffix]="suffixClearButtonModel" class="search-input">
+          <input
+            nz-input
+            placeholder="Type to search models..."
+            [(ngModel)]="modelSearchTerm"
+            (ngModelChange)="onModelSearchChange()"
+            #modelSearchInput
+          />
+        </nz-input-group>
+        <ng-template #prefixIconSearchModel>
+          <i nz-icon nzType="search"></i>
+        </ng-template>
+        <ng-template #suffixClearButtonModel>
+          <button
+            nz-button
+            nzType="text"
+            nzSize="small"
+            *ngIf="modelSearchTerm"
+            (click)="clearModelSearch()"
+            class="clear-button"
+          >
+            <i nz-icon nzType="close-circle" nzTheme="fill"></i>
+          </button>
+        </ng-template>
+
+        <nz-spin [nzSpinning]="isLoadingModels">
+          <cdk-virtual-scroll-viewport
+            #modelViewport
+            itemSize="40"
+            class="model-list"
+            style="height: 480px;">
+            <div
+              *cdkVirtualFor="let model of filteredModels"
+              class="model-item"
+              (click)="toggleModel(model)"
+            >
+              <label nz-checkbox
+                [ngModel]="tempSelectedModels.indexOf(model) !== -1"
+                (ngModelChange)="toggleModel(model)"
+                (click)="$event.stopPropagation()"
+              >
+                {{ model }}
+              </label>
+            </div>
+          </cdk-virtual-scroll-viewport>
+          <div *ngIf="filteredModels.length === 0 && !isLoadingModels" class="no-data">
+            No models match your search
+          </div>
+        </nz-spin>
+
+        <div class="selection-summary" *ngIf="tempSelectedModels.length > 0">
+          <strong>Selected ({{ tempSelectedModels.length }}):</strong>
+          {{ tempSelectedModels.join(', ') }}
+        </div>
+      </div>
+    </ng-container>
+  </nz-modal>
+
+  <!-- Body Class Multi-Select Dialog -->
+  <nz-modal
+    [(nzVisible)]="bodyClassDialogVisible"
+    nzTitle="Select Body Classes"
+    nzWidth="600px"
+    (nzOnOk)="onBodyClassDialogOk()"
+    (nzOnCancel)="onBodyClassDialogCancel()"
+    (nzAfterOpen)="onBodyClassDialogOpened()"
+    nzOkText="Apply"
+    nzCancelText="Cancel"
+  >
+    <ng-container *nzModalContent>
+      <div class="body-class-dialog-content">
+        <div class="field-info">
+          <p class="field-description">Select one or more body classes to filter results.</p>
+        </div>
+
+        <!-- Search Input -->
+        <nz-input-group [nzPrefix]="prefixIconSearchBodyClass" [nzSuffix]="suffixClearButtonBodyClass" class="search-input">
+          <input
+            nz-input
+            placeholder="Type to search body classes..."
+            [(ngModel)]="bodyClassSearchTerm"
+            (ngModelChange)="onBodyClassSearchChange()"
+            #bodyClassSearchInput
+          />
+        </nz-input-group>
+        <ng-template #prefixIconSearchBodyClass>
+          <i nz-icon nzType="search"></i>
+        </ng-template>
+        <ng-template #suffixClearButtonBodyClass>
+          <button
+            nz-button
+            nzType="text"
+            nzSize="small"
+            *ngIf="bodyClassSearchTerm"
+            (click)="clearBodyClassSearch()"
+            class="clear-button"
+          >
+            <i nz-icon nzType="close-circle" nzTheme="fill"></i>
+          </button>
+        </ng-template>
+
+        <nz-spin [nzSpinning]="isLoadingBodyClasses">
+          <cdk-virtual-scroll-viewport
+            #bodyClassViewport
+            itemSize="40"
+            class="body-class-list"
+            style="height: 480px;">
+            <div
+              *cdkVirtualFor="let bodyClass of filteredBodyClasses"
+              class="body-class-item"
+              (click)="toggleBodyClass(bodyClass)"
+            >
+              <label nz-checkbox
+                [ngModel]="tempSelectedBodyClasses.indexOf(bodyClass) !== -1"
+                (ngModelChange)="toggleBodyClass(bodyClass)"
+                (click)="$event.stopPropagation()"
+              >
+                {{ bodyClass }}
+              </label>
+            </div>
+          </cdk-virtual-scroll-viewport>
+          <div *ngIf="filteredBodyClasses.length === 0 && !isLoadingBodyClasses" class="no-data">
+            No body classes match your search
+          </div>
+        </nz-spin>
+
+        <div class="selection-summary" *ngIf="tempSelectedBodyClasses.length > 0">
+          <strong>Selected ({{ tempSelectedBodyClasses.length }}):</strong>
+          {{ tempSelectedBodyClasses.join(', ') }}
+        </div>
+      </div>
+    </ng-container>
+  </nz-modal>
+
+  <!-- Data Source Multi-Select Dialog -->
+  <nz-modal
+    [(nzVisible)]="dataSourceDialogVisible"
+    nzTitle="Select Data Sources"
+    nzWidth="600px"
+    (nzOnOk)="onDataSourceDialogOk()"
+    (nzOnCancel)="onDataSourceDialogCancel()"
+    (nzAfterOpen)="onDataSourceDialogOpened()"
+    nzOkText="Apply"
+    nzCancelText="Cancel"
+  >
+    <ng-container *nzModalContent>
+      <div class="data-source-dialog-content">
+        <div class="field-info">
+          <p class="field-description">Select one or more data sources to filter results.</p>
+        </div>
+
+        <!-- Search Input -->
+        <nz-input-group [nzPrefix]="prefixIconSearchDataSource" [nzSuffix]="suffixClearButtonDataSource" class="search-input">
+          <input
+            nz-input
+            placeholder="Type to search data sources..."
+            [(ngModel)]="dataSourceSearchTerm"
+            (ngModelChange)="onDataSourceSearchChange()"
+            #dataSourceSearchInput
+          />
+        </nz-input-group>
+        <ng-template #prefixIconSearchDataSource>
+          <i nz-icon nzType="search"></i>
+        </ng-template>
+        <ng-template #suffixClearButtonDataSource>
+          <button
+            nz-button
+            nzType="text"
+            nzSize="small"
+            *ngIf="dataSourceSearchTerm"
+            (click)="clearDataSourceSearch()"
+            class="clear-button"
+          >
+            <i nz-icon nzType="close-circle" nzTheme="fill"></i>
+          </button>
+        </ng-template>
+
+        <nz-spin [nzSpinning]="isLoadingDataSources">
+          <cdk-virtual-scroll-viewport
+            #dataSourceViewport
+            itemSize="40"
+            class="data-source-list"
+            style="height: 480px;">
+            <div
+              *cdkVirtualFor="let dataSource of filteredDataSources"
+              class="data-source-item"
+              (click)="toggleDataSource(dataSource)"
+            >
+              <label nz-checkbox
+                [ngModel]="tempSelectedDataSources.indexOf(dataSource) !== -1"
+                (ngModelChange)="toggleDataSource(dataSource)"
+                (click)="$event.stopPropagation()"
+              >
+                {{ dataSource }}
+              </label>
+            </div>
+          </cdk-virtual-scroll-viewport>
+          <div *ngIf="filteredDataSources.length === 0 && !isLoadingDataSources" class="no-data">
+            No data sources match your search
+          </div>
+        </nz-spin>
+
+        <div class="selection-summary" *ngIf="tempSelectedDataSources.length > 0">
+          <strong>Selected ({{ tempSelectedDataSources.length }}):</strong>
+          {{ tempSelectedDataSources.join(', ') }}
         </div>
       </div>
     </ng-container>

@@ -266,7 +266,7 @@ async function getFilterOptionsHandler(req, res, next) {
       }
 
       case 'models': {
-        const models = await getDistinctModels();
+        const models = await getDistinctModels(search, limitNum);
         return res.json({ models });
       }
 

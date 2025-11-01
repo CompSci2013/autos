@@ -27,6 +27,7 @@ import { NzTabsModule } from 'ng-zorro-antd/tabs';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzNotificationModule } from 'ng-zorro-antd/notification';
+import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
 
 // Import icon definitions
 import {
@@ -125,6 +126,7 @@ import { QueryControlComponent } from './features/filters/query-control/query-co
     NzSelectModule,
     NzModalModule,
     NzNotificationModule,
+    NzDatePickerModule,
     // Angular CDK
     DragDropModule,
     // Grid Layout
