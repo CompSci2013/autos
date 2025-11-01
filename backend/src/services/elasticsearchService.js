@@ -317,12 +317,15 @@ async function getDistinctManufacturers(searchTerm = '', limit = 1000) {
     let query = { match_all: {} };
 
     if (searchTerm && searchTerm.trim()) {
-      // Use wildcard query for case-insensitive partial matching
+      // Use match query for efficient indexed search with fuzzy matching
+      // This uses the analyzed 'manufacturer' field instead of 'manufacturer.keyword'
+      // for better performance and case-insensitive partial matching
       query = {
-        wildcard: {
-          'manufacturer.keyword': {
-            value: `*${searchTerm}*`,
-            case_insensitive: true,
+        match: {
+          manufacturer: {
+            query: searchTerm,
+            operator: 'and',
+            fuzziness: 'AUTO',
           },
         },
       };
