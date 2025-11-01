@@ -1,8 +1,8 @@
-import { NgModule } from '@angular/core';
+import { NgModule, ErrorHandler } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -26,6 +26,7 @@ import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { NzTabsModule } from 'ng-zorro-antd/tabs';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzModalModule } from 'ng-zorro-antd/modal';
+import { NzNotificationModule } from 'ng-zorro-antd/notification';
 
 // Import icon definitions
 import {
@@ -73,6 +74,10 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 // Shared Module (contains BaseDataTableComponent)
 import { SharedModule } from './shared/shared.module';
 
+// Core Services - Error Handling
+import { ErrorInterceptor } from './core/interceptors/error.interceptor';
+import { GlobalErrorHandler } from './core/services/global-error-handler.service';
+
 // Feature components
 import { TablePickerComponent } from './features/picker/table-picker/table-picker.component';
 import { SelectedItemsChipsComponent } from './features/picker/table-picker/selected-items-chips/selected-items-chips.component';
@@ -119,6 +124,7 @@ import { QueryControlComponent } from './features/filters/query-control/query-co
     NzTabsModule,
     NzSelectModule,
     NzModalModule,
+    NzNotificationModule,
     // Angular CDK
     DragDropModule,
     // Grid Layout
@@ -126,7 +132,13 @@ import { QueryControlComponent } from './features/filters/query-control/query-co
     // Shared Module (BaseDataTableComponent)
     SharedModule,
   ],
-  providers: [{ provide: NZ_I18N, useValue: en_US }],
+  providers: [
+    { provide: NZ_I18N, useValue: en_US },
+    // Global Error Handler
+    { provide: ErrorHandler, useClass: GlobalErrorHandler },
+    // HTTP Error Interceptor
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
