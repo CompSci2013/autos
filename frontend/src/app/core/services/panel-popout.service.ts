@@ -1,4 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { WorkspacePanel } from '../../models/workspace-panel.model';
 import { GridTransferService } from './grid-transfer.service';
 import { StateManagementService } from './state-management.service';
@@ -22,10 +24,11 @@ interface PopoutMetadata {
 @Injectable({
   providedIn: 'root'
 })
-export class PanelPopoutService {
+export class PanelPopoutService implements OnDestroy {
   private readonly POPOUT_STORAGE_KEY = 'autos-workshop-popouts';
   private popouts = new Map<string, PopoutWindow>();
   private restoreInProgress = false;
+  private destroy$ = new Subject<void>();
 
   constructor(
     private gridTransfer: GridTransferService,
@@ -35,17 +38,19 @@ export class PanelPopoutService {
     this.restorePopoutsFromStorage();
 
     // Subscribe to state changes and broadcast FULL state to all pop-outs
-    this.stateService.state$.subscribe(state => {
-      console.log('[PanelPopoutService] Broadcasting state to all pop-outs:', {
-        resultsCount: state.results?.length,
-        filters: state.filters,
-        popoutsCount: this.popouts.size
+    this.stateService.state$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(state => {
+        console.log('[PanelPopoutService] Broadcasting state to all pop-outs:', {
+          resultsCount: state.results?.length,
+          filters: state.filters,
+          popoutsCount: this.popouts.size
+        });
+        this.broadcastToAll({
+          type: 'STATE_UPDATE',
+          state  // Send complete AppState (filters, results, loading, error, totalResults)
+        });
       });
-      this.broadcastToAll({
-        type: 'STATE_UPDATE',
-        state  // Send complete AppState (filters, results, loading, error, totalResults)
-      });
-    });
 
     // Cleanup on page unload
     window.addEventListener('beforeunload', () => {
@@ -177,16 +182,17 @@ export class PanelPopoutService {
 
   /**
    * Close a specific popped-out panel and restore to grid
+   * Properly cleans up interval timer and BroadcastChannel to prevent memory leaks
    */
   closePopout(panelId: string): void {
     const popout = this.popouts.get(panelId);
     if (popout) {
-      // Clear interval
+      // Clear interval timer (prevents memory leak)
       if (popout.checkInterval) {
         clearInterval(popout.checkInterval);
       }
 
-      // Close channel
+      // Close BroadcastChannel (prevents memory leak)
       popout.channel.close();
 
       // Close window if still open
@@ -310,5 +316,22 @@ export class PanelPopoutService {
       localStorage.removeItem(this.POPOUT_STORAGE_KEY);
       this.restoreInProgress = false;
     }
+  }
+
+  /**
+   * Lifecycle hook - cleanup all resources to prevent memory leaks
+   */
+  ngOnDestroy(): void {
+    console.log('[PanelPopoutService] Destroying service - cleaning up resources');
+
+    // Complete the destroy$ subject to trigger takeUntil cleanup
+    this.destroy$.next();
+    this.destroy$.complete();
+
+    // Close all pop-out windows and clean up their resources
+    // This will clear intervals and close BroadcastChannels
+    this.closeAllPopouts();
+
+    console.log('[PanelPopoutService] Cleanup complete');
   }
 }
