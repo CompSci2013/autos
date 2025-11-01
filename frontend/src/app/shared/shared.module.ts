@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 // NG-ZORRO Imports
 import { NzTableModule } from 'ng-zorro-antd/table';
@@ -27,6 +28,7 @@ import { ColumnManagerComponent } from './components/column-manager/column-manag
     FormsModule,
     ReactiveFormsModule,
     DragDropModule,
+    ScrollingModule,
     NzTableModule,
     NzButtonModule,
     NzIconModule,
@@ -50,6 +52,7 @@ import { ColumnManagerComponent } from './components/column-manager/column-manag
     FormsModule,
     ReactiveFormsModule,
     DragDropModule,
+    ScrollingModule,
     NzTableModule,
     NzButtonModule,
     NzIconModule,

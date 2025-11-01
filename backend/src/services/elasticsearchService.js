@@ -202,14 +202,35 @@ async function getVehicleDetails(options = {}) {
     }
 
     if (filters.model) {
-      query.bool.filter.push({
-        match: {
-          model: {
-            query: filters.model,
-            operator: 'and'
+      // Handle comma-separated models (OR logic)
+      const models = filters.model.split(',').map(m => m.trim()).filter(m => m);
+
+      if (models.length === 1) {
+        // Single model: use match query for analyzed field
+        query.bool.filter.push({
+          match: {
+            model: {
+              query: models[0],
+              operator: 'and' // All terms must match
+            },
           },
-        },
-      });
+        });
+      } else if (models.length > 1) {
+        // Multiple models: use should clause (OR logic)
+        query.bool.filter.push({
+          bool: {
+            should: models.map(mdl => ({
+              match: {
+                model: {
+                  query: mdl,
+                  operator: 'and'
+                },
+              },
+            })),
+            minimum_should_match: 1,
+          },
+        });
+      }
     }
 
     if (filters.yearMin !== undefined) {
@@ -317,15 +338,13 @@ async function getDistinctManufacturers(searchTerm = '', limit = 1000) {
     let query = { match_all: {} };
 
     if (searchTerm && searchTerm.trim()) {
-      // Use match query for efficient indexed search with fuzzy matching
-      // This uses the analyzed 'manufacturer' field instead of 'manufacturer.keyword'
-      // for better performance and case-insensitive partial matching
+      // Use wildcard query on keyword field for prefix matching
+      // This ensures "for" matches "Ford" but not "Freightliner"
       query = {
-        match: {
-          manufacturer: {
-            query: searchTerm,
-            operator: 'and',
-            fuzziness: 'AUTO',
+        wildcard: {
+          'manufacturer.keyword': {
+            value: `${searchTerm.toLowerCase()}*`,
+            case_insensitive: true,
           },
         },
       };
@@ -357,16 +376,33 @@ async function getDistinctManufacturers(searchTerm = '', limit = 1000) {
  * Get distinct models for filter dropdown
  * @returns {Array} - Sorted array of model names
  */
-async function getDistinctModels() {
+async function getDistinctModels(searchTerm = '', limit = 1000) {
   try {
+    // Build query based on search term
+    let query = { match_all: {} };
+
+    if (searchTerm && searchTerm.trim()) {
+      // Use wildcard query on keyword field for prefix matching
+      // This ensures "bon" matches "Bonneville" but not "3 ton"
+      query = {
+        wildcard: {
+          'model.keyword': {
+            value: `${searchTerm.toLowerCase()}*`,
+            case_insensitive: true,
+          },
+        },
+      };
+    }
+
     const response = await esClient.search({
       index: ELASTICSEARCH_INDEX,
       size: 0,
+      query: query,
       aggs: {
         models: {
           terms: {
             field: 'model.keyword',
-            size: 2000,
+            size: limit,
             order: { _key: 'asc' },
           },
         },
@@ -389,10 +425,11 @@ async function getDistinctBodyClasses() {
     const response = await esClient.search({
       index: ELASTICSEARCH_INDEX,
       size: 0,
+      query: { match_all: {} },
       aggs: {
         body_classes: {
           terms: {
-            field: 'body_class.keyword',
+            field: 'body_class',
             size: 100,
             order: { _key: 'asc' },
           },
@@ -416,10 +453,11 @@ async function getDistinctDataSources() {
     const response = await esClient.search({
       index: ELASTICSEARCH_INDEX,
       size: 0,
+      query: { match_all: {} },
       aggs: {
         data_sources: {
           terms: {
-            field: 'data_source.keyword',
+            field: 'data_source',
             size: 50,
             order: { _key: 'asc' },
           },

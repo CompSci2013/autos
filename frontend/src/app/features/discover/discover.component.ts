@@ -335,7 +335,7 @@ export class DiscoverComponent implements OnInit, OnDestroy {
         }
       }
     } else if (filter.type === 'multiselect') {
-      // Handle multiselect filters (manufacturer)
+      // Handle multiselect filters (manufacturer, model, bodyClass, dataSource)
       if (filter.field === 'manufacturer') {
         if (filter.values && filter.values.length > 0) {
           // Join multiple manufacturers with comma
@@ -343,6 +343,30 @@ export class DiscoverComponent implements OnInit, OnDestroy {
         } else {
           // Clear manufacturer filter when array is empty
           updates.manufacturer = undefined;
+        }
+      } else if (filter.field === 'model') {
+        if (filter.values && filter.values.length > 0) {
+          // Join multiple models with comma
+          updates.model = filter.values.join(',');
+        } else {
+          // Clear model filter when array is empty
+          updates.model = undefined;
+        }
+      } else if (filter.field === 'bodyClass') {
+        if (filter.values && filter.values.length > 0) {
+          // Join multiple body classes with comma
+          updates.bodyClass = filter.values.join(',');
+        } else {
+          // Clear body class filter when array is empty
+          updates.bodyClass = undefined;
+        }
+      } else if (filter.field === 'dataSource') {
+        if (filter.values && filter.values.length > 0) {
+          // Join multiple data sources with comma
+          updates.dataSource = filter.values.join(',');
+        } else {
+          // Clear data source filter when array is empty
+          updates.dataSource = undefined;
         }
       }
     } else {

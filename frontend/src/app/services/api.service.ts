@@ -139,9 +139,11 @@ export class ApiService {
 
   /**
    * Convenience method: Get distinct models
+   * @param search - Optional search term for filtering models
+   * @param limit - Optional limit for number of results (default: 1000)
    */
-  getDistinctModels(): Observable<{ models: string[] }> {
-    return this.getFilterOptions('models');
+  getDistinctModels(search?: string, limit?: number): Observable<{ models: string[] }> {
+    return this.getFilterOptions('models', search, limit);
   }
 
   /**
