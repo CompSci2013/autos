@@ -20,11 +20,10 @@ import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { BaseDataTableComponent } from './components/base-data-table/base-data-table.component';
 import { ColumnManagerComponent } from './components/column-manager/column-manager.component';
-import { HistogramComponent } from './components/histogram/histogram.component';
 import { PlotlyHistogramComponent } from './components/plotly-histogram/plotly-histogram.component';
 
 @NgModule({
-  declarations: [BaseDataTableComponent, ColumnManagerComponent, HistogramComponent, PlotlyHistogramComponent],
+  declarations: [BaseDataTableComponent, ColumnManagerComponent, PlotlyHistogramComponent],
   imports: [
     CommonModule,
     FormsModule,
@@ -49,7 +48,6 @@ import { PlotlyHistogramComponent } from './components/plotly-histogram/plotly-h
     // Export our components
     BaseDataTableComponent,
     ColumnManagerComponent,
-    HistogramComponent,
     PlotlyHistogramComponent,
     // Also export NG-ZORRO modules for convenience
     CommonModule,

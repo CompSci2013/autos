@@ -26,11 +26,3 @@ export interface VehicleStatistics {
   // Total count matching current search filters
   totalCount: number;
 }
-
-/**
- * Histogram data structure for chart display
- */
-export interface HistogramData {
-  label: string;
-  count: number;
-}
