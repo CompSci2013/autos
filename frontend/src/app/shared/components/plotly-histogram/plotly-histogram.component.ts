@@ -50,7 +50,7 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
     responsive: true,
     displayModeBar: true,
     displaylogo: false,
-    modeBarButtonsToRemove: ['lasso2d', 'select2d'],
+    // Enable lasso and rectangular selection tools
   };
 
   constructor(
@@ -203,12 +203,18 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
     const containerWidth = el.offsetWidth || el.parentElement?.offsetWidth || 600;
 
     const layout: Partial<Plotly.Layout> = {
-      title: 'Vehicles by Manufacturer',
+      title: {
+        text: 'Manufacturers',
+        font: { size: 18, family: 'Arial, sans-serif' },
+        xref: 'paper',
+        x: 0.5,
+      },
       xaxis: { title: 'Manufacturer' },
       yaxis: { title: 'Count' },
       width: containerWidth,
       height: 400,
-      margin: { t: 50, r: 20, b: 100, l: 60 },
+      margin: { t: 60, r: 20, b: 100, l: 60 },
+      showlegend: false,
     };
 
     const config = {
@@ -273,14 +279,18 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
     const containerWidth = el.offsetWidth || el.parentElement?.offsetWidth || 600;
 
     const layout: Partial<Plotly.Layout> = {
-      title: selectedMfr
-        ? `Models by ${selectedMfr}`
-        : 'Models by Manufacturer (All)',
+      title: {
+        text: 'Models',
+        font: { size: 18, family: 'Arial, sans-serif' },
+        xref: 'paper',
+        x: 0.5,
+      },
       xaxis: { title: 'Model', tickangle: -45 },
       yaxis: { title: 'Count' },
       width: containerWidth,
       height: 400,
-      margin: { t: 50, r: 20, b: 150, l: 60 },
+      margin: { t: 60, r: 20, b: 150, l: 60 },
+      showlegend: false,
     };
 
     const config = {
@@ -342,7 +352,12 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
     const containerWidth = el.offsetWidth || el.parentElement?.offsetWidth || 600;
 
     const layout: Partial<Plotly.Layout> = {
-      title: 'Vehicles by Year',
+      title: {
+        text: 'Year',
+        font: { size: 18, family: 'Arial, sans-serif' },
+        xref: 'paper',
+        x: 0.5,
+      },
       xaxis: {
         title: 'Year',
         type: 'linear',
@@ -351,7 +366,8 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
       yaxis: { title: 'Count' },
       width: containerWidth,
       height: 400,
-      margin: { t: 50, r: 20, b: 60, l: 60 },
+      margin: { t: 60, r: 20, b: 60, l: 60 },
+      showlegend: false,
     };
 
     const config = {
@@ -378,6 +394,16 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
     el.on('plotly_click', (data: any) => {
       const year = data.points[0].x;
       this.onYearClick(year);
+    });
+
+    // Add selection handler for box/lasso select - updates yearMin/yearMax
+    el.on('plotly_selected', (data: any) => {
+      if (data && data.points && data.points.length > 0) {
+        const selectedYears = data.points.map((point: any) => point.x);
+        const yearMin = Math.min(...selectedYears);
+        const yearMax = Math.max(...selectedYears);
+        this.onYearRangeSelect(yearMin, yearMax);
+      }
     });
   }
 
@@ -411,12 +437,18 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
     const containerWidth = el.offsetWidth || el.parentElement?.offsetWidth || 600;
 
     const layout: Partial<Plotly.Layout> = {
-      title: 'Vehicles by Body Class',
+      title: {
+        text: 'Body Class',
+        font: { size: 18, family: 'Arial, sans-serif' },
+        xref: 'paper',
+        x: 0.5,
+      },
       xaxis: { title: 'Body Class', tickangle: -45 },
       yaxis: { title: 'Count' },
       width: containerWidth,
       height: 400,
-      margin: { t: 50, r: 20, b: 100, l: 60 },
+      margin: { t: 60, r: 20, b: 100, l: 60 },
+      showlegend: false,
     };
 
     const config = {
@@ -475,6 +507,24 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
     } else {
       // Normal mode: charts are informational only (no action)
       console.log('[PlotlyHistogram] Chart click in normal mode (no action)');
+    }
+  }
+
+  private onYearRangeSelect(yearMin: number, yearMax: number): void {
+    console.log(`[PlotlyHistogram] Year range selected: ${yearMin} - ${yearMax}`);
+
+    if (this.popOutContext.isInPopOut()) {
+      // Pop-out mode: send message to main window
+      this.popOutContext.sendMessage({
+        type: 'YEAR_RANGE_SELECT',
+        payload: { yearMin, yearMax }
+      });
+    } else {
+      // Normal mode: update filters directly via StateManagementService
+      this.stateService.updateFilters({
+        yearMin,
+        yearMax
+      });
     }
   }
 

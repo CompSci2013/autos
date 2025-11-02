@@ -12,12 +12,28 @@ declare namespace Plotly {
   }
 
   export interface Layout {
-    title?: string;
+    title?: string | Partial<Title>;
     xaxis?: Partial<Axis>;
     yaxis?: Partial<Axis>;
     height?: number;
     width?: number;
     margin?: Partial<Margin>;
+    showlegend?: boolean;
+    [key: string]: any;
+  }
+
+  export interface Title {
+    text?: string;
+    font?: Partial<Font>;
+    xref?: string;
+    x?: number;
+    [key: string]: any;
+  }
+
+  export interface Font {
+    family?: string;
+    size?: number;
+    color?: string;
     [key: string]: any;
   }
 

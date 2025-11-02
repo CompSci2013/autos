@@ -321,6 +321,17 @@ export class PanelPopoutService implements OnDestroy {
         }
         break;
 
+      case 'YEAR_RANGE_SELECT':
+        // Pop-out chart selected year range via box/lasso selection
+        console.log('[PanelPopoutService] Year range selected in pop-out:', payload);
+        if (payload && typeof payload === 'object' && 'yearMin' in payload && 'yearMax' in payload) {
+          this.stateService.updateFilters({
+            yearMin: payload.yearMin,
+            yearMax: payload.yearMax,
+          });
+        }
+        break;
+
       case 'BODY_CLASS_CLICK':
         // Pop-out chart clicked on body class
         console.log(
