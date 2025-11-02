@@ -147,7 +147,7 @@ export class PanelPopoutService implements OnDestroy {
       case 'plotly':
       case 'chart':
         width = 1600;
-        height = 1000;
+        height = 900;
         break;
       case 'results':
         width = 1400;
@@ -155,7 +155,7 @@ export class PanelPopoutService implements OnDestroy {
         break;
       case 'picker':
         width = 1000;
-        height = 700;
+        height = 900;
         break;
     }
 
@@ -279,7 +279,7 @@ export class PanelPopoutService implements OnDestroy {
           yearMin: undefined,
           yearMax: undefined,
           bodyClass: undefined,
-          dataSource: undefined
+          dataSource: undefined,
         });
         // State change will automatically broadcast back to pop-out via subscription
         break;
@@ -323,8 +323,16 @@ export class PanelPopoutService implements OnDestroy {
 
       case 'YEAR_RANGE_SELECT':
         // Pop-out chart selected year range via box/lasso selection
-        console.log('[PanelPopoutService] Year range selected in pop-out:', payload);
-        if (payload && typeof payload === 'object' && 'yearMin' in payload && 'yearMax' in payload) {
+        console.log(
+          '[PanelPopoutService] Year range selected in pop-out:',
+          payload
+        );
+        if (
+          payload &&
+          typeof payload === 'object' &&
+          'yearMin' in payload &&
+          'yearMax' in payload
+        ) {
           this.stateService.updateFilters({
             yearMin: payload.yearMin,
             yearMax: payload.yearMax,
@@ -382,21 +390,25 @@ export class PanelPopoutService implements OnDestroy {
             }
           } else if (payload.type === 'multiselect') {
             if (payload.field === 'manufacturer') {
-              updates.manufacturer = payload.values && payload.values.length > 0
-                ? payload.values.join(',')
-                : undefined;
+              updates.manufacturer =
+                payload.values && payload.values.length > 0
+                  ? payload.values.join(',')
+                  : undefined;
             } else if (payload.field === 'model') {
-              updates.model = payload.values && payload.values.length > 0
-                ? payload.values.join(',')
-                : undefined;
+              updates.model =
+                payload.values && payload.values.length > 0
+                  ? payload.values.join(',')
+                  : undefined;
             } else if (payload.field === 'bodyClass') {
-              updates.bodyClass = payload.values && payload.values.length > 0
-                ? payload.values.join(',')
-                : undefined;
+              updates.bodyClass =
+                payload.values && payload.values.length > 0
+                  ? payload.values.join(',')
+                  : undefined;
             } else if (payload.field === 'dataSource') {
-              updates.dataSource = payload.values && payload.values.length > 0
-                ? payload.values.join(',')
-                : undefined;
+              updates.dataSource =
+                payload.values && payload.values.length > 0
+                  ? payload.values.join(',')
+                  : undefined;
             }
           } else {
             // String/number filters
@@ -417,7 +429,10 @@ export class PanelPopoutService implements OnDestroy {
 
       case 'FILTER_REMOVE':
         // Pop-out query control removed a filter
-        console.log('[PanelPopoutService] Filter removed from pop-out:', payload);
+        console.log(
+          '[PanelPopoutService] Filter removed from pop-out:',
+          payload
+        );
         if (payload && payload.updates) {
           this.stateService.updateFilters(payload.updates);
         }

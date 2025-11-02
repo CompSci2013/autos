@@ -1,0 +1,6346 @@
+[
+  {
+    "vehicle_id": "uVq72pkBwJqXGJFta_ee",
+    "manufacturer": "Ford",
+    "model": "Crown Victoria",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "ulq72pkBwJqXGJFta_ek",
+    "manufacturer": "Ford",
+    "model": "Focus",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "u1q72pkBwJqXGJFta_em",
+    "manufacturer": "Ford",
+    "model": "Fusion",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "vFq72pkBwJqXGJFta_eo",
+    "manufacturer": "Ford",
+    "model": "Mustang",
+    "year": 1960,
+    "body_class": "Coupe",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "vVq72pkBwJqXGJFta_eq",
+    "manufacturer": "Ford",
+    "model": "Taurus",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "vlq72pkBwJqXGJFta_es",
+    "manufacturer": "Ford",
+    "model": "E-150",
+    "year": 1965,
+    "body_class": "Van",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "v1q72pkBwJqXGJFta_eu",
+    "manufacturer": "Ford",
+    "model": "Edge",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "wFq72pkBwJqXGJFta_ex",
+    "manufacturer": "Ford",
+    "model": "Escape",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "wVq72pkBwJqXGJFta_ez",
+    "manufacturer": "Ford",
+    "model": "Expedition",
+    "year": 1972,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "wlq72pkBwJqXGJFta_e1",
+    "manufacturer": "Ford",
+    "model": "Explorer",
+    "year": 1975,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "w1q72pkBwJqXGJFta_e3",
+    "manufacturer": "Ford",
+    "model": "F-150",
+    "year": 1953,
+    "body_class": "Pickup",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "xFq72pkBwJqXGJFta_e5",
+    "manufacturer": "Ford",
+    "model": "Flex",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "xVq72pkBwJqXGJFta_e7",
+    "manufacturer": "Ford",
+    "model": "Ranger",
+    "year": 1957,
+    "body_class": "Pickup",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "xlq72pkBwJqXGJFta_e-",
+    "manufacturer": "Ford",
+    "model": "Explorer Sport Trac",
+    "year": 1960,
+    "body_class": "SUV",
+    "match_type": "manufacturer_default"
+  },
+  {
+    "vehicle_id": "x1q72pkBwJqXGJFta_fA",
+    "manufacturer": "Ford",
+    "model": "F-250",
+    "year": 1962,
+    "body_class": "Pickup",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "yFq72pkBwJqXGJFta_fC",
+    "manufacturer": "Ford",
+    "model": "F-350",
+    "year": 1965,
+    "body_class": "Pickup",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "yVq72pkBwJqXGJFta_fE",
+    "manufacturer": "Ford",
+    "model": "F-450",
+    "year": 1968,
+    "body_class": "Pickup",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "ylq72pkBwJqXGJFta_fG",
+    "manufacturer": "Ford",
+    "model": "F-550",
+    "year": 1970,
+    "body_class": "Pickup",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "y1q72pkBwJqXGJFta_fJ",
+    "manufacturer": "Ford",
+    "model": "F-650",
+    "year": 1972,
+    "body_class": "Truck",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "zFq72pkBwJqXGJFta_fL",
+    "manufacturer": "Ford",
+    "model": "F-750",
+    "year": 1975,
+    "body_class": "Truck",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "zVq72pkBwJqXGJFta_fN",
+    "manufacturer": "Ford",
+    "model": "Transit Connect",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "zlq72pkBwJqXGJFta_fP",
+    "manufacturer": "Ford",
+    "model": "E-250",
+    "year": 1955,
+    "body_class": "Van",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "z1q72pkBwJqXGJFta_fR",
+    "manufacturer": "Ford",
+    "model": "E-350",
+    "year": 1957,
+    "body_class": "Van",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "0Fq72pkBwJqXGJFta_fT",
+    "manufacturer": "Ford",
+    "model": "E-450",
+    "year": 1960,
+    "body_class": "Van",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "0Vq72pkBwJqXGJFta_fW",
+    "manufacturer": "Ford",
+    "model": "Expedition MAX",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "0lq72pkBwJqXGJFta_fY",
+    "manufacturer": "Ford",
+    "model": "Thunderbird",
+    "year": 1965,
+    "body_class": "Coupe",
+    "match_type": "historical_override"
+  },
+  {
+    "vehicle_id": "01q72pkBwJqXGJFta_fa",
+    "manufacturer": "Ford",
+    "model": "GT",
+    "year": 1968,
+    "body_class": "Sports Car",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "1Fq72pkBwJqXGJFta_fc",
+    "manufacturer": "Ford",
+    "model": "Five Hundred",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "1Vq72pkBwJqXGJFta_ff",
+    "manufacturer": "Ford",
+    "model": "Excursion",
+    "year": 1972,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "1lq72pkBwJqXGJFta_fh",
+    "manufacturer": "Ford",
+    "model": "Freestyle",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "11q72pkBwJqXGJFta_fj",
+    "manufacturer": "Ford",
+    "model": "Freestar",
+    "year": 1953,
+    "body_class": "Van",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "2Fq72pkBwJqXGJFta_fl",
+    "manufacturer": "Ford",
+    "model": "Motorhome Chassis",
+    "year": 1955,
+    "body_class": "Coupe",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "2Vq72pkBwJqXGJFta_fn",
+    "manufacturer": "Ford",
+    "model": "Taurus X",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "2lq72pkBwJqXGJFta_fq",
+    "manufacturer": "Ford",
+    "model": "Fiesta",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "21q72pkBwJqXGJFta_fs",
+    "manufacturer": "Ford",
+    "model": "Commercial Chassis",
+    "year": 1962,
+    "body_class": "Coupe",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "3Fq72pkBwJqXGJFta_fu",
+    "manufacturer": "Ford",
+    "model": "C-Max",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "3Vq72pkBwJqXGJFta_fw",
+    "manufacturer": "Ford",
+    "model": "Transit",
+    "year": 1968,
+    "body_class": "Van",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "3lq72pkBwJqXGJFta_fy",
+    "manufacturer": "Affordable Aluminum",
+    "model": "Affordable Aluminum",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "31q72pkBwJqXGJFta_f1",
+    "manufacturer": "Eagle Ford Tanks & Trailers LLC",
+    "model": "Eagle Ford Tanks & Trailers LLC",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "4Fq72pkBwJqXGJFta_f3",
+    "manufacturer": "Ford",
+    "model": "Escort",
+    "year": 1975,
+    "body_class": "Hatchback",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "4Vq72pkBwJqXGJFta_f5",
+    "manufacturer": "Ford",
+    "model": "ZX2",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "4lq72pkBwJqXGJFta_f7",
+    "manufacturer": "Ford",
+    "model": "Windstar",
+    "year": 1955,
+    "body_class": "Van",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "41q72pkBwJqXGJFta_f9",
+    "manufacturer": "Ford",
+    "model": "E-550",
+    "year": 1957,
+    "body_class": "Van",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "5Fq72pkBwJqXGJFtbPcA",
+    "manufacturer": "Ford",
+    "model": "B-750",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "5Vq72pkBwJqXGJFtbPcC",
+    "manufacturer": "Ford",
+    "model": "F-800",
+    "year": 1962,
+    "body_class": "Pickup",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "5lq72pkBwJqXGJFtbPcE",
+    "manufacturer": "Ford",
+    "model": "Explorer Sport",
+    "year": 1965,
+    "body_class": "SUV",
+    "match_type": "manufacturer_default"
+  },
+  {
+    "vehicle_id": "51q72pkBwJqXGJFtbPcG",
+    "manufacturer": "Milford Welding & Manufacturing",
+    "model": "Milford Welding & Manufacturing Inc.",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "6Fq72pkBwJqXGJFtbPcJ",
+    "manufacturer": "Ford",
+    "model": "Aspire",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "6Vq72pkBwJqXGJFtbPcL",
+    "manufacturer": "Ford",
+    "model": "Probe",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "6lq72pkBwJqXGJFtbPcN",
+    "manufacturer": "Ford",
+    "model": "Contour",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "61q72pkBwJqXGJFtbPcP",
+    "manufacturer": "Ford",
+    "model": "Bronco",
+    "year": 1953,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "7Fq72pkBwJqXGJFtbPcR",
+    "manufacturer": "Ford",
+    "model": "Aerostar",
+    "year": 1955,
+    "body_class": "Van",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "7Vq72pkBwJqXGJFtbPcT",
+    "manufacturer": "Ford",
+    "model": "F-150 Heritage",
+    "year": 1957,
+    "body_class": "Pickup",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "7lq72pkBwJqXGJFtbPcW",
+    "manufacturer": "Waterford Tank and Fabrication",
+    "model": "Waterford Tank and Fabrication, LTD",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "71q72pkBwJqXGJFtbPcY",
+    "manufacturer": "Milford Pipe & Supply",
+    "model": "Milford Pipe & Supply",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "8Fq72pkBwJqXGJFtbPca",
+    "manufacturer": "Ford",
+    "model": "L8501",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "8Vq72pkBwJqXGJFtbPcc",
+    "manufacturer": "Ford",
+    "model": "LT8501",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "8lq72pkBwJqXGJFtbPce",
+    "manufacturer": "Ford",
+    "model": "L9501",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "81q72pkBwJqXGJFtbPch",
+    "manufacturer": "Ford",
+    "model": "LT9501",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "9Fq72pkBwJqXGJFtbPcj",
+    "manufacturer": "Ford",
+    "model": "L8511",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "9Vq72pkBwJqXGJFtbPcl",
+    "manufacturer": "Ford",
+    "model": "LT8511",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "9lq72pkBwJqXGJFtbPcn",
+    "manufacturer": "Ford",
+    "model": "L9511",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "91q72pkBwJqXGJFtbPcp",
+    "manufacturer": "Ford",
+    "model": "LT9511",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "-Fq72pkBwJqXGJFtbPcr",
+    "manufacturer": "Ford",
+    "model": "L8513",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "-Vq72pkBwJqXGJFtbPct",
+    "manufacturer": "Ford",
+    "model": "LT8513",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "-lq72pkBwJqXGJFtbPcw",
+    "manufacturer": "Ford",
+    "model": "L9513",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "-1q72pkBwJqXGJFtbPcy",
+    "manufacturer": "Ford",
+    "model": "LT9513",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "_Fq72pkBwJqXGJFtbPc0",
+    "manufacturer": "Ford",
+    "model": "L9522",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "_Vq72pkBwJqXGJFtbPc2",
+    "manufacturer": "Ford",
+    "model": "LT9522",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "_lq72pkBwJqXGJFtbPc4",
+    "manufacturer": "Ford",
+    "model": "A8513",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "_1q72pkBwJqXGJFtbPc7",
+    "manufacturer": "Ford",
+    "model": "AT8513",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "AFq72pkBwJqXGJFtbPg9",
+    "manufacturer": "Ford",
+    "model": "A9513",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "AVq72pkBwJqXGJFtbPg_",
+    "manufacturer": "Ford",
+    "model": "AT9513",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Alq72pkBwJqXGJFtbPhB",
+    "manufacturer": "Ford",
+    "model": "A9522",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "A1q72pkBwJqXGJFtbPhD",
+    "manufacturer": "Ford",
+    "model": "AT9522",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "BFq72pkBwJqXGJFtbPhG",
+    "manufacturer": "Ford",
+    "model": "B800",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "BVq72pkBwJqXGJFtbPhI",
+    "manufacturer": "Ford",
+    "model": "F-Super Duty",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Blq72pkBwJqXGJFtbPhK",
+    "manufacturer": "Ford",
+    "model": "F-700",
+    "year": 1970,
+    "body_class": "Pickup",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "B1q72pkBwJqXGJFtbPhM",
+    "manufacturer": "Ford",
+    "model": "P700",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "CFq72pkBwJqXGJFtbPhO",
+    "manufacturer": "Ford",
+    "model": "P800",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "CVq72pkBwJqXGJFtbPhQ",
+    "manufacturer": "Ford",
+    "model": "FT900",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Clq72pkBwJqXGJFtbPhT",
+    "manufacturer": "Ford",
+    "model": "L8000",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "C1q72pkBwJqXGJFtbPhV",
+    "manufacturer": "Ford",
+    "model": "L9000",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "DFq72pkBwJqXGJFtbPhX",
+    "manufacturer": "Ford",
+    "model": "LL9000",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "DVq72pkBwJqXGJFtbPhZ",
+    "manufacturer": "Ford",
+    "model": "LLA9000",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Dlq72pkBwJqXGJFtbPhb",
+    "manufacturer": "Ford",
+    "model": "LLS9000",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "D1q72pkBwJqXGJFtbPhe",
+    "manufacturer": "Ford",
+    "model": "LS8000",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "EFq72pkBwJqXGJFtbPhg",
+    "manufacturer": "Ford",
+    "model": "LS9000",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "EVq72pkBwJqXGJFtbPhi",
+    "manufacturer": "Ford",
+    "model": "LT8000",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Elq72pkBwJqXGJFtbPhk",
+    "manufacturer": "Ford",
+    "model": "LT9000",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "E1q72pkBwJqXGJFtbPhm",
+    "manufacturer": "Ford",
+    "model": "LTS8000",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "FFq72pkBwJqXGJFtbPho",
+    "manufacturer": "Ford",
+    "model": "LTS9000",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "FVq72pkBwJqXGJFtbPhr",
+    "manufacturer": "Ford",
+    "model": "LTL9000",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Flq72pkBwJqXGJFtbPht",
+    "manufacturer": "Ford",
+    "model": "LTLA9000",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "F1q72pkBwJqXGJFtbPhv",
+    "manufacturer": "Ford",
+    "model": "LTLS9000",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "GFq72pkBwJqXGJFtbPhx",
+    "manufacturer": "Ford",
+    "model": "LA8000",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "GVq72pkBwJqXGJFtbPh0",
+    "manufacturer": "Ford",
+    "model": "LA9000",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Glq72pkBwJqXGJFtbPh2",
+    "manufacturer": "Ford",
+    "model": "LTA9000",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "G1q72pkBwJqXGJFtbPh4",
+    "manufacturer": "Ford",
+    "model": "LN7000",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "HFq72pkBwJqXGJFtbPh6",
+    "manufacturer": "Ford",
+    "model": "LN8000",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "HVq72pkBwJqXGJFtbfic",
+    "manufacturer": "Chevrolet",
+    "model": "Aveo",
+    "year": 1953,
+    "body_class": "Hatchback",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "Hlq72pkBwJqXGJFtbfii",
+    "manufacturer": "Chevrolet",
+    "model": "Camaro",
+    "year": 1955,
+    "body_class": "Coupe",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "H1q72pkBwJqXGJFtbfil",
+    "manufacturer": "Chevrolet",
+    "model": "Caprice Police Vehicle",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "IFq72pkBwJqXGJFtbfin",
+    "manufacturer": "Chevrolet",
+    "model": "Corvette",
+    "year": 1960,
+    "body_class": "Sports Car",
+    "match_type": "historical_override"
+  },
+  {
+    "vehicle_id": "IVq72pkBwJqXGJFtbfiq",
+    "manufacturer": "Chevrolet",
+    "model": "Cruze",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "Ilq72pkBwJqXGJFtbfis",
+    "manufacturer": "Chevrolet",
+    "model": "Impala",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "I1q72pkBwJqXGJFtbfiu",
+    "manufacturer": "Chevrolet",
+    "model": "Malibu",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "JFq72pkBwJqXGJFtbfiw",
+    "manufacturer": "Chevrolet",
+    "model": "Sonic",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "JVq72pkBwJqXGJFtbfiy",
+    "manufacturer": "Chevrolet",
+    "model": "Spark",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Jlq72pkBwJqXGJFtbfi1",
+    "manufacturer": "Chevrolet",
+    "model": "SS",
+    "year": 1975,
+    "body_class": "Coupe",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "J1q72pkBwJqXGJFtbfi3",
+    "manufacturer": "Chevrolet",
+    "model": "Volt",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "KFq72pkBwJqXGJFtbfi5",
+    "manufacturer": "Chevrolet",
+    "model": "Captiva Sport",
+    "year": 1955,
+    "body_class": "Sports Car",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "KVq72pkBwJqXGJFtbfi7",
+    "manufacturer": "Chevrolet",
+    "model": "Equinox",
+    "year": 1957,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "Klq72pkBwJqXGJFtbfi9",
+    "manufacturer": "Chevrolet",
+    "model": "Express",
+    "year": 1960,
+    "body_class": "Van",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "K1q72pkBwJqXGJFtbfjA",
+    "manufacturer": "Chevrolet",
+    "model": "Orlando",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "LFq72pkBwJqXGJFtbfjC",
+    "manufacturer": "Chevrolet",
+    "model": "Silverado",
+    "year": 1965,
+    "body_class": "Pickup",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "LVq72pkBwJqXGJFtbfjE",
+    "manufacturer": "Chevrolet",
+    "model": "Suburban",
+    "year": 1968,
+    "body_class": "SUV",
+    "match_type": "historical_override"
+  },
+  {
+    "vehicle_id": "Llq72pkBwJqXGJFtbfjG",
+    "manufacturer": "Chevrolet",
+    "model": "Tahoe",
+    "year": 1970,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "L1q72pkBwJqXGJFtbfjJ",
+    "manufacturer": "Chevrolet",
+    "model": "Traverse",
+    "year": 1972,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "MFq72pkBwJqXGJFtbfjL",
+    "manufacturer": "Chevrolet",
+    "model": "Tracker",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "MVq72pkBwJqXGJFtbfjN",
+    "manufacturer": "Chevrolet",
+    "model": "City Express",
+    "year": 1953,
+    "body_class": "Coupe",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "Mlq72pkBwJqXGJFtbfjP",
+    "manufacturer": "Chevrolet",
+    "model": "Geo Prizm",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "M1q72pkBwJqXGJFtbfjR",
+    "manufacturer": "Chevrolet",
+    "model": "Avalanche",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "NFq72pkBwJqXGJFtbfjT",
+    "manufacturer": "Chevrolet",
+    "model": "Matiz",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "NVq72pkBwJqXGJFtbfjW",
+    "manufacturer": "Chevrolet",
+    "model": "Colorado",
+    "year": 1962,
+    "body_class": "Pickup",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "Nlq72pkBwJqXGJFtbfjY",
+    "manufacturer": "Chevrolet",
+    "model": "Cobalt",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "N1q72pkBwJqXGJFtbfja",
+    "manufacturer": "Chevrolet",
+    "model": "Optra",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "OFq72pkBwJqXGJFtbfjc",
+    "manufacturer": "Chevrolet",
+    "model": "Kalos",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "OVq72pkBwJqXGJFtbfjg",
+    "manufacturer": "Chevrolet",
+    "model": "Trailblazer",
+    "year": 1972,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "Olq72pkBwJqXGJFtbfji",
+    "manufacturer": "Chevrolet",
+    "model": "HHR",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "O1q72pkBwJqXGJFtbfjk",
+    "manufacturer": "Chevrolet",
+    "model": "Uplander",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "PFq72pkBwJqXGJFtbfjm",
+    "manufacturer": "Chevrolet",
+    "model": "W4",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "PVq72pkBwJqXGJFtbfjp",
+    "manufacturer": "Chevrolet",
+    "model": "W5",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Plq72pkBwJqXGJFtbfjr",
+    "manufacturer": "Chevrolet",
+    "model": "Monte Carlo",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "P1q72pkBwJqXGJFtbfjt",
+    "manufacturer": "Chevrolet",
+    "model": "SSR",
+    "year": 1962,
+    "body_class": "Coupe",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "QFq72pkBwJqXGJFtbfjv",
+    "manufacturer": "Chevrolet",
+    "model": "Epica",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "QVq72pkBwJqXGJFtbfjx",
+    "manufacturer": "Chevrolet",
+    "model": "Cavalier",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "Qlq72pkBwJqXGJFtbfj0",
+    "manufacturer": "Chevrolet",
+    "model": "U100",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Q1q72pkBwJqXGJFtbfj2",
+    "manufacturer": "Chevrolet",
+    "model": "3 ton",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "RFq72pkBwJqXGJFtbfj4",
+    "manufacturer": "Chevrolet",
+    "model": "Astro Van",
+    "year": 1975,
+    "body_class": "Van",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "RVq72pkBwJqXGJFtbfj6",
+    "manufacturer": "Chevrolet",
+    "model": "Venture",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Rlq72pkBwJqXGJFtbfj9",
+    "manufacturer": "Chevrolet",
+    "model": "B7",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "R1q72pkBwJqXGJFtbfj_",
+    "manufacturer": "Chevrolet",
+    "model": "Lumina",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "SFq72pkBwJqXGJFtbvgB",
+    "manufacturer": "Chevrolet",
+    "model": "Alero",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "SVq72pkBwJqXGJFtbvgD",
+    "manufacturer": "Chevrolet",
+    "model": "Caprice",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "Slq72pkBwJqXGJFtbvgF",
+    "manufacturer": "Chevrolet",
+    "model": "Corsica",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "S1q72pkBwJqXGJFtbvgH",
+    "manufacturer": "Chevrolet",
+    "model": "Beretta",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "TFq72pkBwJqXGJFtbvgK",
+    "manufacturer": "Chevrolet",
+    "model": "Hearse/Limo",
+    "year": 1970,
+    "body_class": "Limousine",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "TVq72pkBwJqXGJFtbvgM",
+    "manufacturer": "Chevrolet",
+    "model": "Metro",
+    "year": 1972,
+    "body_class": "Hatchback",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "Tlq72pkBwJqXGJFtbvgO",
+    "manufacturer": "Chevrolet",
+    "model": "GMT-400",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "T1q72pkBwJqXGJFtbvgQ",
+    "manufacturer": "Chevrolet",
+    "model": "Military Truck",
+    "year": 1953,
+    "body_class": "Pickup",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "UFq72pkBwJqXGJFtbvgS",
+    "manufacturer": "Chevrolet",
+    "model": "Forward Control",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "UVq72pkBwJqXGJFtbvgW",
+    "manufacturer": "Chevrolet",
+    "model": "Trax",
+    "year": 1957,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "Ulq72pkBwJqXGJFtbvgY",
+    "manufacturer": "Chevrolet",
+    "model": "S-10 Pickup",
+    "year": 1960,
+    "body_class": "Pickup",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "U1q72pkBwJqXGJFtbvgb",
+    "manufacturer": "Chevrolet",
+    "model": "C/K Pickup",
+    "year": 1962,
+    "body_class": "Pickup",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "VFq72pkBwJqXGJFtbvgd",
+    "manufacturer": "Chevrolet",
+    "model": "P - Series",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "VVq72pkBwJqXGJFtbvgf",
+    "manufacturer": "Chevrolet",
+    "model": "Lumina APV",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Vlq72pkBwJqXGJFtbvgh",
+    "manufacturer": "Chevrolet",
+    "model": "Blazer",
+    "year": 1970,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "V1q72pkBwJqXGJFtbvgj",
+    "manufacturer": "Chevrolet",
+    "model": "Impala Limited",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "WFq72pkBwJqXGJFtbvgm",
+    "manufacturer": "Chevrolet",
+    "model": "Bolt EV",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "WVq72pkBwJqXGJFtbvgo",
+    "manufacturer": "Chevrolet",
+    "model": "3500HD",
+    "year": 1953,
+    "body_class": "Pickup",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Wlq72pkBwJqXGJFtbvgq",
+    "manufacturer": "Chevrolet",
+    "model": "5500HD",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "W1q72pkBwJqXGJFtbvgs",
+    "manufacturer": "Chevrolet",
+    "model": "3500 / 4500",
+    "year": 1957,
+    "body_class": "Pickup",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "XFq72pkBwJqXGJFtbvgu",
+    "manufacturer": "Chevrolet",
+    "model": "4500HD",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "XVq72pkBwJqXGJFtbvgx",
+    "manufacturer": "Chevrolet",
+    "model": "4500XD",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Xlq72pkBwJqXGJFtbvgz",
+    "manufacturer": "Chevrolet",
+    "model": "5500XD",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "X1q72pkBwJqXGJFtbvg1",
+    "manufacturer": "Chevrolet",
+    "model": "T-Series",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "YFq72pkBwJqXGJFtbvg3",
+    "manufacturer": "Chevrolet",
+    "model": "C4",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "YVq72pkBwJqXGJFtbvg5",
+    "manufacturer": "Chevrolet",
+    "model": "C5",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Ylq72pkBwJqXGJFtbvg7",
+    "manufacturer": "Chevrolet",
+    "model": "C6",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Y1q72pkBwJqXGJFtbvg-",
+    "manufacturer": "Chevrolet",
+    "model": "C7",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "ZFq72pkBwJqXGJFtbvhA",
+    "manufacturer": "Chevrolet",
+    "model": "C8",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "ZVq72pkBwJqXGJFtbvhC",
+    "manufacturer": "Chevrolet",
+    "model": "W7",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Zlq72pkBwJqXGJFtbvhE",
+    "manufacturer": "Chevrolet",
+    "model": "Hearse/Limo Commercial Chassis",
+    "year": 1960,
+    "body_class": "Coupe",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "Z1q72pkBwJqXGJFtbvhG",
+    "manufacturer": "Chevrolet",
+    "model": "W3",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "aFq72pkBwJqXGJFtbvhJ",
+    "manufacturer": "Chevrolet",
+    "model": "W6",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "aVq72pkBwJqXGJFtbvhL",
+    "manufacturer": "Chevrolet",
+    "model": "D7",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "alq72pkBwJqXGJFtbvhN",
+    "manufacturer": "Chevrolet",
+    "model": "P6S",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "a1q72pkBwJqXGJFtbvhP",
+    "manufacturer": "Chevrolet",
+    "model": "S-10 Blazer",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "bFq72pkBwJqXGJFtbvhR",
+    "manufacturer": "Chevrolet",
+    "model": "P Truck Forward",
+    "year": 1975,
+    "body_class": "Pickup",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "bVq72pkBwJqXGJFtbvhT",
+    "manufacturer": "Chevrolet",
+    "model": "Celebrity",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "blq72pkBwJqXGJFtbvhW",
+    "manufacturer": "Chevrolet",
+    "model": "Geo Spectrum",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "b1q72pkBwJqXGJFtbvhY",
+    "manufacturer": "Chevrolet",
+    "model": "G-Series",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "cFq72pkBwJqXGJFtbvha",
+    "manufacturer": "Chevrolet",
+    "model": "Cutaway Chassis",
+    "year": 1960,
+    "body_class": "Coupe",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "cVq72pkBwJqXGJFtbvhc",
+    "manufacturer": "Chevrolet",
+    "model": "Motorhome Chassis",
+    "year": 1962,
+    "body_class": "Coupe",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "clq72pkBwJqXGJFtbvhe",
+    "manufacturer": "Chevrolet",
+    "model": "Chevette",
+    "year": 1965,
+    "body_class": "Hatchback",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "c1q72pkBwJqXGJFtbvhh",
+    "manufacturer": "Chevrolet",
+    "model": "Hi-Cube",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "dFq72pkBwJqXGJFtbvhj",
+    "manufacturer": "Chevrolet",
+    "model": "Cutaway Van",
+    "year": 1970,
+    "body_class": "Van",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "dVq72pkBwJqXGJFtbvhl",
+    "manufacturer": "Chevrolet",
+    "model": "S7",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "dlq72pkBwJqXGJFtbvhn",
+    "manufacturer": "Chevrolet",
+    "model": "Geo Sprint",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "d1q72pkBwJqXGJFtbvhp",
+    "manufacturer": "Chevrolet",
+    "model": "Nova",
+    "year": 1953,
+    "body_class": "Coupe",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "eFq72pkBwJqXGJFtbvhs",
+    "manufacturer": "Chevrolet",
+    "model": "S6",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "eVq72pkBwJqXGJFtbvhu",
+    "manufacturer": "Chevrolet",
+    "model": "R Conventional",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "elq72pkBwJqXGJFtbvhw",
+    "manufacturer": "Chevrolet",
+    "model": "V Conventional",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "e1q72pkBwJqXGJFtbvhy",
+    "manufacturer": "Chevrolet",
+    "model": "Citation",
+    "year": 1962,
+    "body_class": "Hatchback",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "fFq72pkBwJqXGJFtbvh0",
+    "manufacturer": "Chevrolet",
+    "model": "Bus Chassis",
+    "year": 1965,
+    "body_class": "Coupe",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "fVq72pkBwJqXGJFtbvh3",
+    "manufacturer": "Chevrolet",
+    "model": "Heavy Conventional",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "flq72pkBwJqXGJFtbvh5",
+    "manufacturer": "Chevrolet",
+    "model": "Aluminum Tilt",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "f1q72pkBwJqXGJFtbvh7",
+    "manufacturer": "Chevrolet",
+    "model": "El Camino",
+    "year": 1972,
+    "body_class": "Pickup",
+    "match_type": "historical_override"
+  },
+  {
+    "vehicle_id": "gFq72pkBwJqXGJFtbvh9",
+    "manufacturer": "Chevrolet",
+    "model": "LUV",
+    "year": 1975,
+    "body_class": "Pickup",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "gVq72pkBwJqXGJFtb_iQ",
+    "manufacturer": "Dodge",
+    "model": "Avenger",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "glq72pkBwJqXGJFtb_iV",
+    "manufacturer": "Dodge",
+    "model": "Challenger",
+    "year": 1955,
+    "body_class": "Coupe",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "g1q72pkBwJqXGJFtb_iX",
+    "manufacturer": "Dodge",
+    "model": "Charger",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "hFq72pkBwJqXGJFtb_iZ",
+    "manufacturer": "Dodge",
+    "model": "Caliber",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "hVq72pkBwJqXGJFtb_ib",
+    "manufacturer": "Dodge",
+    "model": "Viper",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "hlq72pkBwJqXGJFtb_id",
+    "manufacturer": "Dodge",
+    "model": "Ram",
+    "year": 1965,
+    "body_class": "Pickup",
+    "match_type": "manufacturer_default"
+  },
+  {
+    "vehicle_id": "h1q72pkBwJqXGJFtb_ig",
+    "manufacturer": "Dodge",
+    "model": "Journey",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "iFq72pkBwJqXGJFtb_ii",
+    "manufacturer": "Dodge",
+    "model": "Nitro",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "iVq72pkBwJqXGJFtb_ik",
+    "manufacturer": "Dodge",
+    "model": "Dakota",
+    "year": 1972,
+    "body_class": "Pickup",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "ilq72pkBwJqXGJFtb_im",
+    "manufacturer": "Dodge",
+    "model": "Caravan/Grand Caravan",
+    "year": 1975,
+    "body_class": "Van",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "i1q72pkBwJqXGJFtb_io",
+    "manufacturer": "Dodge",
+    "model": "Ram Chassis Cab",
+    "year": 1953,
+    "body_class": "Coupe",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "jFq72pkBwJqXGJFtb_ir",
+    "manufacturer": "Dodge",
+    "model": "Dart",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "jVq72pkBwJqXGJFtb_it",
+    "manufacturer": "Sprinter (Dodge or Freightliner)",
+    "model": "Sprinter",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "jlq72pkBwJqXGJFtb_iv",
+    "manufacturer": "Dodge",
+    "model": "Sprinter",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "j1q72pkBwJqXGJFtb_ix",
+    "manufacturer": "Dodge",
+    "model": "Durango",
+    "year": 1962,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "kFq72pkBwJqXGJFtb_iz",
+    "manufacturer": "Dodge",
+    "model": "Chassis with Powertrain",
+    "year": 1965,
+    "body_class": "Coupe",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "kVq72pkBwJqXGJFtb_i2",
+    "manufacturer": "Dodge",
+    "model": "Magnum",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "klq72pkBwJqXGJFtb_i4",
+    "manufacturer": "Dodgen Industries",
+    "model": "Dodgen Industries",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "k1q72pkBwJqXGJFtb_i6",
+    "manufacturer": "Dodge",
+    "model": "Intrepid",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "lFq72pkBwJqXGJFtb_i8",
+    "manufacturer": "Dodge",
+    "model": "Stratus",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "lVq72pkBwJqXGJFtb_i-",
+    "manufacturer": "Dodge",
+    "model": "Neon",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "llq72pkBwJqXGJFtb_jB",
+    "manufacturer": "Dodge",
+    "model": "Colt",
+    "year": 1955,
+    "body_class": "Hatchback",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "l1q72pkBwJqXGJFtb_jD",
+    "manufacturer": "Dodge",
+    "model": "Stealth",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "mFq72pkBwJqXGJFtb_jF",
+    "manufacturer": "Dodge",
+    "model": "Ramcharger",
+    "year": 1960,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "mVq72pkBwJqXGJFtb_jH",
+    "manufacturer": "Dodge",
+    "model": "Ram Van",
+    "year": 1962,
+    "body_class": "Van",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "mlq72pkBwJqXGJFtb_jJ",
+    "manufacturer": "Dodge",
+    "model": "Ram Wagon",
+    "year": 1965,
+    "body_class": "Van",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "m1q72pkBwJqXGJFtb_jM",
+    "manufacturer": "Dodge",
+    "model": "Spirit",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "nFq72pkBwJqXGJFtb_jO",
+    "manufacturer": "Dodge",
+    "model": "Shadow",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "nVq72pkBwJqXGJFtb_jQ",
+    "manufacturer": "Dodge",
+    "model": "Dynasty",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "nlq72pkBwJqXGJFtb_jS",
+    "manufacturer": "Dodge",
+    "model": "Daytona",
+    "year": 1975,
+    "body_class": "Coupe",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "n1q72pkBwJqXGJFtb_jV",
+    "manufacturer": "Dodge",
+    "model": "Monaco",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "oFq72pkBwJqXGJFtb_jX",
+    "manufacturer": "Dodge",
+    "model": "OMNI",
+    "year": 1955,
+    "body_class": "Hatchback",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "oVq72pkBwJqXGJFtb_jZ",
+    "manufacturer": "Dodge",
+    "model": "Shelby Charger",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "manufacturer_default"
+  },
+  {
+    "vehicle_id": "olq72pkBwJqXGJFtb_jb",
+    "manufacturer": "Dodge",
+    "model": "ARIES",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "o1q72pkBwJqXGJFtb_jd",
+    "manufacturer": "Dodge",
+    "model": "600",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "pFq72pkBwJqXGJFtb_jf",
+    "manufacturer": "Dodge",
+    "model": "DIPLOMAT",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "pVq72pkBwJqXGJFtb_ji",
+    "manufacturer": "Dodge",
+    "model": "LANCER",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "plq72pkBwJqXGJFtb_jk",
+    "manufacturer": "Dodge",
+    "model": "Conquest",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "p1q72pkBwJqXGJFtb_jm",
+    "manufacturer": "Dodge",
+    "model": "400",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "qFq72pkBwJqXGJFtb_jo",
+    "manufacturer": "Dodge",
+    "model": "Mirada",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "qVq72pkBwJqXGJFtb_jq",
+    "manufacturer": "Dodge",
+    "model": "ST.REGIS",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "qlq72pkBwJqXGJFtb_jt",
+    "manufacturer": "Dodge",
+    "model": "Caravan",
+    "year": 1955,
+    "body_class": "Van",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "q1q72pkBwJqXGJFtb_jv",
+    "manufacturer": "Dodge",
+    "model": "Grand Caravan",
+    "year": 1957,
+    "body_class": "Van",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "rFq72pkBwJqXGJFtb_jx",
+    "manufacturer": "Dodge",
+    "model": "RAM 50",
+    "year": 1960,
+    "body_class": "Pickup",
+    "match_type": "manufacturer_default"
+  },
+  {
+    "vehicle_id": "rVq72pkBwJqXGJFtb_jz",
+    "manufacturer": "Dodge",
+    "model": "D-Series",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "rlq72pkBwJqXGJFtb_j2",
+    "manufacturer": "Dodge",
+    "model": "W-Series",
+    "year": 1965,
+    "body_class": "Truck",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "r1q72pkBwJqXGJFtb_j4",
+    "manufacturer": "Dodge",
+    "model": "Raider",
+    "year": 1968,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "sFq72pkBwJqXGJFtb_j6",
+    "manufacturer": "Dodge",
+    "model": "Mini Ram",
+    "year": 1970,
+    "body_class": "Pickup",
+    "match_type": "manufacturer_default"
+  },
+  {
+    "vehicle_id": "sVq72pkBwJqXGJFtb_j8",
+    "manufacturer": "Dodge",
+    "model": "Royal Mini Ram Van",
+    "year": 1972,
+    "body_class": "Van",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "slq72pkBwJqXGJFtb_j_",
+    "manufacturer": "Dodge",
+    "model": "D50",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "s1q72pkBwJqXGJFtcPgA",
+    "manufacturer": "Dodge",
+    "model": "Rampage",
+    "year": 1953,
+    "body_class": "Pickup",
+    "match_type": "manufacturer_default"
+  },
+  {
+    "vehicle_id": "tFq72pkBwJqXGJFtcPgD",
+    "manufacturer": "Dodge",
+    "model": "RD200 / RD250",
+    "year": 1955,
+    "body_class": "Pickup",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "tVq72pkBwJqXGJFtcPgF",
+    "manufacturer": "Dodger Trailer Manufacturing Inc",
+    "model": "580 Series",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "tlq72pkBwJqXGJFtcPgH",
+    "manufacturer": "Dodger Trailer Manufacturing Inc",
+    "model": "480 Series",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "t1q72pkBwJqXGJFtcPgJ",
+    "manufacturer": "Dodge",
+    "model": "Hornet",
+    "year": 1962,
+    "body_class": "Coupe",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "uFq72pkBwJqXGJFtcfgD",
+    "manufacturer": "Plymouth",
+    "model": "Neon",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "uVq72pkBwJqXGJFtcfgI",
+    "manufacturer": "Plymouth",
+    "model": "Breeze",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "ulq72pkBwJqXGJFtcfgK",
+    "manufacturer": "Plymouth",
+    "model": "Prowler",
+    "year": 1957,
+    "body_class": "Convertible",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "u1q72pkBwJqXGJFtcfgM",
+    "manufacturer": "Plymouth",
+    "model": "Acclaim",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "vFq72pkBwJqXGJFtcfgP",
+    "manufacturer": "Plymouth",
+    "model": "Colt",
+    "year": 1962,
+    "body_class": "Hatchback",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "vVq72pkBwJqXGJFtcfgR",
+    "manufacturer": "Plymouth",
+    "model": "Sundance",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "vlq72pkBwJqXGJFtcfgT",
+    "manufacturer": "Plymouth",
+    "model": "Laser",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "v1q72pkBwJqXGJFtcfgW",
+    "manufacturer": "Plymouth",
+    "model": "HORIZON",
+    "year": 1970,
+    "body_class": "Hatchback",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "wFq72pkBwJqXGJFtcfgY",
+    "manufacturer": "Plymouth",
+    "model": "TURISMO",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "wVq72pkBwJqXGJFtcfga",
+    "manufacturer": "Plymouth",
+    "model": "RELIANT",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "wlq72pkBwJqXGJFtcfgc",
+    "manufacturer": "Plymouth",
+    "model": "CARAVELLE",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "w1q72pkBwJqXGJFtcfge",
+    "manufacturer": "Plymouth",
+    "model": "GRAN FURY",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "xFq72pkBwJqXGJFtcfgg",
+    "manufacturer": "Plymouth",
+    "model": "CONQUEST",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "xVq72pkBwJqXGJFtcfgj",
+    "manufacturer": "Plymouth",
+    "model": "SAPPORO",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "xlq72pkBwJqXGJFtcfgl",
+    "manufacturer": "Plymouth",
+    "model": "Champ",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "x1q72pkBwJqXGJFtcfgn",
+    "manufacturer": "Plymouth",
+    "model": "Voyager",
+    "year": 1965,
+    "body_class": "Van",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "yFq72pkBwJqXGJFtcfgp",
+    "manufacturer": "Plymouth",
+    "model": "Grand Voyager",
+    "year": 1968,
+    "body_class": "Van",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "yVq72pkBwJqXGJFtcfgr",
+    "manufacturer": "Plymouth",
+    "model": "Scamp",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "ylq72pkBwJqXGJFtcfgt",
+    "manufacturer": "Plymouth",
+    "model": "Arrow",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "y1q72pkBwJqXGJFtcfgw",
+    "manufacturer": "Plymouth",
+    "model": "Trailduster",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "zFq72pkBwJqXGJFtcvgU",
+    "manufacturer": "Pontiac",
+    "model": "Vibe",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "zVq72pkBwJqXGJFtcvgX",
+    "manufacturer": "Pontiac",
+    "model": "G5",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "zlq72pkBwJqXGJFtcvgZ",
+    "manufacturer": "Pontiac",
+    "model": "Solstice",
+    "year": 1957,
+    "body_class": "Convertible",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "z1q72pkBwJqXGJFtcvgc",
+    "manufacturer": "Pontiac",
+    "model": "Wave",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "0Fq72pkBwJqXGJFtcvge",
+    "manufacturer": "Pontiac",
+    "model": "Grand Prix",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "0Vq72pkBwJqXGJFtcvgg",
+    "manufacturer": "Pontiac",
+    "model": "G6",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "0lq72pkBwJqXGJFtcvgi",
+    "manufacturer": "Pontiac",
+    "model": "G8",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "01q72pkBwJqXGJFtcvgk",
+    "manufacturer": "Pontiac",
+    "model": "G3",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "1Fq72pkBwJqXGJFtcvgn",
+    "manufacturer": "Pontiac",
+    "model": "Montana SV6",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "1Vq72pkBwJqXGJFtcvgp",
+    "manufacturer": "Pontiac",
+    "model": "Torrent",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "1lq72pkBwJqXGJFtcvgr",
+    "manufacturer": "Pontiac",
+    "model": "Pursuit",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "11q72pkBwJqXGJFtcvgt",
+    "manufacturer": "Pontiac",
+    "model": "GTO",
+    "year": 1955,
+    "body_class": "Coupe",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "2Fq72pkBwJqXGJFtcvgw",
+    "manufacturer": "Pontiac",
+    "model": "Matiz",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "2Vq72pkBwJqXGJFtcvgy",
+    "manufacturer": "Pontiac",
+    "model": "Bonneville",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "2lq72pkBwJqXGJFtcvg0",
+    "manufacturer": "Pontiac",
+    "model": "Sunfire",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "21q72pkBwJqXGJFtcvg2",
+    "manufacturer": "Pontiac",
+    "model": "Grand AM",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "3Fq72pkBwJqXGJFtcvg4",
+    "manufacturer": "Pontiac",
+    "model": "Aztek",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "3Vq72pkBwJqXGJFtcvg6",
+    "manufacturer": "Pontiac",
+    "model": "Firebird",
+    "year": 1970,
+    "body_class": "Coupe",
+    "match_type": "historical_override"
+  },
+  {
+    "vehicle_id": "3lq72pkBwJqXGJFtcvg8",
+    "manufacturer": "Pontiac",
+    "model": "Sunbird",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "31q72pkBwJqXGJFtcvg_",
+    "manufacturer": "Pontiac",
+    "model": "Trans Sport",
+    "year": 1975,
+    "body_class": "Sports Car",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "4Fq72pkBwJqXGJFtcvhB",
+    "manufacturer": "Pontiac",
+    "model": "Firefly",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "4Vq72pkBwJqXGJFtcvhD",
+    "manufacturer": "Pontiac",
+    "model": "Lemans",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "4lq72pkBwJqXGJFtcvhG",
+    "manufacturer": "Pontiac",
+    "model": "6000",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "41q72pkBwJqXGJFtcvhI",
+    "manufacturer": "Pontiac",
+    "model": "Parisienne",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "5Fq72pkBwJqXGJFtcvhK",
+    "manufacturer": "Pontiac",
+    "model": "Fiero",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "5Vq72pkBwJqXGJFtcvhM",
+    "manufacturer": "Pontiac",
+    "model": "T1000",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "5lq72pkBwJqXGJFtcvhO",
+    "manufacturer": "Pontiac",
+    "model": "Sunbird 2000",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "51q72pkBwJqXGJFtcvhR",
+    "manufacturer": "Pontiac",
+    "model": "Phoenix",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "6Fq72pkBwJqXGJFtcvhT",
+    "manufacturer": "Pontiac",
+    "model": "Grand Lemans",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "6Vq72pkBwJqXGJFtcvhV",
+    "manufacturer": "Pontiac",
+    "model": "Catalina",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "6lq72pkBwJqXGJFtcvhX",
+    "manufacturer": "Pontiac",
+    "model": "J2000",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "61q72pkBwJqXGJFtcvhZ",
+    "manufacturer": "Pontiac",
+    "model": "Safari",
+    "year": 1955,
+    "body_class": "Wagon",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "7Fq72pkBwJqXGJFtcvhb",
+    "manufacturer": "Pontiac",
+    "model": "Tempest",
+    "year": 1957,
+    "body_class": "Coupe",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "7Vq72pkBwJqXGJFtcvhd",
+    "manufacturer": "Pontiac",
+    "model": "Acadian",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "7lq72pkBwJqXGJFtcvhg",
+    "manufacturer": "Pontiac",
+    "model": "Sunburst",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "71q72pkBwJqXGJFtcvhi",
+    "manufacturer": "Pontiac",
+    "model": "Laurentian",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "8Fq72pkBwJqXGJFtcvhk",
+    "manufacturer": "Pontiac",
+    "model": "Montana",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "8Vq72pkBwJqXGJFtc_h5",
+    "manufacturer": "Buick",
+    "model": "LaCrosse",
+    "year": 1953,
+    "body_class": "Coupe",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "8lq72pkBwJqXGJFtc_h-",
+    "manufacturer": "Buick",
+    "model": "Regal",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "81q72pkBwJqXGJFtc_iA",
+    "manufacturer": "Buick",
+    "model": "Verano",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "9Fq72pkBwJqXGJFtc_iC",
+    "manufacturer": "Buick",
+    "model": "Enclave",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "9Vq72pkBwJqXGJFtc_iE",
+    "manufacturer": "Buick",
+    "model": "Encore",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "9lq72pkBwJqXGJFtc_iH",
+    "manufacturer": "Buick",
+    "model": "Lucerne",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "91q72pkBwJqXGJFtc_iJ",
+    "manufacturer": "Buick",
+    "model": "Allure",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "-Fq72pkBwJqXGJFtc_iL",
+    "manufacturer": "Buick",
+    "model": "Terraza",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "-Vq72pkBwJqXGJFtc_iN",
+    "manufacturer": "Buick",
+    "model": "Rainier",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "-lq72pkBwJqXGJFtc_iP",
+    "manufacturer": "Buick",
+    "model": "Rendezvous",
+    "year": 1975,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "-1q72pkBwJqXGJFtc_iS",
+    "manufacturer": "Buick",
+    "model": "Park Avenue",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "_Fq72pkBwJqXGJFtc_iU",
+    "manufacturer": "Buick",
+    "model": "LeSabre",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "_Vq72pkBwJqXGJFtc_iW",
+    "manufacturer": "Buick",
+    "model": "Century",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "_lq72pkBwJqXGJFtc_iY",
+    "manufacturer": "Buick",
+    "model": "Incomplete",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "_1q72pkBwJqXGJFtc_ia",
+    "manufacturer": "Buick",
+    "model": "Riviera",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "AFq72pkBwJqXGJFtc_mc",
+    "manufacturer": "Buick",
+    "model": "Skylark",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "historical_override"
+  },
+  {
+    "vehicle_id": "AVq72pkBwJqXGJFtc_mf",
+    "manufacturer": "Buick",
+    "model": "Coachbuilder",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Alq72pkBwJqXGJFtc_mh",
+    "manufacturer": "Buick",
+    "model": "Roadmaster",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "A1q72pkBwJqXGJFtc_mj",
+    "manufacturer": "Buick",
+    "model": "Cascada",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "BFq72pkBwJqXGJFtc_ml",
+    "manufacturer": "Buick",
+    "model": "Envision",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "BVq72pkBwJqXGJFtc_mn",
+    "manufacturer": "Buick",
+    "model": "Reatta",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Blq72pkBwJqXGJFtc_mq",
+    "manufacturer": "Buick",
+    "model": "Electra",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "B1q72pkBwJqXGJFtc_ms",
+    "manufacturer": "Buick",
+    "model": "Skyhawk",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "CFq72pkBwJqXGJFtc_mu",
+    "manufacturer": "Buick",
+    "model": "Somerset",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "CVq72pkBwJqXGJFtc_mw",
+    "manufacturer": "Buick",
+    "model": "Regal TourX",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Clq72pkBwJqXGJFtc_my",
+    "manufacturer": "Buick",
+    "model": "Encore GX",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "C1q72pkBwJqXGJFtc_m0",
+    "manufacturer": "Buick",
+    "model": "Envista",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "DFq72pkBwJqXGJFtdPmM",
+    "manufacturer": "GMC",
+    "model": "Acadia",
+    "year": 1953,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "DVq72pkBwJqXGJFtdPmR",
+    "manufacturer": "GMC",
+    "model": "Savana",
+    "year": 1955,
+    "body_class": "Van",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "Dlq72pkBwJqXGJFtdPmT",
+    "manufacturer": "GMC",
+    "model": "Sierra",
+    "year": 1957,
+    "body_class": "Pickup",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "D1q72pkBwJqXGJFtdPmV",
+    "manufacturer": "GMC",
+    "model": "Terrain",
+    "year": 1960,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "EFq72pkBwJqXGJFtdPmX",
+    "manufacturer": "GMC",
+    "model": "Yukon",
+    "year": 1962,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "EVq72pkBwJqXGJFtdPmZ",
+    "manufacturer": "GMC",
+    "model": "Canyon",
+    "year": 1965,
+    "body_class": "Pickup",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "Elq72pkBwJqXGJFtdPmc",
+    "manufacturer": "GMC",
+    "model": "Envoy",
+    "year": 1968,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "E1q72pkBwJqXGJFtdPme",
+    "manufacturer": "GMC",
+    "model": "Yukon XL",
+    "year": 1970,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "FFq72pkBwJqXGJFtdPmg",
+    "manufacturer": "GMC",
+    "model": "W4",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "FVq72pkBwJqXGJFtdPmi",
+    "manufacturer": "GMC",
+    "model": "Safari",
+    "year": 1975,
+    "body_class": "Wagon",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "Flq72pkBwJqXGJFtdPmk",
+    "manufacturer": "GMC",
+    "model": "Electric Vehicle",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "F1q72pkBwJqXGJFtdPmn",
+    "manufacturer": "GMC",
+    "model": "GMT-400",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "GFq72pkBwJqXGJFtdPmp",
+    "manufacturer": "GMC",
+    "model": "Sonoma",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "GVq72pkBwJqXGJFtdPmr",
+    "manufacturer": "GMC",
+    "model": "Suburban",
+    "year": 1960,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "Glq72pkBwJqXGJFtdPmt",
+    "manufacturer": "GMC",
+    "model": "C/K Pickup",
+    "year": 1962,
+    "body_class": "Pickup",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "G1q72pkBwJqXGJFtdPmw",
+    "manufacturer": "GMC",
+    "model": "Jimmy Utility",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "HFq72pkBwJqXGJFtdPmy",
+    "manufacturer": "GMC",
+    "model": "T-Series",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "HVq72pkBwJqXGJFtdPm0",
+    "manufacturer": "GMC",
+    "model": "C4",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Hlq72pkBwJqXGJFtdPm2",
+    "manufacturer": "GMC",
+    "model": "C5",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "H1q72pkBwJqXGJFtdPm4",
+    "manufacturer": "GMC",
+    "model": "C6",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "IFq72pkBwJqXGJFtdPm6",
+    "manufacturer": "GMC",
+    "model": "C7",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "IVq72pkBwJqXGJFtdPm9",
+    "manufacturer": "GMC",
+    "model": "C8",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Ilq72pkBwJqXGJFtdPm_",
+    "manufacturer": "GMC",
+    "model": "W5",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "I1q72pkBwJqXGJFtdPnB",
+    "manufacturer": "GMC",
+    "model": "W7",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "JFq72pkBwJqXGJFtdPnD",
+    "manufacturer": "WHITEGMC",
+    "model": "WCS",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "JVq72pkBwJqXGJFtdPnF",
+    "manufacturer": "WHITEGMC",
+    "model": "WCM",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Jlq72pkBwJqXGJFtdPnI",
+    "manufacturer": "WHITEGMC",
+    "model": "WCL",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "J1q72pkBwJqXGJFtdPnK",
+    "manufacturer": "WHITEGMC",
+    "model": "WHS",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "KFq72pkBwJqXGJFtdPnM",
+    "manufacturer": "WHITEGMC",
+    "model": "WHM",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "KVq72pkBwJqXGJFtdPnO",
+    "manufacturer": "WHITEGMC",
+    "model": "WHL",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Klq72pkBwJqXGJFtdPnQ",
+    "manufacturer": "WHITEGMC",
+    "model": "WB",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "K1q72pkBwJqXGJFtdPnS",
+    "manufacturer": "WHITEGMC",
+    "model": "DS",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "LFq72pkBwJqXGJFtdPnV",
+    "manufacturer": "WHITEGMC",
+    "model": "ACM",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "LVq72pkBwJqXGJFtdPnX",
+    "manufacturer": "WHITEGMC",
+    "model": "ACL",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Llq72pkBwJqXGJFtdPnZ",
+    "manufacturer": "WHITEGMC",
+    "model": "AT",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "L1q72pkBwJqXGJFtdPnb",
+    "manufacturer": "WHITEGMC",
+    "model": "DK",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "MFq72pkBwJqXGJFtdPnd",
+    "manufacturer": "WHITEGMC",
+    "model": "WCA",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "MVq72pkBwJqXGJFtdPng",
+    "manufacturer": "WHITEGMC",
+    "model": "WIA",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Mlq72pkBwJqXGJFtdPni",
+    "manufacturer": "WHITEGMC",
+    "model": "WIS",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "M1q72pkBwJqXGJFtdPnk",
+    "manufacturer": "WHITEGMC",
+    "model": "WIM",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "NFq72pkBwJqXGJFtdPnm",
+    "manufacturer": "WHITEGMC",
+    "model": "WIL",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "NVq72pkBwJqXGJFtdPno",
+    "manufacturer": "WHITEGMC",
+    "model": "WHR",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Nlq72pkBwJqXGJFtdPnq",
+    "manufacturer": "WHITEGMC",
+    "model": "WHLB",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "N1q72pkBwJqXGJFtdPnt",
+    "manufacturer": "WHITEGMC",
+    "model": "CACL",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "OFq72pkBwJqXGJFtdPnv",
+    "manufacturer": "WHITEGMC",
+    "model": "FE",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "OVq72pkBwJqXGJFtdPnx",
+    "manufacturer": "WHITEGMC",
+    "model": "CWG",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Olq72pkBwJqXGJFtdPnz",
+    "manufacturer": "WHITEGMC",
+    "model": "NE",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "O1q72pkBwJqXGJFtdPn1",
+    "manufacturer": "WHITEGMC",
+    "model": "NR",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "PFq72pkBwJqXGJFtdPn4",
+    "manufacturer": "WHITEGMC",
+    "model": "CNR",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "PVq72pkBwJqXGJFtdPn6",
+    "manufacturer": "WHITEGMC",
+    "model": "WHEB",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Plq72pkBwJqXGJFtdPn8",
+    "manufacturer": "GMC",
+    "model": "W3",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "P1q72pkBwJqXGJFtdPn-",
+    "manufacturer": "GMC",
+    "model": "B7",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "QFq72pkBwJqXGJFtdfkA",
+    "manufacturer": "GMC",
+    "model": "W6",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "QVq72pkBwJqXGJFtdfkC",
+    "manufacturer": "GMC",
+    "model": "P6S",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Qlq72pkBwJqXGJFtdfkF",
+    "manufacturer": "GMC",
+    "model": "D7",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Q1q72pkBwJqXGJFtdfkH",
+    "manufacturer": "GMC",
+    "model": "P Truck Forward",
+    "year": 1965,
+    "body_class": "Pickup",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "RFq72pkBwJqXGJFtdfkJ",
+    "manufacturer": "GMC",
+    "model": "Motorhome Chassis",
+    "year": 1968,
+    "body_class": "Coupe",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "RVq72pkBwJqXGJFtdfkL",
+    "manufacturer": "GMC",
+    "model": "Cutaway Chassis",
+    "year": 1970,
+    "body_class": "Coupe",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "Rlq72pkBwJqXGJFtdfkO",
+    "manufacturer": "GMC",
+    "model": "S15 Utility",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "R1q72pkBwJqXGJFtdfkQ",
+    "manufacturer": "GMC",
+    "model": "Vandura",
+    "year": 1975,
+    "body_class": "Van",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "SFq72pkBwJqXGJFtdfkS",
+    "manufacturer": "GMC",
+    "model": "Cutaway Van",
+    "year": 1953,
+    "body_class": "Van",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "SVq72pkBwJqXGJFtdfkU",
+    "manufacturer": "GMC",
+    "model": "Rally",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Slq72pkBwJqXGJFtdfkW",
+    "manufacturer": "GMC",
+    "model": "Magna Van",
+    "year": 1957,
+    "body_class": "Van",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "S1q72pkBwJqXGJFtdfkY",
+    "manufacturer": "GMC",
+    "model": "Typhoon",
+    "year": 1960,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "TFq72pkBwJqXGJFtdfka",
+    "manufacturer": "GMC",
+    "model": "Value Van",
+    "year": 1962,
+    "body_class": "Van",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "TVq72pkBwJqXGJFtdfkd",
+    "manufacturer": "GMC",
+    "model": "Hi-Cube",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Tlq72pkBwJqXGJFtdfkf",
+    "manufacturer": "GMC",
+    "model": "S7",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "T1q72pkBwJqXGJFtdfkh",
+    "manufacturer": "GMC",
+    "model": "Geo Tracker",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "UFq72pkBwJqXGJFtdfkj",
+    "manufacturer": "GMC",
+    "model": "S6",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "UVq72pkBwJqXGJFtdfkl",
+    "manufacturer": "GMC",
+    "model": "Jimmy",
+    "year": 1975,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "Ulq72pkBwJqXGJFtdfko",
+    "manufacturer": "GMC",
+    "model": "R Conventional",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "U1q72pkBwJqXGJFtdfkq",
+    "manufacturer": "GMC",
+    "model": "V Conventional",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "VFq72pkBwJqXGJFtdfks",
+    "manufacturer": "GMC",
+    "model": "S15 Pickup",
+    "year": 1957,
+    "body_class": "Pickup",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "VVq72pkBwJqXGJFtdfku",
+    "manufacturer": "GMC",
+    "model": "Forward Control",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Vlq72pkBwJqXGJFtdfkw",
+    "manufacturer": "GMC",
+    "model": "Aluminum Tilt",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "V1q72pkBwJqXGJFtdfkz",
+    "manufacturer": "GMC",
+    "model": "Heavy Conventional",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "WFq72pkBwJqXGJFtdfk1",
+    "manufacturer": "GMC",
+    "model": "Bus Chassis",
+    "year": 1968,
+    "body_class": "Coupe",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "WVq72pkBwJqXGJFtdfk3",
+    "manufacturer": "GMC",
+    "model": "Caballero",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Wlq72pkBwJqXGJFtdfk5",
+    "manufacturer": "GMC",
+    "model": "Transit Coach",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "W1q72pkBwJqXGJFtdfk7",
+    "manufacturer": "GMC",
+    "model": "Articulated Coach",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "XFq72pkBwJqXGJFtdfk9",
+    "manufacturer": "GMC",
+    "model": "Sierra HD",
+    "year": 1953,
+    "body_class": "Pickup",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "XVq72pkBwJqXGJFtdfk_",
+    "manufacturer": "GMC",
+    "model": "Sierra Limited",
+    "year": 1955,
+    "body_class": "Pickup",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "Xlq72pkBwJqXGJFtdflC",
+    "manufacturer": "GMC",
+    "model": "W3500/W4500",
+    "year": 1957,
+    "body_class": "Pickup",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "X1q72pkBwJqXGJFtdflE",
+    "manufacturer": "GMC",
+    "model": "W5500/W5500 HD",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "YFq72pkBwJqXGJFtdflG",
+    "manufacturer": "GMC",
+    "model": "Hummer EV SUV",
+    "year": 1962,
+    "body_class": "SUV",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "YVq72pkBwJqXGJFtdflI",
+    "manufacturer": "GMC",
+    "model": "Cruise Origin AV",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Ylq72pkBwJqXGJFtdflL",
+    "manufacturer": "GMC",
+    "model": "Hummer EV Pickup",
+    "year": 1968,
+    "body_class": "Pickup",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "Y1q72pkBwJqXGJFtdvk3",
+    "manufacturer": "Cadillac",
+    "model": "ATS",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "ZFq72pkBwJqXGJFtdvk9",
+    "manufacturer": "Cadillac",
+    "model": "CTS",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "ZVq72pkBwJqXGJFtdvk_",
+    "manufacturer": "Cadillac",
+    "model": "ELR",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Zlq72pkBwJqXGJFtdvlB",
+    "manufacturer": "Cadillac",
+    "model": "XTS",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Z1q72pkBwJqXGJFtdvlD",
+    "manufacturer": "Cadillac",
+    "model": "Escalade",
+    "year": 1962,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "aFq72pkBwJqXGJFtdvlF",
+    "manufacturer": "Cadillac",
+    "model": "SRX",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "aVq72pkBwJqXGJFtdvlH",
+    "manufacturer": "Cadillac",
+    "model": "STS",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "alq72pkBwJqXGJFtdvlK",
+    "manufacturer": "Cadillac",
+    "model": "DTS",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "a1q72pkBwJqXGJFtdvlM",
+    "manufacturer": "Cadillac",
+    "model": "XLR",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "bFq72pkBwJqXGJFtdvlO",
+    "manufacturer": "Cadillac",
+    "model": "Limousine",
+    "year": 1975,
+    "body_class": "Limousine",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "bVq72pkBwJqXGJFtdvlQ",
+    "manufacturer": "Cadillac",
+    "model": "Hearse",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "blq72pkBwJqXGJFtdvlS",
+    "manufacturer": "Cadillac",
+    "model": "Escalade ESV",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "b1q72pkBwJqXGJFtdvlV",
+    "manufacturer": "Cadillac",
+    "model": "Deville",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "cFq72pkBwJqXGJFtdvlX",
+    "manufacturer": "Cadillac",
+    "model": "Eldorado",
+    "year": 1960,
+    "body_class": "Coupe",
+    "match_type": "historical_override"
+  },
+  {
+    "vehicle_id": "cVq72pkBwJqXGJFtdvlZ",
+    "manufacturer": "Cadillac",
+    "model": "Catera",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "clq72pkBwJqXGJFtdvlb",
+    "manufacturer": "Cadillac",
+    "model": "Seville",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "c1q72pkBwJqXGJFtdvle",
+    "manufacturer": "Cadillac",
+    "model": "Commercial Chassis",
+    "year": 1968,
+    "body_class": "Coupe",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "dFq72pkBwJqXGJFtdvlg",
+    "manufacturer": "Cadillac",
+    "model": "Fleetwood",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "dVq72pkBwJqXGJFtdvli",
+    "manufacturer": "Cadillac",
+    "model": "CT6",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "dlq72pkBwJqXGJFtdvlk",
+    "manufacturer": "Cadillac",
+    "model": "XT5",
+    "year": 1975,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "d1q72pkBwJqXGJFtdvlm",
+    "manufacturer": "Cadillac",
+    "model": "Funeral Coach",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "eFq72pkBwJqXGJFtdvlp",
+    "manufacturer": "Cadillac",
+    "model": "Armored Vehicle",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "eVq72pkBwJqXGJFtdvlr",
+    "manufacturer": "Cadillac",
+    "model": "Stretch Limousine",
+    "year": 1957,
+    "body_class": "Limousine",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "elq72pkBwJqXGJFtdvlt",
+    "manufacturer": "Cadillac",
+    "model": "60 Special",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "e1q72pkBwJqXGJFtdvlv",
+    "manufacturer": "Cadillac",
+    "model": "Allante",
+    "year": 1962,
+    "body_class": "Coupe",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "fFq72pkBwJqXGJFtdvlx",
+    "manufacturer": "Cadillac",
+    "model": "Brougham",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "fVq72pkBwJqXGJFtdvlz",
+    "manufacturer": "Cadillac",
+    "model": "Cimarron",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "flq72pkBwJqXGJFtdvl1",
+    "manufacturer": "Cadillac",
+    "model": "XT4",
+    "year": 1970,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "f1q72pkBwJqXGJFtdvl3",
+    "manufacturer": "Cadillac",
+    "model": "XT6",
+    "year": 1972,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "gFq72pkBwJqXGJFtdvl6",
+    "manufacturer": "Cadillac",
+    "model": "CT4",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "gVq72pkBwJqXGJFtdvl8",
+    "manufacturer": "Cadillac",
+    "model": "CT5",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "glq72pkBwJqXGJFtdvl-",
+    "manufacturer": "Cadillac",
+    "model": "Lyriq",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "g1q72pkBwJqXGJFtdvmA",
+    "manufacturer": "Cadillac",
+    "model": "Escalade IQ",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "hFq72pkBwJqXGJFtdvmD",
+    "manufacturer": "Cadillac",
+    "model": "Celestiq",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "hVq72pkBwJqXGJFtdvmF",
+    "manufacturer": "Cadillac",
+    "model": "Optiq",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "hlq72pkBwJqXGJFtdvmH",
+    "manufacturer": "Cadillac",
+    "model": "Vistiq",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "h1q72pkBwJqXGJFtdvmJ",
+    "manufacturer": "Cadillac",
+    "model": "Escalade IQL",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "iFq72pkBwJqXGJFtd_mY",
+    "manufacturer": "Lincoln",
+    "model": "MKZ",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "iVq72pkBwJqXGJFtd_mc",
+    "manufacturer": "Lincoln",
+    "model": "Town Car",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "ilq72pkBwJqXGJFtd_mf",
+    "manufacturer": "Lincoln",
+    "model": "MKS",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "i1q72pkBwJqXGJFtd_mh",
+    "manufacturer": "Lincoln",
+    "model": "MKT",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "jFq72pkBwJqXGJFtd_mj",
+    "manufacturer": "Lincoln",
+    "model": "MKX",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "jVq72pkBwJqXGJFtd_ml",
+    "manufacturer": "Lincoln",
+    "model": "Navigator",
+    "year": 1965,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "jlq72pkBwJqXGJFtd_mo",
+    "manufacturer": "Lincoln",
+    "model": "LS",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "j1q72pkBwJqXGJFtd_mq",
+    "manufacturer": "Lincoln",
+    "model": "Aviator",
+    "year": 1970,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "kFq72pkBwJqXGJFtd_ms",
+    "manufacturer": "Lincoln",
+    "model": "Zephyr",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "kVq72pkBwJqXGJFtd_mu",
+    "manufacturer": "Lincoln",
+    "model": "Mark LT",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "klq72pkBwJqXGJFtd_mw",
+    "manufacturer": "Lincoln",
+    "model": "MKC",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "k1q72pkBwJqXGJFtd_mz",
+    "manufacturer": "Lincoln",
+    "model": "Continental",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "historical_override"
+  },
+  {
+    "vehicle_id": "lFq72pkBwJqXGJFtd_m1",
+    "manufacturer": "Lincoln",
+    "model": "Blackwood",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "lVq72pkBwJqXGJFtd_m3",
+    "manufacturer": "Lincoln",
+    "model": "Mark",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "llq72pkBwJqXGJFtd_m5",
+    "manufacturer": "Lincoln",
+    "model": "Nautilus",
+    "year": 1962,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "l1q72pkBwJqXGJFtd_m7",
+    "manufacturer": "Lincoln",
+    "model": "Corsair",
+    "year": 1965,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "mFq72pkBwJqXGJFtd_m-",
+    "manufacturer": "Lincoln",
+    "model": "Navigator L",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "mVq72pkBwJqXGJFtePnS",
+    "manufacturer": "Mercury",
+    "model": "Grand Marquis",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "mlq72pkBwJqXGJFtePnX",
+    "manufacturer": "Mercury",
+    "model": "Milan",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "m1q72pkBwJqXGJFtePnZ",
+    "manufacturer": "Mercury",
+    "model": "Mariner",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "nFq72pkBwJqXGJFtePnc",
+    "manufacturer": "Mercury",
+    "model": "Mountaineer",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "nVq72pkBwJqXGJFtePne",
+    "manufacturer": "Mercury",
+    "model": "Sable",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "nlq72pkBwJqXGJFtePng",
+    "manufacturer": "Mercury",
+    "model": "Montego",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "n1q72pkBwJqXGJFtePni",
+    "manufacturer": "Mercury",
+    "model": "Monterey",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "oFq72pkBwJqXGJFtePnl",
+    "manufacturer": "Mercury",
+    "model": "Cougar",
+    "year": 1970,
+    "body_class": "Coupe",
+    "match_type": "historical_override"
+  },
+  {
+    "vehicle_id": "oVq72pkBwJqXGJFtePnn",
+    "manufacturer": "Mercury",
+    "model": "Villager",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "olq72pkBwJqXGJFtePnp",
+    "manufacturer": "Mercury",
+    "model": "Tracer",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "o1q72pkBwJqXGJFtePnr",
+    "manufacturer": "Mercury",
+    "model": "Mystique",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "pFq72pkBwJqXGJFtePnt",
+    "manufacturer": "Mercury",
+    "model": "Capri",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "pVq72pkBwJqXGJFtePnv",
+    "manufacturer": "Mercury",
+    "model": "Topaz",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "plq72pkBwJqXGJFtePnx",
+    "manufacturer": "Mercury",
+    "model": "Lynx",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "p1q72pkBwJqXGJFtePn0",
+    "manufacturer": "Mercury",
+    "model": "MARQUIS",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "qFq72pkBwJqXGJFtePn2",
+    "manufacturer": "Mercury",
+    "model": "Zephyr",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "qVq72pkBwJqXGJFtePn4",
+    "manufacturer": "Mercury",
+    "model": "Marauder",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "qlq72pkBwJqXGJFtefnb",
+    "manufacturer": "Oldsmobile",
+    "model": "Bravada",
+    "year": 1953,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "q1q72pkBwJqXGJFtefng",
+    "manufacturer": "Oldsmobile",
+    "model": "Silhouette",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "rFq72pkBwJqXGJFtefni",
+    "manufacturer": "Oldsmobile",
+    "model": "Alero",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "rVq72pkBwJqXGJFtefnk",
+    "manufacturer": "Oldsmobile",
+    "model": "Aurora",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "rlq72pkBwJqXGJFtefnn",
+    "manufacturer": "Oldsmobile",
+    "model": "Intrigue",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "r1q72pkBwJqXGJFtefnp",
+    "manufacturer": "Oldsmobile",
+    "model": "Regency",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "sFq72pkBwJqXGJFtefnr",
+    "manufacturer": "Oldsmobile",
+    "model": "Eighty Eight (88)",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "sVq72pkBwJqXGJFtefnu",
+    "manufacturer": "Oldsmobile",
+    "model": "LSS",
+    "year": 1970,
+    "body_class": "Coupe",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "slq72pkBwJqXGJFtefnw",
+    "manufacturer": "Oldsmobile",
+    "model": "Cutlass",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "s1q72pkBwJqXGJFtefny",
+    "manufacturer": "Oldsmobile",
+    "model": "Achieva",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "tFq72pkBwJqXGJFtefn0",
+    "manufacturer": "Oldsmobile",
+    "model": "Cutlass Supreme",
+    "year": 1953,
+    "body_class": "Coupe",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "tVq72pkBwJqXGJFtefn2",
+    "manufacturer": "Oldsmobile",
+    "model": "Ninety Eight (98)",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "tlq72pkBwJqXGJFtefn4",
+    "manufacturer": "Oldsmobile",
+    "model": "Custom Cruiser",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "t1q72pkBwJqXGJFtefn7",
+    "manufacturer": "Oldsmobile",
+    "model": "Toronado",
+    "year": 1960,
+    "body_class": "Coupe",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "uFq72pkBwJqXGJFtefn9",
+    "manufacturer": "Oldsmobile",
+    "model": "Cutlass Calais",
+    "year": 1962,
+    "body_class": "Coupe",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "uVq72pkBwJqXGJFtefn_",
+    "manufacturer": "Oldsmobile",
+    "model": "Firenza",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "ulq72pkBwJqXGJFtevkB",
+    "manufacturer": "Oldsmobile",
+    "model": "Omega",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "u1q72pkBwJqXGJFtevkE",
+    "manufacturer": "Oldsmobile",
+    "model": "Cutlass Ciera",
+    "year": 1970,
+    "body_class": "Coupe",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "vFq72pkBwJqXGJFtevkG",
+    "manufacturer": "Oldsmobile",
+    "model": "Delta 88",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "vVq72pkBwJqXGJFtevkI",
+    "manufacturer": "Oldsmobile",
+    "model": "Cutlass Cruiser",
+    "year": 1975,
+    "body_class": "Coupe",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "vlq72pkBwJqXGJFtevkK",
+    "manufacturer": "Oldsmobile",
+    "model": "Cutlass Salon",
+    "year": 1953,
+    "body_class": "Coupe",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "v1q72pkBwJqXGJFtevnY",
+    "manufacturer": "Chrysler",
+    "model": "Cirrus",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "wFq72pkBwJqXGJFtevnd",
+    "manufacturer": "Chrysler",
+    "model": "Sebring",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "wVq72pkBwJqXGJFtevnf",
+    "manufacturer": "Chrysler",
+    "model": "300",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "historical_override"
+  },
+  {
+    "vehicle_id": "wlq72pkBwJqXGJFtevnh",
+    "manufacturer": "Chrysler",
+    "model": "Town and Country",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "w1q72pkBwJqXGJFtevnj",
+    "manufacturer": "Chrysler",
+    "model": "Grand Voyager",
+    "year": 1962,
+    "body_class": "Van",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "xFq72pkBwJqXGJFtevnl",
+    "manufacturer": "Chrysler",
+    "model": "200",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "xVq72pkBwJqXGJFtevno",
+    "manufacturer": "Chrysler",
+    "model": "PT Cruiser",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "xlq72pkBwJqXGJFtevnq",
+    "manufacturer": "Chrysler",
+    "model": "Crossfire",
+    "year": 1970,
+    "body_class": "Coupe",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "x1q72pkBwJqXGJFtevns",
+    "manufacturer": "Chrysler",
+    "model": "Pacifica",
+    "year": 1972,
+    "body_class": "Van",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "yFq72pkBwJqXGJFtevnu",
+    "manufacturer": "Chrysler",
+    "model": "Aspen",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "yVq72pkBwJqXGJFtevnw",
+    "manufacturer": "Chrysler",
+    "model": "Concorde",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "ylq72pkBwJqXGJFtevnz",
+    "manufacturer": "Chrysler",
+    "model": "Intrepid",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "y1q72pkBwJqXGJFtevn1",
+    "manufacturer": "Chrysler",
+    "model": "New Yorker",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "zFq72pkBwJqXGJFtevn3",
+    "manufacturer": "Chrysler",
+    "model": "LHS",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "zVq72pkBwJqXGJFtevn5",
+    "manufacturer": "Chrysler",
+    "model": "Vision",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "zlq72pkBwJqXGJFtevn7",
+    "manufacturer": "Chrysler",
+    "model": "Stratus",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "z1q72pkBwJqXGJFtevn9",
+    "manufacturer": "Chrysler",
+    "model": "Viper",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "0Fq72pkBwJqXGJFte_kA",
+    "manufacturer": "Chrysler",
+    "model": "Neon",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "0Vq72pkBwJqXGJFte_kC",
+    "manufacturer": "Chrysler",
+    "model": "Shadow",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "0lq72pkBwJqXGJFte_kE",
+    "manufacturer": "Chrysler",
+    "model": "Prowler",
+    "year": 1975,
+    "body_class": "Convertible",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "01q72pkBwJqXGJFte_kG",
+    "manufacturer": "Chrysler",
+    "model": "Caravan",
+    "year": 1953,
+    "body_class": "Van",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "1Fq72pkBwJqXGJFte_kI",
+    "manufacturer": "Chrysler",
+    "model": "TC",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "1Vq72pkBwJqXGJFte_kL",
+    "manufacturer": "Chrysler",
+    "model": "LeBaron",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "1lq72pkBwJqXGJFte_kN",
+    "manufacturer": "Chrysler",
+    "model": "Concorde/LHS",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "11q72pkBwJqXGJFte_kP",
+    "manufacturer": "Chrysler",
+    "model": "Daytona",
+    "year": 1962,
+    "body_class": "Coupe",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "2Fq72pkBwJqXGJFte_kR",
+    "manufacturer": "Chrysler",
+    "model": "Dynasty",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "2Vq72pkBwJqXGJFte_kT",
+    "manufacturer": "Chrysler",
+    "model": "Imperial",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "2lq72pkBwJqXGJFte_kV",
+    "manufacturer": "Chrysler",
+    "model": "SALON",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "21q72pkBwJqXGJFte_kY",
+    "manufacturer": "Chrysler",
+    "model": "LASER",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "3Fq72pkBwJqXGJFte_ka",
+    "manufacturer": "Chrysler",
+    "model": "NEWPORT",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "3Vq72pkBwJqXGJFte_kc",
+    "manufacturer": "Chrysler",
+    "model": "FIFTH AVENUE",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "3lq72pkBwJqXGJFte_ke",
+    "manufacturer": "Chrysler",
+    "model": "Conquest",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "31q72pkBwJqXGJFte_kh",
+    "manufacturer": "Chrysler",
+    "model": "EXECUTIVE",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "4Fq72pkBwJqXGJFte_kj",
+    "manufacturer": "Chrysler",
+    "model": "E-CLASS",
+    "year": 1960,
+    "body_class": "Coupe",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "4Vq72pkBwJqXGJFte_kl",
+    "manufacturer": "Chrysler",
+    "model": "Cordoba",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "4lq72pkBwJqXGJFte_kn",
+    "manufacturer": "Chrysler",
+    "model": "Voyager",
+    "year": 1965,
+    "body_class": "Van",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "41q72pkBwJqXGJFte_kp",
+    "manufacturer": "Chrysler",
+    "model": "300C",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "5Fq72pkBwJqXGJFte_kr",
+    "manufacturer": "Chrysler",
+    "model": "Grand Caravan",
+    "year": 1970,
+    "body_class": "Van",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "5Vq72pkBwJqXGJFtfPkY",
+    "manufacturer": "Jeep",
+    "model": "Wrangler",
+    "year": 1953,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "5lq72pkBwJqXGJFtfPkd",
+    "manufacturer": "Jeep",
+    "model": "Liberty",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "51q72pkBwJqXGJFtfPkf",
+    "manufacturer": "Jeep",
+    "model": "Cherokee",
+    "year": 1957,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "6Fq72pkBwJqXGJFtfPkh",
+    "manufacturer": "Jeep",
+    "model": "Compass",
+    "year": 1960,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "6Vq72pkBwJqXGJFtfPkk",
+    "manufacturer": "Jeep",
+    "model": "Patriot",
+    "year": 1962,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "6lq72pkBwJqXGJFtfPkm",
+    "manufacturer": "Jeep",
+    "model": "Commander",
+    "year": 1965,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "61q72pkBwJqXGJFtfPko",
+    "manufacturer": "Jeep",
+    "model": "Grand Cherokee",
+    "year": 1968,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "7Fq72pkBwJqXGJFtfPkr",
+    "manufacturer": "Jeep",
+    "model": "Renegade",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "7Vq72pkBwJqXGJFtfPkt",
+    "manufacturer": "Jeep",
+    "model": "Grand Wagoneer",
+    "year": 1972,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "7lq72pkBwJqXGJFtfPkv",
+    "manufacturer": "Jeep",
+    "model": "Comanche",
+    "year": 1975,
+    "body_class": "Pickup",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "71q72pkBwJqXGJFtfPkx",
+    "manufacturer": "Jeep",
+    "model": "Wagoneer",
+    "year": 1953,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "8Fq72pkBwJqXGJFtfPkz",
+    "manufacturer": "Jeep",
+    "model": "J-10",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "8Vq72pkBwJqXGJFtfPk1",
+    "manufacturer": "Jeep",
+    "model": "J-20",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "8lq72pkBwJqXGJFtfPk4",
+    "manufacturer": "Jeep",
+    "model": "CJ-7",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "81q72pkBwJqXGJFtfPk6",
+    "manufacturer": "Jeep",
+    "model": "CJ-8 Scrambler",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "9Fq72pkBwJqXGJFtfPk8",
+    "manufacturer": "Jeep",
+    "model": "CJ-5",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "9Vq72pkBwJqXGJFtfPk-",
+    "manufacturer": "Jeep",
+    "model": "CJ-6",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "9lq72pkBwJqXGJFtfPlA",
+    "manufacturer": "Jeep",
+    "model": "Wrangler JK",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "91q72pkBwJqXGJFtfPlC",
+    "manufacturer": "Jeep",
+    "model": "Gladiator",
+    "year": 1972,
+    "body_class": "Pickup",
+    "match_type": "historical_override"
+  },
+  {
+    "vehicle_id": "-Fq72pkBwJqXGJFtfPlF",
+    "manufacturer": "Jeep",
+    "model": "Grand Cherokee L",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "-Vq72pkBwJqXGJFtfPlH",
+    "manufacturer": "Jeep",
+    "model": "Wagoneer L",
+    "year": 1953,
+    "body_class": "SUV",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "-lq72pkBwJqXGJFtfPlJ",
+    "manufacturer": "Jeep",
+    "model": "Grand Wagoneer L",
+    "year": 1955,
+    "body_class": "SUV",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "-1q72pkBwJqXGJFtfPlL",
+    "manufacturer": "Jeep",
+    "model": "Wagoneer S",
+    "year": 1957,
+    "body_class": "SUV",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "_Fq72pkBwJqXGJFtfflM",
+    "manufacturer": "Ram",
+    "model": "Promaster City",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "_Vq72pkBwJqXGJFtfflR",
+    "manufacturer": "EnduraMax",
+    "model": "EnduraMax",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "_lq72pkBwJqXGJFtfflT",
+    "manufacturer": "Easton Custom Frames L.L.C",
+    "model": "Easton Custom L.L.C",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "_1q72pkBwJqXGJFtfflV",
+    "manufacturer": "Best Lane Enterprises dba Ramp Free",
+    "model": "Best Lane Enterprises dba Ramp Free",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "AFq72pkBwJqXGJFtffpY",
+    "manufacturer": "NEXGEN FRAMING SYSTEM, LLC",
+    "model": "NEXGEN FRAMING SYSTEM, LLC",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "AVq72pkBwJqXGJFtffpa",
+    "manufacturer": "Holiday Rambler",
+    "model": "Holiday Rambler",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Alq72pkBwJqXGJFtffpc",
+    "manufacturer": "Paramount Custom Cycles",
+    "model": "Paramount Custom Cycles",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "A1q72pkBwJqXGJFtffpe",
+    "manufacturer": "Ram Transcorp",
+    "model": "Ram Transcorp",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "BFq72pkBwJqXGJFtffpg",
+    "manufacturer": "Ramsey Fabrication",
+    "model": "Ramsey Fabrication",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "BVq72pkBwJqXGJFtffpj",
+    "manufacturer": "PortAFrame",
+    "model": "PortAFrame",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Blq72pkBwJqXGJFtffpl",
+    "manufacturer": "SCHRAMM, INC.",
+    "model": "SCHRAMM, INC.",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "B1q72pkBwJqXGJFtffpn",
+    "manufacturer": "Ramp Champ",
+    "model": "Ramp Champ",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "CFq72pkBwJqXGJFtffpp",
+    "manufacturer": "TRINITY FRAME & FAB",
+    "model": "Replica",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "CVq72pkBwJqXGJFtffpr",
+    "manufacturer": "TRINITY FRAME & FAB",
+    "model": "Faith",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Clq72pkBwJqXGJFtffpu",
+    "manufacturer": "TRINITY FRAME & FAB",
+    "model": "Protorype",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "C1q72pkBwJqXGJFtffpw",
+    "manufacturer": "TRINITY FRAME & FAB",
+    "model": "Cruiser",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "DFq72pkBwJqXGJFtffpy",
+    "manufacturer": "TRINITY FRAME & FAB",
+    "model": "Chopper",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "DVq72pkBwJqXGJFtffp0",
+    "manufacturer": "Tramont Corporation",
+    "model": "Tramont Corporation",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Dlq72pkBwJqXGJFtffp2",
+    "manufacturer": "Tramont Manufacturing",
+    "model": "Tramont Manufacturing LLC",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "D1q72pkBwJqXGJFtffp5",
+    "manufacturer": "Robert Allen Mowery Ramco",
+    "model": "Robert Allen Mowery Ramco LLC",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "EFq72pkBwJqXGJFtffp7",
+    "manufacturer": "Rampless",
+    "model": "Rampless",
+    "year": 1953,
+    "body_class": "Coupe",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "EVq72pkBwJqXGJFtffp9",
+    "manufacturer": "Rampless Motorcycle Trailers",
+    "model": "Rampless Motorcycle Trailers",
+    "year": 1955,
+    "body_class": "Coupe",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "Elq72pkBwJqXGJFtffp_",
+    "manufacturer": "Ram Enterprises, LLC",
+    "model": "Ram Enterprises, LLC",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "E1q72pkBwJqXGJFtffqB",
+    "manufacturer": "Ram",
+    "model": "1500",
+    "year": 1960,
+    "body_class": "Pickup",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "FFq72pkBwJqXGJFtffqE",
+    "manufacturer": "Ram",
+    "model": "2500",
+    "year": 1962,
+    "body_class": "Pickup",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "FVq72pkBwJqXGJFtffqG",
+    "manufacturer": "Ram",
+    "model": "3500",
+    "year": 1965,
+    "body_class": "Pickup",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Flq72pkBwJqXGJFtffqI",
+    "manufacturer": "Ram",
+    "model": "4000",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "F1q72pkBwJqXGJFtffqK",
+    "manufacturer": "Ram",
+    "model": "4500",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "GFq72pkBwJqXGJFtffqM",
+    "manufacturer": "Ram",
+    "model": "5500",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "GVq72pkBwJqXGJFtffqO",
+    "manufacturer": "Ram",
+    "model": "ProMaster 1500",
+    "year": 1975,
+    "body_class": "Pickup",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Glq72pkBwJqXGJFtffqR",
+    "manufacturer": "Ram",
+    "model": "ProMaster 2500",
+    "year": 1953,
+    "body_class": "Pickup",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "G1q72pkBwJqXGJFtffqT",
+    "manufacturer": "Ram",
+    "model": "ProMaster 3500",
+    "year": 1955,
+    "body_class": "Pickup",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "HFq72pkBwJqXGJFtffqV",
+    "manufacturer": "Ram",
+    "model": "Cargo Van",
+    "year": 1957,
+    "body_class": "Van",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "HVq72pkBwJqXGJFtffqX",
+    "manufacturer": "RamVac",
+    "model": "1000",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Hlq72pkBwJqXGJFtffqZ",
+    "manufacturer": "RamVac",
+    "model": "2000",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "H1q72pkBwJqXGJFtffqc",
+    "manufacturer": "RamVac",
+    "model": "2600",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "IFq72pkBwJqXGJFtffqe",
+    "manufacturer": "RamVac",
+    "model": "3000",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "IVq72pkBwJqXGJFtffqg",
+    "manufacturer": "RamVac",
+    "model": "3600",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Ilq72pkBwJqXGJFtffqi",
+    "manufacturer": "RamVac",
+    "model": "HX-1000",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "I1q72pkBwJqXGJFtffqk",
+    "manufacturer": "RamVac",
+    "model": "HX-2000",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "JFq72pkBwJqXGJFtffqn",
+    "manufacturer": "RamVac",
+    "model": "HX-3000",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "JVq72pkBwJqXGJFtffqp",
+    "manufacturer": "Ramptek",
+    "model": "Ramptek Trailers",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Jlq72pkBwJqXGJFtffqr",
+    "manufacturer": "Burkett's Autorama",
+    "model": "Burkett's Autorama",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "J1q72pkBwJqXGJFtffqt",
+    "manufacturer": "Pyramid",
+    "model": "Pyramid Manufacturing Co. Trailer",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "KFq72pkBwJqXGJFtffqv",
+    "manufacturer": "Ramika",
+    "model": "Ramika Industries Trailer",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "KVq72pkBwJqXGJFtffqx",
+    "manufacturer": "RAMP AGE TRAILER CO.",
+    "model": "RAMP AGE TRAILER CO.",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Klq72pkBwJqXGJFtffq0",
+    "manufacturer": "Ram-Lin",
+    "model": "512",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "K1q72pkBwJqXGJFtffq2",
+    "manufacturer": "Ram-Lin",
+    "model": "52",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "LFq72pkBwJqXGJFtffq4",
+    "manufacturer": "Ram-Lin",
+    "model": "725",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "LVq72pkBwJqXGJFtffq6",
+    "manufacturer": "Ram-Lin",
+    "model": "203",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Llq72pkBwJqXGJFtffq8",
+    "manufacturer": "Ram-Lin",
+    "model": "234",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "L1q72pkBwJqXGJFtffq_",
+    "manufacturer": "Ram-Lin",
+    "model": "83",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "MFq72pkBwJqXGJFtffrB",
+    "manufacturer": "Ram-Lin",
+    "model": "288",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "MVq72pkBwJqXGJFtffrD",
+    "manufacturer": "Ram-Lin",
+    "model": "307",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Mlq72pkBwJqXGJFtffrF",
+    "manufacturer": "Ram-Lin",
+    "model": "62U",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "M1q72pkBwJqXGJFtffrH",
+    "manufacturer": "Ram-Lin",
+    "model": "825U",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "NFq72pkBwJqXGJFtffrJ",
+    "manufacturer": "Ram-Lin",
+    "model": "166U",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "NVq72pkBwJqXGJFtffrM",
+    "manufacturer": "Ram-Lin",
+    "model": "83U",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Nlq72pkBwJqXGJFtffrO",
+    "manufacturer": "Ram-Lin",
+    "model": "925",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "N1q72pkBwJqXGJFtffrQ",
+    "manufacturer": "Ram-Lin",
+    "model": "214",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "OFq72pkBwJqXGJFtffrS",
+    "manufacturer": "Ram-Lin",
+    "model": "266",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "OVq72pkBwJqXGJFtffrV",
+    "manufacturer": "Ram-Lin",
+    "model": "835",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Olq72pkBwJqXGJFtffrX",
+    "manufacturer": "Ram-Lin",
+    "model": "2235",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "O1q72pkBwJqXGJFtffrZ",
+    "manufacturer": "Ram-Lin",
+    "model": "3510",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "PFq72pkBwJqXGJFtffrb",
+    "manufacturer": "Ram-Lin",
+    "model": "625U",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "PVq72pkBwJqXGJFtffrd",
+    "manufacturer": "Ram-Lin",
+    "model": "1225U",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Plq72pkBwJqXGJFtffrg",
+    "manufacturer": "Ram-Lin",
+    "model": "206U",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "P1q72pkBwJqXGJFtffri",
+    "manufacturer": "Ram-Lin",
+    "model": "612U",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "QFq72pkBwJqXGJFtffrk",
+    "manufacturer": "KTM Aluminum Frame",
+    "model": "KTM Aluminum Frame",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "QVq72pkBwJqXGJFtffrm",
+    "manufacturer": "KTM Steel Frame",
+    "model": "KTM Steel Frame",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Qlq72pkBwJqXGJFtffro",
+    "manufacturer": "RAMSHORN WELDING",
+    "model": "RAMSHORN WELDING",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Q1q72pkBwJqXGJFtffrr",
+    "manufacturer": "FATT HOGG FRAMES",
+    "model": "FATT HOGG FRAMES",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "RFq72pkBwJqXGJFtffrt",
+    "manufacturer": "FRAMTRAC MANUFACTURING CO. LTD",
+    "model": "FRAMTRAC MANUFACTURING CO. LTD",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "RVq72pkBwJqXGJFtffrv",
+    "manufacturer": "Ramirez",
+    "model": "Ramirez Trailer",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Rlq72pkBwJqXGJFtffrx",
+    "manufacturer": "Ram Fabrication",
+    "model": "Ram Fabrication",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "R1q72pkBwJqXGJFtffrz",
+    "manufacturer": "Pro-Street Frameworks",
+    "model": "LXR",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "SFq72pkBwJqXGJFtffr1",
+    "manufacturer": "Pro-Street Frameworks",
+    "model": "Chopper",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "SVq72pkBwJqXGJFtffr4",
+    "manufacturer": "Pro-Street Frameworks",
+    "model": "Cruiser",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Slq72pkBwJqXGJFtffr6",
+    "manufacturer": "John Ingram, Inc.",
+    "model": "John Ingram, Inc.",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "S1q72pkBwJqXGJFtffr8",
+    "manufacturer": "TerraMarc Industries",
+    "model": "TerraMarc Industries",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "TFq72pkBwJqXGJFtffr-",
+    "manufacturer": "Tram Power Car",
+    "model": "Tram Power Car",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "TVq72pkBwJqXGJFtfvoA",
+    "manufacturer": "Tram Trailer",
+    "model": "Tram Trailer",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Tlq72pkBwJqXGJFtfvoD",
+    "manufacturer": "CUSTOM WELDED FRAME",
+    "model": "CP90B",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "T1q72pkBwJqXGJFtfvoF",
+    "manufacturer": "CUSTOM WELDED FRAME",
+    "model": "CP102B",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "UFq72pkBwJqXGJFtfvoH",
+    "manufacturer": "CUSTOM WELDED FRAME",
+    "model": "CP80B",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "UVq72pkBwJqXGJFtfvoJ",
+    "manufacturer": "RAM OEM Trailer",
+    "model": "EZTRJ",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Ulq72pkBwJqXGJFtfvoM",
+    "manufacturer": "RAM OEM Trailer",
+    "model": "YWR",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "U1q72pkBwJqXGJFtfvoO",
+    "manufacturer": "RAM OEM Trailer",
+    "model": "YWVR",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "VFq72pkBwJqXGJFtfvoQ",
+    "manufacturer": "RAM OEM Trailer",
+    "model": "WVR",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "VVq72pkBwJqXGJFtfvoS",
+    "manufacturer": "RAM OEM Trailer",
+    "model": "JSR",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Vlq72pkBwJqXGJFtfvoV",
+    "manufacturer": "RAM OEM Trailer",
+    "model": "EZR",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "V1q72pkBwJqXGJFtfvoX",
+    "manufacturer": "RAM OEM Trailer",
+    "model": "EZWR",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "WFq72pkBwJqXGJFtfvoZ",
+    "manufacturer": "JR RAMIRO",
+    "model": "JR RAMIRO",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "WVq72pkBwJqXGJFtfvob",
+    "manufacturer": "Kramo Trailers",
+    "model": "Kramo Trailers",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Wlq72pkBwJqXGJFtfvod",
+    "manufacturer": "Brammo",
+    "model": "Urban",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "W1q72pkBwJqXGJFtfvog",
+    "manufacturer": "Brammo",
+    "model": "Dual Sport",
+    "year": 1965,
+    "body_class": "Sports Car",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "XFq72pkBwJqXGJFtfvoh",
+    "manufacturer": "Brammo",
+    "model": "Scooter",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "XVq72pkBwJqXGJFtfvok",
+    "manufacturer": "Brammo",
+    "model": "Touring",
+    "year": 1970,
+    "body_class": "Touring Car",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "Xlq72pkBwJqXGJFtfvom",
+    "manufacturer": "Brammo",
+    "model": "Brammo Street Bikes",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "X1q72pkBwJqXGJFtfvoo",
+    "manufacturer": "Rambler",
+    "model": "Rambler",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "YFq72pkBwJqXGJFtfvrx",
+    "manufacturer": "Tesla",
+    "model": "Model S",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "YVq72pkBwJqXGJFtfvr2",
+    "manufacturer": "Tesla",
+    "model": "Roadster",
+    "year": 1955,
+    "body_class": "Sports Car",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "Ylq72pkBwJqXGJFtfvr4",
+    "manufacturer": "Tesla",
+    "model": "Model X",
+    "year": 1957,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "Y1q72pkBwJqXGJFtfvr6",
+    "manufacturer": "Tesla",
+    "model": "Model 3",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "ZFq72pkBwJqXGJFtfvr8",
+    "manufacturer": "Tesla",
+    "model": "Model Y",
+    "year": 1962,
+    "body_class": "SUV",
+    "match_type": "exact_match"
+  },
+  {
+    "vehicle_id": "ZVq72pkBwJqXGJFtfvr-",
+    "manufacturer": "Tesla",
+    "model": "Semi",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "Zlq72pkBwJqXGJFtf_oB",
+    "manufacturer": "Tesla",
+    "model": "Cybertruck",
+    "year": 1968,
+    "body_class": "Pickup",
+    "match_type": "regex_match"
+  },
+  {
+    "vehicle_id": "Z1q72pkBwJqXGJFtgPpU",
+    "manufacturer": "RIVIAN",
+    "model": "R1T",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "aFq72pkBwJqXGJFtgPpZ",
+    "manufacturer": "RIVIAN",
+    "model": "R1S",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "aVq72pkBwJqXGJFtgPpb",
+    "manufacturer": "RIVIAN",
+    "model": "RCV",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "alq72pkBwJqXGJFtgPpd",
+    "manufacturer": "RIVIAN",
+    "model": "EDV",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "a1q72pkBwJqXGJFtg_pz",
+    "manufacturer": "International",
+    "model": "L3337",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "bFq72pkBwJqXGJFtg_p5",
+    "manufacturer": "International",
+    "model": "L9217",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "bVq72pkBwJqXGJFtg_p7",
+    "manufacturer": "International",
+    "model": "L9227",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "blq72pkBwJqXGJFtg_p-",
+    "manufacturer": "International",
+    "model": "L9327",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "b1q72pkBwJqXGJFtg_qA",
+    "manufacturer": "International",
+    "model": "L9357",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "cFq72pkBwJqXGJFtg_qC",
+    "manufacturer": "International",
+    "model": "L9427",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "cVq72pkBwJqXGJFtg_qE",
+    "manufacturer": "International",
+    "model": "LA617",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "clq72pkBwJqXGJFtg_qG",
+    "manufacturer": "International",
+    "model": "LA627",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "c1q72pkBwJqXGJFtg_qJ",
+    "manufacturer": "International",
+    "model": "LF617",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "dFq72pkBwJqXGJFtg_qL",
+    "manufacturer": "International",
+    "model": "LF627",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "dVq72pkBwJqXGJFtg_qN",
+    "manufacturer": "International",
+    "model": "LA637",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "dlq72pkBwJqXGJFtg_qP",
+    "manufacturer": "International",
+    "model": "LF637",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "d1q72pkBwJqXGJFtg_qR",
+    "manufacturer": "International",
+    "model": "LF517",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "eFq72pkBwJqXGJFtg_qU",
+    "manufacturer": "International",
+    "model": "LA647",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "eVq72pkBwJqXGJFtg_qW",
+    "manufacturer": "International",
+    "model": "LA657",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "elq72pkBwJqXGJFtg_qY",
+    "manufacturer": "International",
+    "model": "LA667",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "e1q72pkBwJqXGJFtg_qa",
+    "manufacturer": "International",
+    "model": "LF647",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "fFq72pkBwJqXGJFtg_qd",
+    "manufacturer": "International",
+    "model": "LF657",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "fVq72pkBwJqXGJFtg_qf",
+    "manufacturer": "International",
+    "model": "LF667",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "flq72pkBwJqXGJFtg_qh",
+    "manufacturer": "International",
+    "model": "LA687",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "f1q72pkBwJqXGJFtg_qj",
+    "manufacturer": "International",
+    "model": "LF687",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "gFq72pkBwJqXGJFtg_ql",
+    "manufacturer": "International",
+    "model": "LF697",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "gVq72pkBwJqXGJFtg_qo",
+    "manufacturer": "International",
+    "model": "LA697",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "glq72pkBwJqXGJFtg_qq",
+    "manufacturer": "International",
+    "model": "L9377",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "g1q72pkBwJqXGJFtg_qs",
+    "manufacturer": "International",
+    "model": "SA667",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "hFq72pkBwJqXGJFtg_qu",
+    "manufacturer": "International",
+    "model": "SA567",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "hVq72pkBwJqXGJFtg_qw",
+    "manufacturer": "International",
+    "model": "SF567",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "hlq72pkBwJqXGJFtg_qy",
+    "manufacturer": "International",
+    "model": "SF667",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "h1q72pkBwJqXGJFtg_q1",
+    "manufacturer": "International",
+    "model": "SZ607",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "iFq72pkBwJqXGJFtg_q3",
+    "manufacturer": "International",
+    "model": "SZ507",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "iVq72pkBwJqXGJFtg_q5",
+    "manufacturer": "International",
+    "model": "SR667",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "ilq72pkBwJqXGJFtg_q7",
+    "manufacturer": "International",
+    "model": "SX667",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "i1q72pkBwJqXGJFtg_q9",
+    "manufacturer": "International",
+    "model": "SA035",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "jFq72pkBwJqXGJFtg_q_",
+    "manufacturer": "International",
+    "model": "SA025",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "jVq72pkBwJqXGJFtg_rC",
+    "manufacturer": "International",
+    "model": "SF035",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "jlq72pkBwJqXGJFtg_rE",
+    "manufacturer": "International",
+    "model": "RA017",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "j1q72pkBwJqXGJFtg_rG",
+    "manufacturer": "International",
+    "model": "RF017",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "kFq72pkBwJqXGJFtg_rI",
+    "manufacturer": "International",
+    "model": "RA027",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "kVq72pkBwJqXGJFtg_rK",
+    "manufacturer": "International",
+    "model": "RF027",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "klq72pkBwJqXGJFtg_rN",
+    "manufacturer": "International",
+    "model": "KL045",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "k1q72pkBwJqXGJFtg_rP",
+    "manufacturer": "International",
+    "model": "KL055",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "lFq72pkBwJqXGJFtg_rR",
+    "manufacturer": "International",
+    "model": "TA005",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "lVq72pkBwJqXGJFtg_rT",
+    "manufacturer": "International",
+    "model": "MA065",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "llq72pkBwJqXGJFtg_rV",
+    "manufacturer": "International",
+    "model": "GA107",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "l1q72pkBwJqXGJFtg_rY",
+    "manufacturer": "International",
+    "model": "GF107",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "mFq72pkBwJqXGJFtg_ra",
+    "manufacturer": "International",
+    "model": "GW107",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "mVq72pkBwJqXGJFtg_rc",
+    "manufacturer": "International",
+    "model": "GZ107",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "mlq72pkBwJqXGJFtg_re",
+    "manufacturer": "International",
+    "model": "TR005",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "m1q72pkBwJqXGJFtg_rg",
+    "manufacturer": "International",
+    "model": "NF2AA",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "nFq72pkBwJqXGJFtg_rj",
+    "manufacturer": "International",
+    "model": "NW2AA",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "nVq72pkBwJqXGJFtg_rl",
+    "manufacturer": "International",
+    "model": "9M005",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "nlq72pkBwJqXGJFtg_rn",
+    "manufacturer": "International",
+    "model": "9M006",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "n1q72pkBwJqXGJFtg_rp",
+    "manufacturer": "International",
+    "model": "9M007",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "oFq72pkBwJqXGJFtg_rr",
+    "manufacturer": "International",
+    "model": "MA035",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "oVq72pkBwJqXGJFtg_ru",
+    "manufacturer": "International",
+    "model": "MA025",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "olq72pkBwJqXGJFtg_rw",
+    "manufacturer": "International",
+    "model": "MH025",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "o1q72pkBwJqXGJFtg_ry",
+    "manufacturer": "International",
+    "model": "MA015",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "pFq72pkBwJqXGJFtg_r0",
+    "manufacturer": "International",
+    "model": "MH035",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "pVq72pkBwJqXGJFtg_r2",
+    "manufacturer": "International",
+    "model": "MF035",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "plq72pkBwJqXGJFtg_r4",
+    "manufacturer": "International",
+    "model": "MA045",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "p1q72pkBwJqXGJFtg_r7",
+    "manufacturer": "International",
+    "model": "MH045",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "qFq72pkBwJqXGJFtg_r9",
+    "manufacturer": "International",
+    "model": "MH065",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "qVq72pkBwJqXGJFtg_r_",
+    "manufacturer": "International",
+    "model": "MR065",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "qlq72pkBwJqXGJFthPoB",
+    "manufacturer": "International",
+    "model": "MT035",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "q1q72pkBwJqXGJFthPoD",
+    "manufacturer": "International",
+    "model": "L3407",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "rFq72pkBwJqXGJFthPoF",
+    "manufacturer": "International",
+    "model": "L3417",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "rVq72pkBwJqXGJFthPoI",
+    "manufacturer": "International",
+    "model": "L3427",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "rlq72pkBwJqXGJFthPoK",
+    "manufacturer": "International",
+    "model": "DW577",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "r1q72pkBwJqXGJFthPoM",
+    "manufacturer": "International",
+    "model": "DW697",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "sFq72pkBwJqXGJFthPoO",
+    "manufacturer": "International",
+    "model": "DW597",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "sVq72pkBwJqXGJFthPoQ",
+    "manufacturer": "International",
+    "model": "DF577",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "slq72pkBwJqXGJFthPoT",
+    "manufacturer": "International",
+    "model": "DF677",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "s1q72pkBwJqXGJFthPoV",
+    "manufacturer": "International",
+    "model": "DZ577",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "tFq72pkBwJqXGJFthPoX",
+    "manufacturer": "International",
+    "model": "L3437",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "tVq72pkBwJqXGJFthPoZ",
+    "manufacturer": "International",
+    "model": "L3447",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "tlq72pkBwJqXGJFthPob",
+    "manufacturer": "International",
+    "model": "L3377",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "t1q72pkBwJqXGJFthPoe",
+    "manufacturer": "International",
+    "model": "L3307",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "uFq72pkBwJqXGJFthPog",
+    "manufacturer": "International",
+    "model": "SX567",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "uVq72pkBwJqXGJFthPoi",
+    "manufacturer": "International",
+    "model": "GR025",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "ulq72pkBwJqXGJFthPok",
+    "manufacturer": "International",
+    "model": "GR035",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "u1q72pkBwJqXGJFthPom",
+    "manufacturer": "International",
+    "model": "SF557",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "vFq72pkBwJqXGJFthPop",
+    "manufacturer": "International",
+    "model": "SA647",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "vVq72pkBwJqXGJFthPor",
+    "manufacturer": "International",
+    "model": "SF657",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "vlq72pkBwJqXGJFthPot",
+    "manufacturer": "International",
+    "model": "SA557",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "v1q72pkBwJqXGJFthPov",
+    "manufacturer": "International",
+    "model": "SA515",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "wFq72pkBwJqXGJFthPox",
+    "manufacturer": "International",
+    "model": "SR515",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "wVq72pkBwJqXGJFthPoz",
+    "manufacturer": "International",
+    "model": "SA625",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "wlq72pkBwJqXGJFthPo2",
+    "manufacturer": "International",
+    "model": "SA525",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "w1q72pkBwJqXGJFthPo4",
+    "manufacturer": "International",
+    "model": "SR525",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "xFq72pkBwJqXGJFthPo6",
+    "manufacturer": "International",
+    "model": "SF625",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "xVq72pkBwJqXGJFthPo8",
+    "manufacturer": "International",
+    "model": "SF525",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "xlq72pkBwJqXGJFthPo-",
+    "manufacturer": "International",
+    "model": "SX525",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "x1q72pkBwJqXGJFthPpB",
+    "manufacturer": "International",
+    "model": "SA637",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "yFq72pkBwJqXGJFthPpD",
+    "manufacturer": "International",
+    "model": "SA537",
+    "year": 1960,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "yVq72pkBwJqXGJFthPpF",
+    "manufacturer": "International",
+    "model": "SR537",
+    "year": 1962,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "ylq72pkBwJqXGJFthPpH",
+    "manufacturer": "International",
+    "model": "SF637",
+    "year": 1965,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "y1q72pkBwJqXGJFthPpJ",
+    "manufacturer": "International",
+    "model": "SF537",
+    "year": 1968,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "zFq72pkBwJqXGJFthPpL",
+    "manufacturer": "International",
+    "model": "SX537",
+    "year": 1970,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "zVq72pkBwJqXGJFthPpO",
+    "manufacturer": "International",
+    "model": "SF547",
+    "year": 1972,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "zlq72pkBwJqXGJFthPpQ",
+    "manufacturer": "International",
+    "model": "SF647",
+    "year": 1975,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "z1q72pkBwJqXGJFthfon",
+    "manufacturer": "Studebaker Motor Company",
+    "model": "Fatcat",
+    "year": 1953,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "0Fq72pkBwJqXGJFthfoq",
+    "manufacturer": "Studebaker Motor Company",
+    "model": "TomTom Tail",
+    "year": 1955,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  },
+  {
+    "vehicle_id": "0Vq72pkBwJqXGJFthfos",
+    "manufacturer": "Studebaker Motor Company",
+    "model": "Wild West",
+    "year": 1957,
+    "body_class": "Sedan",
+    "match_type": "fallback"
+  }
+]

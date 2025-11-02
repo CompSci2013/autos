@@ -1,9 +1,9 @@
 .query-control {
-  padding: 16px;
+  // No padding - parent .panel-content already provides 16px padding
 
   .query-control-row {
     display: flex;
-    gap: 12px;
+    gap: 1px;
     align-items: center;
     flex-wrap: wrap;
   }

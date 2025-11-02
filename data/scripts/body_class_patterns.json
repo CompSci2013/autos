@@ -1,0 +1,267 @@
+{
+  "patterns": {
+    "Pickup": {
+      "exact_matches": [
+        "F-150", "F-250", "F-350", "F-450", "F-550",
+        "Silverado", "Silverado 1500", "Silverado 2500", "Silverado 3500",
+        "Sierra", "Sierra 1500", "Sierra 2500", "Sierra 3500",
+        "Ram 1500", "Ram 2500", "Ram 3500", "Ram 4500", "Ram 5500",
+        "Ranger", "Colorado", "Canyon", "Tacoma", "Frontier", "Titan",
+        "Gladiator", "Comanche", "Dakota", "S-10", "S-15",
+        "Courier", "LUV", "El Camino", "Ranchero",
+        "Power Wagon", "Fargo", "D100", "D150", "D200", "D250", "D300",
+        "C10", "C15", "C20", "C25", "C30",
+        "K10", "K15", "K20", "K25", "K30",
+        "Fleetside", "Stepside", "Shortbed", "Longbed"
+      ],
+      "regex_patterns": [
+        ".*[Pp]ickup.*",
+        ".*[Tt]ruck.*",
+        "F-[0-9]{3}",
+        ".*Silverado.*",
+        ".*Sierra.*",
+        ".*Ram [0-9]{4}.*"
+      ]
+    },
+    "SUV": {
+      "exact_matches": [
+        "Explorer", "Expedition", "Excursion", "Bronco", "Bronco Sport",
+        "Tahoe", "Suburban", "Yukon", "Yukon XL", "Blazer", "TrailBlazer",
+        "Traverse", "Equinox", "Trax", "Acadia", "Terrain", "Envoy",
+        "Cherokee", "Grand Cherokee", "Wagoneer", "Grand Wagoneer",
+        "Wrangler", "Commander", "Patriot", "Compass",
+        "Durango", "Ramcharger", "Raider",
+        "Navigator", "Aviator", "Corsair", "Nautilus",
+        "Escalade", "XT4", "XT5", "XT6",
+        "Jimmy", "Typhoon", "Bravada", "Rendezvous",
+        "Bronco II", "Bronco Sport", "EcoSport",
+        "Model X", "Model Y"
+      ],
+      "regex_patterns": [
+        ".*[Ss]port [Uu]tility.*",
+        ".*SUV.*",
+        ".*4x4.*",
+        ".*[Ww]agon.*eer.*"
+      ]
+    },
+    "Sedan": {
+      "exact_matches": [
+        "Taurus", "Fusion", "Focus", "Fiesta", "Contour", "Tempo",
+        "LTD", "Crown Victoria", "Victoria", "Five Hundred",
+        "Malibu", "Impala", "Cavalier", "Cobalt", "Cruze",
+        "Caprice", "Lumina", "Monte Carlo", "Celebrity",
+        "Accord", "Civic", "Camry", "Corolla",
+        "Charger", "Intrepid", "Neon", "Stratus", "Avenger",
+        "300", "200", "LeBaron", "Concorde", "New Yorker",
+        "Dart", "Viper", "Stealth",
+        "Continental", "Town Car", "MKZ", "Zephyr",
+        "DeVille", "Seville", "DTS", "CTS", "ATS",
+        "Grand Prix", "Bonneville", "Grand Am", "Sunfire",
+        "LeSabre", "Century", "Regal", "Skylark", "Riviera",
+        "Cutlass", "88", "98", "Alero", "Aurora",
+        "Fairlane", "Galaxie", "Fairmont", "Granada",
+        "Bel Air", "Biscayne", "Brookwood", "Delray",
+        "Fleetline", "Styleline", "Special", "DeLuxe",
+        "Coronet", "Monaco", "Polara", "Royal",
+        "Cambridge", "Cranbrook", "Plaza", "Savoy",
+        "Belvedere", "Fury", "Valiant", "Acclaim",
+        "Vision", "Sundance", "Shadow", "Spirit",
+        "Model S", "Model 3"
+      ],
+      "regex_patterns": [
+        ".*[Ss]edan.*",
+        ".*[Bb]erline.*",
+        ".*4[Dd]oor.*",
+        ".*4-[Dd]oor.*"
+      ]
+    },
+    "Coupe": {
+      "exact_matches": [
+        "Mustang", "Thunderbird", "Torino", "Maverick GT",
+        "Camaro", "Corvette", "Corvair", "Nova",
+        "Challenger", "Barracuda", "Super Bee", "Daytona",
+        "Firebird", "Trans Am", "GTO", "Tempest",
+        "Riviera", "Wildcat", "Electra 225",
+        "Toronado", "442", "Hurst/Olds",
+        "Mark III", "Mark IV", "Mark V", "Mark VI", "Mark VII", "Mark VIII",
+        "Eldorado", "Allante",
+        "Javelin", "AMX",
+        "Starlight", "Starliner", "Hawk",
+        "Hornet", "Wasp", "Jet"
+      ],
+      "regex_patterns": [
+        ".*[Cc]oupe.*",
+        ".*2[Dd]oor.*",
+        ".*2-[Dd]oor.*",
+        ".*GT.*",
+        ".*SS.*",
+        ".*Z28.*",
+        ".*R/T.*",
+        ".*SRT.*"
+      ]
+    },
+    "Convertible": {
+      "exact_matches": [
+        "Mustang Convertible", "Thunderbird Convertible",
+        "Corvette Convertible", "Camaro Convertible",
+        "Sebring Convertible", "LeBaron Convertible",
+        "Solstice", "Sky",
+        "Prowler",
+        "Model T Roadster"
+      ],
+      "regex_patterns": [
+        ".*[Cc]onvertible.*",
+        ".*[Rr]oadster.*",
+        ".*[Cc]abriolet.*",
+        ".*[Ss]pyder.*",
+        ".*[Dd]rophead.*"
+      ]
+    },
+    "Wagon": {
+      "exact_matches": [
+        "Country Squire", "Ranch Wagon", "Colony Park",
+        "Nomad", "Kingswood", "Brookwood Estate",
+        "Sport Wagon", "Safari",
+        "Polara Wagon", "Coronet Wagon",
+        "Town & Country", "Voyager Wagon",
+        "Vega Wagon", "Pinto Wagon",
+        "Hornet Sportabout", "Gremlin X"
+      ],
+      "regex_patterns": [
+        ".*[Ww]agon.*",
+        ".*[Ee]state.*",
+        ".*[Ss]portabout.*",
+        ".*[Ss]hooting [Bb]rake.*"
+      ]
+    },
+    "Van": {
+      "exact_matches": [
+        "E-Series", "E-150", "E-250", "E-350",
+        "Econoline", "Club Wagon", "Transit",
+        "Express", "Savana", "Astro", "Safari",
+        "Caravan", "Grand Caravan", "Town & Country",
+        "Voyager", "Grand Voyager", "Pacifica",
+        "Ram Van", "Ram Wagon", "ProMaster",
+        "Windstar", "Freestar", "Aerostar"
+      ],
+      "regex_patterns": [
+        ".*[Vv]an.*",
+        ".*[Mm]inivan.*",
+        ".*[Cc]aravan.*",
+        ".*E-[0-9]{3}.*"
+      ]
+    },
+    "Hatchback": {
+      "exact_matches": [
+        "Focus Hatchback", "Fiesta Hatchback",
+        "Chevette", "Vega", "Citation",
+        "Omni", "Horizon", "Colt",
+        "Pinto", "Escort", "Festiva",
+        "Sprint", "Metro", "Aveo"
+      ],
+      "regex_patterns": [
+        ".*[Hh]atchback.*",
+        ".*[Hh]atch.*",
+        ".*3[Dd]oor.*",
+        ".*5[Dd]oor.*"
+      ]
+    },
+    "Sports Car": {
+      "exact_matches": [
+        "Corvette", "Viper", "GT40", "GT",
+        "Cobra", "Shelby GT350", "Shelby GT500",
+        "ZL1", "Z06", "ZR1",
+        "ACR", "Hellcat", "Demon", "Redeye",
+        "Trans Am WS6", "Firebird Formula",
+        "GNX", "Grand National",
+        "Model S Plaid", "Roadster"
+      ],
+      "regex_patterns": [
+        ".*[Ss]ports [Cc]ar.*",
+        ".*[Ss]upercar.*",
+        ".*GT[0-9]{2,3}.*",
+        ".*Hellcat.*",
+        ".*Demon.*"
+      ]
+    },
+    "Touring Car": {
+      "exact_matches": [
+        "Model T", "Model A", "Model B",
+        "Phaeton", "Touring", "Speedster",
+        "Series 62", "Series 75"
+      ],
+      "regex_patterns": [
+        ".*[Tt]ouring.*",
+        ".*[Pp]haeton.*",
+        ".*Model [A-Z].*"
+      ]
+    },
+    "Roadster": {
+      "exact_matches": [
+        "Model T Roadster", "Model A Roadster",
+        "Prowler", "Solstice", "Sky",
+        "Tesla Roadster"
+      ],
+      "regex_patterns": [
+        ".*[Rr]oadster.*",
+        ".*[Ss]peedster.*"
+      ]
+    },
+    "Truck": {
+      "exact_matches": [
+        "F-650", "F-750",
+        "Silverado 4500", "Silverado 5500", "Silverado 6500",
+        "TopKick", "Kodiak",
+        "W-Series", "L-Series", "N-Series"
+      ],
+      "regex_patterns": [
+        ".*[Cc]ommercial.*",
+        ".*[Hh]eavy [Dd]uty.*",
+        ".*[Mm]edium [Dd]uty.*"
+      ]
+    },
+    "Limousine": {
+      "exact_matches": [
+        "Town Car", "Continental Limousine",
+        "Fleetwood Limousine", "Series 75 Limousine",
+        "Imperial Limousine"
+      ],
+      "regex_patterns": [
+        ".*[Ll]imousine.*",
+        ".*[Ll]imo.*",
+        ".*[Ss]tretch.*"
+      ]
+    }
+  },
+  "manufacturer_defaults": {
+    "Ford": {
+      "F-Series": "Pickup",
+      "E-Series": "Van",
+      "Mustang": "Coupe",
+      "Explorer": "SUV",
+      "Bronco": "SUV"
+    },
+    "Chevrolet": {
+      "Silverado": "Pickup",
+      "Corvette": "Sports Car",
+      "Tahoe": "SUV",
+      "Suburban": "SUV",
+      "Camaro": "Coupe"
+    },
+    "Dodge": {
+      "Ram": "Pickup",
+      "Charger": "Sedan",
+      "Challenger": "Coupe",
+      "Durango": "SUV",
+      "Viper": "Sports Car"
+    },
+    "Tesla": {
+      "Model S": "Sedan",
+      "Model 3": "Sedan",
+      "Model X": "SUV",
+      "Model Y": "SUV",
+      "Roadster": "Sports Car",
+      "Cybertruck": "Pickup"
+    }
+  }
+}

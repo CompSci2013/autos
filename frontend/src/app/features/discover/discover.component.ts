@@ -60,11 +60,11 @@ export class DiscoverComponent implements OnInit, OnDestroy {
   private initializeGrids(): void {
     // Define grid configurations
     const gridDefinitions = [
-      { id: 'grid-2', name: 'Bottom Charts', borderColor: '#faad14' },
-      { id: 'grid-3', name: 'Plotly Histograms', borderColor: '#722ed1' },
-      { id: 'grid-4', name: 'Query Control', borderColor: '#eb2f96' },
-      { id: 'grid-5', name: 'Model Picker', borderColor: '#13c2c2' },
-      { id: 'grid-6', name: 'Vehicle Results', borderColor: '#fa8c16' },
+      { id: 'grid-2', name: 'Bottom Charts', borderColor: '#1451faff' },
+      { id: 'grid-3', name: 'Plotly Histograms', borderColor: '#1451faff' },
+      { id: 'grid-4', name: 'Query Control', borderColor: '#1451faff' },
+      { id: 'grid-5', name: 'Model Picker', borderColor: '#1451faff' },
+      { id: 'grid-6', name: 'Vehicle Results', borderColor: '#1451faff' },
     ];
 
     this.grids = gridDefinitions.map((def) =>
@@ -81,11 +81,11 @@ export class DiscoverComponent implements OnInit, OnDestroy {
       gridType: GridType.Fit,
       compactType: CompactType.None,
       margin: 10,
-      outerMargin: true,
-      outerMarginTop: null,
-      outerMarginRight: null,
-      outerMarginBottom: null,
-      outerMarginLeft: null,
+      outerMargin: false, // No outer margin - containers provide spacing
+      outerMarginTop: 0, // Explicitly no top margin
+      outerMarginRight: 0,
+      outerMarginBottom: 0,
+      outerMarginLeft: 0,
       useTransformPositioning: true,
       mobileBreakpoint: 640,
       minCols: 1,
@@ -93,7 +93,7 @@ export class DiscoverComponent implements OnInit, OnDestroy {
       minRows: 1,
       maxRows: 100,
       maxItemCols: 100,
-      minItemCols: 2, // Minimum 2 columns (210px) to prevent panels becoming too narrow
+      minItemCols: 4, // Minimum 2 columns (210px) to prevent panels becoming too narrow
       maxItemRows: 100,
       minItemRows: 4, // Minimum 4 rows
       maxItemArea: 2500,
@@ -183,7 +183,7 @@ export class DiscoverComponent implements OnInit, OnDestroy {
           grid.items = [
             {
               cols: 12,
-              rows: 2,
+              rows: 6,
               y: 0,
               x: 0,
               id: 'query-control-1',
@@ -207,7 +207,7 @@ export class DiscoverComponent implements OnInit, OnDestroy {
           grid.items = [
             {
               cols: 12,
-              rows: 10,
+              rows: 24,
               y: 0,
               x: 0,
               id: 'results-1',
@@ -304,7 +304,7 @@ export class DiscoverComponent implements OnInit, OnDestroy {
       this.grids[4].items = [
         {
           cols: 12,
-          rows: 2,
+          rows: 6,
           y: 0,
           x: 0,
           id: 'query-control-1',
@@ -626,7 +626,7 @@ export class DiscoverComponent implements OnInit, OnDestroy {
     if (saved) {
       try {
         const state = JSON.parse(saved);
-        this.grids.forEach(grid => {
+        this.grids.forEach((grid) => {
           this.gridCollapseStates.set(grid.id, state[grid.id] || false);
         });
       } catch (error) {
@@ -644,7 +644,7 @@ export class DiscoverComponent implements OnInit, OnDestroy {
    * Bottom Charts (grid-2), Plotly Histograms (grid-3): Collapsed
    */
   private setDefaultCollapseStates(): void {
-    this.grids.forEach(grid => {
+    this.grids.forEach((grid) => {
       // Default: expand functional grids, collapse chart grids
       const collapsed = grid.id === 'grid-2' || grid.id === 'grid-3';
       this.gridCollapseStates.set(grid.id, collapsed);
@@ -682,7 +682,7 @@ export class DiscoverComponent implements OnInit, OnDestroy {
    * Collapse all grids
    */
   collapseAllGrids(): void {
-    this.grids.forEach(grid => {
+    this.grids.forEach((grid) => {
       this.gridCollapseStates.set(grid.id, true);
     });
     this.saveGridCollapseStates();
@@ -692,7 +692,7 @@ export class DiscoverComponent implements OnInit, OnDestroy {
    * Expand all grids
    */
   expandAllGrids(): void {
-    this.grids.forEach(grid => {
+    this.grids.forEach((grid) => {
       this.gridCollapseStates.set(grid.id, false);
     });
     this.saveGridCollapseStates();
@@ -702,7 +702,7 @@ export class DiscoverComponent implements OnInit, OnDestroy {
    * Get grid name for display
    */
   getGridName(gridId: string): string {
-    const grid = this.grids.find(g => g.id === gridId);
+    const grid = this.grids.find((g) => g.id === gridId);
     return grid?.name || gridId;
   }
 }

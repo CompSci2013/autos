@@ -1,0 +1,96 @@
+{
+  "body_classes": {
+    "Sedan": {
+      "description": "Passenger car with separate trunk, 2 or 4 doors",
+      "subcategories": ["Full-Size Sedan", "Mid-Size Sedan", "Compact Sedan", "Subcompact Sedan"],
+      "years": "1900-present"
+    },
+    "Coupe": {
+      "description": "Two-door passenger car with fixed roof",
+      "subcategories": ["Sports Coupe", "Luxury Coupe", "Compact Coupe"],
+      "years": "1900-present"
+    },
+    "Convertible": {
+      "description": "Passenger car with retractable or removable roof",
+      "subcategories": ["Roadster", "Cabriolet", "Spyder"],
+      "years": "1900-present"
+    },
+    "Wagon": {
+      "description": "Passenger car with extended rear cargo area",
+      "subcategories": ["Station Wagon", "Estate", "Shooting Brake"],
+      "years": "1920-present"
+    },
+    "SUV": {
+      "description": "Sport Utility Vehicle with high ground clearance",
+      "subcategories": ["Full-Size SUV", "Mid-Size SUV", "Compact SUV", "Subcompact SUV", "Crossover"],
+      "years": "1935-present"
+    },
+    "Pickup": {
+      "description": "Light truck with open cargo bed",
+      "subcategories": ["Full-Size Pickup", "Mid-Size Pickup", "Compact Pickup", "Heavy Duty Pickup"],
+      "years": "1920-present"
+    },
+    "Van": {
+      "description": "Enclosed cargo or passenger vehicle",
+      "subcategories": ["Minivan", "Full-Size Van", "Cargo Van", "Passenger Van"],
+      "years": "1930-present"
+    },
+    "Hatchback": {
+      "description": "Car with rear door that swings upward",
+      "subcategories": ["Compact Hatchback", "Subcompact Hatchback", "Hot Hatch"],
+      "years": "1938-present"
+    },
+    "Truck": {
+      "description": "Commercial or heavy-duty truck",
+      "subcategories": ["Medium Duty", "Heavy Duty", "Commercial Truck"],
+      "years": "1900-present"
+    },
+    "Touring Car": {
+      "description": "Open-top car with folding or removable roof (vintage)",
+      "subcategories": ["Phaeton", "Touring"],
+      "years": "1900-1930"
+    },
+    "Roadster": {
+      "description": "Two-seat open sports car",
+      "subcategories": ["Classic Roadster", "Modern Roadster"],
+      "years": "1900-present"
+    },
+    "Limousine": {
+      "description": "Luxury vehicle with extended wheelbase and partition",
+      "subcategories": ["Stretch Limousine", "Town Car"],
+      "years": "1900-present"
+    },
+    "Sports Car": {
+      "description": "High-performance two-seat vehicle designed for speed",
+      "subcategories": ["Grand Touring", "Supercar", "Muscle Car"],
+      "years": "1910-present"
+    },
+    "Runabout": {
+      "description": "Light, simple automobile for short trips (vintage)",
+      "subcategories": [],
+      "years": "1900-1920"
+    },
+    "Landaulet": {
+      "description": "Formal car with folding rear roof section (vintage)",
+      "subcategories": [],
+      "years": "1900-1940"
+    }
+  },
+  "nhtsa_standard_classes": [
+    "Sedan",
+    "Coupe",
+    "Convertible",
+    "Wagon",
+    "SUV",
+    "Pickup",
+    "Van",
+    "Hatchback",
+    "Truck"
+  ],
+  "vintage_classes": [
+    "Touring Car",
+    "Roadster",
+    "Runabout",
+    "Landaulet"
+  ]
+}

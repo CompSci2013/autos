@@ -1,0 +1,403 @@
+{
+  "overrides": [
+    {
+      "manufacturer": "Ford",
+      "model": "Model T",
+      "year_range": [1908, 1927],
+      "body_class": "Touring Car",
+      "notes": "Ford's first mass-produced automobile"
+    },
+    {
+      "manufacturer": "Ford",
+      "model": "Model A",
+      "year_range": [1928, 1931],
+      "body_class": "Sedan",
+      "notes": "Successor to Model T"
+    },
+    {
+      "manufacturer": "Ford",
+      "model": "Thunderbird",
+      "year_range": [1955, 1997],
+      "body_class": "Coupe",
+      "notes": "Personal luxury car"
+    },
+    {
+      "manufacturer": "Ford",
+      "model": "Bronco",
+      "year_range": [1966, 1996],
+      "body_class": "SUV",
+      "notes": "Classic SUV, reintroduced 2021"
+    },
+    {
+      "manufacturer": "Ford",
+      "model": "Bronco",
+      "year_range": [2021, 2024],
+      "body_class": "SUV",
+      "notes": "Modern reintroduction"
+    },
+    {
+      "manufacturer": "Chevrolet",
+      "model": "Bel Air",
+      "year_range": [1950, 1981],
+      "body_class": "Sedan",
+      "notes": "Full-size car, multiple body styles"
+    },
+    {
+      "manufacturer": "Chevrolet",
+      "model": "Corvette",
+      "year_range": [1953, 2024],
+      "body_class": "Sports Car",
+      "notes": "American sports car icon"
+    },
+    {
+      "manufacturer": "Chevrolet",
+      "model": "Suburban",
+      "year_range": [1935, 2024],
+      "body_class": "SUV",
+      "notes": "Longest continuously produced nameplate"
+    },
+    {
+      "manufacturer": "Chevrolet",
+      "model": "El Camino",
+      "year_range": [1959, 1987],
+      "body_class": "Pickup",
+      "notes": "Coupe utility / car-truck hybrid"
+    },
+    {
+      "manufacturer": "Chevrolet",
+      "model": "Nomad",
+      "year_range": [1955, 1972],
+      "body_class": "Wagon",
+      "notes": "Station wagon variant"
+    },
+    {
+      "manufacturer": "Dodge",
+      "model": "Charger",
+      "year_range": [1966, 1978],
+      "body_class": "Coupe",
+      "notes": "Muscle car era"
+    },
+    {
+      "manufacturer": "Dodge",
+      "model": "Charger",
+      "year_range": [2006, 2024],
+      "body_class": "Sedan",
+      "notes": "Modern four-door variant"
+    },
+    {
+      "manufacturer": "Dodge",
+      "model": "Challenger",
+      "year_range": [1970, 1974],
+      "body_class": "Coupe",
+      "notes": "Original muscle car"
+    },
+    {
+      "manufacturer": "Dodge",
+      "model": "Challenger",
+      "year_range": [2008, 2024],
+      "body_class": "Coupe",
+      "notes": "Modern retro muscle car"
+    },
+    {
+      "manufacturer": "Plymouth",
+      "model": "Fury",
+      "year_range": [1956, 1978],
+      "body_class": "Sedan",
+      "notes": "Full-size car"
+    },
+    {
+      "manufacturer": "Plymouth",
+      "model": "Barracuda",
+      "year_range": [1964, 1974],
+      "body_class": "Coupe",
+      "notes": "Muscle car / pony car"
+    },
+    {
+      "manufacturer": "Plymouth",
+      "model": "Road Runner",
+      "year_range": [1968, 1980],
+      "body_class": "Coupe",
+      "notes": "Muscle car"
+    },
+    {
+      "manufacturer": "Pontiac",
+      "model": "GTO",
+      "year_range": [1964, 1974],
+      "body_class": "Coupe",
+      "notes": "Considered first muscle car"
+    },
+    {
+      "manufacturer": "Pontiac",
+      "model": "Firebird",
+      "year_range": [1967, 2002],
+      "body_class": "Coupe",
+      "notes": "Pony/muscle car"
+    },
+    {
+      "manufacturer": "Pontiac",
+      "model": "Trans Am",
+      "year_range": [1969, 2002],
+      "body_class": "Coupe",
+      "notes": "Performance variant of Firebird"
+    },
+    {
+      "manufacturer": "Buick",
+      "model": "Riviera",
+      "year_range": [1963, 1999],
+      "body_class": "Coupe",
+      "notes": "Personal luxury car"
+    },
+    {
+      "manufacturer": "Buick",
+      "model": "Skylark",
+      "year_range": [1953, 1998],
+      "body_class": "Sedan",
+      "notes": "Various sizes over production run"
+    },
+    {
+      "manufacturer": "Buick",
+      "model": "Grand National",
+      "year_range": [1982, 1987],
+      "body_class": "Coupe",
+      "notes": "High-performance Regal variant"
+    },
+    {
+      "manufacturer": "Cadillac",
+      "model": "Eldorado",
+      "year_range": [1953, 2002],
+      "body_class": "Coupe",
+      "notes": "Personal luxury car"
+    },
+    {
+      "manufacturer": "Cadillac",
+      "model": "DeVille",
+      "year_range": [1959, 2005],
+      "body_class": "Sedan",
+      "notes": "Full-size luxury sedan"
+    },
+    {
+      "manufacturer": "Cadillac",
+      "model": "Escalade",
+      "year_range": [1999, 2024],
+      "body_class": "SUV",
+      "notes": "Full-size luxury SUV"
+    },
+    {
+      "manufacturer": "Lincoln",
+      "model": "Continental",
+      "year_range": [1939, 2020],
+      "body_class": "Sedan",
+      "notes": "Luxury sedan with gaps in production"
+    },
+    {
+      "manufacturer": "Lincoln",
+      "model": "Town Car",
+      "year_range": [1981, 2011],
+      "body_class": "Sedan",
+      "notes": "Full-size luxury sedan"
+    },
+    {
+      "manufacturer": "Lincoln",
+      "model": "Navigator",
+      "year_range": [1998, 2024],
+      "body_class": "SUV",
+      "notes": "Full-size luxury SUV"
+    },
+    {
+      "manufacturer": "AMC",
+      "model": "Javelin",
+      "year_range": [1968, 1974],
+      "body_class": "Coupe",
+      "notes": "Pony car"
+    },
+    {
+      "manufacturer": "AMC",
+      "model": "AMX",
+      "year_range": [1968, 1970],
+      "body_class": "Sports Car",
+      "notes": "Two-seat sports car"
+    },
+    {
+      "manufacturer": "AMC",
+      "model": "Gremlin",
+      "year_range": [1970, 1978],
+      "body_class": "Hatchback",
+      "notes": "Subcompact car"
+    },
+    {
+      "manufacturer": "Jeep",
+      "model": "Wrangler",
+      "year_range": [1987, 2024],
+      "body_class": "SUV",
+      "notes": "Successor to CJ series"
+    },
+    {
+      "manufacturer": "Jeep",
+      "model": "Cherokee",
+      "year_range": [1974, 2024],
+      "body_class": "SUV",
+      "notes": "Compact/mid-size SUV"
+    },
+    {
+      "manufacturer": "Jeep",
+      "model": "Grand Cherokee",
+      "year_range": [1993, 2024],
+      "body_class": "SUV",
+      "notes": "Mid-size SUV"
+    },
+    {
+      "manufacturer": "Jeep",
+      "model": "Gladiator",
+      "year_range": [1963, 1988],
+      "body_class": "Pickup",
+      "notes": "Pickup truck"
+    },
+    {
+      "manufacturer": "Jeep",
+      "model": "Gladiator",
+      "year_range": [2020, 2024],
+      "body_class": "Pickup",
+      "notes": "Wrangler-based pickup"
+    },
+    {
+      "manufacturer": "Chrysler",
+      "model": "300",
+      "year_range": [1955, 1965],
+      "body_class": "Sedan",
+      "notes": "Letter series performance cars"
+    },
+    {
+      "manufacturer": "Chrysler",
+      "model": "300",
+      "year_range": [2005, 2024],
+      "body_class": "Sedan",
+      "notes": "Full-size sedan"
+    },
+    {
+      "manufacturer": "Chrysler",
+      "model": "Town & Country",
+      "year_range": [1941, 1988],
+      "body_class": "Wagon",
+      "notes": "Station wagon"
+    },
+    {
+      "manufacturer": "Chrysler",
+      "model": "Town & Country",
+      "year_range": [1990, 2016],
+      "body_class": "Van",
+      "notes": "Minivan"
+    },
+    {
+      "manufacturer": "Chrysler",
+      "model": "Pacifica",
+      "year_range": [2017, 2024],
+      "body_class": "Van",
+      "notes": "Minivan"
+    },
+    {
+      "manufacturer": "Mercury",
+      "model": "Cougar",
+      "year_range": [1967, 1997],
+      "body_class": "Coupe",
+      "notes": "Personal luxury car"
+    },
+    {
+      "manufacturer": "Mercury",
+      "model": "Grand Marquis",
+      "year_range": [1983, 2011],
+      "body_class": "Sedan",
+      "notes": "Full-size sedan"
+    },
+    {
+      "manufacturer": "Oldsmobile",
+      "model": "442",
+      "year_range": [1964, 1987],
+      "body_class": "Coupe",
+      "notes": "Muscle car"
+    },
+    {
+      "manufacturer": "Oldsmobile",
+      "model": "Toronado",
+      "year_range": [1966, 1992],
+      "body_class": "Coupe",
+      "notes": "Personal luxury car"
+    },
+    {
+      "manufacturer": "Studebaker",
+      "model": "Avanti",
+      "year_range": [1962, 1963],
+      "body_class": "Coupe",
+      "notes": "Sports car"
+    },
+    {
+      "manufacturer": "Studebaker",
+      "model": "Champion",
+      "year_range": [1939, 1958],
+      "body_class": "Sedan",
+      "notes": "Full-size car"
+    },
+    {
+      "manufacturer": "Tesla",
+      "model": "Model S",
+      "year_range": [2012, 2024],
+      "body_class": "Sedan",
+      "notes": "Luxury electric sedan"
+    },
+    {
+      "manufacturer": "Tesla",
+      "model": "Model 3",
+      "year_range": [2017, 2024],
+      "body_class": "Sedan",
+      "notes": "Mid-size electric sedan"
+    },
+    {
+      "manufacturer": "Tesla",
+      "model": "Model X",
+      "year_range": [2015, 2024],
+      "body_class": "SUV",
+      "notes": "Electric SUV with falcon doors"
+    },
+    {
+      "manufacturer": "Tesla",
+      "model": "Model Y",
+      "year_range": [2020, 2024],
+      "body_class": "SUV",
+      "notes": "Compact electric SUV"
+    },
+    {
+      "manufacturer": "Tesla",
+      "model": "Roadster",
+      "year_range": [2008, 2012],
+      "body_class": "Sports Car",
+      "notes": "First Tesla production car"
+    },
+    {
+      "manufacturer": "Tesla",
+      "model": "Cybertruck",
+      "year_range": [2023, 2024],
+      "body_class": "Pickup",
+      "notes": "Electric pickup truck"
+    },
+    {
+      "manufacturer": "Rivian",
+      "model": "R1T",
+      "year_range": [2021, 2024],
+      "body_class": "Pickup",
+      "notes": "Electric adventure pickup"
+    },
+    {
+      "manufacturer": "Rivian",
+      "model": "R1S",
+      "year_range": [2022, 2024],
+      "body_class": "SUV",
+      "notes": "Electric adventure SUV"
+    },
+    {
+      "manufacturer": "Lucid",
+      "model": "Air",
+      "year_range": [2021, 2024],
+      "body_class": "Sedan",
+      "notes": "Luxury electric sedan"
+    }
+  ]
+}

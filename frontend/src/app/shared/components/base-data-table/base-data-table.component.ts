@@ -49,7 +49,7 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
   /** Total count for pre-fetched data mode */
   @Input() totalCount?: number;
 
-  @Input() maxTableHeight: string = '1200px';
+  @Input() maxTableHeight: string = '600px';
 
   /** Initial query parameters from parent */
   @Input() queryParams: TableQueryParams = {
@@ -162,7 +162,10 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
             sortOrder: this.sortOrder,
             filters: this.filters,
           };
-          console.log('📄 onFilterChange (data mode): Emitting queryParamsChange:', params);
+          console.log(
+            '📄 onFilterChange (data mode): Emitting queryParamsChange:',
+            params
+          );
           this.queryParamsChange.emit(params);
         } else {
           // dataSource mode: fetch directly
@@ -226,7 +229,9 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
         return;
       }
 
-      console.log('🔄 QueryParams changed, fetching data (hydration from parent)');
+      console.log(
+        '🔄 QueryParams changed, fetching data (hydration from parent)'
+      );
 
       // Update internal state from new queryParams BEFORE fetching
       this.currentPage = curr.page || 1;
@@ -318,7 +323,9 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
 
     // Require dataSource in fetch mode
     if (!this.dataSource) {
-      console.error('❌ Cannot fetch: no dataSource provided and no pre-fetched data');
+      console.error(
+        '❌ Cannot fetch: no dataSource provided and no pre-fetched data'
+      );
       return;
     }
 
@@ -350,10 +357,14 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
           // Only emit to parent if this was user-initiated (not hydration)
           // Prevents circular feedback loop with ResultsTableComponent
           if (userInitiated) {
-            console.log('✅ User-initiated fetch complete, emitting queryParamsChange');
+            console.log(
+              '✅ User-initiated fetch complete, emitting queryParamsChange'
+            );
             this.queryParamsChange.emit(params);
           } else {
-            console.log('⏭️ Hydration fetch complete, NOT emitting queryParamsChange (prevents circular loop)');
+            console.log(
+              '⏭️ Hydration fetch complete, NOT emitting queryParamsChange (prevents circular loop)'
+            );
           }
         },
         error: (error) => {
@@ -451,7 +462,10 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
         sortOrder: this.sortOrder,
         filters: this.filters,
       };
-      console.log('📄 onPageChange (data mode): Emitting queryParamsChange:', params);
+      console.log(
+        '📄 onPageChange (data mode): Emitting queryParamsChange:',
+        params
+      );
       this.queryParamsChange.emit(params);
     } else {
       // dataSource mode: fetch directly
@@ -473,7 +487,10 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
         sortOrder: this.sortOrder,
         filters: this.filters,
       };
-      console.log('📄 onPageSizeChange (data mode): Emitting queryParamsChange:', params);
+      console.log(
+        '📄 onPageSizeChange (data mode): Emitting queryParamsChange:',
+        params
+      );
       this.queryParamsChange.emit(params);
     } else {
       // dataSource mode: fetch directly
@@ -535,7 +552,10 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
         sortOrder: this.sortOrder,
         filters: this.filters,
       };
-      console.log('📄 clearFilters (data mode): Emitting queryParamsChange:', params);
+      console.log(
+        '📄 clearFilters (data mode): Emitting queryParamsChange:',
+        params
+      );
       this.queryParamsChange.emit(params);
     } else {
       // dataSource mode: fetch directly

@@ -1,0 +1,313 @@
+{
+  "manufacturers": {
+    "Ford": {
+      "founded": 1903,
+      "models": {
+        "Model T": {"years": [1908, 1927], "body_class": "Touring Car"},
+        "Model A": {"years": [1928, 1931], "body_class": "Sedan"},
+        "Model B": {"years": [1932, 1934], "body_class": "Sedan"},
+        "Model 48": {"years": [1935, 1936], "body_class": "Sedan"},
+        "Deluxe": {"years": [1938, 1940], "body_class": "Sedan"},
+        "Super Deluxe": {"years": [1941, 1948], "body_class": "Sedan"},
+        "Custom": {"years": [1949, 1951], "body_class": "Sedan"},
+        "Mainline": {"years": [1952, 1956], "body_class": "Sedan"},
+        "Fairlane": {"years": [1955, 1970], "body_class": "Sedan"},
+        "Thunderbird": {"years": [1955, 1997], "body_class": "Coupe"},
+        "Galaxie": {"years": [1959, 1974], "body_class": "Sedan"},
+        "Falcon": {"years": [1960, 1970], "body_class": "Sedan"},
+        "Mustang": {"years": [1964, 2024], "body_class": "Coupe"},
+        "Bronco": {"years": [1966, 1996], "body_class": "SUV"},
+        "Maverick": {"years": [1970, 1977], "body_class": "Sedan"},
+        "Pinto": {"years": [1971, 1980], "body_class": "Hatchback"},
+        "Granada": {"years": [1975, 1982], "body_class": "Sedan"},
+        "F-150": {"years": [1975, 2024], "body_class": "Pickup"},
+        "Escort": {"years": [1981, 2003], "body_class": "Hatchback"},
+        "Tempo": {"years": [1984, 1994], "body_class": "Sedan"},
+        "Taurus": {"years": [1986, 2019], "body_class": "Sedan"},
+        "Explorer": {"years": [1991, 2024], "body_class": "SUV"},
+        "Windstar": {"years": [1995, 2003], "body_class": "Van"},
+        "Focus": {"years": [2000, 2018], "body_class": "Sedan"},
+        "Escape": {"years": [2001, 2024], "body_class": "SUV"},
+        "Fusion": {"years": [2006, 2020], "body_class": "Sedan"},
+        "Flex": {"years": [2009, 2019], "body_class": "SUV"},
+        "Fiesta": {"years": [2011, 2019], "body_class": "Hatchback"},
+        "Edge": {"years": [2007, 2024], "body_class": "SUV"},
+        "Expedition": {"years": [1997, 2024], "body_class": "SUV"},
+        "Ranger": {"years": [1983, 2011], "body_class": "Pickup"},
+        "Bronco Sport": {"years": [2021, 2024], "body_class": "SUV"}
+      }
+    },
+    "Chevrolet": {
+      "founded": 1911,
+      "models": {
+        "Series C": {"years": [1912, 1913], "body_class": "Touring Car"},
+        "490": {"years": [1915, 1922], "body_class": "Touring Car"},
+        "Superior": {"years": [1923, 1926], "body_class": "Sedan"},
+        "National": {"years": [1927, 1928], "body_class": "Sedan"},
+        "Master": {"years": [1933, 1942], "body_class": "Sedan"},
+        "Fleetline": {"years": [1942, 1952], "body_class": "Sedan"},
+        "Bel Air": {"years": [1950, 1981], "body_class": "Sedan"},
+        "Corvette": {"years": [1953, 2024], "body_class": "Sports Car"},
+        "Nomad": {"years": [1955, 1972], "body_class": "Wagon"},
+        "Impala": {"years": [1958, 2020], "body_class": "Sedan"},
+        "El Camino": {"years": [1959, 1987], "body_class": "Pickup"},
+        "Corvair": {"years": [1960, 1969], "body_class": "Sedan"},
+        "Chevelle": {"years": [1964, 1977], "body_class": "Sedan"},
+        "Camaro": {"years": [1967, 2024], "body_class": "Coupe"},
+        "Nova": {"years": [1962, 1988], "body_class": "Sedan"},
+        "Vega": {"years": [1971, 1977], "body_class": "Hatchback"},
+        "Chevette": {"years": [1976, 1987], "body_class": "Hatchback"},
+        "Citation": {"years": [1980, 1985], "body_class": "Hatchback"},
+        "Cavalier": {"years": [1982, 2005], "body_class": "Sedan"},
+        "Corsica": {"years": [1987, 1996], "body_class": "Sedan"},
+        "Lumina": {"years": [1990, 2001], "body_class": "Sedan"},
+        "Blazer": {"years": [1969, 2005], "body_class": "SUV"},
+        "Suburban": {"years": [1935, 2024], "body_class": "SUV"},
+        "Tahoe": {"years": [1995, 2024], "body_class": "SUV"},
+        "Silverado": {"years": [1999, 2024], "body_class": "Pickup"},
+        "Malibu": {"years": [1964, 2024], "body_class": "Sedan"},
+        "Equinox": {"years": [2005, 2024], "body_class": "SUV"},
+        "Traverse": {"years": [2009, 2024], "body_class": "SUV"},
+        "Trax": {"years": [2015, 2024], "body_class": "SUV"},
+        "Bolt": {"years": [2017, 2023], "body_class": "Hatchback"},
+        "Colorado": {"years": [2004, 2024], "body_class": "Pickup"}
+      }
+    },
+    "Dodge": {
+      "founded": 1900,
+      "models": {
+        "Model 30": {"years": [1914, 1916], "body_class": "Touring Car"},
+        "Series 116": {"years": [1918, 1919], "body_class": "Sedan"},
+        "Victory Six": {"years": [1928, 1928], "body_class": "Sedan"},
+        "Senior Six": {"years": [1927, 1933], "body_class": "Sedan"},
+        "Deluxe": {"years": [1941, 1952], "body_class": "Sedan"},
+        "Coronet": {"years": [1949, 1976], "body_class": "Sedan"},
+        "Royal": {"years": [1954, 1959], "body_class": "Sedan"},
+        "Dart": {"years": [1960, 1976], "body_class": "Sedan"},
+        "Polara": {"years": [1960, 1973], "body_class": "Sedan"},
+        "Charger": {"years": [1966, 2024], "body_class": "Coupe"},
+        "Challenger": {"years": [1970, 1974], "body_class": "Coupe"},
+        "Aspen": {"years": [1976, 1980], "body_class": "Sedan"},
+        "Omni": {"years": [1978, 1990], "body_class": "Hatchback"},
+        "Aries": {"years": [1981, 1989], "body_class": "Sedan"},
+        "Daytona": {"years": [1984, 1993], "body_class": "Coupe"},
+        "Caravan": {"years": [1984, 2020], "body_class": "Van"},
+        "Shadow": {"years": [1987, 1994], "body_class": "Sedan"},
+        "Intrepid": {"years": [1993, 2004], "body_class": "Sedan"},
+        "Neon": {"years": [1995, 2005], "body_class": "Sedan"},
+        "Stratus": {"years": [1995, 2006], "body_class": "Sedan"},
+        "Viper": {"years": [1992, 2017], "body_class": "Sports Car"},
+        "Durango": {"years": [1998, 2024], "body_class": "SUV"},
+        "Ram 1500": {"years": [2009, 2024], "body_class": "Pickup"},
+        "Journey": {"years": [2009, 2020], "body_class": "SUV"},
+        "Dart": {"years": [2013, 2016], "body_class": "Sedan"}
+      }
+    },
+    "Plymouth": {
+      "founded": 1928,
+      "models": {
+        "Model Q": {"years": [1928, 1929], "body_class": "Sedan"},
+        "Model U": {"years": [1930, 1932], "body_class": "Sedan"},
+        "Deluxe": {"years": [1933, 1950], "body_class": "Sedan"},
+        "Fury": {"years": [1956, 1978], "body_class": "Sedan"},
+        "Valiant": {"years": [1960, 1976], "body_class": "Sedan"},
+        "Barracuda": {"years": [1964, 1974], "body_class": "Coupe"},
+        "Road Runner": {"years": [1968, 1980], "body_class": "Coupe"},
+        "Duster": {"years": [1970, 1976], "body_class": "Coupe"},
+        "Volare": {"years": [1976, 1980], "body_class": "Sedan"},
+        "Reliant": {"years": [1981, 1989], "body_class": "Sedan"},
+        "Horizon": {"years": [1978, 1990], "body_class": "Hatchback"},
+        "Sundance": {"years": [1987, 1994], "body_class": "Sedan"},
+        "Acclaim": {"years": [1989, 1995], "body_class": "Sedan"},
+        "Neon": {"years": [1995, 2001], "body_class": "Sedan"},
+        "Prowler": {"years": [1997, 2002], "body_class": "Convertible"}
+      }
+    },
+    "Pontiac": {
+      "founded": 1926,
+      "models": {
+        "Series 6-27": {"years": [1926, 1927], "body_class": "Sedan"},
+        "Streamliner": {"years": [1942, 1951], "body_class": "Sedan"},
+        "Chieftain": {"years": [1949, 1958], "body_class": "Sedan"},
+        "Catalina": {"years": [1950, 1981], "body_class": "Sedan"},
+        "Star Chief": {"years": [1954, 1966], "body_class": "Sedan"},
+        "Bonneville": {"years": [1957, 2005], "body_class": "Sedan"},
+        "Tempest": {"years": [1961, 1970], "body_class": "Sedan"},
+        "GTO": {"years": [1964, 1974], "body_class": "Coupe"},
+        "Firebird": {"years": [1967, 2002], "body_class": "Coupe"},
+        "Grand Prix": {"years": [1962, 2008], "body_class": "Sedan"},
+        "Grand Am": {"years": [1973, 2005], "body_class": "Sedan"},
+        "Phoenix": {"years": [1977, 1984], "body_class": "Sedan"},
+        "Fiero": {"years": [1984, 1988], "body_class": "Coupe"},
+        "Sunbird": {"years": [1976, 1994], "body_class": "Sedan"},
+        "Sunfire": {"years": [1995, 2005], "body_class": "Sedan"},
+        "Grand Prix": {"years": [1988, 2008], "body_class": "Sedan"},
+        "Vibe": {"years": [2003, 2010], "body_class": "Wagon"},
+        "G6": {"years": [2005, 2010], "body_class": "Sedan"},
+        "Solstice": {"years": [2006, 2010], "body_class": "Convertible"}
+      }
+    },
+    "Buick": {
+      "founded": 1903,
+      "models": {
+        "Model B": {"years": [1904, 1905], "body_class": "Touring Car"},
+        "Model D": {"years": [1906, 1909], "body_class": "Touring Car"},
+        "Model 10": {"years": [1908, 1909], "body_class": "Touring Car"},
+        "Series 40": {"years": [1934, 1958], "body_class": "Sedan"},
+        "Roadmaster": {"years": [1936, 1958], "body_class": "Sedan"},
+        "Century": {"years": [1936, 2005], "body_class": "Sedan"},
+        "Special": {"years": [1936, 1969], "body_class": "Sedan"},
+        "LeSabre": {"years": [1959, 2005], "body_class": "Sedan"},
+        "Skylark": {"years": [1953, 1998], "body_class": "Sedan"},
+        "Riviera": {"years": [1963, 1999], "body_class": "Coupe"},
+        "Electra": {"years": [1959, 1990], "body_class": "Sedan"},
+        "Regal": {"years": [1973, 2024], "body_class": "Sedan"},
+        "Skyhawk": {"years": [1975, 1989], "body_class": "Sedan"},
+        "Somerset": {"years": [1985, 1987], "body_class": "Coupe"},
+        "Park Avenue": {"years": [1991, 2005], "body_class": "Sedan"},
+        "Rendezvous": {"years": [2002, 2007], "body_class": "SUV"},
+        "Lucerne": {"years": [2006, 2011], "body_class": "Sedan"},
+        "Enclave": {"years": [2008, 2024], "body_class": "SUV"},
+        "Encore": {"years": [2013, 2024], "body_class": "SUV"},
+        "Envision": {"years": [2016, 2024], "body_class": "SUV"}
+      }
+    },
+    "Cadillac": {
+      "founded": 1902,
+      "models": {
+        "Model A": {"years": [1903, 1904], "body_class": "Touring Car"},
+        "Model B": {"years": [1904, 1905], "body_class": "Touring Car"},
+        "Series 314": {"years": [1926, 1927], "body_class": "Sedan"},
+        "Series 341": {"years": [1928, 1931], "body_class": "Sedan"},
+        "Series 355": {"years": [1931, 1933], "body_class": "Sedan"},
+        "Series 60": {"years": [1936, 1938], "body_class": "Sedan"},
+        "Series 62": {"years": [1940, 1964], "body_class": "Sedan"},
+        "DeVille": {"years": [1959, 2005], "body_class": "Sedan"},
+        "Eldorado": {"years": [1953, 2002], "body_class": "Coupe"},
+        "Fleetwood": {"years": [1947, 1996], "body_class": "Sedan"},
+        "Seville": {"years": [1976, 2004], "body_class": "Sedan"},
+        "Cimarron": {"years": [1982, 1988], "body_class": "Sedan"},
+        "Allante": {"years": [1987, 1993], "body_class": "Convertible"},
+        "Catera": {"years": [1997, 2001], "body_class": "Sedan"},
+        "CTS": {"years": [2003, 2019], "body_class": "Sedan"},
+        "SRX": {"years": [2004, 2016], "body_class": "SUV"},
+        "Escalade": {"years": [1999, 2024], "body_class": "SUV"},
+        "ATS": {"years": [2013, 2019], "body_class": "Sedan"},
+        "XT4": {"years": [2019, 2024], "body_class": "SUV"},
+        "XT5": {"years": [2017, 2024], "body_class": "SUV"},
+        "XT6": {"years": [2020, 2024], "body_class": "SUV"},
+        "CT4": {"years": [2020, 2024], "body_class": "Sedan"},
+        "CT5": {"years": [2020, 2024], "body_class": "Sedan"}
+      }
+    },
+    "Lincoln": {
+      "founded": 1917,
+      "models": {
+        "Model L": {"years": [1920, 1930], "body_class": "Sedan"},
+        "Model K": {"years": [1931, 1940], "body_class": "Sedan"},
+        "Zephyr": {"years": [1936, 1942], "body_class": "Sedan"},
+        "Continental": {"years": [1939, 2020], "body_class": "Sedan"},
+        "Cosmopolitan": {"years": [1949, 1954], "body_class": "Sedan"},
+        "Capri": {"years": [1952, 1959], "body_class": "Sedan"},
+        "Premiere": {"years": [1956, 1960], "body_class": "Sedan"},
+        "Mark Series": {"years": [1958, 1998], "body_class": "Coupe"},
+        "Town Car": {"years": [1981, 2011], "body_class": "Sedan"},
+        "LS": {"years": [2000, 2006], "body_class": "Sedan"},
+        "Navigator": {"years": [1998, 2024], "body_class": "SUV"},
+        "MKZ": {"years": [2007, 2020], "body_class": "Sedan"},
+        "MKX": {"years": [2007, 2018], "body_class": "SUV"},
+        "MKS": {"years": [2009, 2016], "body_class": "Sedan"},
+        "MKC": {"years": [2015, 2019], "body_class": "SUV"},
+        "Nautilus": {"years": [2019, 2024], "body_class": "SUV"},
+        "Aviator": {"years": [2020, 2024], "body_class": "SUV"},
+        "Corsair": {"years": [2020, 2024], "body_class": "SUV"}
+      }
+    },
+    "Chrysler": {
+      "founded": 1925,
+      "models": {
+        "Model B-70": {"years": [1924, 1925], "body_class": "Sedan"},
+        "Series 60": {"years": [1926, 1928], "body_class": "Sedan"},
+        "Series 75": {"years": [1929, 1930], "body_class": "Sedan"},
+        "Airflow": {"years": [1934, 1937], "body_class": "Sedan"},
+        "Royal": {"years": [1937, 1950], "body_class": "Sedan"},
+        "Windsor": {"years": [1939, 1961], "body_class": "Sedan"},
+        "New Yorker": {"years": [1940, 1997], "body_class": "Sedan"},
+        "Imperial": {"years": [1926, 1993], "body_class": "Sedan"},
+        "300": {"years": [1955, 2024], "body_class": "Sedan"},
+        "Newport": {"years": [1961, 1981], "body_class": "Sedan"},
+        "LeBaron": {"years": [1977, 1995], "body_class": "Sedan"},
+        "Laser": {"years": [1984, 1986], "body_class": "Coupe"},
+        "Concorde": {"years": [1993, 2004], "body_class": "Sedan"},
+        "Cirrus": {"years": [1995, 2000], "body_class": "Sedan"},
+        "Sebring": {"years": [1995, 2010], "body_class": "Sedan"},
+        "Town & Country": {"years": [1990, 2016], "body_class": "Van"},
+        "PT Cruiser": {"years": [2001, 2010], "body_class": "Wagon"},
+        "200": {"years": [2011, 2017], "body_class": "Sedan"},
+        "Pacifica": {"years": [2017, 2024], "body_class": "Van"},
+        "Voyager": {"years": [2020, 2024], "body_class": "Van"}
+      }
+    },
+    "Jeep": {
+      "founded": 1941,
+      "models": {
+        "Willys MB": {"years": [1941, 1945], "body_class": "SUV"},
+        "CJ-2A": {"years": [1945, 1949], "body_class": "SUV"},
+        "CJ-3A": {"years": [1949, 1953], "body_class": "SUV"},
+        "CJ-5": {"years": [1954, 1983], "body_class": "SUV"},
+        "CJ-7": {"years": [1976, 1986], "body_class": "SUV"},
+        "Cherokee": {"years": [1974, 2024], "body_class": "SUV"},
+        "Wagoneer": {"years": [1963, 1991], "body_class": "SUV"},
+        "Wrangler": {"years": [1987, 2024], "body_class": "SUV"},
+        "Grand Cherokee": {"years": [1993, 2024], "body_class": "SUV"},
+        "Comanche": {"years": [1986, 1992], "body_class": "Pickup"},
+        "Liberty": {"years": [2002, 2012], "body_class": "SUV"},
+        "Commander": {"years": [2006, 2010], "body_class": "SUV"},
+        "Compass": {"years": [2007, 2024], "body_class": "SUV"},
+        "Patriot": {"years": [2007, 2017], "body_class": "SUV"},
+        "Renegade": {"years": [2015, 2024], "body_class": "SUV"},
+        "Gladiator": {"years": [2020, 2024], "body_class": "Pickup"},
+        "Grand Wagoneer": {"years": [2022, 2024], "body_class": "SUV"}
+      }
+    },
+    "GMC": {
+      "founded": 1912,
+      "models": {
+        "Model 16": {"years": [1912, 1913], "body_class": "Truck"},
+        "Sierra": {"years": [1988, 2024], "body_class": "Pickup"},
+        "Canyon": {"years": [2004, 2024], "body_class": "Pickup"},
+        "Yukon": {"years": [1992, 2024], "body_class": "SUV"},
+        "Acadia": {"years": [2007, 2024], "body_class": "SUV"},
+        "Terrain": {"years": [2010, 2024], "body_class": "SUV"},
+        "Savana": {"years": [1996, 2024], "body_class": "Van"},
+        "Jimmy": {"years": [1970, 2005], "body_class": "SUV"},
+        "Envoy": {"years": [1998, 2009], "body_class": "SUV"},
+        "Safari": {"years": [1985, 2005], "body_class": "Van"}
+      }
+    },
+    "Tesla": {
+      "founded": 2003,
+      "models": {
+        "Roadster": {"years": [2008, 2012], "body_class": "Sports Car"},
+        "Model S": {"years": [2012, 2024], "body_class": "Sedan"},
+        "Model X": {"years": [2015, 2024], "body_class": "SUV"},
+        "Model 3": {"years": [2017, 2024], "body_class": "Sedan"},
+        "Model Y": {"years": [2020, 2024], "body_class": "SUV"},
+        "Cybertruck": {"years": [2023, 2024], "body_class": "Pickup"}
+      }
+    },
+    "Rivian": {
+      "founded": 2009,
+      "models": {
+        "R1T": {"years": [2021, 2024], "body_class": "Pickup"},
+        "R1S": {"years": [2022, 2024], "body_class": "SUV"}
+      }
+    },
+    "Lucid": {
+      "founded": 2007,
+      "models": {
+        "Air": {"years": [2021, 2024], "body_class": "Sedan"}
+      }
+    }
+  }
+}

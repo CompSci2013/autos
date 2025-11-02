@@ -86,12 +86,14 @@
 .top-grid-container {
   display: flex;
   flex-direction: column;
+  align-items: stretch; // Stretch gridster to full width
+  justify-content: flex-start; // Align content to top
   background: #fff;
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: visible;
   position: relative;
-  margin: 16px 16px;
+  margin: 0 16px 16px 16px; // No top margin - collapse panel header provides spacing
   border: 3px solid; // Color set dynamically via [style.border-color]
   height: 200px; // Smaller height for top grid (query control)
 
