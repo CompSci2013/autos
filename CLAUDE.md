@@ -137,12 +137,29 @@ Development Image: localhost/autos-frontend:dev
   Features: Hot Module Reload (HMR), live reload
   Use: VS Code development only
 
-Production Image: localhost/autos-frontend:prod
+Production Image: localhost/autos-frontend:prod-v1.1.3
   Base: nginx:alpine
   Port: 80
   Features: Optimized build, static serving
   Use: Kubernetes deployment
+  Versioning: Release tags (prod-vX.Y.Z)
 ```
+
+**⚠️ CRITICAL: Frontend Deployment Tag Sync**
+
+The frontend production image tag **must match** `k8s/frontend-deployment.yaml` line 26:
+```yaml
+image: localhost/autos-frontend:prod-v1.1.3
+```
+
+**Deployment procedure:**
+1. Build image: `podman build -f Dockerfile.prod -t localhost/autos-frontend:prod .`
+2. Re-tag to match deployment YAML: `podman tag localhost/autos-frontend:prod localhost/autos-frontend:prod-v1.1.3`
+3. Export: `podman save localhost/autos-frontend:prod-v1.1.3 -o autos-frontend-prod-v1.1.3.tar`
+4. Import to K3s: `sudo k3s ctr images import autos-frontend-prod-v1.1.3.tar`
+5. Restart: `kubectl rollout restart deployment/autos-frontend -n autos`
+
+**Note:** Frontend uses release tags (`prod-v1.1.3`), not semantic versioning from package.json.
 
 ### Backend Images
 
@@ -151,8 +168,12 @@ Current Version: localhost/autos-backend:v1.4.1
   Base: node:18-alpine
   Port: 3000
   Features: Express API, Elasticsearch client
-  Versioning: Semantic (major.minor.patch)
+  Versioning: Semantic (major.minor.patch) from package.json
 ```
+
+**Backend Deployment:**
+Backend version automatically syncs with `backend/package.json` version field.
+Deployment YAML (`k8s/backend-deployment.yaml`) references `localhost/autos-backend:v1.4.1`.
 
 ---
 
@@ -854,6 +875,15 @@ kubectl get deployment autos-frontend -n autos -o yaml | grep image
 
 ## Changelog
 
+### 2025-11-02 (v1.6.1)
+
+- **Container Versioning Documentation** - Clarified frontend/backend versioning schemes
+  - Documented frontend release tag versioning (`prod-v1.1.3`)
+  - Added critical warning about tag sync with deployment YAML
+  - Included step-by-step frontend deployment procedure
+  - Clarified backend semantic versioning from package.json
+  - Fixed production deployment issue (wrong image tag)
+
 ### 2025-11-02 (v1.6.0)
 
 - **Documentation Consolidation** - Streamlined project documentation
@@ -954,7 +984,7 @@ kubectl get deployment autos-frontend -n autos -o yaml | grep image
 
 **Last Updated:** 2025-11-02
 **Maintained By:** Claude (with odin)
-**Version:** 1.6.0
+**Version:** 1.6.1
 
 ---
 
