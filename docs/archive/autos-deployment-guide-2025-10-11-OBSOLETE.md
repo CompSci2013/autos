@@ -1,8 +1,30 @@
 # AUTOS Deployment Guide
 
-**Project:** AUTOS - Automotive Vehicle Database and Picker  
-**Created:** 2025-10-11  
-**Purpose:** Comprehensive deployment and infrastructure guide with implementation phases  
+---
+
+## ⚠️ OBSOLETE DOCUMENT - ARCHIVED 2025-11-02
+
+**This document represents the PLANNING phase before implementation began.**
+**The project has since been fully implemented and is in production.**
+
+### Current Documentation:
+- **[CLAUDE.md](../CLAUDE.md)** - Authoritative reference for all development
+- **[developer-environment.md](../developer-environment.md)** - Rebuild procedures
+
+### Status when archived:
+- ✅ All phases shown as TODO were actually completed by 2025-10-26
+- ✅ Backend version reached v1.4.1 (not v1.0.0 shown here)
+- ✅ Full features implemented: Workshop, BaseDataTable, Pop-out panels
+- ✅ Production system with 793 documents in Elasticsearch
+- ✅ State management architecture fully implemented
+
+**This document is preserved for historical reference only.**
+
+---
+
+**Project:** AUTOS - Automotive Vehicle Database and Picker
+**Created:** 2025-10-11
+**Purpose:** Comprehensive deployment and infrastructure guide with implementation phases
 **Prerequisites:** Elasticsearch platform service running at `http://thor:30398`
 
 ---

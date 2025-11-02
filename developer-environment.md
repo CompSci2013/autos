@@ -24,6 +24,11 @@ This document provides verified steps to:
 - Podman installed for container builds
 - kubectl configured for cluster access
 
+**Related Documentation:**
+- **📄 [CLAUDE.md](CLAUDE.md)** - Complete application reference (architecture, API, features)
+- **📁 [docs/design/](docs/design/)** - Design specifications and milestones
+- **📁 [docs/archive/](docs/archive/)** - Historical planning documents
+
 ---
 
 ## Phase 1: Complete Cleanup

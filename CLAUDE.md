@@ -147,7 +147,7 @@ Production Image: localhost/autos-frontend:prod
 ### Backend Images
 
 ```yaml
-Current Version: localhost/autos-backend:v1.2.5
+Current Version: localhost/autos-backend:v1.4.1
   Base: node:18-alpine
   Port: 3000
   Features: Express API, Elasticsearch client
@@ -205,7 +205,7 @@ PORT: 3000
 
 ## Backend API
 
-### Current Version: v1.2.5
+### Current Version: v1.4.1
 
 **Base URL:** `http://autos.minilab/api` (proxied) or `http://localhost:3000` (dev)
 
@@ -423,6 +423,23 @@ AppComponent
 ---
 
 ## Development Workflows
+
+### Complete Environment Rebuild
+
+For detailed tear-down and rebuild procedures, see:
+
+**📄 [Developer Environment Setup Procedure](developer-environment.md)**
+
+This operational guide covers:
+- Complete cleanup of containers and images (Podman + K3s)
+- Backend rebuild and deployment (with version management)
+- Frontend production build and K3s deployment
+- Development container setup (with HMR)
+- Verification checklists and troubleshooting
+
+**Use when:** Starting fresh, recovering from issues, or onboarding new developers
+
+---
 
 ### Frontend Development Workflow
 
@@ -837,6 +854,18 @@ kubectl get deployment autos-frontend -n autos -o yaml | grep image
 
 ## Changelog
 
+### 2025-11-02 (v1.6.0)
+
+- **Documentation Consolidation** - Streamlined project documentation
+  - Archived obsolete deployment guide (2025-10-11) with deprecation notice
+  - Established CLAUDE.md as single authoritative reference
+  - Separated operational procedures (developer-environment.md) from reference
+  - Added cross-references between CLAUDE.md and developer-environment.md
+  - Updated backend version to v1.4.1 throughout documentation
+  - Created docs/archive/ directory for historical documents
+  - Eliminated 70% content duplication across three documents
+  - Clear documentation hierarchy: Reference (CLAUDE.md) → Procedures (developer-environment.md) → History (archive/)
+
 ### 2025-10-26 (v1.4.0)
 
 - **Added Panel Pop-Out Feature** (feature/cross-grid branch)
@@ -923,9 +952,9 @@ kubectl get deployment autos-frontend -n autos -o yaml | grep image
 
 ---
 
-**Last Updated:** 2025-10-26
+**Last Updated:** 2025-11-02
 **Maintained By:** Claude (with odin)
-**Version:** 1.5.0
+**Version:** 1.6.0
 
 ---
 

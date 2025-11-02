@@ -41,6 +41,7 @@ export class ResultsTableComponent extends BaseDataTableComponent {
 ```
 
 **Problems with inheritance:**
+
 - ❌ Tight coupling between parent and child
 - ❌ Hard to override behavior without breaking parent
 - ❌ Changes to parent affect all children
@@ -52,7 +53,7 @@ export class ResultsTableComponent extends BaseDataTableComponent {
 ```typescript
 // ✅ Loose coupling - Angular's recommended pattern
 @Component({
-  template: `<app-base-data-table>...</app-base-data-table>`
+  template: `<app-base-data-table>...</app-base-data-table>`,
 })
 export class ResultsTableComponent {
   // Contains/wraps BaseDataTableComponent
@@ -63,6 +64,7 @@ export class ResultsTableComponent {
 ```
 
 **Benefits of composition:**
+
 - ✅ Loose coupling via interfaces (@Input/@Output)
 - ✅ Easy to customize without affecting core
 - ✅ Can compose multiple components
@@ -82,11 +84,13 @@ Angular implements composition through three mechanisms:
 <app-base-data-table
   [columns]="columns"
   [dataSource]="dataSource"
-  (queryParamsChange)="handleChange($event)">
+  (queryParamsChange)="handleChange($event)"
+>
 </app-base-data-table>
 ```
 
 **How it works:**
+
 - Parent uses child's selector in template
 - Parent configures child via @Input bindings
 - Parent receives events via @Output bindings
@@ -111,6 +115,7 @@ export class BaseDataTableComponent {
 ```
 
 **How it works:**
+
 - Parent projects content into child
 - Child renders parent's templates in specific slots
 - Allows customization without modifying child
@@ -122,19 +127,20 @@ export class BaseDataTableComponent {
 // SharedModule exports BaseDataTable
 @NgModule({
   declarations: [BaseDataTableComponent],
-  exports: [BaseDataTableComponent]
+  exports: [BaseDataTableComponent],
 })
 export class SharedModule {}
 
 // AppModule imports SharedModule
 @NgModule({
   imports: [SharedModule],
-  declarations: [ResultsTableComponent]
+  declarations: [ResultsTableComponent],
 })
 export class AppModule {}
 ```
 
 **How it works:**
+
 - Components share via module imports, not file imports
 - Angular resolves component selectors at runtime
 - No TypeScript import needed in component files
@@ -236,7 +242,7 @@ export class BaseDataTableComponent<T> implements OnInit {
       error: (err) => {
         this.isLoading = false;
         console.error('Error fetching data:', err);
-      }
+      },
     });
   }
 
@@ -262,13 +268,15 @@ export class BaseDataTableComponent<T> implements OnInit {
   [nzTotal]="totalCount"
   [nzPageIndex]="queryParams.page"
   [nzPageSize]="queryParams.size"
-  (nzPageIndexChange)="onPageChange($event)">
-
+  (nzPageIndexChange)="onPageChange($event)"
+>
   <thead>
     <tr>
-      <th *ngFor="let column of getVisibleColumns()"
-          [nzSortFn]="column.sortable"
-          (nzSortOrderChange)="onSortChange(column)">
+      <th
+        *ngFor="let column of getVisibleColumns()"
+        [nzSortFn]="column.sortable"
+        (nzSortOrderChange)="onSortChange(column)"
+      >
         {{ column.label }}
       </th>
     </tr>
@@ -280,7 +288,8 @@ export class BaseDataTableComponent<T> implements OnInit {
         <!-- Use custom template if provided by parent -->
         <ng-container *ngIf="cellTemplate">
           <ng-container
-            *ngTemplateOutlet="cellTemplate; context: { column: column, row: row }">
+            *ngTemplateOutlet="cellTemplate; context: { column: column, row: row }"
+          >
           </ng-container>
         </ng-container>
 
@@ -296,7 +305,8 @@ export class BaseDataTableComponent<T> implements OnInit {
       <td [attr.colspan]="getVisibleColumns().length">
         <ng-container *ngIf="expansionTemplate">
           <ng-container
-            *ngTemplateOutlet="expansionTemplate; context: { row: row }">
+            *ngTemplateOutlet="expansionTemplate; context: { row: row }"
+          >
           </ng-container>
         </ng-container>
       </td>
@@ -308,7 +318,8 @@ export class BaseDataTableComponent<T> implements OnInit {
 <app-column-manager
   [(visible)]="columnManagerVisible"
   [columns]="columns"
-  (columnsChange)="onColumnsChange()">
+  (columnsChange)="onColumnsChange()"
+>
 </app-column-manager>
 ```
 
@@ -348,14 +359,14 @@ export class ResultsTableComponent implements OnInit {
 
   ngOnInit() {
     // Subscribe to app-level state (from URL)
-    this.stateService.filters$.subscribe(filters => {
+    this.stateService.filters$.subscribe((filters) => {
       // Convert app state → table state
       this.tableQueryParams = this.convertToTableParams(filters);
 
       // Update data source with selected models
       if (filters.modelCombos) {
         const modelsParam = filters.modelCombos
-          .map(c => `${c.manufacturer}:${c.model}`)
+          .map((c) => `${c.manufacturer}:${c.model}`)
           .join(',');
         this.dataSource.updateModels(modelsParam);
       }
@@ -385,7 +396,7 @@ export class ResultsTableComponent implements OnInit {
       error: (err) => {
         console.error('Error loading VIN instances:', err);
         this.loadingInstances.delete(vehicleId);
-      }
+      },
     });
   }
 
@@ -400,9 +411,9 @@ export class ResultsTableComponent implements OnInit {
 
   getTitleStatusColor(status: string): string {
     const colors = {
-      'Clean': 'green',
-      'Salvage': 'red',
-      'Rebuilt': 'orange',
+      Clean: 'green',
+      Salvage: 'red',
+      Rebuilt: 'orange',
     };
     return colors[status] || 'default';
   }
@@ -419,10 +430,10 @@ export class ResultsTableComponent implements OnInit {
   [dataSource]="dataSource"
   [queryParams]="tableQueryParams"
   [expandable]="true"
-  [maxTableHeight]="'500px'"
+  [maxTableHeight]="'600px'"
   (queryParamsChange)="onTableQueryChange($event)"
-  (rowExpand)="onRowExpand($event)">
-
+  (rowExpand)="onRowExpand($event)"
+>
   <!-- Custom cell rendering via content projection -->
   <ng-template #cellTemplate let-column="column" let-row="row">
     <ng-container [ngSwitch]="column.key">
@@ -437,9 +448,7 @@ export class ResultsTableComponent implements OnInit {
       </small>
 
       <!-- Default rendering -->
-      <span *ngSwitchDefault>
-        {{ row[column.key] }}
-      </span>
+      <span *ngSwitchDefault> {{ row[column.key] }} </span>
     </ng-container>
   </ng-template>
 
@@ -468,7 +477,9 @@ export class ResultsTableComponent implements OnInit {
                 <td>{{ instance.mileage | number }}</td>
                 <td>{{ instance.registered_state }}</td>
                 <td>
-                  <nz-tag [nzColor]="getTitleStatusColor(instance.title_status)">
+                  <nz-tag
+                    [nzColor]="getTitleStatusColor(instance.title_status)"
+                  >
                     {{ instance.title_status }}
                   </nz-tag>
                 </td>
@@ -488,7 +499,9 @@ export class ResultsTableComponent implements OnInit {
 
 ```typescript
 // frontend/src/app/features/results/results-table/vehicle-data-source.adapter.ts
-export class VehicleDataSourceAdapter implements TableDataSource<VehicleResult> {
+export class VehicleDataSourceAdapter
+  implements TableDataSource<VehicleResult>
+{
   private modelsParam = '';
 
   constructor(private apiService: ApiService) {}
@@ -498,22 +511,24 @@ export class VehicleDataSourceAdapter implements TableDataSource<VehicleResult> 
       return of({ results: [], total: 0, page: 1, size: 20, totalPages: 0 });
     }
 
-    return this.apiService.getVehicleDetails(
-      this.modelsParam,
-      params.page,
-      params.size,
-      params.filters || {},
-      params.sortBy,
-      params.sortOrder
-    ).pipe(
-      map(response => ({
-        results: response.results,
-        total: response.total,
-        page: response.page,
-        size: response.size,
-        totalPages: Math.ceil(response.total / response.size)
-      }))
-    );
+    return this.apiService
+      .getVehicleDetails(
+        this.modelsParam,
+        params.page,
+        params.size,
+        params.filters || {},
+        params.sortBy,
+        params.sortOrder
+      )
+      .pipe(
+        map((response) => ({
+          results: response.results,
+          total: response.total,
+          page: response.page,
+          size: response.size,
+          totalPages: Math.ceil(response.total / response.size),
+        }))
+      );
   }
 
   updateModels(modelsParam: string): void {
@@ -525,6 +540,7 @@ export class VehicleDataSourceAdapter implements TableDataSource<VehicleResult> 
 ### Key Relationships
 
 **1. Configuration Flow (Parent → Child)**
+
 ```
 ResultsTableComponent
   ├─[columns]────────→ BaseDataTableComponent
@@ -534,6 +550,7 @@ ResultsTableComponent
 ```
 
 **2. Event Flow (Child → Parent)**
+
 ```
 BaseDataTableComponent
   ├─(queryParamsChange)→ ResultsTableComponent.onTableQueryChange()
@@ -542,6 +559,7 @@ BaseDataTableComponent
 ```
 
 **3. Content Projection (Parent → Child)**
+
 ```
 ResultsTableComponent
   ├─<ng-template #cellTemplate>────→ BaseDataTable renders in cell slots
@@ -561,29 +579,33 @@ ResultsTableComponent
 ### How Angular Module System Works
 
 **Step 1: SharedModule exports BaseDataTable**
+
 ```typescript
 // shared/shared.module.ts
 @NgModule({
   declarations: [BaseDataTableComponent],
-  exports: [BaseDataTableComponent]  // ← Makes it available to other modules
+  exports: [BaseDataTableComponent], // ← Makes it available to other modules
 })
 export class SharedModule {}
 ```
 
 **Step 2: AppModule imports SharedModule**
+
 ```typescript
 // app.module.ts
 @NgModule({
-  imports: [SharedModule],  // ← Imports all exported components
-  declarations: [ResultsTableComponent]
+  imports: [SharedModule], // ← Imports all exported components
+  declarations: [ResultsTableComponent],
 })
 export class AppModule {}
 ```
 
 **Step 3: Template uses component selector**
+
 ```html
 <!-- results-table.component.html -->
-<app-base-data-table>  <!-- ← Selector resolved by Angular at runtime -->
+<app-base-data-table>
+  <!-- ← Selector resolved by Angular at runtime -->
 </app-base-data-table>
 ```
 
@@ -592,6 +614,7 @@ export class AppModule {}
 You only need TypeScript imports when:
 
 1. **Direct class reference in code**
+
    ```typescript
    import { BaseDataTableComponent } from '...';
 
@@ -599,6 +622,7 @@ You only need TypeScript imports when:
    ```
 
 2. **Type annotations**
+
    ```typescript
    import { TableColumn } from '...';
 
@@ -606,10 +630,11 @@ You only need TypeScript imports when:
    ```
 
 3. **Class inheritance** (not recommended)
+
    ```typescript
    import { BaseDataTableComponent } from '...';
 
-   export class MyComponent extends BaseDataTableComponent {}  // ← Inheritance
+   export class MyComponent extends BaseDataTableComponent {} // ← Inheritance
    ```
 
 ### What You DON'T Need TypeScript Imports For
@@ -639,16 +664,18 @@ You only need TypeScript imports when:
 **Wrong:** Angular's composition is **declarative** (template-based), not imperative (code-based).
 
 **React/Vue approach (imperative):**
+
 ```typescript
 // React uses imports for composition
 import BaseTable from './BaseTable';
 
 function ResultsTable() {
-  return <BaseTable columns={columns} />
+  return <BaseTable columns={columns} />;
 }
 ```
 
 **Angular approach (declarative):**
+
 ```html
 <!-- Angular uses templates for composition -->
 <app-base-data-table [columns]="columns"></app-base-data-table>
@@ -659,6 +686,7 @@ function ResultsTable() {
 **Wrong:** Angular uses **wrapping** (has-a), not **inheritance** (is-a).
 
 ❌ **Inheritance:**
+
 ```typescript
 class ResultsTable extends BaseDataTable {
   // Tightly coupled, hard to customize
@@ -666,6 +694,7 @@ class ResultsTable extends BaseDataTable {
 ```
 
 ✅ **Composition:**
+
 ```html
 <app-base-data-table>
   <!-- Loosely coupled, easy to customize -->
@@ -683,7 +712,7 @@ class ResultsTable extends BaseDataTable {
 
 ```typescript
 // ✅ Composition: Easy to swap out BaseDataTable
-<app-base-data-table>...</app-base-data-table>
+<app-base-data-table>...</app-base-data-table>;
 // Could replace with <app-ag-grid-table> without touching TypeScript
 
 // ❌ Inheritance: Locked into parent class
@@ -706,9 +735,8 @@ class MyTable extends BaseDataTable {
 </app-base-data-table>
 
 <!-- ❌ Inheritance: Can only extend one class -->
-class MyTable extends BaseDataTable, ColumnManager, Exportable {
-  // Multiple inheritance not supported in TypeScript
-}
+class MyTable extends BaseDataTable, ColumnManager, Exportable { // Multiple
+inheritance not supported in TypeScript }
 ```
 
 ### 3. Runtime Configuration
@@ -721,13 +749,13 @@ class MyTable extends BaseDataTable, ColumnManager, Exportable {
 <app-base-data-table
   [columns]="dynamicColumns"
   [expandable]="userHasPermission"
-  [maxTableHeight]="screenSize > 1024 ? '800px' : '400px'">
+  [maxTableHeight]="screenSize > 1024 ? '800px' : '400px'"
+>
 </app-base-data-table>
 
 <!-- ❌ Inheritance: Behavior hardcoded -->
-class MyTable extends BaseDataTable {
-  // Can't change behavior without recompiling
-}
+class MyTable extends BaseDataTable { // Can't change behavior without
+recompiling }
 ```
 
 ### 4. Testability
@@ -739,14 +767,12 @@ class MyTable extends BaseDataTable {
 // ✅ Composition: Easy to mock
 TestBed.configureTestingModule({
   declarations: [ResultsTableComponent],
-  providers: [
-    { provide: BaseDataTableComponent, useClass: MockBaseDataTable }
-  ]
+  providers: [{ provide: BaseDataTableComponent, useClass: MockBaseDataTable }],
 });
 
 // ❌ Inheritance: Must test actual parent
 TestBed.configureTestingModule({
-  declarations: [MyTableComponent]  // Must include parent logic
+  declarations: [MyTableComponent], // Must include parent logic
 });
 ```
 
@@ -780,30 +806,35 @@ TestBed.configureTestingModule({
 ### How to Verify Composition is Working
 
 **1. Check template uses child selector:**
+
 ```bash
 grep "<app-base-data-table" results-table.component.html
 # Should show: <app-base-data-table [columns]="...">
 ```
 
 **2. Check @Input/@Output bindings:**
+
 ```bash
 grep "\[columns\]\|\(queryParamsChange\)" results-table.component.html
 # Should show input/output bindings
 ```
 
 **3. Check content projection:**
+
 ```bash
 grep "ng-template #cellTemplate\|ng-template #expansionTemplate" results-table.component.html
 # Should show custom templates being projected
 ```
 
 **4. Verify module imports:**
+
 ```bash
 grep "SharedModule" app.module.ts
 # Should show: imports: [SharedModule]
 ```
 
 **5. Check component works at runtime:**
+
 ```bash
 # Visit http://autos.minilab/workshop
 # ResultsTable should render correctly using BaseDataTable
@@ -812,6 +843,7 @@ grep "SharedModule" app.module.ts
 ### Data Flow Test
 
 **Input → Child:**
+
 ```typescript
 // Parent
 tableQueryParams = { page: 1, size: 20, sortBy: 'year' };
@@ -824,6 +856,7 @@ tableQueryParams = { page: 1, size: 20, sortBy: 'year' };
 ```
 
 **Output → Parent:**
+
 ```typescript
 // Child emits event
 this.queryParamsChange.emit({ page: 2, size: 50 });
