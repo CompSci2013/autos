@@ -3,18 +3,34 @@
   <div class="workspace-header">
     <div>
       <h2>Vehicle Discovery</h2>
-      <p class="subtitle">Select manufacturers and models to explore the catalog</p>
+      <p class="subtitle">
+        Select manufacturers and models to explore the catalog
+      </p>
     </div>
     <div class="actions">
       <div *ngIf="hasActiveFilters" class="filters-summary">
         <span class="summary-label">Active Filters:</span>
-        <span class="summary-count">{{ selectionCount }} model(s) selected</span>
+        <span class="summary-count"
+          >{{ selectionCount }} model(s) selected</span
+        >
       </div>
-      <button nz-button nzType="default" nzSize="small" (click)="expandAllGrids()" nz-tooltip="Expand all sections">
+      <button
+        nz-button
+        nzType="default"
+        nzSize="small"
+        (click)="expandAllGrids()"
+        nz-tooltip="Expand all sections"
+      >
         <i nz-icon nzType="arrows-alt" nzTheme="outline"></i>
         Expand All
       </button>
-      <button nz-button nzType="default" nzSize="small" (click)="collapseAllGrids()" nz-tooltip="Collapse all sections">
+      <button
+        nz-button
+        nzType="default"
+        nzSize="small"
+        (click)="collapseAllGrids()"
+        nz-tooltip="Collapse all sections"
+      >
         <i nz-icon nzType="shrink" nzTheme="outline"></i>
         Collapse All
       </button>
@@ -24,310 +40,7 @@
     </div>
   </div>
 
-  <!-- Grid: Query Control -->
-  <nz-collapse *ngIf="grids[2]" nzExpandIconPosition="right">
-    <nz-collapse-panel
-      [nzHeader]="getGridName(grids[2].id)"
-      [nzActive]="!isGridCollapsed(grids[2].id)"
-      (nzActiveChange)="toggleGridCollapse(grids[2].id)"
-    >
-      <div
-        class="top-grid-container"
-        [attr.data-grid-id]="grids[2].id"
-        [style.border-color]="grids[2].borderColor"
-      >
-        <gridster [options]="grids[2].options">
-      <gridster-item *ngFor="let item of grids[2]?.items" [item]="item">
-        <div class="panel-container">
-          <div class="panel-header drag-handle">
-            <span class="panel-title">
-              <i nz-icon nzType="drag" nzTheme="outline"></i>
-              <ng-container [ngSwitch]="item.panelType">
-                <ng-container *ngSwitchCase="'picker'"
-                  >Model Picker</ng-container
-                >
-                <ng-container *ngSwitchCase="'results'"
-                  >Vehicle Results</ng-container
-                >
-                <ng-container *ngSwitchCase="'query-control'"
-                  >Query Control</ng-container
-                >
-                <ng-container *ngSwitchCase="'plotly-charts'"
-                  >Interactive Charts (Plotly)</ng-container
-                >
-                <ng-container *ngSwitchCase="'static-parabola'"
-                  >Static Parabola Chart</ng-container
-                >
-                <ng-container *ngSwitchDefault>Panel</ng-container>
-              </ng-container>
-            </span>
-            <div class="panel-actions">
-              <i
-                nz-icon
-                nzType="export"
-                nzTheme="outline"
-                nz-tooltip="Pop out to new window"
-                (click)="
-                  popOutPanel(grids[2].id, item); $event.stopPropagation()
-                "
-                class="action-icon popout-icon"
-              ></i>
-              <i
-                nz-icon
-                [nzType]="
-                  item.panelType === 'picker'
-                    ? getPanelCollapseState(grids[2].id)
-                      ? 'down'
-                      : 'up'
-                    : 'close'
-                "
-                nzTheme="outline"
-                (click)="
-                  item.panelType === 'picker'
-                    ? togglePanelCollapse(grids[2].id)
-                    : removePanel(item, grids[2].id)
-                "
-                class="action-icon"
-              ></i>
-            </div>
-          </div>
-          <div
-            class="panel-content no-drag"
-            [hidden]="
-              item.panelType === 'picker' && getPanelCollapseState(grids[2].id)
-            "
-          >
-            <!-- Dynamic panel content based on panelType -->
-            <div *ngIf="item.panelType === 'query-control'">
-              <app-query-control
-                (filterAdd)="onFilterAdd($event)"
-                (filterRemove)="onFilterRemove($event)"
-              >
-              </app-query-control>
-            </div>
-            <div *ngIf="item.panelType === 'picker'">
-              <app-table-picker></app-table-picker>
-            </div>
-            <div *ngIf="item.panelType === 'results'">
-              <app-results-table></app-results-table>
-            </div>
-            <div *ngIf="item.panelType === 'plotly-charts'">
-              <app-plotly-histogram></app-plotly-histogram>
-            </div>
-            <div *ngIf="item.panelType === 'static-parabola'">
-              <app-static-parabola-chart></app-static-parabola-chart>
-            </div>
-          </div>
-        </div>
-      </gridster-item>
-    </gridster>
-      </div>
-    </nz-collapse-panel>
-  </nz-collapse>
-
-  <!-- Grid: Model Picker -->
-  <nz-collapse *ngIf="grids[3]" nzExpandIconPosition="right">
-    <nz-collapse-panel
-      [nzHeader]="getGridName(grids[3].id)"
-      [nzActive]="!isGridCollapsed(grids[3].id)"
-      (nzActiveChange)="toggleGridCollapse(grids[3].id)"
-    >
-      <div
-        class="middle-grid-container"
-        [attr.data-grid-id]="grids[3].id"
-        [style.border-color]="grids[3].borderColor"
-      >
-        <gridster [options]="grids[3].options">
-      <gridster-item *ngFor="let item of grids[3]?.items" [item]="item">
-        <div class="panel-container">
-          <div class="panel-header drag-handle">
-            <span class="panel-title">
-              <i nz-icon nzType="drag" nzTheme="outline"></i>
-              <ng-container [ngSwitch]="item.panelType">
-                <ng-container *ngSwitchCase="'picker'"
-                  >Model Picker</ng-container
-                >
-                <ng-container *ngSwitchCase="'results'"
-                  >Vehicle Results</ng-container
-                >
-                <ng-container *ngSwitchCase="'query-control'"
-                  >Query Control</ng-container
-                >
-                <ng-container *ngSwitchCase="'plotly-charts'"
-                  >Interactive Charts (Plotly)</ng-container
-                >
-                <ng-container *ngSwitchCase="'static-parabola'"
-                  >Static Parabola Chart</ng-container
-                >
-                <ng-container *ngSwitchDefault>Panel</ng-container>
-              </ng-container>
-            </span>
-            <div class="panel-actions">
-              <i
-                nz-icon
-                nzType="export"
-                nzTheme="outline"
-                nz-tooltip="Pop out to new window"
-                (click)="
-                  popOutPanel(grids[3].id, item); $event.stopPropagation()
-                "
-                class="action-icon popout-icon"
-              ></i>
-              <i
-                nz-icon
-                [nzType]="
-                  item.panelType === 'picker'
-                    ? getPanelCollapseState(grids[3].id)
-                      ? 'down'
-                      : 'up'
-                    : 'close'
-                "
-                nzTheme="outline"
-                (click)="
-                  item.panelType === 'picker'
-                    ? togglePanelCollapse(grids[3].id)
-                    : removePanel(item, grids[3].id)
-                "
-                class="action-icon"
-              ></i>
-            </div>
-          </div>
-          <div
-            class="panel-content no-drag"
-            [hidden]="
-              item.panelType === 'picker' && getPanelCollapseState(grids[3].id)
-            "
-          >
-            <!-- Dynamic panel content based on panelType -->
-            <div *ngIf="item.panelType === 'query-control'">
-              <app-query-control
-                (filterAdd)="onFilterAdd($event)"
-                (filterRemove)="onFilterRemove($event)"
-              >
-              </app-query-control>
-            </div>
-            <div *ngIf="item.panelType === 'picker'">
-              <app-table-picker></app-table-picker>
-            </div>
-            <div *ngIf="item.panelType === 'results'">
-              <app-results-table></app-results-table>
-            </div>
-            <div *ngIf="item.panelType === 'plotly-charts'">
-              <app-plotly-histogram></app-plotly-histogram>
-            </div>
-            <div *ngIf="item.panelType === 'static-parabola'">
-              <app-static-parabola-chart></app-static-parabola-chart>
-            </div>
-          </div>
-        </div>
-      </gridster-item>
-    </gridster>
-      </div>
-    </nz-collapse-panel>
-  </nz-collapse>
-
-  <!-- Grid: Vehicle Results -->
-  <nz-collapse *ngIf="grids[4]" nzExpandIconPosition="right">
-    <nz-collapse-panel
-      [nzHeader]="getGridName(grids[4].id)"
-      [nzActive]="!isGridCollapsed(grids[4].id)"
-      (nzActiveChange)="toggleGridCollapse(grids[4].id)"
-    >
-      <div
-        class="middle-grid-container"
-        [attr.data-grid-id]="grids[4].id"
-        [style.border-color]="grids[4].borderColor"
-      >
-        <gridster [options]="grids[4].options">
-      <gridster-item *ngFor="let item of grids[4]?.items" [item]="item">
-        <div class="panel-container">
-          <div class="panel-header drag-handle">
-            <span class="panel-title">
-              <i nz-icon nzType="drag" nzTheme="outline"></i>
-              <ng-container [ngSwitch]="item.panelType">
-                <ng-container *ngSwitchCase="'picker'"
-                  >Model Picker</ng-container
-                >
-                <ng-container *ngSwitchCase="'results'"
-                  >Vehicle Results</ng-container
-                >
-                <ng-container *ngSwitchCase="'query-control'"
-                  >Query Control</ng-container
-                >
-                <ng-container *ngSwitchCase="'plotly-charts'"
-                  >Interactive Charts (Plotly)</ng-container
-                >
-                <ng-container *ngSwitchCase="'static-parabola'"
-                  >Static Parabola Chart</ng-container
-                >
-                <ng-container *ngSwitchDefault>Panel</ng-container>
-              </ng-container>
-            </span>
-            <div class="panel-actions">
-              <i
-                nz-icon
-                nzType="export"
-                nzTheme="outline"
-                nz-tooltip="Pop out to new window"
-                (click)="
-                  popOutPanel(grids[4].id, item); $event.stopPropagation()
-                "
-                class="action-icon popout-icon"
-              ></i>
-              <i
-                nz-icon
-                [nzType]="
-                  item.panelType === 'picker'
-                    ? getPanelCollapseState(grids[4].id)
-                      ? 'down'
-                      : 'up'
-                    : 'close'
-                "
-                nzTheme="outline"
-                (click)="
-                  item.panelType === 'picker'
-                    ? togglePanelCollapse(grids[4].id)
-                    : removePanel(item, grids[4].id)
-                "
-                class="action-icon"
-              ></i>
-            </div>
-          </div>
-          <div
-            class="panel-content no-drag"
-            [hidden]="
-              item.panelType === 'picker' && getPanelCollapseState(grids[4].id)
-            "
-          >
-            <!-- Dynamic panel content based on panelType -->
-            <div *ngIf="item.panelType === 'query-control'">
-              <app-query-control
-                (filterAdd)="onFilterAdd($event)"
-                (filterRemove)="onFilterRemove($event)"
-              >
-              </app-query-control>
-            </div>
-            <div *ngIf="item.panelType === 'picker'">
-              <app-table-picker></app-table-picker>
-            </div>
-            <div *ngIf="item.panelType === 'results'">
-              <app-results-table></app-results-table>
-            </div>
-            <div *ngIf="item.panelType === 'plotly-charts'">
-              <app-plotly-histogram></app-plotly-histogram>
-            </div>
-            <div *ngIf="item.panelType === 'static-parabola'">
-              <app-static-parabola-chart></app-static-parabola-chart>
-            </div>
-          </div>
-        </div>
-      </gridster-item>
-    </gridster>
-      </div>
-    </nz-collapse-panel>
-  </nz-collapse>
-
-  <!-- Grid: Static Parabola Chart -->
+  <!-- Grid 1: Query Control -->
   <nz-collapse *ngIf="grids[0]" nzExpandIconPosition="right">
     <nz-collapse-panel
       [nzHeader]="getGridName(grids[0].id)"
@@ -335,197 +48,403 @@
       (nzActiveChange)="toggleGridCollapse(grids[0].id)"
     >
       <div
-        class="bottom-grid-container"
+        class="grid-container-200"
         [attr.data-grid-id]="grids[0].id"
         [style.border-color]="grids[0].borderColor"
       >
         <gridster [options]="grids[0].options">
-      <gridster-item *ngFor="let item of grids[0]?.items" [item]="item">
-        <div class="panel-container">
-          <div class="panel-header drag-handle">
-            <span class="panel-title">
-              <i nz-icon nzType="drag" nzTheme="outline"></i>
-              <ng-container [ngSwitch]="item.panelType">
-                <ng-container *ngSwitchCase="'picker'"
-                  >Model Picker</ng-container
-                >
-                <ng-container *ngSwitchCase="'results'"
-                  >Vehicle Results</ng-container
-                >
-                <ng-container *ngSwitchCase="'query-control'"
-                  >Query Control</ng-container
-                >
-                <ng-container *ngSwitchCase="'plotly-charts'"
-                  >Interactive Charts (Plotly)</ng-container
-                >
-                <ng-container *ngSwitchCase="'static-parabola'"
-                  >Static Parabola Chart</ng-container
-                >
-                <ng-container *ngSwitchDefault>Panel</ng-container>
-              </ng-container>
-            </span>
-            <div class="panel-actions">
-              <i
-                nz-icon
-                nzType="export"
-                nzTheme="outline"
-                nz-tooltip="Pop out to new window"
-                (click)="
-                  popOutPanel(grids[0].id, item); $event.stopPropagation()
+          <gridster-item *ngFor="let item of grids[0]?.items" [item]="item">
+            <div class="panel-container">
+              <div class="panel-header drag-handle">
+                <span class="panel-title">
+                  <i nz-icon nzType="drag" nzTheme="outline"></i>
+                  <ng-container [ngSwitch]="item.panelType">
+                    <ng-container *ngSwitchCase="'picker'"
+                      >Model Picker</ng-container
+                    >
+                    <ng-container *ngSwitchCase="'results'"
+                      >Vehicle Results</ng-container
+                    >
+                    <ng-container *ngSwitchCase="'query-control'"
+                      >Query Control</ng-container
+                    >
+                    <ng-container *ngSwitchCase="'plotly-charts'"
+                      >Interactive Charts (Plotly)</ng-container
+                    >
+                    <ng-container *ngSwitchCase="'static-parabola'"
+                      >Static Parabola Chart</ng-container
+                    >
+                    <ng-container *ngSwitchDefault>Panel</ng-container>
+                  </ng-container>
+                </span>
+                <div class="panel-actions">
+                  <i
+                    nz-icon
+                    nzType="export"
+                    nzTheme="outline"
+                    nz-tooltip="Pop out to new window"
+                    (click)="
+                      popOutPanel(grids[0].id, item); $event.stopPropagation()
+                    "
+                    class="action-icon popout-icon"
+                  ></i>
+                  <i
+                    nz-icon
+                    [nzType]="
+                      item.panelType === 'picker'
+                        ? getPanelCollapseState(grids[0].id)
+                          ? 'down'
+                          : 'up'
+                        : 'close'
+                    "
+                    nzTheme="outline"
+                    (click)="
+                      item.panelType === 'picker'
+                        ? togglePanelCollapse(grids[0].id)
+                        : removePanel(item, grids[0].id)
+                    "
+                    class="action-icon"
+                  ></i>
+                </div>
+              </div>
+              <div
+                class="panel-content no-drag"
+                [hidden]="
+                  item.panelType === 'picker' &&
+                  getPanelCollapseState(grids[0].id)
                 "
-                class="action-icon popout-icon"
-              ></i>
-              <i
-                nz-icon
-                [nzType]="
-                  item.panelType === 'picker'
-                    ? getPanelCollapseState(grids[0].id)
-                      ? 'down'
-                      : 'up'
-                    : 'close'
-                "
-                nzTheme="outline"
-                (click)="
-                  item.panelType === 'picker'
-                    ? togglePanelCollapse(grids[0].id)
-                    : removePanel(item, grids[0].id)
-                "
-                class="action-icon"
-              ></i>
-            </div>
-          </div>
-          <div
-            class="panel-content no-drag"
-            [hidden]="
-              item.panelType === 'picker' && getPanelCollapseState(grids[0].id)
-            "
-          >
-            <!-- Dynamic panel content based on panelType -->
-            <div *ngIf="item.panelType === 'query-control'">
-              <app-query-control
-                (filterAdd)="onFilterAdd($event)"
-                (filterRemove)="onFilterRemove($event)"
               >
-              </app-query-control>
+                <!-- Dynamic panel content based on panelType -->
+                <div *ngIf="item.panelType === 'query-control'">
+                  <app-query-control
+                    (filterAdd)="onFilterAdd($event)"
+                    (filterRemove)="onFilterRemove($event)"
+                  >
+                  </app-query-control>
+                </div>
+                <div *ngIf="item.panelType === 'picker'">
+                  <app-table-picker></app-table-picker>
+                </div>
+                <div *ngIf="item.panelType === 'results'">
+                  <app-results-table></app-results-table>
+                </div>
+                <div *ngIf="item.panelType === 'plotly-charts'">
+                  <app-plotly-histogram></app-plotly-histogram>
+                </div>
+                <div *ngIf="item.panelType === 'static-parabola'">
+                  <app-static-parabola-chart></app-static-parabola-chart>
+                </div>
+              </div>
             </div>
-            <div *ngIf="item.panelType === 'picker'">
-              <app-table-picker></app-table-picker>
-            </div>
-            <div *ngIf="item.panelType === 'results'">
-              <app-results-table></app-results-table>
-            </div>
-            <div *ngIf="item.panelType === 'plotly-charts'">
-              <app-plotly-histogram></app-plotly-histogram>
-            </div>
-            <div *ngIf="item.panelType === 'static-parabola'">
-              <app-static-parabola-chart></app-static-parabola-chart>
-            </div>
-          </div>
-        </div>
-      </gridster-item>
-    </gridster>
-  </div>
-  </nz-collapse-panel>
-</nz-collapse>
+          </gridster-item>
+        </gridster>
+      </div>
+    </nz-collapse-panel>
+  </nz-collapse>
 
-  <!-- Plotly Histograms Grid Container -->
+  <!-- Grid 2: Model Picker -->
   <nz-collapse *ngIf="grids[1]" nzExpandIconPosition="right">
     <nz-collapse-panel
       [nzHeader]="getGridName(grids[1].id)"
       [nzActive]="!isGridCollapsed(grids[1].id)"
       (nzActiveChange)="toggleGridCollapse(grids[1].id)"
     >
-  <div
-    class="bottom-grid-container"
-    [attr.data-grid-id]="grids[1].id"
-    [style.border-color]="grids[1].borderColor"
-  >
-    <gridster [options]="grids[1].options">
-      <gridster-item *ngFor="let item of grids[1]?.items" [item]="item">
-        <div class="panel-container">
-          <div class="panel-header drag-handle">
-            <span class="panel-title">
-              <i nz-icon nzType="drag" nzTheme="outline"></i>
-              <ng-container [ngSwitch]="item.panelType">
-                <ng-container *ngSwitchCase="'picker'"
-                  >Model Picker</ng-container
-                >
-                <ng-container *ngSwitchCase="'results'"
-                  >Vehicle Results</ng-container
-                >
-                <ng-container *ngSwitchCase="'query-control'"
-                  >Query Control</ng-container
-                >
-                <ng-container *ngSwitchCase="'plotly-charts'"
-                  >Interactive Charts (Plotly)</ng-container
-                >
-                <ng-container *ngSwitchCase="'static-parabola'"
-                  >Static Parabola Chart</ng-container
-                >
-                <ng-container *ngSwitchDefault>Panel</ng-container>
-              </ng-container>
-            </span>
-            <div class="panel-actions">
-              <i
-                nz-icon
-                nzType="export"
-                nzTheme="outline"
-                nz-tooltip="Pop out to new window"
-                (click)="
-                  popOutPanel(grids[1].id, item); $event.stopPropagation()
+      <div
+        class="grid-container-8"
+        [attr.data-grid-id]="grids[1].id"
+        [style.border-color]="grids[1].borderColor"
+      >
+        <gridster [options]="grids[1].options">
+          <gridster-item *ngFor="let item of grids[1]?.items" [item]="item">
+            <div class="panel-container">
+              <div class="panel-header drag-handle">
+                <span class="panel-title">
+                  <i nz-icon nzType="drag" nzTheme="outline"></i>
+                  <ng-container [ngSwitch]="item.panelType">
+                    <ng-container *ngSwitchCase="'picker'"
+                      >Model Picker</ng-container
+                    >
+                    <ng-container *ngSwitchCase="'results'"
+                      >Vehicle Results</ng-container
+                    >
+                    <ng-container *ngSwitchCase="'query-control'"
+                      >Query Control</ng-container
+                    >
+                    <ng-container *ngSwitchCase="'plotly-charts'"
+                      >Interactive Charts (Plotly)</ng-container
+                    >
+                    <ng-container *ngSwitchCase="'static-parabola'"
+                      >Static Parabola Chart</ng-container
+                    >
+                    <ng-container *ngSwitchDefault>Panel</ng-container>
+                  </ng-container>
+                </span>
+                <div class="panel-actions">
+                  <i
+                    nz-icon
+                    nzType="export"
+                    nzTheme="outline"
+                    nz-tooltip="Pop out to new window"
+                    (click)="
+                      popOutPanel(grids[1].id, item); $event.stopPropagation()
+                    "
+                    class="action-icon popout-icon"
+                  ></i>
+                  <i
+                    nz-icon
+                    [nzType]="
+                      item.panelType === 'picker'
+                        ? getPanelCollapseState(grids[1].id)
+                          ? 'down'
+                          : 'up'
+                        : 'close'
+                    "
+                    nzTheme="outline"
+                    (click)="
+                      item.panelType === 'picker'
+                        ? togglePanelCollapse(grids[1].id)
+                        : removePanel(item, grids[1].id)
+                    "
+                    class="action-icon"
+                  ></i>
+                </div>
+              </div>
+              <div
+                class="panel-content no-drag"
+                [hidden]="
+                  item.panelType === 'picker' &&
+                  getPanelCollapseState(grids[1].id)
                 "
-                class="action-icon popout-icon"
-              ></i>
-              <i
-                nz-icon
-                [nzType]="
-                  item.panelType === 'picker'
-                    ? getPanelCollapseState(grids[1].id)
-                      ? 'down'
-                      : 'up'
-                    : 'close'
-                "
-                nzTheme="outline"
-                (click)="
-                  item.panelType === 'picker'
-                    ? togglePanelCollapse(grids[1].id)
-                    : removePanel(item, grids[1].id)
-                "
-                class="action-icon"
-              ></i>
-            </div>
-          </div>
-          <div
-            class="panel-content no-drag"
-            [hidden]="
-              item.panelType === 'picker' && getPanelCollapseState(grids[1].id)
-            "
-          >
-            <!-- Dynamic panel content based on panelType -->
-            <div *ngIf="item.panelType === 'query-control'">
-              <app-query-control
-                (filterAdd)="onFilterAdd($event)"
-                (filterRemove)="onFilterRemove($event)"
               >
-              </app-query-control>
+                <!-- Dynamic panel content based on panelType -->
+                <div *ngIf="item.panelType === 'query-control'">
+                  <app-query-control
+                    (filterAdd)="onFilterAdd($event)"
+                    (filterRemove)="onFilterRemove($event)"
+                  >
+                  </app-query-control>
+                </div>
+                <div *ngIf="item.panelType === 'picker'">
+                  <app-table-picker></app-table-picker>
+                </div>
+                <div *ngIf="item.panelType === 'results'">
+                  <app-results-table></app-results-table>
+                </div>
+                <div *ngIf="item.panelType === 'plotly-charts'">
+                  <app-plotly-histogram></app-plotly-histogram>
+                </div>
+                <div *ngIf="item.panelType === 'static-parabola'">
+                  <app-static-parabola-chart></app-static-parabola-chart>
+                </div>
+              </div>
             </div>
-            <div *ngIf="item.panelType === 'picker'">
-              <app-table-picker></app-table-picker>
+          </gridster-item>
+        </gridster>
+      </div>
+    </nz-collapse-panel>
+  </nz-collapse>
+
+  <!-- Grid 3: Vehicle Results -->
+  <nz-collapse *ngIf="grids[2]" nzExpandIconPosition="right">
+    <nz-collapse-panel
+      [nzHeader]="getGridName(grids[2].id)"
+      [nzActive]="!isGridCollapsed(grids[2].id)"
+      (nzActiveChange)="toggleGridCollapse(grids[2].id)"
+    >
+      <div
+        class="grid-container-9"
+        [attr.data-grid-id]="grids[2].id"
+        [style.border-color]="grids[2].borderColor"
+      >
+        <gridster [options]="grids[2].options">
+          <gridster-item *ngFor="let item of grids[2]?.items" [item]="item">
+            <div class="panel-container">
+              <div class="panel-header drag-handle">
+                <span class="panel-title">
+                  <i nz-icon nzType="drag" nzTheme="outline"></i>
+                  <ng-container [ngSwitch]="item.panelType">
+                    <ng-container *ngSwitchCase="'picker'"
+                      >Model Picker</ng-container
+                    >
+                    <ng-container *ngSwitchCase="'results'"
+                      >Vehicle Results</ng-container
+                    >
+                    <ng-container *ngSwitchCase="'query-control'"
+                      >Query Control</ng-container
+                    >
+                    <ng-container *ngSwitchCase="'plotly-charts'"
+                      >Interactive Charts (Plotly)</ng-container
+                    >
+                    <ng-container *ngSwitchCase="'static-parabola'"
+                      >Static Parabola Chart</ng-container
+                    >
+                    <ng-container *ngSwitchDefault>Panel</ng-container>
+                  </ng-container>
+                </span>
+                <div class="panel-actions">
+                  <i
+                    nz-icon
+                    nzType="export"
+                    nzTheme="outline"
+                    nz-tooltip="Pop out to new window"
+                    (click)="
+                      popOutPanel(grids[2].id, item); $event.stopPropagation()
+                    "
+                    class="action-icon popout-icon"
+                  ></i>
+                  <i
+                    nz-icon
+                    [nzType]="
+                      item.panelType === 'picker'
+                        ? getPanelCollapseState(grids[2].id)
+                          ? 'down'
+                          : 'up'
+                        : 'close'
+                    "
+                    nzTheme="outline"
+                    (click)="
+                      item.panelType === 'picker'
+                        ? togglePanelCollapse(grids[2].id)
+                        : removePanel(item, grids[2].id)
+                    "
+                    class="action-icon"
+                  ></i>
+                </div>
+              </div>
+              <div
+                class="panel-content no-drag"
+                [hidden]="
+                  item.panelType === 'picker' &&
+                  getPanelCollapseState(grids[2].id)
+                "
+              >
+                <!-- Dynamic panel content based on panelType -->
+                <div *ngIf="item.panelType === 'query-control'">
+                  <app-query-control
+                    (filterAdd)="onFilterAdd($event)"
+                    (filterRemove)="onFilterRemove($event)"
+                  >
+                  </app-query-control>
+                </div>
+                <div *ngIf="item.panelType === 'picker'">
+                  <app-table-picker></app-table-picker>
+                </div>
+                <div *ngIf="item.panelType === 'results'">
+                  <app-results-table></app-results-table>
+                </div>
+                <div *ngIf="item.panelType === 'plotly-charts'">
+                  <app-plotly-histogram></app-plotly-histogram>
+                </div>
+                <div *ngIf="item.panelType === 'static-parabola'">
+                  <app-static-parabola-chart></app-static-parabola-chart>
+                </div>
+              </div>
             </div>
-            <div *ngIf="item.panelType === 'results'">
-              <app-results-table></app-results-table>
+          </gridster-item>
+        </gridster>
+      </div>
+    </nz-collapse-panel>
+  </nz-collapse>
+
+  <!-- Grid 4: Plotly Histograms -->
+  <nz-collapse *ngIf="grids[3]" nzExpandIconPosition="right">
+    <nz-collapse-panel
+      [nzHeader]="getGridName(grids[3].id)"
+      [nzActive]="!isGridCollapsed(grids[3].id)"
+      (nzActiveChange)="toggleGridCollapse(grids[3].id)"
+    >
+      <div
+        class="grid-container-12"
+        [attr.data-grid-id]="grids[3].id"
+        [style.border-color]="grids[3].borderColor"
+      >
+        <gridster [options]="grids[3].options">
+          <gridster-item *ngFor="let item of grids[3]?.items" [item]="item">
+            <div class="panel-container">
+              <div class="panel-header drag-handle">
+                <span class="panel-title">
+                  <i nz-icon nzType="drag" nzTheme="outline"></i>
+                  <ng-container [ngSwitch]="item.panelType">
+                    <ng-container *ngSwitchCase="'picker'"
+                      >Model Picker</ng-container
+                    >
+                    <ng-container *ngSwitchCase="'results'"
+                      >Vehicle Results</ng-container
+                    >
+                    <ng-container *ngSwitchCase="'query-control'"
+                      >Query Control</ng-container
+                    >
+                    <ng-container *ngSwitchCase="'plotly-charts'"
+                      >Interactive Charts (Plotly)</ng-container
+                    >
+                    <ng-container *ngSwitchCase="'static-parabola'"
+                      >Static Parabola Chart</ng-container
+                    >
+                    <ng-container *ngSwitchDefault>Panel</ng-container>
+                  </ng-container>
+                </span>
+                <div class="panel-actions">
+                  <i
+                    nz-icon
+                    nzType="export"
+                    nzTheme="outline"
+                    nz-tooltip="Pop out to new window"
+                    (click)="
+                      popOutPanel(grids[3].id, item); $event.stopPropagation()
+                    "
+                    class="action-icon popout-icon"
+                  ></i>
+                  <i
+                    nz-icon
+                    [nzType]="
+                      item.panelType === 'picker'
+                        ? getPanelCollapseState(grids[3].id)
+                          ? 'down'
+                          : 'up'
+                        : 'close'
+                    "
+                    nzTheme="outline"
+                    (click)="
+                      item.panelType === 'picker'
+                        ? togglePanelCollapse(grids[3].id)
+                        : removePanel(item, grids[3].id)
+                    "
+                    class="action-icon"
+                  ></i>
+                </div>
+              </div>
+              <div
+                class="panel-content no-drag"
+                [hidden]="
+                  item.panelType === 'picker' &&
+                  getPanelCollapseState(grids[3].id)
+                "
+              >
+                <!-- Dynamic panel content based on panelType -->
+                <div *ngIf="item.panelType === 'query-control'">
+                  <app-query-control
+                    (filterAdd)="onFilterAdd($event)"
+                    (filterRemove)="onFilterRemove($event)"
+                  >
+                  </app-query-control>
+                </div>
+                <div *ngIf="item.panelType === 'picker'">
+                  <app-table-picker></app-table-picker>
+                </div>
+                <div *ngIf="item.panelType === 'results'">
+                  <app-results-table></app-results-table>
+                </div>
+                <div *ngIf="item.panelType === 'plotly-charts'">
+                  <app-plotly-histogram></app-plotly-histogram>
+                </div>
+                <div *ngIf="item.panelType === 'static-parabola'">
+                  <app-static-parabola-chart></app-static-parabola-chart>
+                </div>
+              </div>
             </div>
-            <div *ngIf="item.panelType === 'plotly-charts'">
-              <app-plotly-histogram></app-plotly-histogram>
-            </div>
-            <div *ngIf="item.panelType === 'static-parabola'">
-              <app-static-parabola-chart></app-static-parabola-chart>
-            </div>
-          </div>
-        </div>
-      </gridster-item>
-    </gridster>
-  </div>
-  </nz-collapse-panel>
-</nz-collapse>
+          </gridster-item>
+        </gridster>
+      </div>
+    </nz-collapse-panel>
+  </nz-collapse>
 </div>

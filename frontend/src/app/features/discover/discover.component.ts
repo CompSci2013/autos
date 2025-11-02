@@ -58,13 +58,12 @@ export class DiscoverComponent implements OnInit, OnDestroy {
   }
 
   private initializeGrids(): void {
-    // Define grid configurations
+    // Define grid configurations (array index = Grid Number - 1)
     const gridDefinitions = [
-      { id: 'grid-2', name: 'Bottom Charts', borderColor: '#1451faff' },
-      { id: 'grid-3', name: 'Plotly Histograms', borderColor: '#1451faff' },
-      { id: 'grid-4', name: 'Query Control', borderColor: '#1451faff' },
-      { id: 'grid-5', name: 'Model Picker', borderColor: '#1451faff' },
-      { id: 'grid-6', name: 'Vehicle Results', borderColor: '#1451faff' },
+      { id: 'grid-1', name: 'Query Control', borderColor: '#1451faff' },      // Grid 1: grids[0]
+      { id: 'grid-2', name: 'Model Picker', borderColor: '#52c41a' },         // Grid 2: grids[1]
+      { id: 'grid-3', name: 'Vehicle Results', borderColor: '#fa8c16' },      // Grid 3: grids[2]
+      { id: 'grid-4', name: 'Plotly Histograms', borderColor: '#722ed1' },    // Grid 4: grids[3]
     ];
 
     this.grids = gridDefinitions.map((def) =>
@@ -148,190 +147,54 @@ export class DiscoverComponent implements OnInit, OnDestroy {
   }
 
   private loadGridState(): void {
-    const savedState = localStorage.getItem('autos-discover-grid-state');
+    // Always initialize with fixed default panels (no localStorage for panel placement)
+    // Grid 1 (grids[0]): Query Control
+    this.grids[0].items = [
+      {
+        cols: 12,
+        rows: 6,
+        y: 0,
+        x: 0,
+        id: 'query-control-1',
+        panelType: 'query-control',
+      },
+    ];
 
-    if (savedState) {
-      const state = JSON.parse(savedState);
-      // Load items into each grid (but always initialize grid-2 and grid-3 with default charts)
-      this.grids.forEach((grid) => {
-        if (grid.id === 'grid-2') {
-          // Always initialize bottom grid with static parabola chart
-          grid.items = [
-            {
-              cols: 12,
-              rows: 8,
-              y: 0,
-              x: 0,
-              id: 'static-parabola-1',
-              panelType: 'static-parabola',
-            },
-          ];
-        } else if (grid.id === 'grid-3') {
-          // Always initialize plotly histograms grid
-          grid.items = [
-            {
-              cols: 12,
-              rows: 12,
-              y: 0,
-              x: 0,
-              id: 'plotly-charts-1',
-              panelType: 'plotly-charts',
-            },
-          ];
-        } else if (grid.id === 'grid-4') {
-          // Always initialize query control grid
-          grid.items = [
-            {
-              cols: 12,
-              rows: 6,
-              y: 0,
-              x: 0,
-              id: 'query-control-1',
-              panelType: 'query-control',
-            },
-          ];
-        } else if (grid.id === 'grid-5') {
-          // Always initialize picker grid
-          grid.items = [
-            {
-              cols: 12,
-              rows: 16,
-              y: 0,
-              x: 0,
-              id: 'picker-1',
-              panelType: 'picker',
-            },
-          ];
-        } else if (grid.id === 'grid-6') {
-          // Always initialize results grid
-          grid.items = [
-            {
-              cols: 12,
-              rows: 24,
-              y: 0,
-              x: 0,
-              id: 'results-1',
-              panelType: 'results',
-            },
-          ];
-        } else {
-          grid.items = state[grid.id] || [];
-        }
-        this.panelCollapseStates.set(grid.id, false);
-      });
+    // Grid 2 (grids[1]): Model Picker
+    this.grids[1].items = [
+      {
+        cols: 12,
+        rows: 16,
+        y: 0,
+        x: 0,
+        id: 'picker-1',
+        panelType: 'picker',
+      },
+    ];
 
-      // Migration: Move query-control from grid-0 to grid-4 if it exists
-      const grid0Items = this.grids[0].items;
-      const queryControlIndex = grid0Items.findIndex(
-        (item) => item.panelType === 'query-control'
-      );
+    // Grid 3 (grids[2]): Vehicle Results
+    this.grids[2].items = [
+      {
+        cols: 12,
+        rows: 24,
+        y: 0,
+        x: 0,
+        id: 'results-1',
+        panelType: 'results',
+      },
+    ];
 
-      if (queryControlIndex !== -1) {
-        console.log(
-          'Migrating layout: Moving query-control from grid-0 to grid-4'
-        );
-        // Remove from grid-0
-        grid0Items.splice(queryControlIndex, 1);
-        // Already initialized in grid-4, just save the state
-        this.saveGridState();
-      }
-
-      // Migration: Move plotly-charts from grid-0 to grid-3 if it exists
-      const plotlyChartIndex = grid0Items.findIndex(
-        (item) => item.panelType === 'plotly-charts'
-      );
-
-      if (plotlyChartIndex !== -1) {
-        console.log(
-          'Migrating layout: Moving plotly-charts from grid-0 to grid-3'
-        );
-        // Remove from grid-0
-        grid0Items.splice(plotlyChartIndex, 1);
-        // Already initialized in grid-3, just save the state
-        this.saveGridState();
-      }
-
-      // Migration: Move picker from grid-0 to grid-5 if it exists
-      const pickerIndex = grid0Items.findIndex(
-        (item) => item.panelType === 'picker'
-      );
-
-      if (pickerIndex !== -1) {
-        console.log('Migrating layout: Moving picker from grid-0 to grid-5');
-        // Remove from grid-0
-        grid0Items.splice(pickerIndex, 1);
-        // Already initialized in grid-5, just save the state
-        this.saveGridState();
-      }
-
-      // Migration: Move results from grid-1 to grid-6 if it exists
-      const grid1Items = this.grids[1].items;
-      const resultsIndex = grid1Items.findIndex(
-        (item) => item.panelType === 'results'
-      );
-
-      if (resultsIndex !== -1) {
-        console.log('Migrating layout: Moving results from grid-1 to grid-6');
-        // Remove from grid-1
-        grid1Items.splice(resultsIndex, 1);
-        // Already initialized in grid-6, just save the state
-        this.saveGridState();
-      }
-    } else {
-      // Initialize with default panels
-      this.grids[0].items = []; // Left workspace - empty by default
-      this.grids[1].items = []; // Right workspace - empty by default
-      this.grids[2].items = [
-        {
-          cols: 12,
-          rows: 8,
-          y: 0,
-          x: 0,
-          id: 'static-parabola-1',
-          panelType: 'static-parabola',
-        },
-      ];
-      this.grids[3].items = [
-        {
-          cols: 12,
-          rows: 12,
-          y: 0,
-          x: 0,
-          id: 'plotly-charts-1',
-          panelType: 'plotly-charts',
-        },
-      ];
-      this.grids[4].items = [
-        {
-          cols: 12,
-          rows: 6,
-          y: 0,
-          x: 0,
-          id: 'query-control-1',
-          panelType: 'query-control',
-        },
-      ];
-      this.grids[5].items = [
-        {
-          cols: 12,
-          rows: 16,
-          y: 0,
-          x: 0,
-          id: 'picker-1',
-          panelType: 'picker',
-        },
-      ];
-      this.grids[6].items = [
-        {
-          cols: 12,
-          rows: 10,
-          y: 0,
-          x: 0,
-          id: 'results-1',
-          panelType: 'results',
-        },
-      ];
-    }
+    // Grid 4 (grids[3]): Plotly Histograms
+    this.grids[3].items = [
+      {
+        cols: 12,
+        rows: 12,
+        y: 0,
+        x: 0,
+        id: 'plotly-charts-1',
+        panelType: 'plotly-charts',
+      },
+    ];
 
     // Initialize collapse states
     this.grids.forEach((grid) => {
@@ -646,7 +509,7 @@ export class DiscoverComponent implements OnInit, OnDestroy {
   private setDefaultCollapseStates(): void {
     this.grids.forEach((grid) => {
       // Default: expand functional grids, collapse chart grids
-      const collapsed = grid.id === 'grid-2' || grid.id === 'grid-3';
+      const collapsed = grid.id === 'grid-4' || false;
       this.gridCollapseStates.set(grid.id, collapsed);
     });
   }
