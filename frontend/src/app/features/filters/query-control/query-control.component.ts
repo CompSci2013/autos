@@ -1,4 +1,13 @@
-import { Component, OnInit, OnDestroy, Output, EventEmitter, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  Output,
+  EventEmitter,
+  ViewChild,
+  ElementRef,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import { Subject } from 'rxjs';
 import { takeUntil, debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -52,6 +61,9 @@ export class QueryControlComponent implements OnInit, OnDestroy {
 
   /** Emits when a filter is added */
   @Output() filterAdd = new EventEmitter<QueryFilter>();
+
+  /** Emits when a filter is removed */
+  @Output() filterRemove = new EventEmitter<{ field: string; updates: Partial<SearchFilters> }>();
 
   // ========== STATE ==========
 
@@ -136,13 +148,18 @@ export class QueryControlComponent implements OnInit, OnDestroy {
   bodyClassSearchTerm: string = '';
   dataSourceSearchTerm: string = '';
   @ViewChild('searchInput') searchInput?: ElementRef<HTMLInputElement>;
-  @ViewChild('modelSearchInput') modelSearchInput?: ElementRef<HTMLInputElement>;
-  @ViewChild('bodyClassSearchInput') bodyClassSearchInput?: ElementRef<HTMLInputElement>;
-  @ViewChild('dataSourceSearchInput') dataSourceSearchInput?: ElementRef<HTMLInputElement>;
-  @ViewChild('manufacturerViewport') manufacturerViewport?: CdkVirtualScrollViewport;
+  @ViewChild('modelSearchInput')
+  modelSearchInput?: ElementRef<HTMLInputElement>;
+  @ViewChild('bodyClassSearchInput')
+  bodyClassSearchInput?: ElementRef<HTMLInputElement>;
+  @ViewChild('dataSourceSearchInput')
+  dataSourceSearchInput?: ElementRef<HTMLInputElement>;
+  @ViewChild('manufacturerViewport')
+  manufacturerViewport?: CdkVirtualScrollViewport;
   @ViewChild('modelViewport') modelViewport?: CdkVirtualScrollViewport;
   @ViewChild('bodyClassViewport') bodyClassViewport?: CdkVirtualScrollViewport;
-  @ViewChild('dataSourceViewport') dataSourceViewport?: CdkVirtualScrollViewport;
+  @ViewChild('dataSourceViewport')
+  dataSourceViewport?: CdkVirtualScrollViewport;
 
   // RxJS subjects for search
   private manufacturerSearch$ = new Subject<string>();
@@ -177,51 +194,51 @@ export class QueryControlComponent implements OnInit, OnDestroy {
         // Sync selection arrays with URL state
         // Parse comma-separated values from URL into arrays
         this.selectedManufacturersArray = filters.manufacturer
-          ? filters.manufacturer.split(',').map(m => m.trim()).filter(m => m)
+          ? filters.manufacturer
+              .split(',')
+              .map((m) => m.trim())
+              .filter((m) => m)
           : [];
 
         this.selectedModelsArray = filters.model
-          ? filters.model.split(',').map(m => m.trim()).filter(m => m)
+          ? filters.model
+              .split(',')
+              .map((m) => m.trim())
+              .filter((m) => m)
           : [];
 
         this.selectedBodyClassesArray = filters.bodyClass
-          ? filters.bodyClass.split(',').map(m => m.trim()).filter(m => m)
+          ? filters.bodyClass
+              .split(',')
+              .map((m) => m.trim())
+              .filter((m) => m)
           : [];
 
         this.selectedDataSourcesArray = filters.dataSource
-          ? filters.dataSource.split(',').map(m => m.trim()).filter(m => m)
+          ? filters.dataSource
+              .split(',')
+              .map((m) => m.trim())
+              .filter((m) => m)
           : [];
       });
 
     // Set up manufacturer search with debouncing
     this.manufacturerSearch$
-      .pipe(
-        debounceTime(300),
-        distinctUntilChanged(),
-        takeUntil(this.destroy$)
-      )
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
       .subscribe((searchTerm) => {
         this.loadManufacturers(searchTerm);
       });
 
     // Set up model search with debouncing
     this.modelSearch$
-      .pipe(
-        debounceTime(300),
-        distinctUntilChanged(),
-        takeUntil(this.destroy$)
-      )
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
       .subscribe((searchTerm) => {
         this.loadModels(searchTerm);
       });
 
     // Set up body class search with debouncing (client-side filtering)
     this.bodyClassSearch$
-      .pipe(
-        debounceTime(300),
-        distinctUntilChanged(),
-        takeUntil(this.destroy$)
-      )
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
       .subscribe(() => {
         // Client-side filtering via computed property (filteredBodyClasses)
         // Just trigger change detection
@@ -230,11 +247,7 @@ export class QueryControlComponent implements OnInit, OnDestroy {
 
     // Set up data source search with debouncing (client-side filtering)
     this.dataSourceSearch$
-      .pipe(
-        debounceTime(300),
-        distinctUntilChanged(),
-        takeUntil(this.destroy$)
-      )
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
       .subscribe(() => {
         // Client-side filtering via computed property (filteredDataSources)
         // Just trigger change detection
@@ -265,7 +278,9 @@ export class QueryControlComponent implements OnInit, OnDestroy {
       return this.bodyClassList;
     }
     const searchLower = this.bodyClassSearchTerm.toLowerCase();
-    return this.bodyClassList.filter(bc => bc.toLowerCase().includes(searchLower));
+    return this.bodyClassList.filter((bc) =>
+      bc.toLowerCase().includes(searchLower)
+    );
   }
 
   get filteredDataSources(): string[] {
@@ -274,7 +289,9 @@ export class QueryControlComponent implements OnInit, OnDestroy {
       return this.dataSourceList;
     }
     const searchLower = this.dataSourceSearchTerm.toLowerCase();
-    return this.dataSourceList.filter(ds => ds.toLowerCase().includes(searchLower));
+    return this.dataSourceList.filter((ds) =>
+      ds.toLowerCase().includes(searchLower)
+    );
   }
 
   // ========== FIELD SELECTION ==========
@@ -703,15 +720,11 @@ export class QueryControlComponent implements OnInit, OnDestroy {
       : 'filters/models';
 
     this.requestCoordinator
-      .execute(
-        cacheKey,
-        () => this.apiService.getDistinctModels(searchTerm),
-        {
-          cacheTime: 300000, // Cache for 5 minutes per search term
-          deduplication: true,
-          retryAttempts: 2,
-        }
-      )
+      .execute(cacheKey, () => this.apiService.getDistinctModels(searchTerm), {
+        cacheTime: 300000, // Cache for 5 minutes per search term
+        deduplication: true,
+        retryAttempts: 2,
+      })
       .subscribe({
         next: (response) => {
           this.modelList = response.models;
@@ -802,15 +815,11 @@ export class QueryControlComponent implements OnInit, OnDestroy {
     console.log('Loading year range from API...');
 
     this.requestCoordinator
-      .execute(
-        'filters/year-range',
-        () => this.apiService.getYearRange(),
-        {
-          cacheTime: 300000, // Cache for 5 minutes
-          deduplication: true,
-          retryAttempts: 2,
-        }
-      )
+      .execute('filters/year-range', () => this.apiService.getYearRange(), {
+        cacheTime: 300000, // Cache for 5 minutes
+        deduplication: true,
+        retryAttempts: 2,
+      })
       .subscribe({
         next: (response) => {
           this.yearRange = response;
@@ -895,6 +904,14 @@ export class QueryControlComponent implements OnInit, OnDestroy {
   editFilter(field: string): void {
     console.log('Editing filter:', field);
 
+    // NOTE: Defensive check - should not be needed now that click handler is on chip-content only
+    // If X button is clicked, this editFilter() should not be called at all
+    // const chipExists = this.activeFilterChips.some(chip => chip.field === field);
+    // if (!chipExists) {
+    //   console.log('Filter chip no longer exists, skipping edit');
+    //   return;
+    // }
+
     // Map filter field to dialog type and open with current values pre-populated
     switch (field) {
       case 'manufacturer':
@@ -926,7 +943,7 @@ export class QueryControlComponent implements OnInit, OnDestroy {
    * Helper: Open manufacturer dialog with current selections
    */
   private openManufacturerDialog(): void {
-    const field = this.queryFields.find(f => f.key === 'manufacturer');
+    const field = this.queryFields.find((f) => f.key === 'manufacturer');
     if (!field) return;
 
     this.currentField = field;
@@ -941,7 +958,7 @@ export class QueryControlComponent implements OnInit, OnDestroy {
    * Helper: Open model dialog with current selections
    */
   private openModelDialog(): void {
-    const field = this.queryFields.find(f => f.key === 'model');
+    const field = this.queryFields.find((f) => f.key === 'model');
     if (!field) return;
 
     this.currentField = field;
@@ -956,7 +973,7 @@ export class QueryControlComponent implements OnInit, OnDestroy {
    * Helper: Open year range dialog with current values
    */
   private openYearDialog(): void {
-    const field = this.queryFields.find(f => f.key === 'year');
+    const field = this.queryFields.find((f) => f.key === 'year');
     if (!field) return;
 
     this.currentField = field;
@@ -969,8 +986,8 @@ export class QueryControlComponent implements OnInit, OnDestroy {
     // Convert to Date objects for nz-range-picker
     if (this.rangeMin && this.rangeMax) {
       this.yearDateRange = [
-        new Date(this.rangeMin, 0, 1),  // Jan 1st of min year
-        new Date(this.rangeMax, 0, 1)   // Jan 1st of max year
+        new Date(this.rangeMin, 0, 1), // Jan 1st of min year
+        new Date(this.rangeMax, 0, 1), // Jan 1st of max year
       ];
     } else if (this.rangeMin) {
       this.yearDateRange = [new Date(this.rangeMin, 0, 1), null] as any;
@@ -987,7 +1004,7 @@ export class QueryControlComponent implements OnInit, OnDestroy {
    * Helper: Open body class dialog with current selections
    */
   private openBodyClassDialog(): void {
-    const field = this.queryFields.find(f => f.key === 'body_class');
+    const field = this.queryFields.find((f) => f.key === 'body_class');
     if (!field) return;
 
     this.currentField = field;
@@ -1002,7 +1019,7 @@ export class QueryControlComponent implements OnInit, OnDestroy {
    * Helper: Open data source dialog with current selections
    */
   private openDataSourceDialog(): void {
-    const field = this.queryFields.find(f => f.key === 'data_source');
+    const field = this.queryFields.find((f) => f.key === 'data_source');
     if (!field) return;
 
     this.currentField = field;
@@ -1038,9 +1055,8 @@ export class QueryControlComponent implements OnInit, OnDestroy {
       updates.dataSource = undefined;
     }
 
-    // Update state (setting to undefined removes from URL)
-    // This will trigger filters$ subscription which syncs selection arrays
-    this.stateService.updateFilters(updates);
+    // Emit event for parent to handle
+    // (Parent will update state, which triggers filters$ subscription to sync selection arrays)
+    this.filterRemove.emit({ field, updates });
   }
-
 }

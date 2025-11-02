@@ -25,12 +25,11 @@
       [nzColor]="chip.color"
       nzMode="closeable"
       (nzOnClose)="removeFilter(chip.field)"
-      (click)="editFilter(chip.field)"
-      class="filter-chip clickable"
+      class="filter-chip"
       nz-tooltip
       [nzTooltipTitle]="chip.label + ': ' + chip.displayValue + ' (Click to edit)'"
     >
-      <span class="chip-content">
+      <span class="chip-content clickable" (click)="editFilter(chip.field); $event.stopPropagation()">
         <strong>{{ chip.label }}:</strong> {{ chip.displayValue }}
       </span>
     </nz-tag>

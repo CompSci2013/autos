@@ -57,7 +57,8 @@ export class DiscoverComponent implements OnInit, OnDestroy {
     // Define grid configurations
     const gridDefinitions = [
       { id: 'grid-0', name: 'Left Workspace', borderColor: '#1890ff' },
-      { id: 'grid-1', name: 'Right Workspace', borderColor: '#52c41a' }
+      { id: 'grid-1', name: 'Right Workspace', borderColor: '#52c41a' },
+      { id: 'grid-2', name: 'Bottom Charts', borderColor: '#faad14' }
     ];
 
     this.grids = gridDefinitions.map(def => this.createGridConfig(def.id, def.name, def.borderColor));
@@ -137,9 +138,16 @@ export class DiscoverComponent implements OnInit, OnDestroy {
 
     if (savedState) {
       const state = JSON.parse(savedState);
-      // Load items into each grid
+      // Load items into each grid (but always initialize grid-2 with plotly charts)
       this.grids.forEach(grid => {
-        grid.items = state[grid.id] || [];
+        if (grid.id === 'grid-2') {
+          // Always initialize bottom grid with static parabola chart
+          grid.items = [
+            { cols: 12, rows: 8, y: 0, x: 0, id: 'static-parabola-1', panelType: 'static-parabola' }
+          ];
+        } else {
+          grid.items = state[grid.id] || [];
+        }
         this.panelCollapseStates.set(grid.id, false);
       });
 
@@ -180,6 +188,9 @@ export class DiscoverComponent implements OnInit, OnDestroy {
       ];
       this.grids[1].items = [
         { cols: 12, rows: 10, y: 0, x: 0, id: 'results-1', panelType: 'results' }
+      ];
+      this.grids[2].items = [
+        { cols: 12, rows: 8, y: 0, x: 0, id: 'static-parabola-1', panelType: 'static-parabola' }
       ];
     }
 
@@ -317,7 +328,17 @@ export class DiscoverComponent implements OnInit, OnDestroy {
   onClearAll(): void {
     console.log('Discover: Clear all triggered');
     this.pickerClearTrigger++;
-    this.stateService.resetFilters();
+    // Use updateFilters to clear modelCombos and trigger a fresh fetch
+    // This matches the picker's Clear button behavior
+    this.stateService.updateFilters({
+      modelCombos: undefined,  // Remove filter (triggers fetch for all vehicles)
+      manufacturer: undefined,
+      model: undefined,
+      yearMin: undefined,
+      yearMax: undefined,
+      bodyClass: undefined,
+      dataSource: undefined
+    });
   }
 
   onFilterAdd(filter: QueryFilter): void {
@@ -385,6 +406,11 @@ export class DiscoverComponent implements OnInit, OnDestroy {
     }
 
     this.stateService.updateFilters(updates);
+  }
+
+  onFilterRemove(event: { field: string; updates: Partial<SearchFilters> }): void {
+    console.log('Discover: Query filter removed:', event.field);
+    this.stateService.updateFilters(event.updates);
   }
 
   get hasActiveFilters(): boolean {

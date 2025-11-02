@@ -16,9 +16,9 @@
   </div>
 
   <div class="grids-container">
-    <!-- Dynamic Grid Rendering -->
+    <!-- Dynamic Grid Rendering (only first 2 grids: left and right) -->
     <div
-      *ngFor="let grid of grids; let i = index"
+      *ngFor="let grid of grids.slice(0, 2); let i = index"
       class="grid-wrapper"
       [attr.data-grid-id]="grid.id"
       [style.border-color]="grid.borderColor">
@@ -58,7 +58,10 @@
             <div class="panel-content no-drag" [hidden]="item.panelType === 'picker' && getPanelCollapseState(grid.id)">
               <!-- Dynamic panel content based on panelType -->
               <div *ngIf="item.panelType === 'query-control'">
-                <app-query-control (filterAdd)="onFilterAdd($event)"></app-query-control>
+                <app-query-control
+                  (filterAdd)="onFilterAdd($event)"
+                  (filterRemove)="onFilterRemove($event)">
+                </app-query-control>
               </div>
               <div *ngIf="item.panelType === 'picker'">
                 <app-table-picker></app-table-picker>
@@ -74,5 +77,34 @@
         </gridster-item>
       </gridster>
     </div>
+  </div>
+
+  <!-- Bottom Grid Container -->
+  <div class="bottom-grid-container" *ngIf="grids[2]" [style.border-color]="grids[2].borderColor">
+    <gridster [options]="grids[2].options">
+      <gridster-item *ngFor="let item of grids[2]?.items" [item]="item">
+        <div class="panel-container">
+          <div class="panel-header drag-handle">
+            <span class="panel-title">
+              <i nz-icon nzType="drag" nzTheme="outline"></i>
+              Interactive Charts (Plotly) - Bottom
+            </span>
+            <div class="panel-actions">
+              <i
+                nz-icon
+                nzType="export"
+                nzTheme="outline"
+                nz-tooltip="Pop out to new window"
+                (click)="popOutPanel(grids[2].id, item); $event.stopPropagation()"
+                class="action-icon popout-icon"
+              ></i>
+            </div>
+          </div>
+          <div class="panel-content no-drag">
+            <app-static-parabola-chart></app-static-parabola-chart>
+          </div>
+        </div>
+      </gridster-item>
+    </gridster>
   </div>
 </div>

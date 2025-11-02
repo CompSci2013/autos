@@ -76,6 +76,30 @@ export class PanelPopoutComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Handle filterAdd event from QueryControl component
+   * Send message to main window via BroadcastChannel
+   */
+  onFilterAdd(filter: any): void {
+    console.log('[PanelPopout] Filter added in popout:', filter);
+    this.popOutContext.sendMessage({
+      type: 'FILTER_ADD',
+      payload: filter
+    });
+  }
+
+  /**
+   * Handle filterRemove event from QueryControl component
+   * Send message to main window via BroadcastChannel
+   */
+  onFilterRemove(event: { field: string; updates: any }): void {
+    console.log('[PanelPopout] Filter removed in popout:', event.field);
+    this.popOutContext.sendMessage({
+      type: 'FILTER_REMOVE',
+      payload: event
+    });
+  }
+
   get panelTitle(): string {
     switch (this.panelType) {
       case 'picker':
@@ -86,6 +110,8 @@ export class PanelPopoutComponent implements OnInit, OnDestroy {
         return 'Interactive Charts (Plotly)';
       case 'query-control':
         return 'Query Control';
+      case 'static-parabola':
+        return 'Static Parabola Chart';
       default:
         return 'Panel';
     }

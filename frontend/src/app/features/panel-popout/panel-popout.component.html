@@ -28,7 +28,15 @@
 
       <!-- Query Control Panel -->
       <div *ngSwitchCase="'query-control'" class="panel-wrapper">
-        <app-query-control></app-query-control>
+        <app-query-control
+          (filterAdd)="onFilterAdd($event)"
+          (filterRemove)="onFilterRemove($event)">
+        </app-query-control>
+      </div>
+
+      <!-- Static Parabola Chart Panel -->
+      <div *ngSwitchCase="'static-parabola'" class="panel-wrapper">
+        <app-static-parabola-chart></app-static-parabola-chart>
       </div>
 
       <!-- Unknown panel type -->
