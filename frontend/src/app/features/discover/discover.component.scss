@@ -83,6 +83,46 @@
   }
 }
 
+.top-grid-container {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: visible;
+  position: relative;
+  margin: 16px 16px;
+  border: 3px solid; // Color set dynamically via [style.border-color]
+  height: 200px; // Smaller height for top grid (query control)
+
+  gridster {
+    flex: 1; // Fill container height
+    background: #f5f5f5;
+    overflow: visible !important;
+    position: relative;
+  }
+}
+
+.middle-grid-container {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: visible;
+  position: relative;
+  margin: 0 16px 16px 16px;
+  border: 3px solid; // Color set dynamically via [style.border-color]
+  height: 700px; // Medium height for middle grids (picker/results)
+
+  gridster {
+    flex: 1; // Fill container height
+    background: #f5f5f5;
+    overflow: visible !important;
+    position: relative;
+  }
+}
+
 .bottom-grid-container {
   display: flex;
   flex-direction: column;
