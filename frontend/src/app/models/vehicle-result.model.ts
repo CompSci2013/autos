@@ -1,3 +1,5 @@
+import { VehicleStatistics } from './vehicle-statistics.model';
+
 /**
  * Detailed vehicle result for results table
  * Matches Elasticsearch document structure
@@ -7,10 +9,10 @@ export interface VehicleResult {
   manufacturer: string;
   model: string;
   year: number;
-  
+
   // Body information
   body_class?: string;
-  
+
   // Metadata
   data_source: string;
   ingested_at: string;
@@ -32,4 +34,5 @@ export interface VehicleDetailsResponse {
     }>;
   };
   results: VehicleResult[];
+  statistics?: VehicleStatistics; // NEW: Statistics for histogram charts
 }

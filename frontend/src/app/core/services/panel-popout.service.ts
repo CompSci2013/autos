@@ -238,28 +238,77 @@ export class PanelPopoutService implements OnDestroy {
    * This is the KEY method for bidirectional state sync
    */
   private handlePopoutMessage(gridId: string, panelId: string, message: any): void {
-    console.log(`Message from panel ${panelId}:`, message);
+    console.log(`[PanelPopoutService] Message from panel ${panelId}:`, message);
+
+    // Support both message.data (old) and message.payload (new)
+    const payload = message.payload ?? message.data;
 
     switch (message.type) {
       case 'SELECTION_CHANGE':
         // Pop-out sent selection change - update MAIN window state
-        console.log('Selection changed in pop-out:', message.data);
+        console.log('[PanelPopoutService] Selection changed in pop-out:', payload);
         this.stateService.updateFilters({
-          modelCombos: message.data.length > 0 ? message.data : undefined,
+          modelCombos: payload && payload.length > 0 ? payload : undefined,
         });
         // State change will automatically broadcast back to pop-out via subscription
         break;
 
       case 'CLEAR_ALL':
         // Pop-out requested clear - update MAIN window state
-        console.log('Clear all requested from pop-out');
+        console.log('[PanelPopoutService] Clear all requested from pop-out');
         this.stateService.resetFilters();
         // State change will automatically broadcast back to pop-out via subscription
         break;
 
+      case 'MANUFACTURER_CLICK':
+        // Pop-out chart clicked on manufacturer
+        console.log('[PanelPopoutService] Manufacturer clicked in pop-out:', payload);
+        this.stateService.updateFilters({
+          manufacturer: payload || undefined
+        });
+        break;
+
+      case 'YEAR_RANGE_CLICK':
+        // Pop-out chart clicked on year (now individual year instead of range)
+        console.log('[PanelPopoutService] Year clicked in pop-out:', payload);
+        if (payload && typeof payload === 'object' && 'yearMin' in payload) {
+          // New format: { yearMin: number, yearMax: number }
+          this.stateService.updateFilters({
+            yearMin: payload.yearMin,
+            yearMax: payload.yearMax
+          });
+        } else if (payload && typeof payload === 'string') {
+          // Legacy format: "1960-1969" (for backward compatibility)
+          const [minYear, maxYear] = payload.split('-').map((y: string) => parseInt(y, 10));
+          this.stateService.updateFilters({
+            yearMin: minYear,
+            yearMax: maxYear
+          });
+        } else {
+          this.stateService.updateFilters({
+            yearMin: undefined,
+            yearMax: undefined
+          });
+        }
+        break;
+
+      case 'BODY_CLASS_CLICK':
+        // Pop-out chart clicked on body class
+        console.log('[PanelPopoutService] Body class clicked in pop-out:', payload);
+        this.stateService.updateFilters({
+          bodyClass: payload || undefined
+        });
+        break;
+
+      case 'PAGINATION_SORT_CHANGE':
+        // Pop-out results table changed pagination or sorting
+        console.log('[PanelPopoutService] Pagination/sort changed in pop-out:', payload);
+        this.stateService.updateFilters(payload);
+        break;
+
       case 'PANEL_READY':
         // Pop-out is ready - send current FULL state
-        console.log('Pop-out panel ready, sending current state');
+        console.log('[PanelPopoutService] Pop-out panel ready, sending current state');
         const currentState = this.stateService.getCurrentState();
         this.broadcastToPanel(panelId, {
           type: 'STATE_UPDATE',
@@ -268,7 +317,7 @@ export class PanelPopoutService implements OnDestroy {
         break;
 
       default:
-        console.log('Unknown message type:', message.type);
+        console.log('[PanelPopoutService] Unknown message type:', message.type);
     }
   }
 

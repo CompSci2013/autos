@@ -295,17 +295,70 @@ async function getVehicleDetails(options = {}) {
     // Calculate pagination
     const from = (page - 1) * size;
 
-    // Execute search query
+    // Execute search query with aggregations for statistics
     const response = await esClient.search({
       index: ELASTICSEARCH_INDEX,
       from: from,
       size: size,
       query: query,
       sort: sort,
+      aggs: {
+        // Aggregation 1: By Manufacturer
+        by_manufacturer: {
+          terms: {
+            field: 'manufacturer.keyword',
+            size: 100,
+            order: { _count: 'desc' }
+          }
+        },
+
+        // Aggregation 2: Models by Manufacturer (nested)
+        models_by_manufacturer: {
+          terms: {
+            field: 'manufacturer.keyword',
+            size: 100
+          },
+          aggs: {
+            models: {
+              terms: {
+                field: 'model.keyword',
+                size: 50
+              }
+            }
+          }
+        },
+
+        // Aggregation 3: By Year (individual years, not ranges)
+        by_year_range: {
+          terms: {
+            field: 'year',
+            size: 100,  // Support up to 100 years
+            order: { _key: 'asc' }  // Sort by year ascending
+          }
+        },
+
+        // Aggregation 4: By Body Class
+        by_body_class: {
+          terms: {
+            field: 'body_class',
+            size: 20,
+            order: { _count: 'desc' }
+          }
+        }
+      }
     });
 
     // Extract hits
     const results = response.hits.hits.map((hit) => hit._source);
+
+    // Transform aggregations into statistics object
+    const statistics = {
+      byManufacturer: transformTermsAgg(response.aggregations.by_manufacturer),
+      modelsByManufacturer: transformNestedAgg(response.aggregations.models_by_manufacturer),
+      byYearRange: transformTermsAgg(response.aggregations.by_year_range),  // Now using terms agg for individual years
+      byBodyClass: transformTermsAgg(response.aggregations.by_body_class),
+      totalCount: response.hits.total.value
+    };
 
     return {
       total: response.hits.total.value,
@@ -319,6 +372,7 @@ async function getVehicleDetails(options = {}) {
         sortOrder: sortOrder,
       },
       results: results,
+      statistics: statistics // NEW
     };
   } catch (error) {
     console.error('Elasticsearch vehicle details query error:', error);
@@ -499,6 +553,45 @@ async function getYearRange() {
     console.error('Error fetching year range:', error);
     throw new Error(`Failed to fetch year range: ${error.message}`);
   }
+}
+
+/**
+ * Transform terms aggregation to object format
+ * @param {Object} agg - Elasticsearch terms aggregation
+ * @returns {Object} - { "key": count }
+ */
+function transformTermsAgg(agg) {
+  return agg.buckets.reduce((acc, bucket) => {
+    acc[bucket.key] = bucket.doc_count;
+    return acc;
+  }, {});
+}
+
+/**
+ * Transform nested aggregation (manufacturer -> models)
+ * @param {Object} agg - Elasticsearch nested aggregation
+ * @returns {Object} - { "manufacturer": { "model": count } }
+ */
+function transformNestedAgg(agg) {
+  return agg.buckets.reduce((acc, mfrBucket) => {
+    acc[mfrBucket.key] = mfrBucket.models.buckets.reduce((models, modelBucket) => {
+      models[modelBucket.key] = modelBucket.doc_count;
+      return models;
+    }, {});
+    return acc;
+  }, {});
+}
+
+/**
+ * Transform range aggregation to object format
+ * @param {Object} agg - Elasticsearch range aggregation
+ * @returns {Object} - { "range-key": count }
+ */
+function transformRangeAgg(agg) {
+  return agg.buckets.reduce((acc, bucket) => {
+    acc[bucket.key] = bucket.doc_count;
+    return acc;
+  }, {});
 }
 
 module.exports = {

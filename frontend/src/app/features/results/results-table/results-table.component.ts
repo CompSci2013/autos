@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { StateManagementService } from '../../../core/services/state-management.service';
+import { PopOutContextService } from '../../../core/services/popout-context.service';
 import { ApiService } from '../../../services/api.service';
 import { VehicleResult, VehicleInstance, SearchFilters } from '../../../models';
 import { TableColumn, TableQueryParams } from '../../../shared/models';
@@ -113,6 +114,7 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
 
   constructor(
     private stateService: StateManagementService,
+    private popOutContext: PopOutContextService,
     private apiService: ApiService
   ) {
     // Initialize tableQueryParams from current state BEFORE template renders
@@ -121,6 +123,8 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    console.log(`[ResultsTable] Initialized (pop-out mode: ${this.popOutContext.isInPopOut()})`);
+
     // Subscribe to results from StateManagement (pre-fetched via URL changes)
     this.stateService.results$
       .pipe(takeUntil(this.destroy$))
@@ -196,18 +200,27 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
    * - Query Control: manufacturer, model, year, bodyClass, dataSource
    */
   onTableQueryChange(params: TableQueryParams): void {
-    console.log('ResultsTable: Table query changed (pagination/sort only):', params);
+    console.log('[ResultsTable] Table query changed (pagination/sort only):', params);
 
-    // Only update pagination and sort - never filters
-    // Filters are owned by Query Control and read-only for this component
-    this.stateService.updateFilters({
+    const updates = {
       page: params.page,
       size: params.size,
       sort: params.sortBy || undefined,
       sortDirection: params.sortOrder || undefined,
       // Explicitly do NOT update filter properties here
       // Query Control is the sole owner of filter state
-    });
+    };
+
+    if (this.popOutContext.isInPopOut()) {
+      // Pop-out mode: send message to main window
+      this.popOutContext.sendMessage({
+        type: 'PAGINATION_SORT_CHANGE',
+        payload: updates
+      });
+    } else {
+      // Normal mode: update state directly
+      this.stateService.updateFilters(updates);
+    }
   }
 
   /**

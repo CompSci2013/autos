@@ -1,0 +1,29 @@
+<div class="plotly-histogram-container">
+  <h2 class="charts-title">Interactive Distribution Charts (Plotly)</h2>
+
+  <div *ngIf="!statistics" class="no-data">
+    <p>No statistics data available. Select vehicles to see distribution charts.</p>
+  </div>
+
+  <div *ngIf="statistics" class="charts-grid">
+    <!-- Manufacturer Chart -->
+    <div class="chart-wrapper">
+      <div #manufacturerChart class="chart"></div>
+    </div>
+
+    <!-- Models Chart -->
+    <div class="chart-wrapper">
+      <div #modelsChart class="chart"></div>
+    </div>
+
+    <!-- Year Range Chart -->
+    <div class="chart-wrapper">
+      <div #yearRangeChart class="chart"></div>
+    </div>
+
+    <!-- Body Class Chart -->
+    <div class="chart-wrapper">
+      <div #bodyClassChart class="chart"></div>
+    </div>
+  </div>
+</div>

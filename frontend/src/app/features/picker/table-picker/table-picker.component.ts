@@ -2,14 +2,9 @@ import {
   Component,
   OnInit,
   OnDestroy,
-  Output,
-  EventEmitter,
-  Input,
-  SimpleChanges,
-  OnChanges,
   ViewChild,
-  ChangeDetectorRef, // ADD THIS
-  ChangeDetectionStrategy, // ADD THIS
+  ChangeDetectorRef,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -20,31 +15,33 @@ import {
   PickerFlatRow,
 } from './table-picker-data-source';
 import { BaseDataTableComponent } from 'src/app/shared/components/base-data-table/base-data-table.component';
+import { PopOutContextService } from '../../../core/services/popout-context.service';
+import { StateManagementService } from '../../../core/services/state-management.service';
 
 /**
  * Table-Picker Component
  *
  * Uses BaseDataTableComponent with flat manufacturer-model rows.
  * All combinations visible without expansion.
+ *
+ * POP-OUT AWARE: This component adapts its behavior based on context:
+ * - Normal mode: Subscribes to StateManagementService, updates state directly
+ * - Pop-out mode: Same subscription, sends user interactions to main window via PopOutContextService
+ *
+ * The component is completely self-contained and requires no inputs/outputs.
  */
 @Component({
   selector: 'app-table-picker',
   templateUrl: './table-picker.component.html',
   styleUrls: ['./table-picker.component.scss'],
   providers: [TablePickerDataSource],
-  changeDetection: ChangeDetectionStrategy.OnPush, // ADD THIS
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TablePickerComponent implements OnInit, OnDestroy, OnChanges {
+export class TablePickerComponent implements OnInit, OnDestroy {
   @ViewChild(BaseDataTableComponent)
   baseTable!: BaseDataTableComponent<PickerFlatRow>;
   private destroy$ = new Subject<void>();
 
-  // Inputs from parent (Workshop)
-  @Input() initialSelections: ManufacturerModelSelection[] = [];
-  @Input() clearTrigger: number = 0;
-
-  // Output to parent
-  @Output() selectionChange = new EventEmitter<ManufacturerModelSelection[]>();
 
   // Column configuration (flat rows)
   columns: TableColumn<PickerFlatRow>[] = [
@@ -81,60 +78,42 @@ export class TablePickerComponent implements OnInit, OnDestroy, OnChanges {
   // Selection state (EFFICIENT: Set<string> pattern)
   selectedRows = new Set<string>();
 
-  // Track last clear trigger
-  private lastClearTrigger = 0;
-
   // Track pending hydration (selections to apply after data loads)
   private pendingHydration: ManufacturerModelSelection[] = [];
   private dataLoaded = false;
 
   constructor(
     dataSource: TablePickerDataSource,
-    private cdr: ChangeDetectorRef // ADD THIS
+    private cdr: ChangeDetectorRef,
+    private popOutContext: PopOutContextService,
+    private stateService: StateManagementService
   ) {
     this.dataSource = dataSource;
   }
 
   ngOnInit(): void {
-    console.log('TablePickerComponent: Initialized');
-    // Data loading is handled by BaseDataTable
-    // We listen to (dataLoaded) event in template to know when data arrives
-  }
+    console.log(`[TablePicker] Initialized (pop-out mode: ${this.popOutContext.isInPopOut()})`);
 
-  ngOnChanges(changes: SimpleChanges): void {
-    console.log('🔶 ngOnChanges triggered:', Object.keys(changes));
-
-    // Handle clear trigger (parent commanding "clear now")
-    if (changes['clearTrigger'] && !changes['clearTrigger'].firstChange) {
-      const newValue = changes['clearTrigger'].currentValue;
-      if (newValue !== this.lastClearTrigger) {
-        console.log('TablePickerComponent: Clear trigger fired');
-        this.lastClearTrigger = newValue;
-        this.selectedRows.clear();
-        this.pendingHydration = [];
-        this.cdr.markForCheck();
-      }
-    }
-
-    // Handle initial selections (hydration from URL)
-    if (changes['initialSelections']) {
-      console.log(
-        'TablePickerComponent: Initial selections changed:',
-        this.initialSelections
-      );
+    // Subscribe to state changes for hydration
+    this.stateService.filters$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(filters => {
+      console.log('[TablePicker] Filters updated:', filters);
 
       // Store for pending hydration
-      this.pendingHydration = this.initialSelections || [];
+      this.pendingHydration = filters.modelCombos || [];
 
       // If data already loaded, hydrate immediately
-      // Otherwise, wait for data to load (ngOnInit subscription)
       if (this.dataLoaded) {
         this.hydrateSelections();
         this.cdr.markForCheck();
       } else {
-        console.log('TablePickerComponent: Data not loaded yet, deferring hydration');
+        console.log('[TablePicker] Data not loaded yet, deferring hydration');
       }
-    }
+    });
+
+    // Data loading is handled by BaseDataTable
+    // We listen to (dataLoaded) event in template to know when data arrives
   }
 
   ngOnDestroy(): void {
@@ -328,24 +307,47 @@ export class TablePickerComponent implements OnInit, OnDestroy, OnChanges {
 
   /**
    * Handle Apply button click
+   * Context-aware: Updates state directly or sends message to main window
    */
   onApply(): void {
-    console.log('TablePickerComponent: Apply clicked');
-    console.log(
-      'TablePickerComponent: Emitting selections:',
-      this.selectedItems
-    );
-    this.selectionChange.emit(this.selectedItems);
+    console.log('[TablePicker] Apply clicked');
+    console.log('[TablePicker] Selected items:', this.selectedItems);
+
+    if (this.popOutContext.isInPopOut()) {
+      // Pop-out mode: send message to main window
+      this.popOutContext.sendMessage({
+        type: 'SELECTION_CHANGE',
+        payload: this.selectedItems
+      });
+    } else {
+      // Normal mode: update state directly
+      this.stateService.updateFilters({
+        modelCombos: this.selectedItems
+      });
+    }
   }
 
   /**
    * Handle Clear button click
+   * Context-aware: Clears state directly or sends message to main window
    */
   onClear(): void {
-    console.log('TablePickerComponent: Clear clicked');
+    console.log('[TablePicker] Clear clicked');
     this.selectedRows.clear();
-    this.cdr.markForCheck(); // ADD THIS
-    this.selectionChange.emit([]);
+    this.cdr.markForCheck();
+
+    if (this.popOutContext.isInPopOut()) {
+      // Pop-out mode: send message to main window
+      this.popOutContext.sendMessage({
+        type: 'CLEAR_ALL',
+        payload: null
+      });
+    } else {
+      // Normal mode: update state directly
+      this.stateService.updateFilters({
+        modelCombos: []
+      });
+    }
   }
 
   /**

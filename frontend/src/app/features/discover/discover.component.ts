@@ -6,6 +6,7 @@ import { GridTransferService } from '../../core/services/grid-transfer.service';
 import { PanelPopoutService } from '../../core/services/panel-popout.service';
 import { ManufacturerModelSelection } from '../../models';
 import { SearchFilters } from '../../models/search-filters.model';
+import { VehicleStatistics, HistogramData } from '../../models/vehicle-statistics.model';
 import { WorkspacePanel } from '../../models/workspace-panel.model';
 import { GridConfig } from '../../models/grid-config.model';
 import { GridsterConfig, GridType, CompactType } from 'angular-gridster2';
@@ -174,10 +175,11 @@ export class DiscoverComponent implements OnInit, OnDestroy {
       // Initialize with default panels
       this.grids[0].items = [
         { cols: 12, rows: 2, y: 0, x: 0, id: 'query-control-1', panelType: 'query-control' },
-        { cols: 12, rows: 16, y: 2, x: 0, id: 'picker-1', panelType: 'picker' }
+        { cols: 12, rows: 8, y: 2, x: 0, id: 'plotly-charts-1', panelType: 'plotly-charts' },
+        { cols: 12, rows: 16, y: 10, x: 0, id: 'picker-1', panelType: 'picker' }
       ];
       this.grids[1].items = [
-        { cols: 12, rows: 14, y: 0, x: 0, id: 'results-1', panelType: 'results' }
+        { cols: 12, rows: 10, y: 0, x: 0, id: 'results-1', panelType: 'results' }
       ];
     }
 
@@ -394,5 +396,151 @@ export class DiscoverComponent implements OnInit, OnDestroy {
 
   get selectionCount(): number {
     return this.currentFilters.modelCombos?.length || 0;
+  }
+
+  // ===== Histogram Charts Support =====
+
+  get statistics(): VehicleStatistics | null {
+    // Get statistics from state service
+    const state = this.stateService.currentState;
+    return state?.statistics || null;
+  }
+
+  get selectedManufacturer(): string | null {
+    return this.stateService.currentState?.selectedManufacturer || null;
+  }
+
+  get selectedYearRange(): string | null {
+    const filters = this.currentFilters;
+    if (filters.yearMin && filters.yearMax) {
+      // Find matching year range
+      const ranges = [
+        '1960-1969', '1970-1979', '1980-1989', '1990-1999',
+        '2000-2009', '2010-2019', '2020-2025'
+      ];
+
+      for (const range of ranges) {
+        const [min, max] = range.split('-').map(Number);
+        if (filters.yearMin === min && filters.yearMax === max) {
+          return range;
+        }
+      }
+    }
+    return null;
+  }
+
+  get selectedBodyClass(): string | null {
+    const bodyClass = this.currentFilters.bodyClass;
+    // If it's a comma-separated list, take the first one for selection highlighting
+    return bodyClass ? bodyClass.split(',')[0] : null;
+  }
+
+  get manufacturerHistogramData(): HistogramData[] {
+    if (!this.statistics?.byManufacturer) return [];
+
+    return Object.entries(this.statistics.byManufacturer)
+      .map(([label, count]) => ({ label, count }));
+  }
+
+  get modelsHistogramData(): HistogramData[] {
+    if (!this.statistics?.modelsByManufacturer) return [];
+
+    const selectedMfr = this.selectedManufacturer;
+    const data: HistogramData[] = [];
+
+    Object.entries(this.statistics.modelsByManufacturer).forEach(
+      ([manufacturer, models]) => {
+        // Filter by selected manufacturer if set
+        if (selectedMfr && manufacturer !== selectedMfr) return;
+
+        Object.entries(models).forEach(([model, count]) => {
+          data.push({
+            label: `${manufacturer} ${model}`,
+            count: count as number
+          });
+        });
+      }
+    );
+
+    return data;
+  }
+
+  get yearRangeHistogramData(): HistogramData[] {
+    if (!this.statistics?.byYearRange) return [];
+
+    // Return in chronological order, filtering out ranges with zero count
+    const ranges = [
+      '1960-1969', '1970-1979', '1980-1989', '1990-1999',
+      '2000-2009', '2010-2019', '2020-2025'
+    ];
+
+    return ranges
+      .filter(range => this.statistics!.byYearRange[range] > 0)
+      .map(range => ({
+        label: range,
+        count: this.statistics!.byYearRange[range]
+      }));
+  }
+
+  get bodyClassHistogramData(): HistogramData[] {
+    if (!this.statistics?.byBodyClass) return [];
+
+    return Object.entries(this.statistics.byBodyClass)
+      .map(([label, count]) => ({ label, count }));
+  }
+
+  onManufacturerBarClick(manufacturer: string): void {
+    // Toggle selection
+    const currentSelection = this.selectedManufacturer;
+
+    if (currentSelection === manufacturer) {
+      // Deselect
+      this.stateService.selectManufacturer(null);
+    } else {
+      // Select
+      this.stateService.selectManufacturer(manufacturer);
+    }
+  }
+
+  onYearRangeBarClick(yearRange: string): void {
+    // Parse "1990-1999" → yearMin: 1990, yearMax: 1999
+    const [minStr, maxStr] = yearRange.split('-');
+    const yearMin = parseInt(minStr, 10);
+    const yearMax = parseInt(maxStr, 10);
+
+    // Check if this range is already selected
+    const currentMin = this.currentFilters.yearMin;
+    const currentMax = this.currentFilters.yearMax;
+
+    if (currentMin === yearMin && currentMax === yearMax) {
+      // Deselect - clear year filters
+      this.stateService.updateFilters({
+        yearMin: undefined,
+        yearMax: undefined
+      });
+    } else {
+      // Select - update year filters
+      this.stateService.updateFilters({
+        yearMin,
+        yearMax
+      });
+    }
+  }
+
+  onBodyClassBarClick(bodyClass: string): void {
+    // Check if already selected
+    const currentBodyClass = this.currentFilters.bodyClass;
+
+    if (currentBodyClass === bodyClass) {
+      // Deselect - clear body class filter
+      this.stateService.updateFilters({
+        bodyClass: undefined
+      });
+    } else {
+      // Select - update body class filter
+      this.stateService.updateFilters({
+        bodyClass: bodyClass
+      });
+    }
   }
 }

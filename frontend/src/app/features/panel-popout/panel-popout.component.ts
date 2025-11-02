@@ -1,11 +1,22 @@
-import { Component, OnInit, OnDestroy, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { PopOutContextService } from '../../core/services/popout-context.service';
 import { StateManagementService } from '../../core/services/state-management.service';
-import { ManufacturerModelSelection } from '../../models';
-import { SearchFilters } from '../../models/search-filters.model';
 
+/**
+ * Generic pop-out window container component
+ *
+ * This component is intentionally panel-agnostic. It only:
+ * 1. Extracts panel metadata from route (gridId, panelId, panelType)
+ * 2. Initializes PopOutContextService for communication
+ * 3. Renders the appropriate component based on panelType
+ *
+ * All panel-specific logic lives in the individual components.
+ * Components detect pop-out mode via PopOutContextService and handle
+ * their own state synchronization.
+ */
 @Component({
   selector: 'app-panel-popout',
   templateUrl: './panel-popout.component.html',
@@ -19,20 +30,10 @@ export class PanelPopoutComponent implements OnInit, OnDestroy {
   panelId!: string;
   panelType!: string;
 
-  // State for picker
-  pickerClearTrigger = 0;
-  pickerInitialSelections: ManufacturerModelSelection[] = [];
-
-  // State for results
-  currentFilters: SearchFilters = {};
-
-  // Broadcast channel for state sync
-  private channel!: BroadcastChannel;
-
   constructor(
     private route: ActivatedRoute,
-    private stateService: StateManagementService,
-    private ngZone: NgZone
+    private popOutContext: PopOutContextService,
+    private stateService: StateManagementService
   ) {}
 
   ngOnInit(): void {
@@ -44,124 +45,35 @@ export class PanelPopoutComponent implements OnInit, OnDestroy {
       this.panelId = params['panelId'];
       this.panelType = params['type'];
 
-      console.log(`Pop-out panel initialized: ${this.panelType} (${this.panelId})`);
-      this.initializeBroadcastChannel();
-      // DO NOT subscribe to StateManagementService - pop-out gets state via BroadcastChannel only
-    });
-  }
+      console.log(`[PanelPopout] Initialized: ${this.panelType} (${this.panelId})`);
 
-  private initializeBroadcastChannel(): void {
-    // Create broadcast channel for communication with main window
-    this.channel = new BroadcastChannel(`panel-${this.panelId}`);
+      // Initialize pop-out context for child components
+      this.popOutContext.initializeAsPopOut(this.panelId);
 
-    // Listen for messages from main window
-    this.channel.onmessage = (event) => {
-      this.handleMessage(event.data);
-    };
-
-    // Notify main window that pop-out is ready
-    this.channel.postMessage({
-      type: 'PANEL_READY',
-      panelId: this.panelId
-    });
-  }
-
-  private subscribeToState(): void {
-    // Subscribe to state changes from StateManagementService
-    this.stateService.filters$.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe((filters) => {
-      console.log('Pop-out: Filters updated from URL:', filters);
-
-      this.currentFilters = filters;
-
-      if (filters.modelCombos && filters.modelCombos.length > 0) {
-        this.pickerInitialSelections = [...filters.modelCombos];
-      } else {
-        this.pickerInitialSelections = [];
-      }
+      // Listen for messages from main window and sync to StateManagementService
+      this.popOutContext.messages$.pipe(
+        takeUntil(this.destroy$)
+      ).subscribe(message => {
+        this.handleMessage(message);
+      });
     });
   }
 
   private handleMessage(message: any): void {
-    console.log('[PopOut] Received message:', message.type);
+    console.log('[PanelPopout] Received message:', message.type);
 
-    // BroadcastChannel callbacks run outside Angular's zone
-    // We need to run inside the zone to trigger change detection
-    this.ngZone.run(() => {
-      switch (message.type) {
-        case 'STATE_UPDATE':
-          // Handle state updates from main window
-          // Sync FULL state to local StateManagementService
-          if (message.state) {
-            console.log('[PopOut] Syncing full state:', {
-              filters: message.state.filters,
-              resultsCount: message.state.results?.length,
-              loading: message.state.loading,
-              error: message.state.error,
-              totalResults: message.state.totalResults
-            });
+    switch (message.type) {
+      case 'STATE_UPDATE':
+        // Sync full state from main window
+        if (message.state) {
+          console.log('[PanelPopout] Syncing state from main window');
+          this.stateService.syncStateFromExternal(message.state);
+        }
+        break;
 
-            this.stateService.syncStateFromExternal(message.state);
-
-            // Update local UI state
-            this.currentFilters = message.state.filters;
-            console.log('[PopOut] Updated currentFilters:', this.currentFilters);
-            console.log('[PopOut] hasActiveFilters:', this.hasActiveFilters);
-
-            // Update picker selections
-            if (message.state.filters.modelCombos) {
-              this.pickerInitialSelections = [...message.state.filters.modelCombos];
-            } else {
-              this.pickerInitialSelections = [];
-            }
-          }
-          break;
-        case 'CLEAR_SELECTION':
-          this.pickerClearTrigger++;
-          this.currentFilters = {};
-          this.pickerInitialSelections = [];
-          break;
-        default:
-          console.log('Unknown message type:', message.type);
-      }
-    });
-  }
-
-  // Event handlers
-  onPickerSelectionChange(selections: ManufacturerModelSelection[]): void {
-    console.log('Pop-out: Picker selections changed:', selections);
-
-    // DO NOT update state service - only broadcast to main window
-    // Main window will update state and broadcast back to us
-    this.channel.postMessage({
-      type: 'SELECTION_CHANGE',
-      data: selections
-    });
-  }
-
-  onClearAll(): void {
-    console.log('Pop-out: Clear all triggered');
-
-    // DO NOT reset filters locally - only broadcast to main window
-    this.channel.postMessage({
-      type: 'CLEAR_ALL'
-    });
-  }
-
-  closeWindow(): void {
-    window.close();
-  }
-
-  get hasActiveFilters(): boolean {
-    return !!(
-      this.currentFilters.modelCombos &&
-      this.currentFilters.modelCombos.length > 0
-    );
-  }
-
-  get selectionCount(): number {
-    return this.currentFilters.modelCombos?.length || 0;
+      default:
+        console.log('[PanelPopout] Unknown message type:', message.type);
+    }
   }
 
   get panelTitle(): string {
@@ -170,18 +82,21 @@ export class PanelPopoutComponent implements OnInit, OnDestroy {
         return 'Model Picker';
       case 'results':
         return 'Vehicle Results';
-      case 'plotly':
-      case 'chart':
-        return 'Chart';
+      case 'plotly-charts':
+        return 'Interactive Charts (Plotly)';
+      case 'query-control':
+        return 'Query Control';
       default:
         return 'Panel';
     }
   }
 
+  closeWindow(): void {
+    window.close();
+  }
+
   ngOnDestroy(): void {
-    if (this.channel) {
-      this.channel.close();
-    }
+    this.popOutContext.destroy();
     this.destroy$.next();
     this.destroy$.complete();
   }

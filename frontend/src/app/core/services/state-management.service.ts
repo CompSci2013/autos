@@ -65,6 +65,11 @@ export class StateManagementService implements OnDestroy {
     distinctUntilChanged()
   );
 
+  public statistics$ = this.state$.pipe(
+    map((state) => state.statistics || null),
+    distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b))
+  );
+
   constructor(
     private routeState: RouteStateService,
     private router: Router,
@@ -276,6 +281,22 @@ export class StateManagementService implements OnDestroy {
     return this.stateSubject.value.filters;
   }
 
+  /**
+   * Get current app state (synchronous)
+   */
+  get currentState(): AppState {
+    return this.stateSubject.value;
+  }
+
+  /**
+   * Select/deselect manufacturer in histogram
+   */
+  selectManufacturer(manufacturer: string | null): void {
+    this.updateState({
+      selectedManufacturer: manufacturer
+    });
+  }
+
   // ========== NEW: API INTEGRATION WITH REQUEST COORDINATION ==========
 
   /**
@@ -323,6 +344,7 @@ export class StateManagementService implements OnDestroy {
             totalResults: response.total,
             loading: false,
             error: null,
+            statistics: response.statistics, // Include statistics for histograms
           });
         }),
         catchError((error) => {

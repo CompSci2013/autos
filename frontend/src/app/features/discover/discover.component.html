@@ -33,6 +33,7 @@
                   <ng-container *ngSwitchCase="'picker'">Model Picker</ng-container>
                   <ng-container *ngSwitchCase="'results'">Vehicle Results</ng-container>
                   <ng-container *ngSwitchCase="'query-control'">Query Control</ng-container>
+                  <ng-container *ngSwitchCase="'plotly-charts'">Interactive Charts (Plotly)</ng-container>
                   <ng-container *ngSwitchDefault>Panel</ng-container>
                 </ng-container>
               </span>
@@ -60,15 +61,13 @@
                 <app-query-control (filterAdd)="onFilterAdd($event)"></app-query-control>
               </div>
               <div *ngIf="item.panelType === 'picker'">
-                <app-table-picker
-                  [initialSelections]="pickerInitialSelections"
-                  [clearTrigger]="pickerClearTrigger"
-                  (selectionChange)="onPickerSelectionChange($event)"
-                >
-                </app-table-picker>
+                <app-table-picker></app-table-picker>
               </div>
               <div *ngIf="item.panelType === 'results'">
                 <app-results-table></app-results-table>
+              </div>
+              <div *ngIf="item.panelType === 'plotly-charts'">
+                <app-plotly-histogram></app-plotly-histogram>
               </div>
             </div>
           </div>
@@ -76,4 +75,49 @@
       </gridster>
     </div>
   </div>
+
+  <!-- Statistics Section -->
+  <section *ngIf="statistics" class="statistics-section">
+    <h2>Distribution Statistics</h2>
+
+    <div class="histograms-grid">
+      <!-- Chart 1: Vehicles by Manufacturer -->
+      <app-histogram
+        [title]="'Vehicles by Manufacturer'"
+        [data]="manufacturerHistogramData"
+        [clickable]="true"
+        [selectedLabel]="selectedManufacturer"
+        [maxHeight]="'400px'"
+        (barClick)="onManufacturerBarClick($event)"
+      ></app-histogram>
+
+      <!-- Chart 2: Models by Manufacturer -->
+      <app-histogram
+        [title]="'Models by Manufacturer'"
+        [data]="modelsHistogramData"
+        [clickable]="false"
+        [maxHeight]="'400px'"
+      ></app-histogram>
+
+      <!-- Chart 3: Vehicles by Year Range -->
+      <app-histogram
+        [title]="'Vehicles by Year Range'"
+        [data]="yearRangeHistogramData"
+        [clickable]="true"
+        [selectedLabel]="selectedYearRange"
+        [maxHeight]="'400px'"
+        (barClick)="onYearRangeBarClick($event)"
+      ></app-histogram>
+
+      <!-- Chart 4: Vehicles by Body Class -->
+      <app-histogram
+        [title]="'Vehicles by Body Class'"
+        [data]="bodyClassHistogramData"
+        [clickable]="true"
+        [selectedLabel]="selectedBodyClass"
+        [maxHeight]="'400px'"
+        (barClick)="onBodyClassBarClick($event)"
+      ></app-histogram>
+    </div>
+  </section>
 </div>

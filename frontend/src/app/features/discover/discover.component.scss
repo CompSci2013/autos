@@ -220,3 +220,32 @@ gridster {
     overflow: visible !important;
   }
 }
+
+// ===== Histogram Statistics Section =====
+
+.statistics-section {
+  margin: 16px;
+  padding: 24px;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  h2 {
+    margin: 0 0 20px 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #262626;
+    border-bottom: 2px solid #e8e8e8;
+    padding-bottom: 12px;
+  }
+}
+
+.histograms-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 16px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}

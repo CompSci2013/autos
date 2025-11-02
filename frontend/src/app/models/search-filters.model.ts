@@ -1,5 +1,6 @@
 // models/search-filters.model.ts
 import { ManufacturerModelSelection } from './index';
+import { VehicleStatistics } from './vehicle-statistics.model';
 
 export interface SearchFilters {
   // Text search
@@ -33,4 +34,6 @@ export interface AppState {
   loading: boolean;
   error: string | null;
   totalResults: number;
+  statistics?: VehicleStatistics; // Statistics for histogram charts
+  selectedManufacturer?: string | null; // Currently selected manufacturer in histogram
 }

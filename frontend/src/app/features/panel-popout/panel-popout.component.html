@@ -1,64 +1,46 @@
 <div class="popout-container">
+  <!-- Header with title and close button -->
   <div class="popout-header">
-    <div class="header-left">
-      <h2>{{ panelTitle }}</h2>
-      <span class="panel-id">{{ panelId }}</span>
-    </div>
-    <div class="header-actions">
-      <div class="filters-summary" *ngIf="hasActiveFilters && panelType === 'picker'">
-        <span class="summary-label">Selected:</span>
-        <span class="summary-count">{{ selectionCount }} model(s)</span>
-        <button nz-button nzType="primary" nzDanger nzSize="small" (click)="onClearAll()">
-          Clear All
-        </button>
-      </div>
-      <button nz-button nzType="default" (click)="closeWindow()">
-        <i nz-icon nzType="close"></i>
-        Close
-      </button>
-    </div>
+    <h2 class="popout-title">{{ panelTitle }}</h2>
+    <button nz-button nzType="text" nzSize="small" (click)="closeWindow()" class="close-btn">
+      <span nz-icon nzType="close" nzTheme="outline"></span>
+    </button>
   </div>
 
+  <!-- Generic panel content - components handle their own state -->
   <div class="popout-content">
-    <!-- Model Picker Panel -->
-    <div *ngIf="panelType === 'picker'" class="panel-wrapper">
-      <app-table-picker
-        [initialSelections]="pickerInitialSelections"
-        [clearTrigger]="pickerClearTrigger"
-        (selectionChange)="onPickerSelectionChange($event)"
-      >
-      </app-table-picker>
-    </div>
+    <ng-container [ngSwitch]="panelType">
 
-    <!-- Vehicle Results Panel -->
-    <div *ngIf="panelType === 'results'" class="panel-wrapper">
-      <div *ngIf="hasActiveFilters; else noFilters">
+      <!-- Manufacturer-Model Picker Panel -->
+      <div *ngSwitchCase="'picker'" class="panel-wrapper">
+        <app-table-picker></app-table-picker>
+      </div>
+
+      <!-- Vehicle Results Table Panel -->
+      <div *ngSwitchCase="'results'" class="panel-wrapper">
         <app-results-table></app-results-table>
       </div>
-      <ng-template #noFilters>
-        <nz-empty
-          nzNotFoundContent="Select models from the picker to see results"
-          [nzNotFoundImage]="'simple'"
-        ></nz-empty>
-      </ng-template>
-    </div>
 
-    <!-- PlotlyJS Chart Panel (placeholder) -->
-    <div *ngIf="panelType === 'plotly' || panelType === 'chart'" class="panel-wrapper">
-      <div class="placeholder-chart">
-        <i nz-icon nzType="line-chart" style="font-size: 64px; color: #1890ff;"></i>
-        <h3>PlotlyJS Chart</h3>
-        <p>Chart component would render here</p>
-        <p class="meta">Panel ID: {{ panelId }}</p>
+      <!-- PlotlyJS Charts Panel -->
+      <div *ngSwitchCase="'plotly-charts'" class="panel-wrapper">
+        <app-plotly-histogram></app-plotly-histogram>
       </div>
-    </div>
 
-    <!-- Unknown panel type -->
-    <div *ngIf="panelType !== 'picker' && panelType !== 'results' && panelType !== 'plotly' && panelType !== 'chart'" class="panel-wrapper">
-      <nz-empty
-        [nzNotFoundContent]="'Unknown panel type: ' + panelType"
-        [nzNotFoundImage]="'simple'"
-      ></nz-empty>
-    </div>
+      <!-- Query Control Panel -->
+      <div *ngSwitchCase="'query-control'" class="panel-wrapper">
+        <app-query-control></app-query-control>
+      </div>
+
+      <!-- Unknown panel type -->
+      <div *ngSwitchDefault class="panel-wrapper">
+        <nz-alert
+          nzType="warning"
+          nzMessage="Unknown Panel Type"
+          [nzDescription]="'Panel type &quot;' + panelType + '&quot; is not recognized.'"
+          nzShowIcon
+        ></nz-alert>
+      </div>
+
+    </ng-container>
   </div>
 </div>
