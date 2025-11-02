@@ -29,8 +29,11 @@ export class DiscoverComponent implements OnInit, OnDestroy {
   // Grid configurations (array for N grids)
   grids: GridConfig[] = [];
 
-  // Panel collapse states (keyed by grid ID)
+  // Panel collapse states (keyed by grid ID) - for panels within grids
   panelCollapseStates: Map<string, boolean> = new Map();
+
+  // Grid container collapse states (keyed by grid ID) - for entire grid containers
+  gridCollapseStates: Map<string, boolean> = new Map();
 
   // State passed to picker
   pickerClearTrigger = 0;
@@ -49,6 +52,7 @@ export class DiscoverComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.initializeGrids();
     this.loadGridState();
+    this.loadGridCollapseStates();
     this.subscribeToGridChanges();
     this.subscribeToStateFilters();
   }
@@ -608,5 +612,97 @@ export class DiscoverComponent implements OnInit, OnDestroy {
       }
     }
     return null;
+  }
+
+  // ===== Grid Container Collapse Management =====
+
+  /**
+   * Load grid collapse states from localStorage
+   * Sets smart defaults: Charts collapsed, Query Control + Picker + Results expanded
+   */
+  private loadGridCollapseStates(): void {
+    const saved = localStorage.getItem('autos-discover-grid-collapse');
+
+    if (saved) {
+      try {
+        const state = JSON.parse(saved);
+        this.grids.forEach(grid => {
+          this.gridCollapseStates.set(grid.id, state[grid.id] || false);
+        });
+      } catch (error) {
+        console.error('Error loading grid collapse state:', error);
+        this.setDefaultCollapseStates();
+      }
+    } else {
+      this.setDefaultCollapseStates();
+    }
+  }
+
+  /**
+   * Set smart default collapse states
+   * Query Control (grid-4), Picker (grid-5), Results (grid-6): Expanded
+   * Bottom Charts (grid-2), Plotly Histograms (grid-3): Collapsed
+   */
+  private setDefaultCollapseStates(): void {
+    this.grids.forEach(grid => {
+      // Default: expand functional grids, collapse chart grids
+      const collapsed = grid.id === 'grid-2' || grid.id === 'grid-3';
+      this.gridCollapseStates.set(grid.id, collapsed);
+    });
+  }
+
+  /**
+   * Save grid collapse states to localStorage
+   */
+  private saveGridCollapseStates(): void {
+    const state: { [gridId: string]: boolean } = {};
+    this.gridCollapseStates.forEach((collapsed, gridId) => {
+      state[gridId] = collapsed;
+    });
+    localStorage.setItem('autos-discover-grid-collapse', JSON.stringify(state));
+  }
+
+  /**
+   * Check if a grid is collapsed
+   */
+  isGridCollapsed(gridId: string): boolean {
+    return this.gridCollapseStates.get(gridId) || false;
+  }
+
+  /**
+   * Toggle grid collapse state
+   */
+  toggleGridCollapse(gridId: string): void {
+    const currentState = this.gridCollapseStates.get(gridId) || false;
+    this.gridCollapseStates.set(gridId, !currentState);
+    this.saveGridCollapseStates();
+  }
+
+  /**
+   * Collapse all grids
+   */
+  collapseAllGrids(): void {
+    this.grids.forEach(grid => {
+      this.gridCollapseStates.set(grid.id, true);
+    });
+    this.saveGridCollapseStates();
+  }
+
+  /**
+   * Expand all grids
+   */
+  expandAllGrids(): void {
+    this.grids.forEach(grid => {
+      this.gridCollapseStates.set(grid.id, false);
+    });
+    this.saveGridCollapseStates();
+  }
+
+  /**
+   * Get grid name for display
+   */
+  getGridName(gridId: string): string {
+    const grid = this.grids.find(g => g.id === gridId);
+    return grid?.name || gridId;
   }
 }

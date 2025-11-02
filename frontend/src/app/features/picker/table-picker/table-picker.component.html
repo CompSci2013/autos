@@ -5,7 +5,7 @@
     [columns]="columns"
     [dataSource]="dataSource"
     [queryParams]="tableQueryParams"
-    [maxTableHeight]="'400px'"
+    [maxTableHeight]="'650px'"
     [showColumnManagement]="false"
     (dataLoaded)="onDataLoaded()"
     (queryParamsChange)="onTableQueryChange($event)"
@@ -18,10 +18,15 @@
           <label
             nz-checkbox
             [nzIndeterminate]="
-              getManufacturerCheckboxState($any(row).manufacturer) === 'indeterminate'
+              getManufacturerCheckboxState($any(row).manufacturer) ===
+              'indeterminate'
             "
-            [nzChecked]="getManufacturerCheckboxState($any(row).manufacturer) === 'checked'"
-            (nzCheckedChange)="onManufacturerCheckboxChange($any(row).manufacturer, $event)"
+            [nzChecked]="
+              getManufacturerCheckboxState($any(row).manufacturer) === 'checked'
+            "
+            (nzCheckedChange)="
+              onManufacturerCheckboxChange($any(row).manufacturer, $event)
+            "
             (click)="$event.stopPropagation()"
           >
             {{ $any(row).manufacturer }}
