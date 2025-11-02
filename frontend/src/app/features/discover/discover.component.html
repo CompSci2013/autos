@@ -34,6 +34,7 @@
                   <ng-container *ngSwitchCase="'results'">Vehicle Results</ng-container>
                   <ng-container *ngSwitchCase="'query-control'">Query Control</ng-container>
                   <ng-container *ngSwitchCase="'plotly-charts'">Interactive Charts (Plotly)</ng-container>
+                  <ng-container *ngSwitchCase="'static-parabola'">Static Parabola Chart</ng-container>
                   <ng-container *ngSwitchDefault>Panel</ng-container>
                 </ng-container>
               </span>
@@ -71,6 +72,9 @@
               </div>
               <div *ngIf="item.panelType === 'plotly-charts'">
                 <app-plotly-histogram></app-plotly-histogram>
+              </div>
+              <div *ngIf="item.panelType === 'static-parabola'">
+                <app-static-parabola-chart></app-static-parabola-chart>
               </div>
             </div>
           </div>

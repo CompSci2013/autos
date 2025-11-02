@@ -58,13 +58,19 @@ export class DiscoverComponent implements OnInit, OnDestroy {
     const gridDefinitions = [
       { id: 'grid-0', name: 'Left Workspace', borderColor: '#1890ff' },
       { id: 'grid-1', name: 'Right Workspace', borderColor: '#52c41a' },
-      { id: 'grid-2', name: 'Bottom Charts', borderColor: '#faad14' }
+      { id: 'grid-2', name: 'Bottom Charts', borderColor: '#faad14' },
     ];
 
-    this.grids = gridDefinitions.map(def => this.createGridConfig(def.id, def.name, def.borderColor));
+    this.grids = gridDefinitions.map((def) =>
+      this.createGridConfig(def.id, def.name, def.borderColor)
+    );
   }
 
-  private createGridConfig(id: string, name: string, borderColor: string): GridConfig {
+  private createGridConfig(
+    id: string,
+    name: string,
+    borderColor: string
+  ): GridConfig {
     const baseConfig: GridsterConfig = {
       gridType: GridType.Fit,
       compactType: CompactType.None,
@@ -81,11 +87,11 @@ export class DiscoverComponent implements OnInit, OnDestroy {
       minRows: 1,
       maxRows: 100,
       maxItemCols: 100,
-      minItemCols: 1,
+      minItemCols: 2, // Minimum 2 columns (210px) to prevent panels becoming too narrow
       maxItemRows: 100,
-      minItemRows: 1,
+      minItemRows: 4, // Minimum 4 rows
       maxItemArea: 2500,
-      minItemArea: 1,
+      minItemArea: 4, // Minimum area 2x2 = 4 grid units
       defaultItemCols: 1,
       defaultItemRows: 1,
       fixedColWidth: 105,
@@ -103,11 +109,12 @@ export class DiscoverComponent implements OnInit, OnDestroy {
         ignoreContentClass: 'no-drag',
         ignoreContent: false,
         dragHandleClass: 'drag-handle',
-        stop: (item, gridsterItem, event) => this.onDragStop(id, item, gridsterItem, event),
-        start: undefined
+        stop: (item, gridsterItem, event) =>
+          this.onDragStop(id, item, gridsterItem, event),
+        start: undefined,
       },
       resizable: {
-        enabled: true
+        enabled: true,
       },
       swap: false,
       pushItems: true,
@@ -120,8 +127,9 @@ export class DiscoverComponent implements OnInit, OnDestroy {
       disableWarnings: false,
       scrollToNewItems: false,
       emptyCellDropCallback: (event, item) => this.onGridDrop(id, event, item),
-      itemChangeCallback: (item, itemComponent) => this.onGridChange(id, item, itemComponent),
-      itemResizeCallback: undefined
+      itemChangeCallback: (item, itemComponent) =>
+        this.onGridChange(id, item, itemComponent),
+      itemResizeCallback: undefined,
     };
 
     return {
@@ -129,7 +137,7 @@ export class DiscoverComponent implements OnInit, OnDestroy {
       name,
       borderColor,
       options: baseConfig,
-      items: []
+      items: [],
     };
   }
 
@@ -139,11 +147,18 @@ export class DiscoverComponent implements OnInit, OnDestroy {
     if (savedState) {
       const state = JSON.parse(savedState);
       // Load items into each grid (but always initialize grid-2 with plotly charts)
-      this.grids.forEach(grid => {
+      this.grids.forEach((grid) => {
         if (grid.id === 'grid-2') {
           // Always initialize bottom grid with static parabola chart
           grid.items = [
-            { cols: 12, rows: 8, y: 0, x: 0, id: 'static-parabola-1', panelType: 'static-parabola' }
+            {
+              cols: 12,
+              rows: 8,
+              y: 0,
+              x: 0,
+              id: 'static-parabola-1',
+              panelType: 'static-parabola',
+            },
           ];
         } else {
           grid.items = state[grid.id] || [];
@@ -153,14 +168,16 @@ export class DiscoverComponent implements OnInit, OnDestroy {
 
       // Migration: Check if query-control panel exists in grid-0
       const grid0Items = this.grids[0].items;
-      const hasQueryControl = grid0Items.some(item => item.panelType === 'query-control');
+      const hasQueryControl = grid0Items.some(
+        (item) => item.panelType === 'query-control'
+      );
 
       if (!hasQueryControl) {
         // Add query-control panel at the top
         console.log('Migrating layout: Adding query-control panel to grid-0');
 
         // Shift existing panels down
-        grid0Items.forEach(item => {
+        grid0Items.forEach((item) => {
           if (item.y !== undefined) {
             item.y += 2; // Shift down by 2 rows to make room
           }
@@ -173,7 +190,7 @@ export class DiscoverComponent implements OnInit, OnDestroy {
           y: 0,
           x: 0,
           id: 'query-control-1',
-          panelType: 'query-control'
+          panelType: 'query-control',
         });
 
         // Save updated state
@@ -182,40 +199,75 @@ export class DiscoverComponent implements OnInit, OnDestroy {
     } else {
       // Initialize with default panels
       this.grids[0].items = [
-        { cols: 12, rows: 2, y: 0, x: 0, id: 'query-control-1', panelType: 'query-control' },
-        { cols: 12, rows: 8, y: 2, x: 0, id: 'plotly-charts-1', panelType: 'plotly-charts' },
-        { cols: 12, rows: 16, y: 10, x: 0, id: 'picker-1', panelType: 'picker' }
+        {
+          cols: 12,
+          rows: 2,
+          y: 0,
+          x: 0,
+          id: 'query-control-1',
+          panelType: 'query-control',
+        },
+        {
+          cols: 12,
+          rows: 8,
+          y: 2,
+          x: 0,
+          id: 'plotly-charts-1',
+          panelType: 'plotly-charts',
+        },
+        {
+          cols: 12,
+          rows: 16,
+          y: 10,
+          x: 0,
+          id: 'picker-1',
+          panelType: 'picker',
+        },
       ];
       this.grids[1].items = [
-        { cols: 12, rows: 10, y: 0, x: 0, id: 'results-1', panelType: 'results' }
+        {
+          cols: 12,
+          rows: 10,
+          y: 0,
+          x: 0,
+          id: 'results-1',
+          panelType: 'results',
+        },
       ];
       this.grids[2].items = [
-        { cols: 12, rows: 8, y: 0, x: 0, id: 'static-parabola-1', panelType: 'static-parabola' }
+        {
+          cols: 12,
+          rows: 8,
+          y: 0,
+          x: 0,
+          id: 'static-parabola-1',
+          panelType: 'static-parabola',
+        },
       ];
     }
 
     // Initialize collapse states
-    this.grids.forEach(grid => {
+    this.grids.forEach((grid) => {
       this.panelCollapseStates.set(grid.id, false);
     });
 
     // Sync to transfer service
     const gridsMap = new Map<string, WorkspacePanel[]>();
-    this.grids.forEach(grid => {
+    this.grids.forEach((grid) => {
       gridsMap.set(grid.id, grid.items);
     });
     this.gridTransfer.setGrids(gridsMap);
   }
 
   private subscribeToGridChanges(): void {
-    this.gridTransfer.grids$.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(gridsMap => {
-      this.grids.forEach(grid => {
-        grid.items = gridsMap.get(grid.id) || [];
+    this.gridTransfer.grids$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((gridsMap) => {
+        this.grids.forEach((grid) => {
+          grid.items = gridsMap.get(grid.id) || [];
+        });
+        this.saveGridState();
       });
-      this.saveGridState();
-    });
   }
 
   private subscribeToStateFilters(): void {
@@ -236,7 +288,7 @@ export class DiscoverComponent implements OnInit, OnDestroy {
 
   private saveGridState(): void {
     const state: { [gridId: string]: WorkspacePanel[] } = {};
-    this.grids.forEach(grid => {
+    this.grids.forEach((grid) => {
       state[grid.id] = grid.items;
     });
     localStorage.setItem('autos-discover-grid-state', JSON.stringify(state));
@@ -248,7 +300,12 @@ export class DiscoverComponent implements OnInit, OnDestroy {
   }
 
   // Drag & Drop Handlers
-  onDragStop(sourceGridId: string, item: WorkspacePanel, gridsterItem: any, event: MouseEvent): void {
+  onDragStop(
+    sourceGridId: string,
+    item: WorkspacePanel,
+    gridsterItem: any,
+    event: MouseEvent
+  ): void {
     const targetGridId = this.detectTargetGrid(event);
 
     if (targetGridId && targetGridId !== sourceGridId) {
@@ -270,8 +327,12 @@ export class DiscoverComponent implements OnInit, OnDestroy {
       if (!gridEl) continue;
 
       const rect = gridEl.getBoundingClientRect();
-      if (x >= rect.left && x <= rect.right &&
-          y >= rect.top && y <= rect.bottom) {
+      if (
+        x >= rect.left &&
+        x <= rect.right &&
+        y >= rect.top &&
+        y <= rect.bottom
+      ) {
         return grid.id;
       }
     }
@@ -299,7 +360,7 @@ export class DiscoverComponent implements OnInit, OnDestroy {
       y: 0,
       x: 0,
       id: `${gridId}-${panelType}-${Date.now()}`,
-      panelType
+      panelType,
     };
 
     this.gridTransfer.addItem(gridId, newItem);
@@ -334,13 +395,13 @@ export class DiscoverComponent implements OnInit, OnDestroy {
     // Use updateFilters to clear modelCombos and trigger a fresh fetch
     // This matches the picker's Clear button behavior
     this.stateService.updateFilters({
-      modelCombos: undefined,  // Remove filter (triggers fetch for all vehicles)
+      modelCombos: undefined, // Remove filter (triggers fetch for all vehicles)
       manufacturer: undefined,
       model: undefined,
       yearMin: undefined,
       yearMax: undefined,
       bodyClass: undefined,
-      dataSource: undefined
+      dataSource: undefined,
     });
   }
 
@@ -411,7 +472,10 @@ export class DiscoverComponent implements OnInit, OnDestroy {
     this.stateService.updateFilters(updates);
   }
 
-  onFilterRemove(event: { field: string; updates: Partial<SearchFilters> }): void {
+  onFilterRemove(event: {
+    field: string;
+    updates: Partial<SearchFilters>;
+  }): void {
     console.log('Discover: Query filter removed:', event.field);
     this.stateService.updateFilters(event.updates);
   }
@@ -444,8 +508,13 @@ export class DiscoverComponent implements OnInit, OnDestroy {
     if (filters.yearMin && filters.yearMax) {
       // Find matching year range
       const ranges = [
-        '1960-1969', '1970-1979', '1980-1989', '1990-1999',
-        '2000-2009', '2010-2019', '2020-2025'
+        '1960-1969',
+        '1970-1979',
+        '1980-1989',
+        '1990-1999',
+        '2000-2009',
+        '2010-2019',
+        '2020-2025',
       ];
 
       for (const range of ranges) {
@@ -457,5 +526,4 @@ export class DiscoverComponent implements OnInit, OnDestroy {
     }
     return null;
   }
-
 }
