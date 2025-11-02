@@ -80,14 +80,21 @@
   </div>
 
   <!-- Bottom Grid Container -->
-  <div class="bottom-grid-container" *ngIf="grids[2]" [style.border-color]="grids[2].borderColor">
+  <div class="bottom-grid-container" *ngIf="grids[2]" [attr.data-grid-id]="grids[2].id" [style.border-color]="grids[2].borderColor">
     <gridster [options]="grids[2].options">
       <gridster-item *ngFor="let item of grids[2]?.items" [item]="item">
         <div class="panel-container">
           <div class="panel-header drag-handle">
             <span class="panel-title">
               <i nz-icon nzType="drag" nzTheme="outline"></i>
-              Interactive Charts (Plotly) - Bottom
+              <ng-container [ngSwitch]="item.panelType">
+                <ng-container *ngSwitchCase="'picker'">Model Picker</ng-container>
+                <ng-container *ngSwitchCase="'results'">Vehicle Results</ng-container>
+                <ng-container *ngSwitchCase="'query-control'">Query Control</ng-container>
+                <ng-container *ngSwitchCase="'plotly-charts'">Interactive Charts (Plotly)</ng-container>
+                <ng-container *ngSwitchCase="'static-parabola'">Static Parabola Chart</ng-container>
+                <ng-container *ngSwitchDefault>Panel</ng-container>
+              </ng-container>
             </span>
             <div class="panel-actions">
               <i
@@ -98,10 +105,35 @@
                 (click)="popOutPanel(grids[2].id, item); $event.stopPropagation()"
                 class="action-icon popout-icon"
               ></i>
+              <i
+                nz-icon
+                [nzType]="item.panelType === 'picker' ? (getPanelCollapseState(grids[2].id) ? 'down' : 'up') : 'close'"
+                nzTheme="outline"
+                (click)="item.panelType === 'picker' ? togglePanelCollapse(grids[2].id) : removePanel(item, grids[2].id)"
+                class="action-icon"
+              ></i>
             </div>
           </div>
-          <div class="panel-content no-drag">
-            <app-static-parabola-chart></app-static-parabola-chart>
+          <div class="panel-content no-drag" [hidden]="item.panelType === 'picker' && getPanelCollapseState(grids[2].id)">
+            <!-- Dynamic panel content based on panelType -->
+            <div *ngIf="item.panelType === 'query-control'">
+              <app-query-control
+                (filterAdd)="onFilterAdd($event)"
+                (filterRemove)="onFilterRemove($event)">
+              </app-query-control>
+            </div>
+            <div *ngIf="item.panelType === 'picker'">
+              <app-table-picker></app-table-picker>
+            </div>
+            <div *ngIf="item.panelType === 'results'">
+              <app-results-table></app-results-table>
+            </div>
+            <div *ngIf="item.panelType === 'plotly-charts'">
+              <app-plotly-histogram></app-plotly-histogram>
+            </div>
+            <div *ngIf="item.panelType === 'static-parabola'">
+              <app-static-parabola-chart></app-static-parabola-chart>
+            </div>
           </div>
         </div>
       </gridster-item>

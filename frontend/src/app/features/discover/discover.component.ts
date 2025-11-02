@@ -263,7 +263,10 @@ export class DiscoverComponent implements OnInit, OnDestroy {
 
     // Check each grid to see if coordinates are within bounds
     for (const grid of this.grids) {
-      const gridEl = document.querySelector(`.grid-wrapper[data-grid-id="${grid.id}"]`);
+      // Look for both grid-wrapper and bottom-grid-container classes
+      const gridEl = document.querySelector(
+        `.grid-wrapper[data-grid-id="${grid.id}"], .bottom-grid-container[data-grid-id="${grid.id}"]`
+      );
       if (!gridEl) continue;
 
       const rect = gridEl.getBoundingClientRect();
