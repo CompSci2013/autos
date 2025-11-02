@@ -56,8 +56,6 @@ export class DiscoverComponent implements OnInit, OnDestroy {
   private initializeGrids(): void {
     // Define grid configurations
     const gridDefinitions = [
-      { id: 'grid-0', name: 'Left Workspace', borderColor: '#1890ff' },
-      { id: 'grid-1', name: 'Right Workspace', borderColor: '#52c41a' },
       { id: 'grid-2', name: 'Bottom Charts', borderColor: '#faad14' },
       { id: 'grid-3', name: 'Plotly Histograms', borderColor: '#722ed1' },
       { id: 'grid-4', name: 'Query Control', borderColor: '#eb2f96' },
@@ -225,7 +223,9 @@ export class DiscoverComponent implements OnInit, OnDestroy {
       );
 
       if (queryControlIndex !== -1) {
-        console.log('Migrating layout: Moving query-control from grid-0 to grid-4');
+        console.log(
+          'Migrating layout: Moving query-control from grid-0 to grid-4'
+        );
         // Remove from grid-0
         grid0Items.splice(queryControlIndex, 1);
         // Already initialized in grid-4, just save the state
@@ -238,7 +238,9 @@ export class DiscoverComponent implements OnInit, OnDestroy {
       );
 
       if (plotlyChartIndex !== -1) {
-        console.log('Migrating layout: Moving plotly-charts from grid-0 to grid-3');
+        console.log(
+          'Migrating layout: Moving plotly-charts from grid-0 to grid-3'
+        );
         // Remove from grid-0
         grid0Items.splice(plotlyChartIndex, 1);
         // Already initialized in grid-3, just save the state
@@ -401,9 +403,9 @@ export class DiscoverComponent implements OnInit, OnDestroy {
 
     // Check each grid to see if coordinates are within bounds
     for (const grid of this.grids) {
-      // Look for all grid container classes
+      // Look for all grid container classes (removed .grid-wrapper - no longer exists)
       const gridEl = document.querySelector(
-        `.grid-wrapper[data-grid-id="${grid.id}"], .bottom-grid-container[data-grid-id="${grid.id}"], .top-grid-container[data-grid-id="${grid.id}"], .middle-grid-container[data-grid-id="${grid.id}"]`
+        `.bottom-grid-container[data-grid-id="${grid.id}"], .top-grid-container[data-grid-id="${grid.id}"], .middle-grid-container[data-grid-id="${grid.id}"]`
       );
       if (!gridEl) continue;
 
