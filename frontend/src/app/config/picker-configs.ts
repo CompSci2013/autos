@@ -87,6 +87,14 @@ export const MANUFACTURER_MODEL_PICKER_CONFIG: PickerConfig<ManufacturerModelPic
     }),
     responseTransformer: (response: any) => {
       // Transform hierarchical API response to flat rows
+      console.log('[PICKER CONFIG] responseTransformer called with:', response);
+
+      // Defensive check
+      if (!response || !response.data) {
+        console.error('[PICKER CONFIG] Invalid response structure:', response);
+        return { results: [], total: 0, page: 1, size: 0, totalPages: 0 };
+      }
+
       const flatRows: ManufacturerModelPickerRow[] = [];
       response.data.forEach((mfr: any) => {
         mfr.models.forEach((model: any) => {
