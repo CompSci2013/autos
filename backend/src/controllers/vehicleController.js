@@ -186,61 +186,84 @@ async function getVehicleDetailsHandler(req, res, next) {
 /**
  * Controller for vehicle instances (VIN-level data) endpoint
  * GET /api/v1/vehicles/:vehicleId/instances
+ *
+ * Query Parameters:
+ *   - page: Page number (1-indexed, default: 1)
+ *   - pageSize: Number of results per page (default: 20, max: 100)
+ *
+ * Now queries from autos-vins Elasticsearch index (24K+ VINs)
+ * Supports true server-side pagination
  */
-const VINGenerator = require('../utils/vinGenerator');
-
 async function getVehicleInstancesHandler(req, res, next) {
   try {
     const { vehicleId } = req.params;
-    const { count = 8 } = req.query;
+    const { page = 1, pageSize = 20 } = req.query;
 
-    // Validate count parameter
-    const instanceCount = parseInt(count);
-    if (instanceCount < 1 || instanceCount > 20) {
+    // Validate and parse parameters
+    const pageNum = parseInt(page);
+    const pageSizeNum = parseInt(pageSize);
+
+    if (pageNum < 1) {
       return res.status(400).json({
-        error: 'Invalid count parameter',
-        message: 'count must be between 1 and 20',
+        error: 'Invalid page parameter',
+        message: 'page must be >= 1',
       });
     }
 
-    // Fetch the vehicle specification from Elasticsearch
-    const {
-      esClient,
-      ELASTICSEARCH_INDEX,
-    } = require('../config/elasticsearch');
+    if (pageSizeNum < 1 || pageSizeNum > 100) {
+      return res.status(400).json({
+        error: 'Invalid pageSize parameter',
+        message: 'pageSize must be between 1 and 100',
+      });
+    }
+
+    // Calculate offset for pagination
+    const from = (pageNum - 1) * pageSizeNum;
+
+    // Query VINs from autos-vins index
+    const { esClient } = require('../config/elasticsearch');
 
     const response = await esClient.search({
-      index: ELASTICSEARCH_INDEX,
+      index: 'autos-vins',
       query: {
         term: { vehicle_id: vehicleId },
       },
-      size: 1,
+      from: from,
+      size: pageSizeNum,
+      sort: [
+        { vin: 'asc' }  // Sort by VIN for consistent pagination
+      ]
     });
 
-    if (response.hits.hits.length === 0) {
+    // Get total count for this vehicle (handle both number and object formats)
+    const totalCount = typeof response.hits.total === 'number'
+      ? response.hits.total
+      : response.hits.total.value;
+
+    if (totalCount === 0) {
       return res.status(404).json({
-        error: 'Vehicle not found',
-        message: `No vehicle found with ID: ${vehicleId}`,
+        error: 'No VINs found',
+        message: `No VIN instances found for vehicle ID: ${vehicleId}`,
       });
     }
 
-    const vehicleData = response.hits.hits[0]._source;
+    // Extract instances from hits
+    const instances = response.hits.hits.map(hit => hit._source);
 
-    // Generate synthetic VIN instances
-    const instances = VINGenerator.generateInstances(
-      vehicleData,
-      instanceCount
-    );
+    // Calculate pagination metadata
+    const totalPages = Math.ceil(totalCount / pageSizeNum);
 
-    // Return response
+    // Return response with pagination metadata
     res.json({
-      vehicle_id: vehicleData.vehicle_id,
-      manufacturer: vehicleData.manufacturer,
-      model: vehicleData.model,
-      year: vehicleData.year,
-      body_class: vehicleData.body_class,
-      instance_count: instances.length,
+      vehicle_id: vehicleId,
+      instance_count: totalCount,  // Total VINs for this vehicle
       instances,
+      pagination: {
+        page: pageNum,
+        pageSize: pageSizeNum,
+        totalPages: totalPages,
+        hasMore: pageNum < totalPages
+      }
     });
   } catch (error) {
     console.error('Controller error (instances):', error);

@@ -43,7 +43,7 @@ export class DiscoverComponent implements OnInit, OnDestroy {
   currentFilters: SearchFilters = {};
 
   // Demo vehicle ID for VIN picker (context-aware demo)
-  demoVehicleId = 'nhtsa-ram-best-lane-enterprises-dba-ramp-free-1960';
+  demoVehicleId = 'synth-buick-enclave-2008';
 
   constructor(
     private stateService: StateManagementService,
