@@ -6,13 +6,16 @@ import {
   ViewChild,
   ElementRef,
   ChangeDetectorRef,
+  HostListener,
 } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import * as Plotly from 'plotly.js-dist-min';
 import { VehicleStatistics } from '../../../models/vehicle-statistics.model';
+import { HighlightFilters } from '../../../models/search-filters.model';
 import { PopOutContextService } from '../../../core/services/popout-context.service';
 import { StateManagementService } from '../../../core/services/state-management.service';
+import { UrlParamService } from '../../../core/services/url-param.service';
 
 /**
  * PlotlyHistogramComponent
@@ -41,6 +44,10 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
   selectedYearRange: string | null = null;
   selectedBodyClass: string | null = null;
 
+  // Highlight mode state
+  private isHighlightModeActive = false;
+  private currentHighlights: HighlightFilters = {};
+
   @ViewChild('manufacturerChart', { static: false }) manufacturerChartEl!: ElementRef;
   @ViewChild('modelsChart', { static: false }) modelsChartEl!: ElementRef;
   @ViewChild('yearRangeChart', { static: false }) yearRangeChartEl!: ElementRef;
@@ -56,8 +63,28 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
   constructor(
     private popOutContext: PopOutContextService,
     private stateService: StateManagementService,
+    private urlParamService: UrlParamService,
     private cdr: ChangeDetectorRef
   ) {}
+
+  /**
+   * Keyboard event listeners for highlight mode
+   * Hold 'h' key while using Box Select to create highlights instead of filters
+   */
+  @HostListener('document:keydown.h')
+  onHighlightKeyDown(): void {
+    // Prevent repeated keydown events when holding key
+    if (this.isHighlightModeActive) return;
+
+    this.isHighlightModeActive = true;
+    console.log('[PlotlyHistogram] 🟦 Highlight mode ACTIVATED - Box Select will create highlights');
+  }
+
+  @HostListener('document:keyup.h')
+  onHighlightKeyUp(): void {
+    this.isHighlightModeActive = false;
+    console.log('[PlotlyHistogram] Highlight mode DEACTIVATED - Box Select will create filters');
+  }
 
   ngOnInit(): void {
     console.log(`[PlotlyHistogram] Initialized (pop-out mode: ${this.popOutContext.isInPopOut()})`);
@@ -83,6 +110,15 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
         : null;
       this.selectedBodyClass = filters.bodyClass || null;
 
+      this.renderCharts();
+    });
+
+    // Subscribe to highlights (UI-only state, doesn't affect API calls)
+    this.stateService.highlights$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(highlights => {
+      console.log('[PlotlyHistogram] 🟦 Highlights updated:', highlights);
+      this.currentHighlights = highlights;
       this.renderCharts();
     });
   }
@@ -177,27 +213,75 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
       offsetDimensions: { width: el.offsetWidth, height: el.offsetHeight }
     });
 
-    const data = Object.entries(this.statistics.byManufacturer)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 20); // Top 20 manufacturers
+    const entries = Object.entries(this.statistics.byManufacturer);
 
-    const trace: Plotly.Data = {
-      x: data.map(([label]) => label),
-      y: data.map(([, count]) => count),
-      type: 'bar',
-      marker: {
-        color: data.map(([label]) =>
-          label === this.selectedManufacturer ? '#28a745' : '#4a90e2'
-        ),
-        line: {
-          color: data.map(([label]) =>
-            label === this.selectedManufacturer ? '#218838' : '#357abd'
-          ),
-          width: 2,
+    // Check if data has segmented format ({total, highlighted})
+    const isSegmented = entries.length > 0 &&
+      typeof entries[0][1] === 'object' &&
+      'total' in entries[0][1];
+
+    let traces: Plotly.Data[];
+
+    if (isSegmented) {
+      // Segmented statistics: render stacked bars
+      const sorted = entries
+        .sort((a, b) => ((b[1] as any).total || 0) - ((a[1] as any).total || 0))
+        .slice(0, 20);
+
+      const labels = sorted.map(([label]) => label);
+      const highlightedCounts = sorted.map(([, stats]: [string, any]) => stats.highlighted || 0);
+      const nonHighlightedCounts = sorted.map(([, stats]: [string, any]) =>
+        (stats.total || 0) - (stats.highlighted || 0)
+      );
+
+      traces = [
+        {
+          x: labels,
+          y: highlightedCounts,
+          type: 'bar',
+          name: 'Highlighted',
+          marker: {
+            color: '#1890ff',
+            line: { color: '#096dd9', width: 2 }
+          },
+          hovertemplate: '<b>%{x}</b><br>Highlighted: %{y}<extra></extra>',
         },
-      },
-      hovertemplate: '<b>%{x}</b><br>Count: %{y}<extra></extra>',
-    };
+        {
+          x: labels,
+          y: nonHighlightedCounts,
+          type: 'bar',
+          name: 'Other',
+          marker: {
+            color: '#d9d9d9',
+            line: { color: '#bfbfbf', width: 2 }
+          },
+          hovertemplate: '<b>%{x}</b><br>Other: %{y}<extra></extra>',
+        }
+      ];
+    } else {
+      // Legacy format: render single-color bars
+      const data = entries
+        .sort((a, b) => (b[1] as number) - (a[1] as number))
+        .slice(0, 20);
+
+      traces = [{
+        x: data.map(([label]) => label),
+        y: data.map(([, count]) => count as number),
+        type: 'bar',
+        marker: {
+          color: data.map(([label]) =>
+            label === this.selectedManufacturer ? '#28a745' : '#4a90e2'
+          ),
+          line: {
+            color: data.map(([label]) =>
+              label === this.selectedManufacturer ? '#218838' : '#357abd'
+            ),
+            width: 2,
+          },
+        },
+        hovertemplate: '<b>%{x}</b><br>Count: %{y}<extra></extra>',
+      }];
+    }
 
     // Explicitly calculate width from container (workaround for pop-out window issues)
     const containerWidth = el.offsetWidth || el.parentElement?.offsetWidth || 600;
@@ -214,7 +298,8 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
       width: containerWidth,
       height: 400,
       margin: { t: 60, r: 20, b: 100, l: 60 },
-      showlegend: false,
+      barmode: isSegmented ? 'stack' : undefined,
+      showlegend: isSegmented,
     };
 
     const config = {
@@ -224,7 +309,7 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
 
     console.log('[PlotlyHistogram] Calling Plotly.react() for manufacturer chart with explicit width:', containerWidth);
     // Use react() for better handling of updates, especially in pop-out windows
-    Plotly.react(el, [trace], layout, config).then(() => {
+    Plotly.react(el, traces, layout, config).then(() => {
       console.log('[PlotlyHistogram] Manufacturer chart Plotly.react() completed');
       // Force resize after render (important for pop-out windows)
       if (this.popOutContext.isInPopOut()) {
@@ -248,31 +333,88 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
     if (!this.statistics?.modelsByManufacturer || !this.modelsChartEl?.nativeElement) return;
 
     const selectedMfr = this.selectedManufacturer;
-    const dataPoints: Array<[string, number]> = [];
+    const dataPoints: Array<[string, number | {total: number, highlighted: number}]> = [];
+
+    // Check if data has segmented format
+    let isSegmented = false;
 
     Object.entries(this.statistics.modelsByManufacturer).forEach(
       ([manufacturer, models]) => {
         if (selectedMfr && manufacturer !== selectedMfr) return;
 
         Object.entries(models).forEach(([model, count]) => {
-          dataPoints.push([`${manufacturer} ${model}`, count as number]);
+          if (typeof count === 'object' && 'total' in count) {
+            isSegmented = true;
+          }
+          dataPoints.push([`${manufacturer} ${model}`, count]);
         });
       }
     );
 
-    dataPoints.sort((a, b) => b[1] - a[1]);
-    const top20 = dataPoints.slice(0, 20);
+    let traces: Plotly.Data[];
 
-    const trace: Plotly.Data = {
-      x: top20.map(([label]) => label),
-      y: top20.map(([, count]) => count),
-      type: 'bar',
-      marker: {
-        color: '#52c41a',
-        line: { color: '#389e0d', width: 2 },
-      },
-      hovertemplate: '<b>%{x}</b><br>Count: %{y}<extra></extra>',
-    };
+    if (isSegmented) {
+      // Segmented statistics: render stacked bars
+      const sorted = dataPoints
+        .sort((a, b) => {
+          const aTotal = typeof a[1] === 'object' ? a[1].total : a[1];
+          const bTotal = typeof b[1] === 'object' ? b[1].total : b[1];
+          return bTotal - aTotal;
+        })
+        .slice(0, 20);
+
+      const labels = sorted.map(([label]) => label);
+      const highlightedCounts = sorted.map(([, stats]) =>
+        typeof stats === 'object' ? stats.highlighted || 0 : 0
+      );
+      const nonHighlightedCounts = sorted.map(([, stats]) => {
+        if (typeof stats === 'object') {
+          return (stats.total || 0) - (stats.highlighted || 0);
+        }
+        return stats;
+      });
+
+      traces = [
+        {
+          x: labels,
+          y: highlightedCounts,
+          type: 'bar',
+          name: 'Highlighted',
+          marker: {
+            color: '#1890ff',
+            line: { color: '#096dd9', width: 2 }
+          },
+          hovertemplate: '<b>%{x}</b><br>Highlighted: %{y}<extra></extra>',
+        },
+        {
+          x: labels,
+          y: nonHighlightedCounts,
+          type: 'bar',
+          name: 'Other',
+          marker: {
+            color: '#d9d9d9',
+            line: { color: '#bfbfbf', width: 2 }
+          },
+          hovertemplate: '<b>%{x}</b><br>Other: %{y}<extra></extra>',
+        }
+      ];
+    } else {
+      // Legacy format: render single-color bars
+      const sorted = dataPoints
+        .sort((a, b) => (b[1] as number) - (a[1] as number))
+        .slice(0, 20);
+
+      traces = [{
+        x: sorted.map(([label]) => label),
+        y: sorted.map(([, count]) => count as number),
+        type: 'bar',
+        marker: {
+          color: '#52c41a',
+          line: { color: '#389e0d', width: 2 },
+        },
+        hovertemplate: '<b>%{x}</b><br>Count: %{y}<extra></extra>',
+      }];
+    }
 
     // Explicitly calculate width from container
     const el = this.modelsChartEl.nativeElement;
@@ -290,7 +432,8 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
       width: containerWidth,
       height: 400,
       margin: { t: 60, r: 20, b: 150, l: 60 },
-      showlegend: false,
+      barmode: isSegmented ? 'stack' : undefined,
+      showlegend: isSegmented,
     };
 
     const config = {
@@ -300,7 +443,7 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
 
     console.log('[PlotlyHistogram] Calling Plotly.react() for models chart with explicit width:', containerWidth);
     // Use react() for better handling of updates, especially in pop-out windows
-    Plotly.react(el, [trace], layout, config).then(() => {
+    Plotly.react(el, traces, layout, config).then(() => {
       console.log('[PlotlyHistogram] Models chart Plotly.react() completed');
       // Force resize after render (important for pop-out windows)
       if (this.popOutContext.isInPopOut()) {
@@ -319,34 +462,73 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
 
     const el = this.yearRangeChartEl.nativeElement;
 
-    // byYearRange now contains individual years (e.g., {"1960": 10, "1961": 15, ...})
     // Sort years and extract data
-    const data = Object.entries(this.statistics.byYearRange)
-      .map(([year, count]) => [parseInt(year, 10), count])
-      .sort((a, b) => a[0] - b[0]);
+    const entries = Object.entries(this.statistics.byYearRange).sort((a, b) =>
+      parseInt(a[0], 10) - parseInt(b[0], 10)
+    );
 
-    // Determine which year is selected (if filters specify yearMin/yearMax with same value)
-    const selectedYear = this.selectedYearRange?.includes('-')
-      ? null
-      : parseInt(this.selectedYearRange || '', 10);
+    // Check if data has segmented format ({total, highlighted})
+    const isSegmented = entries.length > 0 &&
+      typeof entries[0][1] === 'object' &&
+      'total' in entries[0][1];
 
-    const trace: Plotly.Data = {
-      x: data.map(([year]) => year),
-      y: data.map(([, count]) => count),
-      type: 'bar',
-      marker: {
-        color: data.map(([year]) =>
-          year === selectedYear ? '#ff7f0e' : '#2ca02c'
-        ),
-        line: {
-          color: data.map(([year]) =>
-            year === selectedYear ? '#d06200' : '#1f7521'
-          ),
-          width: 1,
+    let traces: Plotly.Data[];
+
+    if (isSegmented) {
+      // Segmented statistics: render stacked bars
+      const years = entries.map(([year]) => parseInt(year, 10));
+      const highlightedCounts = entries.map(([, stats]: [string, any]) => stats.highlighted || 0);
+      const nonHighlightedCounts = entries.map(([, stats]: [string, any]) =>
+        (stats.total || 0) - (stats.highlighted || 0)
+      );
+
+      traces = [
+        // Highlighted portion (bottom of stack, blue)
+        {
+          x: years,
+          y: highlightedCounts,
+          type: 'bar',
+          name: 'Highlighted',
+          marker: {
+            color: '#1890ff',
+            line: { color: '#096dd9', width: 1 }
+          },
+          hovertemplate: '<b>%{x}</b><br>Highlighted: %{y}<extra></extra>',
         },
-      },
-      hovertemplate: '<b>%{x}</b><br>Count: %{y}<extra></extra>',
-    };
+        // Non-highlighted portion (top of stack, gray)
+        {
+          x: years,
+          y: nonHighlightedCounts,
+          type: 'bar',
+          name: 'Other',
+          marker: {
+            color: '#d9d9d9',
+            line: { color: '#bfbfbf', width: 1 }
+          },
+          hovertemplate: '<b>%{x}</b><br>Other: %{y}<extra></extra>',
+        }
+      ];
+    } else {
+      // Legacy format: render single-color bars
+      const data = entries.map(([year, count]) => [parseInt(year, 10), count as number]);
+      const selectedYear = this.selectedYearRange?.includes('-')
+        ? null
+        : parseInt(this.selectedYearRange || '', 10);
+
+      traces = [{
+        x: data.map(([year]) => year),
+        y: data.map(([, count]) => count),
+        type: 'bar',
+        marker: {
+          color: data.map(([year]) => year === selectedYear ? '#ff7f0e' : '#2ca02c'),
+          line: {
+            color: data.map(([year]) => year === selectedYear ? '#d06200' : '#1f7521'),
+            width: 1,
+          },
+        },
+        hovertemplate: '<b>%{x}</b><br>Count: %{y}<extra></extra>',
+      }];
+    }
 
     // Explicitly calculate width from container
     const containerWidth = el.offsetWidth || el.parentElement?.offsetWidth || 600;
@@ -367,7 +549,8 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
       width: containerWidth,
       height: 400,
       margin: { t: 60, r: 20, b: 60, l: 60 },
-      showlegend: false,
+      barmode: isSegmented ? 'stack' : undefined,  // Stack bars when segmented
+      showlegend: isSegmented,  // Show legend for stacked bars
     };
 
     const config = {
@@ -377,7 +560,7 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
 
     console.log('[PlotlyHistogram] Calling Plotly.react() for year chart with explicit width:', containerWidth);
     // Use react() for better handling of updates, especially in pop-out windows
-    Plotly.react(el, [trace], layout, config).then(() => {
+    Plotly.react(el, traces, layout, config).then(() => {
       console.log('[PlotlyHistogram] Year chart Plotly.react() completed');
       // Force resize after render (important for pop-out windows)
       if (this.popOutContext.isInPopOut()) {
@@ -410,27 +593,75 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
   private renderBodyClassChart(): void {
     if (!this.statistics?.byBodyClass || !this.bodyClassChartEl?.nativeElement) return;
 
-    const data = Object.entries(this.statistics.byBodyClass)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 15); // Top 15 body classes
+    const entries = Object.entries(this.statistics.byBodyClass);
 
-    const trace: Plotly.Data = {
-      x: data.map(([label]) => label),
-      y: data.map(([, count]) => count),
-      type: 'bar',
-      marker: {
-        color: data.map(([label]) =>
-          label === this.selectedBodyClass ? '#9467bd' : '#d62728'
-        ),
-        line: {
-          color: data.map(([label]) =>
-            label === this.selectedBodyClass ? '#6e459e' : '#a51d1e'
-          ),
-          width: 2,
+    // Check if data has segmented format ({total, highlighted})
+    const isSegmented = entries.length > 0 &&
+      typeof entries[0][1] === 'object' &&
+      'total' in entries[0][1];
+
+    let traces: Plotly.Data[];
+
+    if (isSegmented) {
+      // Segmented statistics: render stacked bars
+      const sorted = entries
+        .sort((a, b) => ((b[1] as any).total || 0) - ((a[1] as any).total || 0))
+        .slice(0, 15);
+
+      const labels = sorted.map(([label]) => label);
+      const highlightedCounts = sorted.map(([, stats]: [string, any]) => stats.highlighted || 0);
+      const nonHighlightedCounts = sorted.map(([, stats]: [string, any]) =>
+        (stats.total || 0) - (stats.highlighted || 0)
+      );
+
+      traces = [
+        {
+          x: labels,
+          y: highlightedCounts,
+          type: 'bar',
+          name: 'Highlighted',
+          marker: {
+            color: '#1890ff',
+            line: { color: '#096dd9', width: 2 }
+          },
+          hovertemplate: '<b>%{x}</b><br>Highlighted: %{y}<extra></extra>',
         },
-      },
-      hovertemplate: '<b>%{x}</b><br>Count: %{y}<extra></extra>',
-    };
+        {
+          x: labels,
+          y: nonHighlightedCounts,
+          type: 'bar',
+          name: 'Other',
+          marker: {
+            color: '#d9d9d9',
+            line: { color: '#bfbfbf', width: 2 }
+          },
+          hovertemplate: '<b>%{x}</b><br>Other: %{y}<extra></extra>',
+        }
+      ];
+    } else {
+      // Legacy format: render single-color bars
+      const data = entries
+        .sort((a, b) => (b[1] as number) - (a[1] as number))
+        .slice(0, 15);
+
+      traces = [{
+        x: data.map(([label]) => label),
+        y: data.map(([, count]) => count as number),
+        type: 'bar',
+        marker: {
+          color: data.map(([label]) =>
+            label === this.selectedBodyClass ? '#9467bd' : '#d62728'
+          ),
+          line: {
+            color: data.map(([label]) =>
+              label === this.selectedBodyClass ? '#6e459e' : '#a51d1e'
+            ),
+            width: 2,
+          },
+        },
+        hovertemplate: '<b>%{x}</b><br>Count: %{y}<extra></extra>',
+      }];
+    }
 
     // Explicitly calculate width from container
     const el = this.bodyClassChartEl.nativeElement;
@@ -448,7 +679,8 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
       width: containerWidth,
       height: 400,
       margin: { t: 60, r: 20, b: 100, l: 60 },
-      showlegend: false,
+      barmode: isSegmented ? 'stack' : undefined,
+      showlegend: isSegmented,
     };
 
     const config = {
@@ -458,7 +690,7 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
 
     console.log('[PlotlyHistogram] Calling Plotly.react() for body class chart with explicit width:', containerWidth);
     // Use react() for better handling of updates, especially in pop-out windows
-    Plotly.react(el, [trace], layout, config).then(() => {
+    Plotly.react(el, traces, layout, config).then(() => {
       console.log('[PlotlyHistogram] Body class chart Plotly.react() completed');
       // Force resize after render (important for pop-out windows)
       if (this.popOutContext.isInPopOut()) {
@@ -480,6 +712,13 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
 
   // Context-aware event handlers
   private onManufacturerClick(manufacturer: string): void {
+    // Check if highlight mode is active
+    if (this.isHighlightModeActive) {
+      console.log(`[PlotlyHistogram] 🟦 Manufacturer HIGHLIGHTED: ${manufacturer}`);
+      this.urlParamService.setHighlightParam('manufacturer', manufacturer);
+      return;
+    }
+
     console.log(`[PlotlyHistogram] Manufacturer clicked: ${manufacturer}`);
 
     if (this.popOutContext.isInPopOut()) {
@@ -495,6 +734,16 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
   }
 
   private onYearClick(year: number): void {
+    // Check if highlight mode is active
+    if (this.isHighlightModeActive) {
+      console.log(`[PlotlyHistogram] 🟦 Year HIGHLIGHTED: ${year}`);
+      this.urlParamService.setHighlightRange({
+        yearMin: year.toString(),
+        yearMax: year.toString()
+      });
+      return;
+    }
+
     console.log(`[PlotlyHistogram] Year clicked: ${year}`);
 
     if (this.popOutContext.isInPopOut()) {
@@ -511,7 +760,20 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
   }
 
   private onYearRangeSelect(yearMin: number, yearMax: number): void {
-    console.log(`[PlotlyHistogram] Year range selected: ${yearMin} - ${yearMax}`);
+    // Check if highlight mode is active
+    if (this.isHighlightModeActive) {
+      console.log(`[PlotlyHistogram] 🟦 Year range HIGHLIGHTED: ${yearMin} - ${yearMax}`);
+
+      // Set highlight parameters (UI-only, doesn't trigger API calls)
+      this.urlParamService.setHighlightRange({
+        yearMin: yearMin.toString(),
+        yearMax: yearMax.toString()
+      });
+      return;
+    }
+
+    // Normal mode: create filters (triggers API calls)
+    console.log(`[PlotlyHistogram] Year range FILTERED: ${yearMin} - ${yearMax}`);
 
     if (this.popOutContext.isInPopOut()) {
       // Pop-out mode: send message to main window
@@ -529,6 +791,13 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
   }
 
   private onBodyClassClick(bodyClass: string): void {
+    // Check if highlight mode is active
+    if (this.isHighlightModeActive) {
+      console.log(`[PlotlyHistogram] 🟦 Body class HIGHLIGHTED: ${bodyClass}`);
+      this.urlParamService.setHighlightParam('bodyClass', bodyClass);
+      return;
+    }
+
     console.log(`[PlotlyHistogram] Body class clicked: ${bodyClass}`);
 
     if (this.popOutContext.isInPopOut()) {

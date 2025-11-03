@@ -81,6 +81,11 @@ async function getVehicleDetailsHandler(req, res, next) {
       yearMax = '',
       bodyClass = '',
       dataSource = '',
+      // Highlight parameters (h_ prefix) - for segmented statistics
+      h_yearMin = '',
+      h_yearMax = '',
+      h_manufacturer = '',
+      h_bodyClass = '',
       sortBy = '',
       sortOrder = 'asc',
     } = req.query;
@@ -156,12 +161,20 @@ async function getVehicleDetailsHandler(req, res, next) {
     if (bodyClass) filters.bodyClass = bodyClass.trim();
     if (dataSource) filters.dataSource = dataSource.trim();
 
+    // Build highlights object (for segmented statistics)
+    const highlights = {};
+    if (h_yearMin) highlights.yearMin = parseInt(h_yearMin);
+    if (h_yearMax) highlights.yearMax = parseInt(h_yearMax);
+    if (h_manufacturer) highlights.manufacturer = h_manufacturer.trim();
+    if (h_bodyClass) highlights.bodyClass = h_bodyClass.trim();
+
     // Call service to get vehicle details
     const result = await getVehicleDetails({
       modelCombos,
       page: pageNum,
       size: sizeNum,
       filters,
+      highlights,  // NEW: Pass highlights to service
       sortBy: sortBy || null,
       sortOrder: sortOrder || 'asc',
     });

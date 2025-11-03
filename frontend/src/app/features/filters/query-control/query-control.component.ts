@@ -65,10 +65,19 @@ export class QueryControlComponent implements OnInit, OnDestroy {
   /** Emits when a filter is removed */
   @Output() filterRemove = new EventEmitter<{ field: string; updates: Partial<SearchFilters> }>();
 
+  /** Emits when a highlight is removed */
+  @Output() highlightRemove = new EventEmitter<string>();
+
+  /** Emits when all highlights should be cleared */
+  @Output() clearHighlights = new EventEmitter<void>();
+
   // ========== STATE ==========
 
   /** Active filter chips for display */
   activeFilterChips: FilterChip[] = [];
+
+  /** Active highlight chips for display (separate from filters) */
+  activeHighlightChips: FilterChip[] = [];
 
   /** Available fields for querying */
   queryFields: QueryField[] = [
@@ -220,6 +229,13 @@ export class QueryControlComponent implements OnInit, OnDestroy {
               .map((m) => m.trim())
               .filter((m) => m)
           : [];
+      });
+
+    // Subscribe to highlight state changes to display active highlight chips
+    this.stateService.highlights$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((highlights) => {
+        this.activeHighlightChips = this.buildHighlightChips(highlights);
       });
 
     // Set up manufacturer search with debouncing
@@ -898,6 +914,48 @@ export class QueryControlComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Build highlight chips from current highlight state
+   * Transforms highlight filters into visual chips with distinct styling
+   */
+  private buildHighlightChips(highlights: any): FilterChip[] {
+    const chips: FilterChip[] = [];
+
+    // Year range highlight
+    if (highlights.yearMin !== undefined || highlights.yearMax !== undefined) {
+      const min = highlights.yearMin || 'Any';
+      const max = highlights.yearMax || 'Any';
+      chips.push({
+        field: 'h_year',
+        label: 'Highlight Year',
+        displayValue: `${min} - ${max}`,
+        color: 'magenta',
+      });
+    }
+
+    // Manufacturer highlight
+    if (highlights.manufacturer) {
+      chips.push({
+        field: 'h_manufacturer',
+        label: 'Highlight Mfr',
+        displayValue: highlights.manufacturer,
+        color: 'magenta',
+      });
+    }
+
+    // Body class highlight
+    if (highlights.bodyClass) {
+      chips.push({
+        field: 'h_bodyClass',
+        label: 'Highlight Body',
+        displayValue: highlights.bodyClass,
+        color: 'magenta',
+      });
+    }
+
+    return chips;
+  }
+
+  /**
    * Edit an existing filter by reopening its dialog with current values
    * Called when user clicks on a filter chip (not the X button)
    */
@@ -1058,5 +1116,23 @@ export class QueryControlComponent implements OnInit, OnDestroy {
     // Emit event for parent to handle
     // (Parent will update state, which triggers filters$ subscription to sync selection arrays)
     this.filterRemove.emit({ field, updates });
+  }
+
+  /**
+   * Remove a highlight when chip is closed
+   * Emits field name for parent to handle h_* URL parameter removal
+   */
+  removeHighlight(field: string): void {
+    console.log('Removing highlight:', field);
+    this.highlightRemove.emit(field);
+  }
+
+  /**
+   * Clear all highlights
+   * Emits event for parent to remove all h_* URL parameters
+   */
+  onClearAllHighlights(): void {
+    console.log('Clearing all highlights');
+    this.clearHighlights.emit();
   }
 }
