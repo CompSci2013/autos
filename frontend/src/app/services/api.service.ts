@@ -49,6 +49,13 @@ export class ApiService {
       bodyClass?: string;
       dataSource?: string;
     },
+    highlights?: {
+      // Highlight parameters for segmented statistics
+      yearMin?: number;
+      yearMax?: number;
+      manufacturer?: string;
+      bodyClass?: string;
+    },
     sortBy?: string,
     sortOrder?: 'asc' | 'desc'
   ): Observable<VehicleDetailsResponse> {
@@ -95,6 +102,22 @@ export class ApiService {
       }
       if (filters.dataSource) {
         params = params.set('dataSource', filters.dataSource);
+      }
+    }
+
+    // Add highlight parameters if provided (for segmented statistics)
+    if (highlights) {
+      if (highlights.yearMin !== undefined) {
+        params = params.set('h_yearMin', highlights.yearMin.toString());
+      }
+      if (highlights.yearMax !== undefined) {
+        params = params.set('h_yearMax', highlights.yearMax.toString());
+      }
+      if (highlights.manufacturer) {
+        params = params.set('h_manufacturer', highlights.manufacturer);
+      }
+      if (highlights.bodyClass) {
+        params = params.set('h_bodyClass', highlights.bodyClass);
       }
     }
 

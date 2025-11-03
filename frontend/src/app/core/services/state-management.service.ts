@@ -417,6 +417,9 @@ export class StateManagementService implements OnDestroy {
     console.log('🔵 Combined filters:', combinedFilters);
     console.log('🔵 Cache key:', cacheKey);
 
+    // Get current highlights from state
+    const currentHighlights = this.stateSubject.value.highlights || {};
+
     // Execute through coordinator
     return this.requestCoordinator
       .execute(
@@ -427,6 +430,7 @@ export class StateManagementService implements OnDestroy {
             combinedFilters.page || 1,
             combinedFilters.size || 20,
             this.buildFilterParams(combinedFilters),
+            currentHighlights,  // Pass highlights for segmented statistics
             combinedFilters.sort,
             combinedFilters.sortDirection
           ),
@@ -489,6 +493,9 @@ export class StateManagementService implements OnDestroy {
 
     console.log('🔵 StateManagement: Fetching via RequestCoordinator, key:', cacheKey);
 
+    // Get current highlights from state
+    const currentHighlights = this.stateSubject.value.highlights || {};
+
     // Execute through coordinator
     return this.requestCoordinator
       .execute(
@@ -499,6 +506,7 @@ export class StateManagementService implements OnDestroy {
             filters.page || 1,
             filters.size || 20,
             this.buildFilterParams(filters),
+            currentHighlights,  // Pass highlights for segmented statistics
             filters.sort,
             filters.sortDirection
           ),
