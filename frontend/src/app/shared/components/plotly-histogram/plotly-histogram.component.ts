@@ -217,18 +217,30 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
       .sort((a, b) => b[1] - a[1])
       .slice(0, 20); // Top 20 manufacturers
 
+    // Check if highlights are active
+    const hasHighlight = !!this.currentHighlights.manufacturer;
+    const highlightedManufacturer = this.currentHighlights.manufacturer;
+
     const trace: Plotly.Data = {
       x: data.map(([label]) => label),
       y: data.map(([, count]) => count),
       type: 'bar',
       marker: {
-        color: data.map(([label]) =>
-          label === this.selectedManufacturer ? '#28a745' : '#4a90e2'
-        ),
+        color: data.map(([label]) => {
+          // If highlights are active, use bright blue for highlighted, dim gray for others
+          if (hasHighlight) {
+            return label === highlightedManufacturer ? '#1890ff' : '#d9d9d9';
+          }
+          // Normal mode: green for selected, blue for others
+          return label === this.selectedManufacturer ? '#28a745' : '#4a90e2';
+        }),
         line: {
-          color: data.map(([label]) =>
-            label === this.selectedManufacturer ? '#218838' : '#357abd'
-          ),
+          color: data.map(([label]) => {
+            if (hasHighlight) {
+              return label === highlightedManufacturer ? '#096dd9' : '#bfbfbf';
+            }
+            return label === this.selectedManufacturer ? '#218838' : '#357abd';
+          }),
           width: 2,
         },
       },
@@ -469,18 +481,30 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
       .sort((a, b) => b[1] - a[1])
       .slice(0, 15); // Top 15 body classes
 
+    // Check if highlights are active
+    const hasHighlight = !!this.currentHighlights.bodyClass;
+    const highlightedBodyClass = this.currentHighlights.bodyClass;
+
     const trace: Plotly.Data = {
       x: data.map(([label]) => label),
       y: data.map(([, count]) => count),
       type: 'bar',
       marker: {
-        color: data.map(([label]) =>
-          label === this.selectedBodyClass ? '#9467bd' : '#d62728'
-        ),
+        color: data.map(([label]) => {
+          // If highlights are active, use bright blue for highlighted, dim gray for others
+          if (hasHighlight) {
+            return label === highlightedBodyClass ? '#1890ff' : '#d9d9d9';
+          }
+          // Normal mode: purple for selected, red for others
+          return label === this.selectedBodyClass ? '#9467bd' : '#d62728';
+        }),
         line: {
-          color: data.map(([label]) =>
-            label === this.selectedBodyClass ? '#6e459e' : '#a51d1e'
-          ),
+          color: data.map(([label]) => {
+            if (hasHighlight) {
+              return label === highlightedBodyClass ? '#096dd9' : '#bfbfbf';
+            }
+            return label === this.selectedBodyClass ? '#6e459e' : '#a51d1e';
+          }),
           width: 2,
         },
       },
@@ -535,6 +559,13 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
 
   // Context-aware event handlers
   private onManufacturerClick(manufacturer: string): void {
+    // Check if highlight mode is active
+    if (this.isHighlightModeActive) {
+      console.log(`[PlotlyHistogram] 🟦 Manufacturer HIGHLIGHTED: ${manufacturer}`);
+      this.urlParamService.setHighlightParam('manufacturer', manufacturer);
+      return;
+    }
+
     console.log(`[PlotlyHistogram] Manufacturer clicked: ${manufacturer}`);
 
     if (this.popOutContext.isInPopOut()) {
@@ -550,6 +581,16 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
   }
 
   private onYearClick(year: number): void {
+    // Check if highlight mode is active
+    if (this.isHighlightModeActive) {
+      console.log(`[PlotlyHistogram] 🟦 Year HIGHLIGHTED: ${year}`);
+      this.urlParamService.setHighlightRange({
+        yearMin: year.toString(),
+        yearMax: year.toString()
+      });
+      return;
+    }
+
     console.log(`[PlotlyHistogram] Year clicked: ${year}`);
 
     if (this.popOutContext.isInPopOut()) {
@@ -597,6 +638,13 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
   }
 
   private onBodyClassClick(bodyClass: string): void {
+    // Check if highlight mode is active
+    if (this.isHighlightModeActive) {
+      console.log(`[PlotlyHistogram] 🟦 Body class HIGHLIGHTED: ${bodyClass}`);
+      this.urlParamService.setHighlightParam('bodyClass', bodyClass);
+      return;
+    }
+
     console.log(`[PlotlyHistogram] Body class clicked: ${bodyClass}`);
 
     if (this.popOutContext.isInPopOut()) {
