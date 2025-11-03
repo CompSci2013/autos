@@ -577,6 +577,84 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
     }
   }
 
+  // ========== RANGE FILTERING ==========
+
+  /**
+   * Handle minimum value change for range filter
+   */
+  onRangeMinChange(columnKey: string, minValue: number, rangeConfig: any): void {
+    this.isInternalChange = true;
+
+    const maxValue = this.filters[`${columnKey}Max`] || rangeConfig?.max || 100;
+
+    // Store range as object with min/max keys
+    this.filters[columnKey] = { min: minValue, max: maxValue };
+
+    // Store individual min/max values for API
+    this.filters[`${columnKey}Min`] = minValue;
+    this.filters[`${columnKey}Max`] = maxValue;
+
+    this.filterSubject$.next();
+  }
+
+  /**
+   * Handle maximum value change for range filter
+   */
+  onRangeMaxChange(columnKey: string, maxValue: number, rangeConfig: any): void {
+    this.isInternalChange = true;
+
+    const minValue = this.filters[`${columnKey}Min`] || rangeConfig?.min || 0;
+
+    // Store range as object with min/max keys
+    this.filters[columnKey] = { min: minValue, max: maxValue };
+
+    // Store individual min/max values for API
+    this.filters[`${columnKey}Min`] = minValue;
+    this.filters[`${columnKey}Max`] = maxValue;
+
+    this.filterSubject$.next();
+  }
+
+  /**
+   * Format number as currency for display
+   */
+  formatCurrency = (value: number | null): string => {
+    if (value === null || value === undefined) {
+      return '';
+    }
+    return `$${value.toLocaleString()}`;
+  }
+
+  /**
+   * Parse currency string back to number
+   */
+  parseCurrency = (value: string): string => {
+    if (!value) {
+      return '';
+    }
+    return value.replace(/\$\s?|(,*)/g, '');
+  }
+
+  /**
+   * Format number as mileage for display (no currency symbol)
+   */
+  formatMileage = (value: number | null): string => {
+    if (value === null || value === undefined) {
+      return '';
+    }
+    return value.toLocaleString();
+  }
+
+  /**
+   * Parse mileage string back to number
+   */
+  parseMileage = (value: string): string => {
+    if (!value) {
+      return '';
+    }
+    return value.replace(/,/g, '');
+  }
+
   // ========== COLUMN MANAGEMENT ==========
 
   onColumnDrop(event: CdkDragDrop<TableColumn<T>[]>): void {

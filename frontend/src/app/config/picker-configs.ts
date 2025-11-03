@@ -434,10 +434,22 @@ export const VIN_BROWSER_CONFIG: PickerConfig<VinPickerRow> = {
       width: '8%',
       sortable: true,
       filterable: true,
-      filterType: 'number',
+      filterType: 'number-range',
       hideable: true,
       valuePath: 'mileage',
       formatter: (value) => value?.toLocaleString() || '-',
+      rangeConfig: {
+        min: 0,
+        max: 300000,
+        step: 5000,
+        marks: {
+          0: '0',
+          75000: '75K',
+          150000: '150K',
+          225000: '225K',
+          300000: '300K'
+        }
+      }
     },
     {
       key: 'estimated_value',
@@ -445,10 +457,22 @@ export const VIN_BROWSER_CONFIG: PickerConfig<VinPickerRow> = {
       width: '10%',
       sortable: true,
       filterable: true,
-      filterType: 'number',
+      filterType: 'number-range',
       hideable: true,
       valuePath: 'estimated_value',
       formatter: (value) => value ? `$${value.toLocaleString()}` : '-',
+      rangeConfig: {
+        min: 0,
+        max: 200000,
+        step: 5000,
+        marks: {
+          0: '$0',
+          50000: '$50K',
+          100000: '$100K',
+          150000: '$150K',
+          200000: '$200K'
+        }
+      }
     },
     {
       key: 'condition_description',
@@ -493,8 +517,12 @@ export const VIN_BROWSER_CONFIG: PickerConfig<VinPickerRow> = {
         if (params.filters['model']) mappedFilters.model = params.filters['model'];
         if (params.filters['year']) mappedFilters.yearMin = mappedFilters.yearMax = params.filters['year'];
         if (params.filters['vin']) mappedFilters.vin = params.filters['vin'];
-        if (params.filters['mileage']) mappedFilters.mileageMin = mappedFilters.mileageMax = params.filters['mileage'];
-        if (params.filters['estimated_value']) mappedFilters.valueMin = mappedFilters.valueMax = params.filters['estimated_value'];
+
+        // Range filters: Use individual min/max values
+        if (params.filters['mileageMin'] !== undefined) mappedFilters.mileageMin = params.filters['mileageMin'];
+        if (params.filters['mileageMax'] !== undefined) mappedFilters.mileageMax = params.filters['mileageMax'];
+        if (params.filters['estimated_valueMin'] !== undefined) mappedFilters.valueMin = params.filters['estimated_valueMin'];
+        if (params.filters['estimated_valueMax'] !== undefined) mappedFilters.valueMax = params.filters['estimated_valueMax'];
 
         // Snake_case to camelCase mappings
         if (params.filters['body_class']) mappedFilters.bodyClass = params.filters['body_class'];

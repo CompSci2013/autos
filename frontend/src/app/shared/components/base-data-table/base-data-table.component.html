@@ -130,6 +130,35 @@
               >
               </nz-option>
             </nz-select>
+
+            <!-- Number Range filter with two inputs -->
+            <div *ngIf="column.filterType === 'number-range'" class="range-filter-container">
+              <nz-input-number
+                [nzMin]="column.rangeConfig?.min || 0"
+                [nzMax]="column.rangeConfig?.max || 100"
+                [nzStep]="column.rangeConfig?.step || 1"
+                [nzPlaceHolder]="'Min'"
+                [ngModel]="filters[column.key + 'Min'] || column.rangeConfig?.min || 0"
+                (ngModelChange)="onRangeMinChange(column.key, $event, column.rangeConfig)"
+                [nzFormatter]="column.key === 'estimated_value' ? formatCurrency : formatMileage"
+                [nzParser]="column.key === 'estimated_value' ? parseCurrency : parseMileage"
+                class="range-input range-input-min"
+              >
+              </nz-input-number>
+              <span class="range-separator">-</span>
+              <nz-input-number
+                [nzMin]="column.rangeConfig?.min || 0"
+                [nzMax]="column.rangeConfig?.max || 100"
+                [nzStep]="column.rangeConfig?.step || 1"
+                [nzPlaceHolder]="'Max'"
+                [ngModel]="filters[column.key + 'Max'] || column.rangeConfig?.max || 100"
+                (ngModelChange)="onRangeMaxChange(column.key, $event, column.rangeConfig)"
+                [nzFormatter]="column.key === 'estimated_value' ? formatCurrency : formatMileage"
+                [nzParser]="column.key === 'estimated_value' ? parseCurrency : parseMileage"
+                class="range-input range-input-max"
+              >
+              </nz-input-number>
+            </div>
           </ng-container>
         </th>
       </tr>

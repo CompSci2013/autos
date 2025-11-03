@@ -15,11 +15,19 @@ export interface TableColumn<T = any> {
   /** Whether column supports filtering */
   filterable: boolean;
 
-  /** Type of filter input (text, number, date, select) */
-  filterType?: 'text' | 'number' | 'date' | 'select';
+  /** Type of filter input (text, number, date, select, number-range) */
+  filterType?: 'text' | 'number' | 'date' | 'select' | 'number-range';
 
   /** Options for select-type filters */
   filterOptions?: Array<{ label: string; value: any }>;
+
+  /** Range filter configuration (for number-range type) */
+  rangeConfig?: {
+    min: number;
+    max: number;
+    step?: number;
+    marks?: { [key: number]: string };
+  };
 
   /** Whether column can be hidden by user */
   hideable: boolean;
