@@ -6,13 +6,16 @@ import {
   ViewChild,
   ElementRef,
   ChangeDetectorRef,
+  HostListener,
 } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import * as Plotly from 'plotly.js-dist-min';
 import { VehicleStatistics } from '../../../models/vehicle-statistics.model';
+import { HighlightFilters } from '../../../models/search-filters.model';
 import { PopOutContextService } from '../../../core/services/popout-context.service';
 import { StateManagementService } from '../../../core/services/state-management.service';
+import { UrlParamService } from '../../../core/services/url-param.service';
 
 /**
  * PlotlyHistogramComponent
@@ -41,6 +44,10 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
   selectedYearRange: string | null = null;
   selectedBodyClass: string | null = null;
 
+  // Highlight mode state
+  private isHighlightModeActive = false;
+  private currentHighlights: HighlightFilters = {};
+
   @ViewChild('manufacturerChart', { static: false }) manufacturerChartEl!: ElementRef;
   @ViewChild('modelsChart', { static: false }) modelsChartEl!: ElementRef;
   @ViewChild('yearRangeChart', { static: false }) yearRangeChartEl!: ElementRef;
@@ -56,8 +63,28 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
   constructor(
     private popOutContext: PopOutContextService,
     private stateService: StateManagementService,
+    private urlParamService: UrlParamService,
     private cdr: ChangeDetectorRef
   ) {}
+
+  /**
+   * Keyboard event listeners for highlight mode
+   * Hold 'h' key while using Box Select to create highlights instead of filters
+   */
+  @HostListener('document:keydown.h')
+  onHighlightKeyDown(): void {
+    // Prevent repeated keydown events when holding key
+    if (this.isHighlightModeActive) return;
+
+    this.isHighlightModeActive = true;
+    console.log('[PlotlyHistogram] 🟦 Highlight mode ACTIVATED - Box Select will create highlights');
+  }
+
+  @HostListener('document:keyup.h')
+  onHighlightKeyUp(): void {
+    this.isHighlightModeActive = false;
+    console.log('[PlotlyHistogram] Highlight mode DEACTIVATED - Box Select will create filters');
+  }
 
   ngOnInit(): void {
     console.log(`[PlotlyHistogram] Initialized (pop-out mode: ${this.popOutContext.isInPopOut()})`);
@@ -83,6 +110,15 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
         : null;
       this.selectedBodyClass = filters.bodyClass || null;
 
+      this.renderCharts();
+    });
+
+    // Subscribe to highlights (UI-only state, doesn't affect API calls)
+    this.stateService.highlights$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(highlights => {
+      console.log('[PlotlyHistogram] 🟦 Highlights updated:', highlights);
+      this.currentHighlights = highlights;
       this.renderCharts();
     });
   }
@@ -330,18 +366,37 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
       ? null
       : parseInt(this.selectedYearRange || '', 10);
 
+    // Check if highlights are active
+    const hasHighlights = !!(this.currentHighlights.yearMin || this.currentHighlights.yearMax);
+    const highlightMin = this.currentHighlights.yearMin;
+    const highlightMax = this.currentHighlights.yearMax;
+
     const trace: Plotly.Data = {
       x: data.map(([year]) => year),
       y: data.map(([, count]) => count),
       type: 'bar',
       marker: {
-        color: data.map(([year]) =>
-          year === selectedYear ? '#ff7f0e' : '#2ca02c'
-        ),
+        color: data.map(([year]) => {
+          // If highlights are active, use bright blue for highlighted bars, dim gray for others
+          if (hasHighlights) {
+            const isHighlighted =
+              (highlightMin === undefined || year >= highlightMin) &&
+              (highlightMax === undefined || year <= highlightMax);
+            return isHighlighted ? '#1890ff' : '#d9d9d9';
+          }
+          // Normal mode: green bars with orange for selected year
+          return year === selectedYear ? '#ff7f0e' : '#2ca02c';
+        }),
         line: {
-          color: data.map(([year]) =>
-            year === selectedYear ? '#d06200' : '#1f7521'
-          ),
+          color: data.map(([year]) => {
+            if (hasHighlights) {
+              const isHighlighted =
+                (highlightMin === undefined || year >= highlightMin) &&
+                (highlightMax === undefined || year <= highlightMax);
+              return isHighlighted ? '#096dd9' : '#bfbfbf';
+            }
+            return year === selectedYear ? '#d06200' : '#1f7521';
+          }),
           width: 1,
         },
       },
@@ -511,7 +566,20 @@ export class PlotlyHistogramComponent implements OnInit, AfterViewInit, OnDestro
   }
 
   private onYearRangeSelect(yearMin: number, yearMax: number): void {
-    console.log(`[PlotlyHistogram] Year range selected: ${yearMin} - ${yearMax}`);
+    // Check if highlight mode is active
+    if (this.isHighlightModeActive) {
+      console.log(`[PlotlyHistogram] 🟦 Year range HIGHLIGHTED: ${yearMin} - ${yearMax}`);
+
+      // Set highlight parameters (UI-only, doesn't trigger API calls)
+      this.urlParamService.setHighlightRange({
+        yearMin: yearMin.toString(),
+        yearMax: yearMax.toString()
+      });
+      return;
+    }
+
+    // Normal mode: create filters (triggers API calls)
+    console.log(`[PlotlyHistogram] Year range FILTERED: ${yearMin} - ${yearMax}`);
 
     if (this.popOutContext.isInPopOut()) {
       // Pop-out mode: send message to main window
