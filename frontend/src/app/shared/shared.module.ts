@@ -24,6 +24,12 @@ import { ColumnManagerComponent } from './components/column-manager/column-manag
 import { PlotlyHistogramComponent } from './components/plotly-histogram/plotly-histogram.component';
 import { StaticParabolaChartComponent } from './components/static-parabola-chart/static-parabola-chart.component';
 import { BasePickerComponent } from './components/base-picker/base-picker.component';
+// New chart components (refactored from plotly-histogram)
+import { BaseChartComponent } from './components/base-chart/base-chart.component';
+import { ManufacturerChartComponent } from './components/manufacturer-chart/manufacturer-chart.component';
+import { ModelsChartComponent } from './components/models-chart/models-chart.component';
+import { YearChartComponent } from './components/year-chart/year-chart.component';
+import { BodyClassChartComponent } from './components/body-class-chart/body-class-chart.component';
 
 @NgModule({
   declarations: [
@@ -32,6 +38,12 @@ import { BasePickerComponent } from './components/base-picker/base-picker.compon
     PlotlyHistogramComponent,
     StaticParabolaChartComponent,
     BasePickerComponent,
+    // New chart components
+    BaseChartComponent,
+    ManufacturerChartComponent,
+    ModelsChartComponent,
+    YearChartComponent,
+    BodyClassChartComponent,
   ],
   imports: [
     CommonModule,
@@ -61,6 +73,12 @@ import { BasePickerComponent } from './components/base-picker/base-picker.compon
     PlotlyHistogramComponent,
     StaticParabolaChartComponent,
     BasePickerComponent,
+    // New chart components
+    BaseChartComponent,
+    ManufacturerChartComponent,
+    ModelsChartComponent,
+    YearChartComponent,
+    BodyClassChartComponent,
     // Also export NG-ZORRO modules for convenience
     CommonModule,
     FormsModule,

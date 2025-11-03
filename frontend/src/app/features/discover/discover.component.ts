@@ -189,7 +189,7 @@ export class DiscoverComponent implements OnInit, OnDestroy {
       },
     ];
 
-    // Grid 4 (grids[3]): Plotly Histograms
+    // Grid 4 (grids[3]): Plotly Histograms (Original) and Individual Charts (New)
     this.grids[3].items = [
       {
         cols: 12,
@@ -198,6 +198,38 @@ export class DiscoverComponent implements OnInit, OnDestroy {
         x: 0,
         id: 'plotly-charts-1',
         panelType: 'plotly-charts',
+      },
+      {
+        cols: 6,
+        rows: 6,
+        y: 12,
+        x: 0,
+        id: 'manufacturer-chart-1',
+        panelType: 'manufacturer-chart',
+      },
+      {
+        cols: 6,
+        rows: 6,
+        y: 12,
+        x: 6,
+        id: 'year-chart-1',
+        panelType: 'year-chart',
+      },
+      {
+        cols: 6,
+        rows: 6,
+        y: 18,
+        x: 0,
+        id: 'models-chart-1',
+        panelType: 'models-chart',
+      },
+      {
+        cols: 6,
+        rows: 6,
+        y: 18,
+        x: 6,
+        id: 'body-class-chart-1',
+        panelType: 'body-class-chart',
       },
     ];
 

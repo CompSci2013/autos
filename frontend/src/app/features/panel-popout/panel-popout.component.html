@@ -39,6 +39,26 @@
         <app-static-parabola-chart></app-static-parabola-chart>
       </div>
 
+      <!-- Manufacturer Chart Panel -->
+      <div *ngSwitchCase="'manufacturer-chart'" class="panel-wrapper">
+        <app-manufacturer-chart></app-manufacturer-chart>
+      </div>
+
+      <!-- Year Chart Panel -->
+      <div *ngSwitchCase="'year-chart'" class="panel-wrapper">
+        <app-year-chart></app-year-chart>
+      </div>
+
+      <!-- Models Chart Panel -->
+      <div *ngSwitchCase="'models-chart'" class="panel-wrapper">
+        <app-models-chart></app-models-chart>
+      </div>
+
+      <!-- Body Class Chart Panel -->
+      <div *ngSwitchCase="'body-class-chart'" class="panel-wrapper">
+        <app-body-class-chart></app-body-class-chart>
+      </div>
+
       <!-- Unknown panel type -->
       <div *ngSwitchDefault class="panel-wrapper">
         <nz-alert

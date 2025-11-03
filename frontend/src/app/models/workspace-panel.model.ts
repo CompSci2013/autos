@@ -5,6 +5,6 @@ import { GridsterItem } from 'angular-gridster2';
  */
 export interface WorkspacePanel extends GridsterItem {
   id?: string;
-  panelType?: 'picker' | 'results' | 'query-control' | 'plotly-charts' | 'static-parabola';
+  panelType?: 'picker' | 'results' | 'query-control' | 'plotly-charts' | 'manufacturer-chart' | 'year-chart' | 'models-chart' | 'body-class-chart' | 'static-parabola';
   data?: any;
 }

@@ -112,6 +112,14 @@ export class PanelPopoutComponent implements OnInit, OnDestroy {
         return 'Query Control';
       case 'static-parabola':
         return 'Static Parabola Chart';
+      case 'manufacturer-chart':
+        return 'Manufacturer Chart';
+      case 'year-chart':
+        return 'Year Chart';
+      case 'models-chart':
+        return 'Models Chart';
+      case 'body-class-chart':
+        return 'Body Class Chart';
       default:
         return 'Panel';
     }
