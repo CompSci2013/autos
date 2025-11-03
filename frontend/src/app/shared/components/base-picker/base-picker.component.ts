@@ -100,6 +100,9 @@ export class BasePickerComponent<T = any> implements OnInit, OnDestroy {
   /** Selection state (Set<string> for O(1) lookups) */
   selectedRows = new Set<string>();
 
+  /** Cached display labels for selected items (prevents template function calls) */
+  selectedItemsDisplay: string[] = [];
+
   /** Pending hydration (selections to apply after data loads) */
   private pendingHydration: string[] = [];
 
@@ -208,6 +211,7 @@ export class BasePickerComponent<T = any> implements OnInit, OnDestroy {
 
     // If no pending selections, nothing to hydrate
     if (!this.pendingHydration || this.pendingHydration.length === 0) {
+      this.updateSelectedItemsDisplay();
       return;
     }
 
@@ -215,6 +219,9 @@ export class BasePickerComponent<T = any> implements OnInit, OnDestroy {
     this.pendingHydration.forEach((key) => {
       this.selectedRows.add(key);
     });
+
+    // Update display cache
+    this.updateSelectedItemsDisplay();
 
     console.log(
       `[BasePickerComponent] Hydrated ${this.pendingHydration.length} selections from URL state`
@@ -269,6 +276,9 @@ export class BasePickerComponent<T = any> implements OnInit, OnDestroy {
       this.selectedRows.delete(key);
     }
 
+    // Update display cache
+    this.updateSelectedItemsDisplay();
+
     console.log(
       `[BasePickerComponent] Row selection changed. Total selected: ${this.selectedRows.size}`
     );
@@ -284,6 +294,14 @@ export class BasePickerComponent<T = any> implements OnInit, OnDestroy {
     return Array.from(this.selectedRows).map((key) =>
       this.config.row.keyParser(key)
     ) as T[];
+  }
+
+  /**
+   * Update cached display labels for selected items
+   * Called whenever selection changes to avoid template function calls
+   */
+  private updateSelectedItemsDisplay(): void {
+    this.selectedItemsDisplay = Array.from(this.selectedRows);
   }
 
   /**
@@ -328,6 +346,7 @@ export class BasePickerComponent<T = any> implements OnInit, OnDestroy {
   onClear(): void {
     console.log('[BasePickerComponent] Clear clicked');
     this.selectedRows.clear();
+    this.updateSelectedItemsDisplay();
     this.cdr.markForCheck();
 
     // Emit selection change event

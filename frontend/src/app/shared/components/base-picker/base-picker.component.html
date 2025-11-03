@@ -67,11 +67,11 @@
   <div class="selection-summary" *ngIf="selectionCount > 0">
     <span class="summary-label">Selected:</span>
     <nz-tag
-      *ngFor="let item of selectedItems.slice(0, 10)"
+      *ngFor="let label of selectedItemsDisplay.slice(0, 10)"
       [nzColor]="'blue'"
       class="selection-chip"
     >
-      {{ config.row.keyGenerator(item) }}
+      {{ label }}
     </nz-tag>
     <nz-tag *ngIf="selectionCount > 10" [nzColor]="'default'">
       +{{ selectionCount - 10 }} more
