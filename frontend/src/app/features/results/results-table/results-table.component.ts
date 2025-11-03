@@ -191,25 +191,49 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
   /**
    * Handle table query changes (user interactions)
    *
-   * IMPORTANT: Results table only manages pagination and sort state.
-   * Filter state is owned exclusively by Query Control component.
-   * This follows Angular best practices for state ownership and single responsibility.
-   *
-   * State Ownership:
-   * - Results Table: page, size, sort, sortDirection
-   * - Query Control: manufacturer, model, year, bodyClass, dataSource
+   * Table column filters OVERRIDE Query Control selections for the same field.
+   * This prevents conflicts between exact matches (Query Control) and partial matches (column filters).
    */
   onTableQueryChange(params: TableQueryParams): void {
-    console.log('[ResultsTable] Table query changed (pagination/sort only):', params);
+    console.log('[ResultsTable] Table query changed:', params);
 
-    const updates = {
+    const updates: any = {
       page: params.page,
       size: params.size,
       sort: params.sortBy || undefined,
       sortDirection: params.sortOrder || undefined,
-      // Explicitly do NOT update filter properties here
-      // Query Control is the sole owner of filter state
     };
+
+    // Check if any column filters are active
+    const hasColumnFilters = params.filters && Object.keys(params.filters).some(
+      key => params.filters![key] !== undefined && params.filters![key] !== ''
+    );
+
+    // If column filters are active, clear modelCombos to avoid conflicts
+    // (column filters use partial matching, modelCombos use exact matching)
+    if (hasColumnFilters) {
+      updates.modelCombos = undefined; // Clear Query Control selections
+    }
+
+    // Include table column filters if present
+    if (params.filters) {
+      if (params.filters['manufacturer'] !== undefined) {
+        updates.manufacturer = params.filters['manufacturer'] || undefined;
+      }
+      if (params.filters['model'] !== undefined) {
+        updates.model = params.filters['model'] || undefined;
+      }
+      if (params.filters['year'] !== undefined) {
+        updates.yearMin = params.filters['year'] || undefined;
+        updates.yearMax = params.filters['year'] || undefined;
+      }
+      if (params.filters['body_class'] !== undefined) {
+        updates.bodyClass = params.filters['body_class'] || undefined;
+      }
+      if (params.filters['data_source'] !== undefined) {
+        updates.dataSource = params.filters['data_source'] || undefined;
+      }
+    }
 
     if (this.popOutContext.isInPopOut()) {
       // Pop-out mode: send message to main window

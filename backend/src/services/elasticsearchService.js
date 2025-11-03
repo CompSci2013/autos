@@ -168,30 +168,31 @@ async function getVehicleDetails(options = {}) {
       };
     }
 
-    // Apply filters (case-insensitive matching on analyzed fields)
+    // Apply filters (partial matching for table column filters)
     if (filters.manufacturer) {
       // Handle comma-separated manufacturers (OR logic)
       const manufacturers = filters.manufacturer.split(',').map(m => m.trim()).filter(m => m);
 
       if (manufacturers.length === 1) {
-        // Single manufacturer: use match query for analyzed field
+        // Single manufacturer: use match_phrase_prefix for partial/prefix matching
+        // This enables autocomplete-style behavior: "bra" matches "Brammo"
         query.bool.filter.push({
-          match: {
+          match_phrase_prefix: {
             manufacturer: {
               query: manufacturers[0],
-              operator: 'and' // All terms must match
+              max_expansions: 50 // Limit wildcard expansions for performance
             },
           },
         });
       } else if (manufacturers.length > 1) {
-        // Multiple manufacturers: use should clause (OR logic)
+        // Multiple manufacturers: use should clause (OR logic) with prefix matching
         query.bool.filter.push({
           bool: {
             should: manufacturers.map(mfr => ({
-              match: {
+              match_phrase_prefix: {
                 manufacturer: {
                   query: mfr,
-                  operator: 'and'
+                  max_expansions: 50
                 },
               },
             })),
@@ -206,24 +207,24 @@ async function getVehicleDetails(options = {}) {
       const models = filters.model.split(',').map(m => m.trim()).filter(m => m);
 
       if (models.length === 1) {
-        // Single model: use match query for analyzed field
+        // Single model: use match_phrase_prefix for partial/prefix matching
         query.bool.filter.push({
-          match: {
+          match_phrase_prefix: {
             model: {
               query: models[0],
-              operator: 'and' // All terms must match
+              max_expansions: 50
             },
           },
         });
       } else if (models.length > 1) {
-        // Multiple models: use should clause (OR logic)
+        // Multiple models: use should clause (OR logic) with prefix matching
         query.bool.filter.push({
           bool: {
             should: models.map(mdl => ({
-              match: {
+              match_phrase_prefix: {
                 model: {
                   query: mdl,
-                  operator: 'and'
+                  max_expansions: 50
                 },
               },
             })),
@@ -250,22 +251,24 @@ async function getVehicleDetails(options = {}) {
     }
 
     if (filters.bodyClass) {
+      // Use match_phrase_prefix for partial matching (e.g., "Pick" matches "Pickup")
       query.bool.filter.push({
-        match: {
+        match_phrase_prefix: {
           body_class: {
             query: filters.bodyClass,
-            operator: 'and'
+            max_expansions: 50
           },
         },
       });
     }
 
     if (filters.dataSource) {
+      // Use match_phrase_prefix for partial matching (e.g., "nht" matches "NHTSA")
       query.bool.filter.push({
-        match: {
+        match_phrase_prefix: {
           data_source: {
             query: filters.dataSource,
-            operator: 'and'
+            max_expansions: 50
           },
         },
       });
