@@ -59,6 +59,7 @@ export class VehicleDataSourceAdapter implements TableDataSource<VehicleResult> 
             params.page,
             params.size,
             filters,
+            {},  // No highlights for this data source (uses StateManagementService highlights)
             params.sortBy,
             params.sortOrder
           ),

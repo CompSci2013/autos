@@ -417,8 +417,10 @@ export class StateManagementService implements OnDestroy {
     console.log('🔵 Combined filters:', combinedFilters);
     console.log('🔵 Cache key:', cacheKey);
 
-    // Get current highlights from state
-    const currentHighlights = this.stateSubject.value.highlights || {};
+    // Extract highlights from URL (not from state, which may not be updated yet)
+    const params = this.routeState.getCurrentParams();
+    const currentHighlights = this.extractHighlights(params);
+    console.log('🔵 Extracted highlights for API call:', currentHighlights);
 
     // Execute through coordinator
     return this.requestCoordinator
@@ -493,8 +495,10 @@ export class StateManagementService implements OnDestroy {
 
     console.log('🔵 StateManagement: Fetching via RequestCoordinator, key:', cacheKey);
 
-    // Get current highlights from state
-    const currentHighlights = this.stateSubject.value.highlights || {};
+    // Extract highlights from URL (not from state, which may not be updated yet)
+    const params = this.routeState.getCurrentParams();
+    const currentHighlights = this.extractHighlights(params);
+    console.log('🔵 Extracted highlights for API call:', currentHighlights);
 
     // Execute through coordinator
     return this.requestCoordinator
