@@ -449,7 +449,12 @@ export class StateManagementService implements OnDestroy {
   private buildFilterParams(filters: SearchFilters): any {
     const params: any = {};
 
-    // Column filters
+    // Pattern 2: Search parameter (table column filters - partial matching)
+    if (filters.search) {
+      params.search = filters.search;
+    }
+
+    // Column filters (Query Control - exact matching)
     if (filters.manufacturer) {
       params.manufacturer = filters.manufacturer;
     }

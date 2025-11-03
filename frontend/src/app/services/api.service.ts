@@ -36,7 +36,8 @@ export class ApiService {
     page: number = 1,
     size: number = 20,
     filters?: {
-      manufacturer?: string;
+      search?: string;        // Pattern 2: Table column filters (partial matching)
+      manufacturer?: string;  // Query Control selections (exact matching)
       model?: string;
       yearMin?: number;
       yearMax?: number;
@@ -57,6 +58,12 @@ export class ApiService {
 
     // Add filter parameters if provided
     if (filters) {
+      // Pattern 2: Search parameter for table column filters (partial matching)
+      if (filters.search) {
+        params = params.set('search', filters.search);
+      }
+
+      // Query Control filters (exact matching)
       if (filters.manufacturer) {
         params = params.set('manufacturer', filters.manufacturer);
       }

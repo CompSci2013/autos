@@ -6,6 +6,10 @@ export interface SearchFilters {
   // Text search
   q?: string;
 
+  // Table column filters (Pattern 2: Search vs Filter Separation)
+  // Partial matching across all fields (manufacturer, model, body_class, data_source)
+  search?: string;
+
   // Manufacturer-Model combinations (from picker)
   modelCombos?: ManufacturerModelSelection[];
 
@@ -17,7 +21,7 @@ export interface SearchFilters {
   sort?: string;
   sortDirection?: 'asc' | 'desc';
 
-  // Column-level filters
+  // Column-level filters (exact matching from Query Control)
   manufacturer?: string;
   model?: string;
   yearMin?: number;

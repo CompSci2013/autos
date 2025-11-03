@@ -168,33 +168,37 @@ async function getVehicleDetails(options = {}) {
       };
     }
 
-    // Apply filters (partial matching for table column filters)
+    // Apply search parameter (partial matching across multiple fields)
+    // Used by table column filters for free-text search
+    if (filters.search) {
+      query.bool.filter.push({
+        multi_match: {
+          query: filters.search,
+          fields: ['manufacturer', 'model', 'body_class', 'data_source'],
+          type: 'phrase_prefix',
+          max_expansions: 50
+        }
+      });
+    }
+
+    // Apply filters (exact matching for Query Control selections)
     if (filters.manufacturer) {
       // Handle comma-separated manufacturers (OR logic)
       const manufacturers = filters.manufacturer.split(',').map(m => m.trim()).filter(m => m);
 
       if (manufacturers.length === 1) {
-        // Single manufacturer: use match_phrase_prefix for partial/prefix matching
-        // This enables autocomplete-style behavior: "bra" matches "Brammo"
+        // Single manufacturer: exact match using term query
         query.bool.filter.push({
-          match_phrase_prefix: {
-            manufacturer: {
-              query: manufacturers[0],
-              max_expansions: 50 // Limit wildcard expansions for performance
-            },
-          },
+          term: {
+            'manufacturer.keyword': manufacturers[0]
+          }
         });
       } else if (manufacturers.length > 1) {
-        // Multiple manufacturers: use should clause (OR logic) with prefix matching
+        // Multiple manufacturers: OR logic with exact matching
         query.bool.filter.push({
           bool: {
             should: manufacturers.map(mfr => ({
-              match_phrase_prefix: {
-                manufacturer: {
-                  query: mfr,
-                  max_expansions: 50
-                },
-              },
+              term: { 'manufacturer.keyword': mfr }
             })),
             minimum_should_match: 1,
           },
@@ -207,26 +211,18 @@ async function getVehicleDetails(options = {}) {
       const models = filters.model.split(',').map(m => m.trim()).filter(m => m);
 
       if (models.length === 1) {
-        // Single model: use match_phrase_prefix for partial/prefix matching
+        // Single model: exact match using term query
         query.bool.filter.push({
-          match_phrase_prefix: {
-            model: {
-              query: models[0],
-              max_expansions: 50
-            },
-          },
+          term: {
+            'model.keyword': models[0]
+          }
         });
       } else if (models.length > 1) {
-        // Multiple models: use should clause (OR logic) with prefix matching
+        // Multiple models: OR logic with exact matching
         query.bool.filter.push({
           bool: {
             should: models.map(mdl => ({
-              match_phrase_prefix: {
-                model: {
-                  query: mdl,
-                  max_expansions: 50
-                },
-              },
+              term: { 'model.keyword': mdl }
             })),
             minimum_should_match: 1,
           },
@@ -251,26 +247,20 @@ async function getVehicleDetails(options = {}) {
     }
 
     if (filters.bodyClass) {
-      // Use match_phrase_prefix for partial matching (e.g., "Pick" matches "Pickup")
+      // Exact match using term query (Query Control selections)
       query.bool.filter.push({
-        match_phrase_prefix: {
-          body_class: {
-            query: filters.bodyClass,
-            max_expansions: 50
-          },
-        },
+        term: {
+          'body_class.keyword': filters.bodyClass
+        }
       });
     }
 
     if (filters.dataSource) {
-      // Use match_phrase_prefix for partial matching (e.g., "nht" matches "NHTSA")
+      // Exact match using term query (Query Control selections)
       query.bool.filter.push({
-        match_phrase_prefix: {
-          data_source: {
-            query: filters.dataSource,
-            max_expansions: 50
-          },
-        },
+        term: {
+          'data_source.keyword': filters.dataSource
+        }
       });
     }
 

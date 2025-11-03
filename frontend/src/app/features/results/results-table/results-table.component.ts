@@ -191,8 +191,9 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
   /**
    * Handle table query changes (user interactions)
    *
-   * Table column filters OVERRIDE Query Control selections for the same field.
-   * This prevents conflicts between exact matches (Query Control) and partial matches (column filters).
+   * Pattern 2: Search vs Filter Separation
+   * - Table column filters → ?search=corve (partial matching across all fields)
+   * - Query Control selections → ?manufacturer=Ford&model=F-150 (exact matching)
    */
   onTableQueryChange(params: TableQueryParams): void {
     console.log('[ResultsTable] Table query changed:', params);
@@ -204,34 +205,39 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
       sortDirection: params.sortOrder || undefined,
     };
 
-    // Check if any column filters are active
-    const hasColumnFilters = params.filters && Object.keys(params.filters).some(
-      key => params.filters![key] !== undefined && params.filters![key] !== ''
-    );
-
-    // If column filters are active, clear modelCombos to avoid conflicts
-    // (column filters use partial matching, modelCombos use exact matching)
-    if (hasColumnFilters) {
-      updates.modelCombos = undefined; // Clear Query Control selections
-    }
-
-    // Include table column filters if present
+    // Combine all table column filters into a single search parameter
+    // This uses multi_match query on backend for partial matching across fields
     if (params.filters) {
-      if (params.filters['manufacturer'] !== undefined) {
-        updates.manufacturer = params.filters['manufacturer'] || undefined;
+      const searchTerms: string[] = [];
+
+      // Collect all non-empty filter values
+      if (params.filters['manufacturer']) {
+        searchTerms.push(params.filters['manufacturer']);
       }
-      if (params.filters['model'] !== undefined) {
-        updates.model = params.filters['model'] || undefined;
+      if (params.filters['model']) {
+        searchTerms.push(params.filters['model']);
       }
-      if (params.filters['year'] !== undefined) {
-        updates.yearMin = params.filters['year'] || undefined;
-        updates.yearMax = params.filters['year'] || undefined;
+      if (params.filters['body_class']) {
+        searchTerms.push(params.filters['body_class']);
       }
-      if (params.filters['body_class'] !== undefined) {
-        updates.bodyClass = params.filters['body_class'] || undefined;
+      if (params.filters['data_source']) {
+        searchTerms.push(params.filters['data_source']);
       }
-      if (params.filters['data_source'] !== undefined) {
-        updates.dataSource = params.filters['data_source'] || undefined;
+
+      // Join all search terms into a single search parameter
+      if (searchTerms.length > 0) {
+        updates.search = searchTerms.join(' ');
+      } else {
+        updates.search = undefined; // Clear search if no filters
+      }
+
+      // Handle year filter separately (it's a range, not a text search)
+      if (params.filters['year']) {
+        updates.yearMin = params.filters['year'];
+        updates.yearMax = params.filters['year'];
+      } else {
+        updates.yearMin = undefined;
+        updates.yearMax = undefined;
       }
     }
 
