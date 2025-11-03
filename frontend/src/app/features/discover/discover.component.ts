@@ -127,7 +127,7 @@ export class DiscoverComponent implements OnInit, OnDestroy {
       disablePushOnResize: false,
       pushDirections: { north: true, east: true, south: true, west: true },
       pushResizeItems: false,
-      displayGrid: 'onDrag&Resize',
+      displayGrid: 'none', // Disable grid lines during drag/resize
       disableWindowResize: false,
       disableWarnings: false,
       scrollToNewItems: false,
@@ -268,21 +268,26 @@ export class DiscoverComponent implements OnInit, OnDestroy {
     const x = event.clientX;
     const y = event.clientY;
 
-    // Check each grid to see if coordinates are within bounds
+    // Check if mouse is over any grid section header
     for (const grid of this.grids) {
-      // Look for all grid container classes (removed .grid-wrapper - no longer exists)
-      const gridEl = document.querySelector(
-        `.bottom-grid-container[data-grid-id="${grid.id}"], .top-grid-container[data-grid-id="${grid.id}"], .middle-grid-container[data-grid-id="${grid.id}"]`
-      );
-      if (!gridEl) continue;
+      const gridContainer = document.querySelector(`[data-grid-id="${grid.id}"]`);
+      if (!gridContainer) continue;
 
-      const rect = gridEl.getBoundingClientRect();
+      // Find the grid-section-header within the same grid-section parent
+      const gridSection = gridContainer.closest('.grid-section');
+      if (!gridSection) continue;
+
+      const headerEl = gridSection.querySelector('.grid-section-header');
+      if (!headerEl) continue;
+
+      const rect = headerEl.getBoundingClientRect();
       if (
         x >= rect.left &&
         x <= rect.right &&
         y >= rect.top &&
         y <= rect.bottom
       ) {
+        // Mouse is over this grid's header
         return grid.id;
       }
     }
@@ -567,5 +572,31 @@ export class DiscoverComponent implements OnInit, OnDestroy {
   getGridName(gridId: string): string {
     const grid = this.grids.find((g) => g.id === gridId);
     return grid?.name || gridId;
+  }
+
+  getGridHeaderLabel(gridId: string): string {
+    const grid = this.grids.find((g) => g.id === gridId);
+    if (!grid || !grid.items || grid.items.length === 0) {
+      return ''; // Blank label when no controls present
+    }
+
+    // Get the first item's panel type
+    const firstItem = grid.items[0];
+    const panelType = firstItem.panelType;
+
+    if (!panelType) {
+      return 'Panel';
+    }
+
+    // Map panel types to readable labels
+    const labelMap: { [key: string]: string } = {
+      'picker': 'Model Picker',
+      'results': 'Vehicle Results',
+      'query-control': 'Query Control',
+      'plotly-charts': 'Interactive Charts (Plotly)',
+      'static-parabola': 'Static Parabola Chart'
+    };
+
+    return labelMap[panelType] || 'Panel';
   }
 }

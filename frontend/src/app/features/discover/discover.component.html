@@ -41,16 +41,17 @@
   </div>
 
   <!-- Grid 1: Query Control -->
-  <nz-collapse *ngIf="grids[0]" nzExpandIconPosition="right">
-    <nz-collapse-panel
-      [nzHeader]="getGridName(grids[0].id)"
-      [nzActive]="!isGridCollapsed(grids[0].id)"
-      (nzActiveChange)="toggleGridCollapse(grids[0].id)"
-    >
+  <div *ngIf="grids[0]" class="grid-section">
+    <div class="grid-section-header" (click)="toggleGridCollapse(grids[0].id)">
+      <h3 class="grid-section-title">{{ getGridHeaderLabel(grids[0].id) }}</h3>
+      <button type="button" class="grid-toggle-btn" [attr.aria-label]="isGridCollapsed(grids[0].id) ? 'Expand' : 'Collapse'">
+        <i nz-icon [nzType]="isGridCollapsed(grids[0].id) ? 'down' : 'up'" nzTheme="outline"></i>
+      </button>
+    </div>
+    <div class="grid-section-content" [class.collapsed]="isGridCollapsed(grids[0].id)">
       <div
         class="grid-container-200"
         [attr.data-grid-id]="grids[0].id"
-        [style.border-color]="grids[0].borderColor"
       >
         <gridster [options]="grids[0].options">
           <gridster-item *ngFor="let item of grids[0]?.items" [item]="item">
@@ -139,20 +140,21 @@
           </gridster-item>
         </gridster>
       </div>
-    </nz-collapse-panel>
-  </nz-collapse>
+    </div>
+  </div>
 
   <!-- Grid 2: Model Picker -->
-  <nz-collapse *ngIf="grids[1]" nzExpandIconPosition="right">
-    <nz-collapse-panel
-      [nzHeader]="getGridName(grids[1].id)"
-      [nzActive]="!isGridCollapsed(grids[1].id)"
-      (nzActiveChange)="toggleGridCollapse(grids[1].id)"
-    >
+  <div *ngIf="grids[1]" class="grid-section">
+    <div class="grid-section-header" (click)="toggleGridCollapse(grids[1].id)">
+      <h3 class="grid-section-title">{{ getGridHeaderLabel(grids[1].id) }}</h3>
+      <button type="button" class="grid-toggle-btn" [attr.aria-label]="isGridCollapsed(grids[1].id) ? 'Expand' : 'Collapse'">
+        <i nz-icon [nzType]="isGridCollapsed(grids[1].id) ? 'down' : 'up'" nzTheme="outline"></i>
+      </button>
+    </div>
+    <div class="grid-section-content" [class.collapsed]="isGridCollapsed(grids[1].id)">
       <div
         class="grid-container-8"
         [attr.data-grid-id]="grids[1].id"
-        [style.border-color]="grids[1].borderColor"
       >
         <gridster [options]="grids[1].options">
           <gridster-item *ngFor="let item of grids[1]?.items" [item]="item">
@@ -241,20 +243,21 @@
           </gridster-item>
         </gridster>
       </div>
-    </nz-collapse-panel>
-  </nz-collapse>
+    </div>
+  </div>
 
   <!-- Grid 3: Vehicle Results -->
-  <nz-collapse *ngIf="grids[2]" nzExpandIconPosition="right">
-    <nz-collapse-panel
-      [nzHeader]="getGridName(grids[2].id)"
-      [nzActive]="!isGridCollapsed(grids[2].id)"
-      (nzActiveChange)="toggleGridCollapse(grids[2].id)"
-    >
+  <div *ngIf="grids[2]" class="grid-section">
+    <div class="grid-section-header" (click)="toggleGridCollapse(grids[2].id)">
+      <h3 class="grid-section-title">{{ getGridHeaderLabel(grids[2].id) }}</h3>
+      <button type="button" class="grid-toggle-btn" [attr.aria-label]="isGridCollapsed(grids[2].id) ? 'Expand' : 'Collapse'">
+        <i nz-icon [nzType]="isGridCollapsed(grids[2].id) ? 'down' : 'up'" nzTheme="outline"></i>
+      </button>
+    </div>
+    <div class="grid-section-content" [class.collapsed]="isGridCollapsed(grids[2].id)">
       <div
         class="grid-container-9"
         [attr.data-grid-id]="grids[2].id"
-        [style.border-color]="grids[2].borderColor"
       >
         <gridster [options]="grids[2].options">
           <gridster-item *ngFor="let item of grids[2]?.items" [item]="item">
@@ -343,20 +346,21 @@
           </gridster-item>
         </gridster>
       </div>
-    </nz-collapse-panel>
-  </nz-collapse>
+    </div>
+  </div>
 
   <!-- Grid 4: Plotly Histograms -->
-  <nz-collapse *ngIf="grids[3]" nzExpandIconPosition="right">
-    <nz-collapse-panel
-      [nzHeader]="getGridName(grids[3].id)"
-      [nzActive]="!isGridCollapsed(grids[3].id)"
-      (nzActiveChange)="toggleGridCollapse(grids[3].id)"
-    >
+  <div *ngIf="grids[3]" class="grid-section">
+    <div class="grid-section-header" (click)="toggleGridCollapse(grids[3].id)">
+      <h3 class="grid-section-title">{{ getGridHeaderLabel(grids[3].id) }}</h3>
+      <button type="button" class="grid-toggle-btn" [attr.aria-label]="isGridCollapsed(grids[3].id) ? 'Expand' : 'Collapse'">
+        <i nz-icon [nzType]="isGridCollapsed(grids[3].id) ? 'down' : 'up'" nzTheme="outline"></i>
+      </button>
+    </div>
+    <div class="grid-section-content" [class.collapsed]="isGridCollapsed(grids[3].id)">
       <div
         class="grid-container-12"
         [attr.data-grid-id]="grids[3].id"
-        [style.border-color]="grids[3].borderColor"
       >
         <gridster [options]="grids[3].options">
           <gridster-item *ngFor="let item of grids[3]?.items" [item]="item">
@@ -445,6 +449,6 @@
           </gridster-item>
         </gridster>
       </div>
-    </nz-collapse-panel>
-  </nz-collapse>
+    </div>
+  </div>
 </div>

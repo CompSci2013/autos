@@ -55,6 +55,72 @@
   }
 }
 
+// Custom Grid Section Collapse (replaces nz-collapse)
+.grid-section {
+  margin: 16px;
+  background: #fff;
+  border-radius: 4px;
+}
+
+.grid-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #e6f7ff; // Light blue complementing banner (#1890ff to #096dd9)
+  border-bottom: 1px solid #91d5ff;
+  border-radius: 4px 4px 0 0; // Round top corners only
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    background: #bae7ff; // Slightly more saturated blue on hover
+  }
+}
+
+.grid-section-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #262626;
+}
+
+.grid-toggle-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #595959;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: #1890ff;
+  }
+
+  i {
+    font-size: 14px;
+  }
+}
+
+.grid-section-content {
+  max-height: 5000px;
+  overflow: visible !important; // Must be visible to allow drag items to float above
+  transition: max-height 0.4s ease, opacity 0.3s ease;
+  opacity: 1;
+  position: relative;
+
+  &.collapsed {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden !important; // Only hide overflow when collapsed
+    pointer-events: none; // Prevent interaction with collapsed content
+  }
+}
+
 .grids-container {
   display: flex;
   gap: 16px;
@@ -70,7 +136,6 @@
   flex-direction: column;
   background: #fff;
   border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: visible;
   position: relative;
 
@@ -90,7 +155,6 @@
   justify-content: flex-start; // Align content to top
   background: #fff;
   border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: visible;
   position: relative;
   margin: 0 16px 16px 16px; // No top margin - collapse panel header provides spacing
@@ -110,7 +174,6 @@
   flex-direction: column;
   background: #fff;
   border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: visible;
   position: relative;
   margin: 0 16px 16px 16px;
@@ -125,6 +188,16 @@
   }
 }
 
+// Ensure ALL grid containers allow overflow for drag-drop
+.grid-container-200,
+.grid-container-8,
+.grid-container-9,
+.grid-container-10,
+.grid-container-12 {
+  overflow: visible !important; // Critical: allow dragged items to escape bounds
+  background: #fff !important; // Solid white background for each container
+}
+
 .grid-container-200 {
   display: flex;
   flex-direction: column;
@@ -132,7 +205,6 @@
   justify-content: flex-start; // Align content to top
   background: #fff;
   border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: visible;
   position: relative;
   margin: 0 16px 16px 16px; // No top margin - collapse panel header provides spacing
@@ -152,7 +224,6 @@
   flex-direction: column;
   background: #fff;
   border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: visible;
   position: relative;
   margin: 0 16px 16px 16px;
@@ -172,7 +243,6 @@
   flex-direction: column;
   background: #fff;
   border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: visible;
   position: relative;
   margin: 0 16px 16px 16px;
@@ -192,7 +262,6 @@
   flex-direction: column;
   background: #fff;
   border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: visible;
   position: relative;
   margin: 0 16px 16px 16px;
@@ -212,7 +281,6 @@
   flex-direction: column;
   background: #fff;
   border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: visible;
   position: relative;
   margin: 0 16px 16px 16px;
@@ -232,7 +300,6 @@
   flex-direction: column;
   background: #fff;
   border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: visible;
   position: relative;
   margin: 0 16px 16px 16px;
@@ -262,9 +329,19 @@
 
 gridster {
   flex: 1;
-  background: #f5f5f5;
+  background: #f5f5f5 !important; // Grid background (not page background)
   overflow: visible !important;
   position: relative;
+
+  // Ensure dragged items float above all other content
+  gridster-item {
+    overflow: visible; // Allow item to escape bounds during drag
+
+    &.gridster-item-moving {
+      z-index: 9999 !important; // Very high z-index when dragging
+      overflow: visible !important;
+    }
+  }
 }
 
 .panel-container {
@@ -276,7 +353,7 @@ gridster {
   border-radius: 4px;
   border: 2px solid #d9d9d9;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  overflow: hidden;
+  overflow: visible; // Changed from hidden to allow panel to escape during drag
 }
 
 .panel-header {
@@ -342,6 +419,39 @@ gridster {
 
 // Gridster drag preview
 ::ng-deep {
+  // CRITICAL: Prevent grid lines from showing on workspace-container
+  .workspace-container {
+    background: #f0f2f5 !important;
+
+    // Never show gridster grid lines on the page background
+    &::before,
+    &::after,
+    .gridster-column,
+    .gridster-row {
+      display: none !important;
+    }
+  }
+
+  // Grid lines should ONLY show within gridster elements
+  .grid-container-200,
+  .grid-container-8,
+  .grid-container-9,
+  .grid-container-10,
+  .grid-container-12 {
+    > gridster {
+      // Grid lines are scoped to THIS gridster only
+      &.gridster-display-grid {
+        .gridster-column,
+        .gridster-row {
+          border-color: rgba(0, 0, 0, 0.1);
+          // Ensure grid lines don't escape this gridster
+          position: absolute;
+          pointer-events: none;
+        }
+      }
+    }
+  }
+
   gridster-item {
     transition: all 0.2s ease;
     position: relative;
@@ -369,13 +479,6 @@ gridster {
 
   // Ensure gridster container allows overflow during drag
   gridster {
-    &.gridster-display-grid {
-      .gridster-column,
-      .gridster-row {
-        border-color: rgba(0, 0, 0, 0.1);
-      }
-    }
-
     // Allow items to overflow grid boundaries
     overflow: visible !important;
   }
@@ -383,5 +486,23 @@ gridster {
   // Ensure gridster items container allows overflow
   .gridster-item {
     overflow: visible !important;
+  }
+
+  // Disable Gridster's drag/resize preview placeholder shadows
+  gridster-preview {
+    display: none !important;
+  }
+
+  .gridster-preview-holder {
+    display: none !important;
+  }
+
+  // Also hide any background highlights from gridster during drag
+  gridster.gridster--dragging,
+  gridster.gridster--resizing {
+    .gridster-column,
+    .gridster-row {
+      display: none !important;
+    }
   }
 }
