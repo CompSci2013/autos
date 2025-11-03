@@ -132,6 +132,7 @@ async function getVehicleDetails(options = {}) {
     page = 1,
     size = 20,
     filters = {},
+    highlights = {},  // NEW: Highlight filters for segmented statistics
     sortBy = null,
     sortOrder = 'asc',
   } = options;
@@ -328,6 +329,39 @@ async function getVehicleDetails(options = {}) {
     // Calculate pagination
     const from = (page - 1) * size;
 
+    // Build highlight filter for sub-aggregations
+    const highlightFilter = { bool: { filter: [] } };
+    let hasHighlights = false;
+
+    if (highlights.yearMin !== undefined || highlights.yearMax !== undefined) {
+      const yearRange = { range: { year: {} } };
+      if (highlights.yearMin !== undefined) yearRange.range.year.gte = highlights.yearMin;
+      if (highlights.yearMax !== undefined) yearRange.range.year.lte = highlights.yearMax;
+      highlightFilter.bool.filter.push(yearRange);
+      hasHighlights = true;
+    }
+
+    if (highlights.manufacturer) {
+      highlightFilter.bool.filter.push({
+        term: { 'manufacturer.keyword': highlights.manufacturer }
+      });
+      hasHighlights = true;
+    }
+
+    if (highlights.bodyClass) {
+      highlightFilter.bool.filter.push({
+        term: { 'body_class': highlights.bodyClass }
+      });
+      hasHighlights = true;
+    }
+
+    // Build sub-aggregation for highlighted portion
+    const highlightedSubAgg = hasHighlights ? {
+      highlighted: {
+        filter: highlightFilter,
+      }
+    } : {};
+
     // Execute search query with aggregations for statistics
     const response = await esClient.search({
       index: ELASTICSEARCH_INDEX,
@@ -336,13 +370,14 @@ async function getVehicleDetails(options = {}) {
       query: query,
       sort: sort,
       aggs: {
-        // Aggregation 1: By Manufacturer
+        // Aggregation 1: By Manufacturer (with segmented sub-agg)
         by_manufacturer: {
           terms: {
             field: 'manufacturer.keyword',
             size: 100,
             order: { _count: 'desc' }
-          }
+          },
+          aggs: highlightedSubAgg
         },
 
         // Aggregation 2: Models by Manufacturer (nested)
@@ -356,27 +391,30 @@ async function getVehicleDetails(options = {}) {
               terms: {
                 field: 'model.keyword',
                 size: 50
-              }
+              },
+              aggs: highlightedSubAgg
             }
           }
         },
 
-        // Aggregation 3: By Year (individual years, not ranges)
+        // Aggregation 3: By Year (individual years, with segmented sub-agg)
         by_year_range: {
           terms: {
             field: 'year',
             size: 100,  // Support up to 100 years
             order: { _key: 'asc' }  // Sort by year ascending
-          }
+          },
+          aggs: highlightedSubAgg
         },
 
-        // Aggregation 4: By Body Class
+        // Aggregation 4: By Body Class (with segmented sub-agg)
         by_body_class: {
           terms: {
             field: 'body_class',
             size: 20,
             order: { _count: 'desc' }
-          }
+          },
+          aggs: highlightedSubAgg
         }
       }
     });
@@ -595,7 +633,16 @@ async function getYearRange() {
  */
 function transformTermsAgg(agg) {
   return agg.buckets.reduce((acc, bucket) => {
-    acc[bucket.key] = bucket.doc_count;
+    // Check if bucket has highlighted sub-aggregation (segmented data)
+    if (bucket.highlighted !== undefined) {
+      acc[bucket.key] = {
+        total: bucket.doc_count,
+        highlighted: bucket.highlighted.doc_count
+      };
+    } else {
+      // Legacy format (no highlights)
+      acc[bucket.key] = bucket.doc_count;
+    }
     return acc;
   }, {});
 }
@@ -608,7 +655,16 @@ function transformTermsAgg(agg) {
 function transformNestedAgg(agg) {
   return agg.buckets.reduce((acc, mfrBucket) => {
     acc[mfrBucket.key] = mfrBucket.models.buckets.reduce((models, modelBucket) => {
-      models[modelBucket.key] = modelBucket.doc_count;
+      // Check if model bucket has highlighted sub-aggregation (segmented data)
+      if (modelBucket.highlighted !== undefined) {
+        models[modelBucket.key] = {
+          total: modelBucket.doc_count,
+          highlighted: modelBucket.highlighted.doc_count
+        };
+      } else {
+        // Legacy format (no highlights)
+        models[modelBucket.key] = modelBucket.doc_count;
+      }
       return models;
     }, {});
     return acc;
