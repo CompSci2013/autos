@@ -1,0 +1,81 @@
+<!--
+  Base Picker Component Template
+
+  Displays a data table with selection checkboxes and action buttons.
+  Uses BaseDataTableComponent for table display.
+-->
+
+<div class="base-picker-container">
+  <!-- Header with selection info and actions -->
+  <div class="picker-header">
+    <div class="selection-info">
+      <span class="selection-count">
+        {{ selectionCount }} item{{ selectionCount === 1 ? '' : 's' }} selected
+      </span>
+    </div>
+
+    <div class="picker-actions">
+      <button
+        nz-button
+        nzType="default"
+        (click)="onClear()"
+        [disabled]="selectionCount === 0"
+      >
+        Clear
+      </button>
+
+      <button
+        nz-button
+        nzType="primary"
+        (click)="onApply()"
+        [disabled]="selectionCount === 0"
+      >
+        Apply Selection
+      </button>
+    </div>
+  </div>
+
+  <!-- Data table -->
+  <app-base-data-table
+    [dataSource]="dataSource"
+    [columns]="columns"
+    [queryParams]="tableQueryParams"
+    [showPagination]="true"
+    [pageSizeOptions]="config.pagination.pageSizeOptions"
+    (queryParamsChange)="onTableQueryChange($event)"
+    (dataLoaded)="onDataLoaded()"
+  >
+    <!-- Selection column (checkbox) -->
+    <ng-template #headerTemplate>
+      <th class="selection-column">
+        <span>Select</span>
+      </th>
+    </ng-template>
+
+    <ng-template #cellTemplate let-row>
+      <td class="selection-column">
+        <label
+          nz-checkbox
+          [ngModel]="isRowSelected(row)"
+          (ngModelChange)="onRowSelectionChange(row, $event)"
+        >
+        </label>
+      </td>
+    </ng-template>
+  </app-base-data-table>
+
+  <!-- Selection summary (chips) -->
+  <div class="selection-summary" *ngIf="selectionCount > 0">
+    <span class="summary-label">Selected:</span>
+    <nz-tag
+      *ngFor="let item of selectedItems.slice(0, 10)"
+      [nzColor]="'blue'"
+      class="selection-chip"
+    >
+      {{ config.row.keyGenerator(item) }}
+    </nz-tag>
+    <nz-tag *ngIf="selectionCount > 10" [nzColor]="'default'">
+      +{{ selectionCount - 10 }} more
+    </nz-tag>
+  </div>
+</div>
