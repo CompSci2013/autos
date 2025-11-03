@@ -18,13 +18,21 @@ import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 import { NzTagModule } from 'ng-zorro-antd/tag';
+import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
 import { BaseDataTableComponent } from './components/base-data-table/base-data-table.component';
 import { ColumnManagerComponent } from './components/column-manager/column-manager.component';
 import { PlotlyHistogramComponent } from './components/plotly-histogram/plotly-histogram.component';
 import { StaticParabolaChartComponent } from './components/static-parabola-chart/static-parabola-chart.component';
+import { BasePickerComponent } from './components/base-picker/base-picker.component';
 
 @NgModule({
-  declarations: [BaseDataTableComponent, ColumnManagerComponent, PlotlyHistogramComponent, StaticParabolaChartComponent],
+  declarations: [
+    BaseDataTableComponent,
+    ColumnManagerComponent,
+    PlotlyHistogramComponent,
+    StaticParabolaChartComponent,
+    BasePickerComponent,
+  ],
   imports: [
     CommonModule,
     FormsModule,
@@ -44,6 +52,7 @@ import { StaticParabolaChartComponent } from './components/static-parabola-chart
     NzSpinModule,
     NzAlertModule,
     NzTagModule,
+    NzCheckboxModule,
   ],
   exports: [
     // Export our components
@@ -51,6 +60,7 @@ import { StaticParabolaChartComponent } from './components/static-parabola-chart
     ColumnManagerComponent,
     PlotlyHistogramComponent,
     StaticParabolaChartComponent,
+    BasePickerComponent,
     // Also export NG-ZORRO modules for convenience
     CommonModule,
     FormsModule,
@@ -70,6 +80,7 @@ import { StaticParabolaChartComponent } from './components/static-parabola-chart
     NzSpinModule,
     NzAlertModule,
     NzTagModule,
+    NzCheckboxModule,
   ],
 })
 export class SharedModule {}
