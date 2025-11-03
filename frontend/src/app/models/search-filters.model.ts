@@ -34,8 +34,37 @@ export interface SearchFilters {
   bodyStyle?: string; // Keep for backwards compatibility
 }
 
+/**
+ * Highlight Filters
+ *
+ * UI-only state for data highlighting (doesn't affect API calls)
+ * Corresponds to URL parameters with 'h_' prefix (e.g., h_yearMin, h_yearMax)
+ *
+ * Purpose: Visual emphasis of data subsets without modifying base search filters
+ */
+export interface HighlightFilters {
+  // Year range highlighting
+  yearMin?: number;       // h_yearMin
+  yearMax?: number;       // h_yearMax
+
+  // Manufacturer highlighting (comma-separated list)
+  manufacturer?: string;  // h_manufacturer
+
+  // Model highlighting (comma-separated list)
+  model?: string;         // h_model
+
+  // Body class highlighting (comma-separated list)
+  bodyClass?: string;     // h_bodyClass
+
+  // Future: Additional dimensions
+  stateCode?: string;     // h_stateCode
+  conditionMin?: number;  // h_conditionMin
+  conditionMax?: number;  // h_conditionMax
+}
+
 export interface AppState {
   filters: SearchFilters;
+  highlights?: HighlightFilters;  // NEW: Highlight state (UI-only)
   results: any[];
   loading: boolean;
   error: string | null;

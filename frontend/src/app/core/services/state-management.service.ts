@@ -10,7 +10,7 @@ import {
   tap,
   catchError,
 } from 'rxjs/operators';
-import { AppState, SearchFilters } from '../../models/search-filters.model';
+import { AppState, SearchFilters, HighlightFilters } from '../../models/search-filters.model';
 import { RouteStateService } from './route-state.service';
 import {
   RequestCoordinatorService,
@@ -67,6 +67,11 @@ export class StateManagementService implements OnDestroy {
 
   public statistics$ = this.state$.pipe(
     map((state) => state.statistics || null),
+    distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b))
+  );
+
+  public highlights$ = this.state$.pipe(
+    map((state) => state.highlights || {}),
     distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b))
   );
 
@@ -132,25 +137,43 @@ export class StateManagementService implements OnDestroy {
       )
       .subscribe(() => {
         const params = this.routeState.getCurrentParams();
-        const filters = this.routeState.paramsToFilters(params);
         const currentState = this.stateSubject.value;
 
-        // Only update if something actually changed
-        if (JSON.stringify(filters) !== JSON.stringify(currentState.filters)) {
-          console.log(
-            '🟡 watchUrlChanges: URL changed, updating filters:',
-            filters
-          );
-          this.updateState({ filters });
+        // Separate base filters from highlights
+        const baseFilters = this.extractBaseFilters(params);
+        const highlights = this.extractHighlights(params);
 
-          // Always trigger data fetch (supports both filtered and unfiltered queries)
-          // Backend supports empty modelCombos (returns all vehicles)
+        // Check if base filters changed (triggers API call)
+        const baseFiltersChanged =
+          JSON.stringify(baseFilters) !== JSON.stringify(currentState.filters);
+
+        // Check if highlights changed (UI update only)
+        const highlightsChanged =
+          JSON.stringify(highlights) !== JSON.stringify(currentState.highlights || {});
+
+        if (baseFiltersChanged) {
+          console.log(
+            '🟡 watchUrlChanges: Base filters changed, updating state:',
+            baseFilters
+          );
+          this.updateState({ filters: baseFilters });
+
+          // Trigger data fetch for base filter changes
           console.log('🟡 watchUrlChanges: Triggering fetchVehicleData()');
           this.fetchVehicleData().subscribe({
             next: () => console.log('🟢 watchUrlChanges: Data fetched'),
             error: (err) =>
               console.error('🔴 watchUrlChanges: Fetch failed:', err),
           });
+        }
+
+        if (highlightsChanged) {
+          console.log(
+            '🟦 watchUrlChanges: Highlights changed (UI only):',
+            highlights
+          );
+          this.updateState({ highlights });
+          // No API call for highlights - they're UI-only
         }
       });
   }
@@ -164,6 +187,67 @@ export class StateManagementService implements OnDestroy {
     const state = this.stateSubject.value;
     const params = this.routeState.filtersToParams(state.filters);
     this.routeState.setParams(params, false);
+  }
+
+  /**
+   * Extract base filters from URL parameters (ignore h_* params)
+   * Base filters trigger API calls
+   */
+  private extractBaseFilters(params: Record<string, string>): SearchFilters {
+    const baseParams: Record<string, string> = {};
+
+    Object.keys(params).forEach((key) => {
+      // Skip highlight parameters (h_* prefix)
+      if (!key.startsWith('h_')) {
+        baseParams[key] = params[key];
+      }
+    });
+
+    return this.routeState.paramsToFilters(baseParams);
+  }
+
+  /**
+   * Extract highlights from URL parameters (only h_* params)
+   * Highlights are UI-only and don't trigger API calls
+   */
+  private extractHighlights(params: Record<string, string>): HighlightFilters {
+    const highlights: HighlightFilters = {};
+
+    Object.keys(params).forEach((key) => {
+      if (key.startsWith('h_')) {
+        const baseKey = key.substring(2); // Remove 'h_' prefix
+
+        // Map to HighlightFilters properties
+        switch (baseKey) {
+          case 'yearMin':
+            highlights.yearMin = parseInt(params[key], 10);
+            break;
+          case 'yearMax':
+            highlights.yearMax = parseInt(params[key], 10);
+            break;
+          case 'manufacturer':
+            highlights.manufacturer = params[key];
+            break;
+          case 'model':
+            highlights.model = params[key];
+            break;
+          case 'bodyClass':
+            highlights.bodyClass = params[key];
+            break;
+          case 'stateCode':
+            highlights.stateCode = params[key];
+            break;
+          case 'conditionMin':
+            highlights.conditionMin = parseInt(params[key], 10);
+            break;
+          case 'conditionMax':
+            highlights.conditionMax = parseInt(params[key], 10);
+            break;
+        }
+      }
+    });
+
+    return highlights;
   }
 
   // ========== PUBLIC METHODS ==========

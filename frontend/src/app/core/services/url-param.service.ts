@@ -305,4 +305,168 @@ export class UrlParamService {
       ...extras,
     });
   }
+
+  // ========== HIGHLIGHT PARAMETER METHODS ==========
+  //
+  // Convenience methods for managing highlight parameters (prefixed with 'h_')
+  // Highlights are UI-only state that don't trigger API calls
+  //
+
+  /**
+   * Get highlight parameter value
+   * Automatically prepends 'h_' prefix to the key
+   *
+   * @param key - Base parameter name (without 'h_' prefix)
+   * @returns Parameter value or null if not present
+   *
+   * @example
+   * // Gets value of 'h_yearMin'
+   * const highlightMin = urlParamService.getHighlightParam('yearMin');
+   */
+  getHighlightParam(key: string): string | null {
+    return this.getParam(`h_${key}`);
+  }
+
+  /**
+   * Set highlight parameter
+   * Automatically prepends 'h_' prefix to the key
+   *
+   * @param key - Base parameter name (without 'h_' prefix)
+   * @param value - Parameter value (undefined to remove)
+   * @param extras - Optional navigation extras
+   * @returns Promise that resolves when navigation completes
+   *
+   * @example
+   * // Sets 'h_yearMin=1965'
+   * urlParamService.setHighlightParam('yearMin', 1965);
+   */
+  setHighlightParam(
+    key: string,
+    value: string | number | boolean | undefined,
+    extras?: NavigationExtras
+  ): Promise<boolean> {
+    return this.updateParam(`h_${key}`, value, extras);
+  }
+
+  /**
+   * Watch for changes to a highlight parameter
+   * Automatically prepends 'h_' prefix to the key
+   *
+   * @param key - Base parameter name (without 'h_' prefix)
+   * @returns Observable that emits when parameter changes
+   *
+   * @example
+   * // Watches 'h_yearMin'
+   * urlParamService.watchHighlightParam('yearMin').subscribe(value => {
+   *   console.log('Highlight year min changed:', value);
+   * });
+   */
+  watchHighlightParam(key: string): Observable<string | null> {
+    return this.watchParam(`h_${key}`);
+  }
+
+  /**
+   * Get all highlight parameters (all params starting with 'h_')
+   * Returns object with 'h_' prefix removed from keys
+   *
+   * @returns Object with highlight parameters (keys without 'h_' prefix)
+   *
+   * @example
+   * // URL: ?models=Ford&h_yearMin=1965&h_yearMax=1970
+   * const highlights = urlParamService.getAllHighlightParams();
+   * // Returns: { yearMin: '1965', yearMax: '1970' }
+   */
+  getAllHighlightParams(): Record<string, string> {
+    const allParams = this.getAllParams();
+    const highlights: Record<string, string> = {};
+
+    Object.keys(allParams).forEach((key) => {
+      if (key.startsWith('h_')) {
+        const baseKey = key.substring(2); // Remove 'h_' prefix
+        highlights[baseKey] = allParams[key];
+      }
+    });
+
+    return highlights;
+  }
+
+  /**
+   * Check if any highlights are active
+   *
+   * @returns True if any 'h_' prefixed parameters exist
+   *
+   * @example
+   * if (urlParamService.hasHighlights()) {
+   *   console.log('Highlights are active');
+   * }
+   */
+  hasHighlights(): boolean {
+    return Object.keys(this.getAllParams()).some((key) => key.startsWith('h_'));
+  }
+
+  /**
+   * Clear all highlight parameters
+   * Removes all parameters starting with 'h_'
+   *
+   * @param extras - Optional navigation extras
+   * @returns Promise that resolves when navigation completes
+   *
+   * @example
+   * urlParamService.clearAllHighlights();
+   */
+  clearAllHighlights(extras?: NavigationExtras): Promise<boolean> {
+    const highlightKeys = Object.keys(this.getAllParams()).filter((key) =>
+      key.startsWith('h_')
+    );
+
+    if (highlightKeys.length === 0) {
+      return Promise.resolve(true); // No highlights to clear
+    }
+
+    return this.removeParams(highlightKeys, extras);
+  }
+
+  /**
+   * Set multiple highlight parameters at once
+   * Automatically prepends 'h_' prefix to all keys
+   *
+   * @param params - Object with base parameter names (without 'h_' prefix)
+   * @param extras - Optional navigation extras
+   * @returns Promise that resolves when navigation completes
+   *
+   * @example
+   * // Sets 'h_yearMin=1965' and 'h_yearMax=1970'
+   * urlParamService.setHighlightRange({
+   *   yearMin: 1965,
+   *   yearMax: 1970
+   * });
+   */
+  setHighlightRange(
+    params: Record<string, string | number | boolean | undefined>,
+    extras?: NavigationExtras
+  ): Promise<boolean> {
+    const highlightParams: Record<string, string | number | boolean | undefined> = {};
+
+    Object.keys(params).forEach((key) => {
+      highlightParams[`h_${key}`] = params[key];
+    });
+
+    return this.updateParams(highlightParams, extras);
+  }
+
+  /**
+   * Watch for changes to all highlight parameters
+   *
+   * @returns Observable that emits object with all highlight parameters
+   *
+   * @example
+   * urlParamService.watchAllHighlightParams().subscribe(highlights => {
+   *   console.log('Highlights changed:', highlights);
+   * });
+   */
+  watchAllHighlightParams(): Observable<Record<string, string>> {
+    return this.route.queryParamMap.pipe(
+      map(() => this.getAllHighlightParams())
+    );
+  }
 }
