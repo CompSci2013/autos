@@ -37,7 +37,6 @@ import { takeUntil } from 'rxjs/operators';
 import {
   PickerConfig,
   PickerSelectionEvent,
-  resolveColumnValue,
 } from '../../models/picker-config.model';
 import { TableColumn, TableQueryParams } from '../../models';
 import { BaseDataTableComponent } from '../base-data-table/base-data-table.component';
@@ -142,11 +141,22 @@ export class BasePickerComponent<T = any> implements OnInit, OnDestroy {
     this.dataSource = new BasePickerDataSource<T>(this.apiService, this.config);
 
     // Set up columns (convert PickerColumnConfig to TableColumn)
-    this.columns = this.config.columns.map((col) => ({
-      ...col,
-      // TableColumn uses 'key' but we may have 'valuePath'
-      // The resolveColumnValue() function will handle this
-    })) as TableColumn<T>[];
+    // Add selection column first
+    this.columns = [
+      {
+        key: '__selection',
+        label: 'Select',
+        width: '60px',
+        sortable: false,
+        filterable: false,
+        hideable: false,
+      } as TableColumn<T>,
+      ...this.config.columns.map((col) => ({
+        ...col,
+        // TableColumn uses 'key' but we may have 'valuePath'
+        // The resolveColumnValue() function will handle this
+      })) as TableColumn<T>[],
+    ];
 
     // Set up initial query params
     this.tableQueryParams = {

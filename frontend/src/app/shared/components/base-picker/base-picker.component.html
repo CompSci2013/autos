@@ -44,22 +44,22 @@
     (queryParamsChange)="onTableQueryChange($event)"
     (dataLoaded)="onDataLoaded()"
   >
-    <!-- Selection column (checkbox) -->
-    <ng-template #headerTemplate>
-      <th class="selection-column">
-        <span>Select</span>
-      </th>
-    </ng-template>
-
-    <ng-template #cellTemplate let-row>
-      <td class="selection-column">
+    <!-- Cell template: renders selection checkbox for __selection column, data for other columns -->
+    <ng-template #cellTemplate let-row let-column="column">
+      <!-- Selection checkbox column -->
+      <ng-container *ngIf="column.key === '__selection'">
         <label
           nz-checkbox
           [ngModel]="isRowSelected(row)"
           (ngModelChange)="onRowSelectionChange(row, $event)"
         >
         </label>
-      </td>
+      </ng-container>
+
+      <!-- Data columns (use default rendering) -->
+      <ng-container *ngIf="column.key !== '__selection'">
+        {{ column.formatter ? column.formatter(row[column.key], row) : row[column.key] }}
+      </ng-container>
     </ng-template>
   </app-base-data-table>
 
