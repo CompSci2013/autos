@@ -21,7 +21,7 @@
         (click)="expandAllGrids()"
         nz-tooltip="Expand all sections"
       >
-        <i nz-icon nzType="arrows-alt" nzTheme="outline"></i>
+        <i nz-icon nzType="down"></i>
         Expand All
       </button>
       <button
@@ -31,7 +31,7 @@
         (click)="collapseAllGrids()"
         nz-tooltip="Collapse all sections"
       >
-        <i nz-icon nzType="shrink" nzTheme="outline"></i>
+        <i nz-icon nzType="up"></i>
         Collapse All
       </button>
       <button nz-button nzType="default" (click)="onClearAll()">
@@ -44,15 +44,23 @@
   <div *ngIf="grids[0]" class="grid-section">
     <div class="grid-section-header" (click)="toggleGridCollapse(grids[0].id)">
       <h3 class="grid-section-title">{{ getGridHeaderLabel(grids[0].id) }}</h3>
-      <button type="button" class="grid-toggle-btn" [attr.aria-label]="isGridCollapsed(grids[0].id) ? 'Expand' : 'Collapse'">
-        <i nz-icon [nzType]="isGridCollapsed(grids[0].id) ? 'down' : 'up'" nzTheme="outline"></i>
+      <button
+        type="button"
+        class="grid-toggle-btn"
+        [attr.aria-label]="isGridCollapsed(grids[0].id) ? 'Expand' : 'Collapse'"
+      >
+        <i
+          nz-icon
+          [nzType]="isGridCollapsed(grids[0].id) ? 'down' : 'up'"
+          nzTheme="outline"
+        ></i>
       </button>
     </div>
-    <div class="grid-section-content" [class.collapsed]="isGridCollapsed(grids[0].id)">
-      <div
-        class="grid-container-200"
-        [attr.data-grid-id]="grids[0].id"
-      >
+    <div
+      class="grid-section-content"
+      [class.collapsed]="isGridCollapsed(grids[0].id)"
+    >
+      <div class="grid-container-200" [attr.data-grid-id]="grids[0].id">
         <gridster [options]="grids[0].options">
           <gridster-item *ngFor="let item of grids[0]?.items" [item]="item">
             <div class="panel-container">
@@ -124,7 +132,66 @@
                   </app-query-control>
                 </div>
                 <div *ngIf="item.panelType === 'picker'">
+                  <!-- NEW: BasePickerComponent (Configuration-Driven) -->
+                  <div
+                    style="
+                      margin-bottom: 8px;
+                      padding: 8px;
+                      background: #e6f7ff;
+                      border: 1px solid #91d5ff;
+                      border-radius: 4px;
+                    "
+                  >
+                    <strong style="color: #1890ff"
+                      >✨ NEW: BasePickerComponent</strong
+                    >
+                    <span style="margin-left: 8px; font-size: 12px; color: #666"
+                      >(Configuration-driven)</span
+                    >
+                  </div>
+                  <app-base-picker
+                    [configId]="'manufacturer-model'"
+                  ></app-base-picker>
+
+                  <!-- ORIGINAL: TablePickerComponent (For comparison) -->
+                  <div
+                    style="
+                      margin: 24px 0 8px 0;
+                      padding: 8px;
+                      background: #f0f0f0;
+                      border: 1px solid #d9d9d9;
+                      border-radius: 4px;
+                    "
+                  >
+                    <strong style="color: #666"
+                      >🔹 ORIGINAL: TablePickerComponent</strong
+                    >
+                    <span style="margin-left: 8px; font-size: 12px; color: #999"
+                      >(Legacy, for comparison)</span
+                    >
+                  </div>
                   <app-table-picker></app-table-picker>
+
+                  <!-- NEW: VIN Browser (Browse ALL 1,835 VINs) -->
+                  <div
+                    style="
+                      margin: 24px 0 8px 0;
+                      padding: 8px;
+                      background: #fff7e6;
+                      border: 1px solid #ffd591;
+                      border-radius: 4px;
+                    "
+                  >
+                    <strong style="color: #d46b08"
+                      >🚗 NEW: VIN Browser</strong
+                    >
+                    <span style="margin-left: 8px; font-size: 12px; color: #666"
+                      >(Browse ALL VINs with filtering: Mfr, Model, Year, Body Class, Mileage, Value)</span
+                    >
+                  </div>
+                  <app-base-picker
+                    [configId]="'vin-browser'"
+                  ></app-base-picker>
                 </div>
                 <div *ngIf="item.panelType === 'results'">
                   <app-results-table></app-results-table>
@@ -147,15 +214,23 @@
   <div *ngIf="grids[1]" class="grid-section">
     <div class="grid-section-header" (click)="toggleGridCollapse(grids[1].id)">
       <h3 class="grid-section-title">{{ getGridHeaderLabel(grids[1].id) }}</h3>
-      <button type="button" class="grid-toggle-btn" [attr.aria-label]="isGridCollapsed(grids[1].id) ? 'Expand' : 'Collapse'">
-        <i nz-icon [nzType]="isGridCollapsed(grids[1].id) ? 'down' : 'up'" nzTheme="outline"></i>
+      <button
+        type="button"
+        class="grid-toggle-btn"
+        [attr.aria-label]="isGridCollapsed(grids[1].id) ? 'Expand' : 'Collapse'"
+      >
+        <i
+          nz-icon
+          [nzType]="isGridCollapsed(grids[1].id) ? 'down' : 'up'"
+          nzTheme="outline"
+        ></i>
       </button>
     </div>
-    <div class="grid-section-content" [class.collapsed]="isGridCollapsed(grids[1].id)">
-      <div
-        class="grid-container-8"
-        [attr.data-grid-id]="grids[1].id"
-      >
+    <div
+      class="grid-section-content"
+      [class.collapsed]="isGridCollapsed(grids[1].id)"
+    >
+      <div class="grid-container-8" [attr.data-grid-id]="grids[1].id">
         <gridster [options]="grids[1].options">
           <gridster-item *ngFor="let item of grids[1]?.items" [item]="item">
             <div class="panel-container">
@@ -227,7 +302,66 @@
                   </app-query-control>
                 </div>
                 <div *ngIf="item.panelType === 'picker'">
+                  <!-- NEW: BasePickerComponent (Configuration-Driven) -->
+                  <div
+                    style="
+                      margin-bottom: 8px;
+                      padding: 8px;
+                      background: #e6f7ff;
+                      border: 1px solid #91d5ff;
+                      border-radius: 4px;
+                    "
+                  >
+                    <strong style="color: #1890ff"
+                      >✨ NEW: BasePickerComponent</strong
+                    >
+                    <span style="margin-left: 8px; font-size: 12px; color: #666"
+                      >(Configuration-driven)</span
+                    >
+                  </div>
+                  <app-base-picker
+                    [configId]="'manufacturer-model'"
+                  ></app-base-picker>
+
+                  <!-- ORIGINAL: TablePickerComponent (For comparison) -->
+                  <div
+                    style="
+                      margin: 24px 0 8px 0;
+                      padding: 8px;
+                      background: #f0f0f0;
+                      border: 1px solid #d9d9d9;
+                      border-radius: 4px;
+                    "
+                  >
+                    <strong style="color: #666"
+                      >🔹 ORIGINAL: TablePickerComponent</strong
+                    >
+                    <span style="margin-left: 8px; font-size: 12px; color: #999"
+                      >(Legacy, for comparison)</span
+                    >
+                  </div>
                   <app-table-picker></app-table-picker>
+
+                  <!-- NEW: VIN Browser (Browse ALL 1,835 VINs) -->
+                  <div
+                    style="
+                      margin: 24px 0 8px 0;
+                      padding: 8px;
+                      background: #fff7e6;
+                      border: 1px solid #ffd591;
+                      border-radius: 4px;
+                    "
+                  >
+                    <strong style="color: #d46b08"
+                      >🚗 NEW: VIN Browser</strong
+                    >
+                    <span style="margin-left: 8px; font-size: 12px; color: #666"
+                      >(Browse ALL VINs with filtering: Mfr, Model, Year, Body Class, Mileage, Value)</span
+                    >
+                  </div>
+                  <app-base-picker
+                    [configId]="'vin-browser'"
+                  ></app-base-picker>
                 </div>
                 <div *ngIf="item.panelType === 'results'">
                   <app-results-table></app-results-table>
@@ -250,15 +384,23 @@
   <div *ngIf="grids[2]" class="grid-section">
     <div class="grid-section-header" (click)="toggleGridCollapse(grids[2].id)">
       <h3 class="grid-section-title">{{ getGridHeaderLabel(grids[2].id) }}</h3>
-      <button type="button" class="grid-toggle-btn" [attr.aria-label]="isGridCollapsed(grids[2].id) ? 'Expand' : 'Collapse'">
-        <i nz-icon [nzType]="isGridCollapsed(grids[2].id) ? 'down' : 'up'" nzTheme="outline"></i>
+      <button
+        type="button"
+        class="grid-toggle-btn"
+        [attr.aria-label]="isGridCollapsed(grids[2].id) ? 'Expand' : 'Collapse'"
+      >
+        <i
+          nz-icon
+          [nzType]="isGridCollapsed(grids[2].id) ? 'down' : 'up'"
+          nzTheme="outline"
+        ></i>
       </button>
     </div>
-    <div class="grid-section-content" [class.collapsed]="isGridCollapsed(grids[2].id)">
-      <div
-        class="grid-container-9"
-        [attr.data-grid-id]="grids[2].id"
-      >
+    <div
+      class="grid-section-content"
+      [class.collapsed]="isGridCollapsed(grids[2].id)"
+    >
+      <div class="grid-container-9" [attr.data-grid-id]="grids[2].id">
         <gridster [options]="grids[2].options">
           <gridster-item *ngFor="let item of grids[2]?.items" [item]="item">
             <div class="panel-container">
@@ -330,7 +472,66 @@
                   </app-query-control>
                 </div>
                 <div *ngIf="item.panelType === 'picker'">
+                  <!-- NEW: BasePickerComponent (Configuration-Driven) -->
+                  <div
+                    style="
+                      margin-bottom: 8px;
+                      padding: 8px;
+                      background: #e6f7ff;
+                      border: 1px solid #91d5ff;
+                      border-radius: 4px;
+                    "
+                  >
+                    <strong style="color: #1890ff"
+                      >✨ NEW: BasePickerComponent</strong
+                    >
+                    <span style="margin-left: 8px; font-size: 12px; color: #666"
+                      >(Configuration-driven)</span
+                    >
+                  </div>
+                  <app-base-picker
+                    [configId]="'manufacturer-model'"
+                  ></app-base-picker>
+
+                  <!-- ORIGINAL: TablePickerComponent (For comparison) -->
+                  <div
+                    style="
+                      margin: 24px 0 8px 0;
+                      padding: 8px;
+                      background: #f0f0f0;
+                      border: 1px solid #d9d9d9;
+                      border-radius: 4px;
+                    "
+                  >
+                    <strong style="color: #666"
+                      >🔹 ORIGINAL: TablePickerComponent</strong
+                    >
+                    <span style="margin-left: 8px; font-size: 12px; color: #999"
+                      >(Legacy, for comparison)</span
+                    >
+                  </div>
                   <app-table-picker></app-table-picker>
+
+                  <!-- NEW: VIN Browser (Browse ALL 1,835 VINs) -->
+                  <div
+                    style="
+                      margin: 24px 0 8px 0;
+                      padding: 8px;
+                      background: #fff7e6;
+                      border: 1px solid #ffd591;
+                      border-radius: 4px;
+                    "
+                  >
+                    <strong style="color: #d46b08"
+                      >🚗 NEW: VIN Browser</strong
+                    >
+                    <span style="margin-left: 8px; font-size: 12px; color: #666"
+                      >(Browse ALL VINs with filtering: Mfr, Model, Year, Body Class, Mileage, Value)</span
+                    >
+                  </div>
+                  <app-base-picker
+                    [configId]="'vin-browser'"
+                  ></app-base-picker>
                 </div>
                 <div *ngIf="item.panelType === 'results'">
                   <app-results-table></app-results-table>
@@ -353,15 +554,23 @@
   <div *ngIf="grids[3]" class="grid-section">
     <div class="grid-section-header" (click)="toggleGridCollapse(grids[3].id)">
       <h3 class="grid-section-title">{{ getGridHeaderLabel(grids[3].id) }}</h3>
-      <button type="button" class="grid-toggle-btn" [attr.aria-label]="isGridCollapsed(grids[3].id) ? 'Expand' : 'Collapse'">
-        <i nz-icon [nzType]="isGridCollapsed(grids[3].id) ? 'down' : 'up'" nzTheme="outline"></i>
+      <button
+        type="button"
+        class="grid-toggle-btn"
+        [attr.aria-label]="isGridCollapsed(grids[3].id) ? 'Expand' : 'Collapse'"
+      >
+        <i
+          nz-icon
+          [nzType]="isGridCollapsed(grids[3].id) ? 'down' : 'up'"
+          nzTheme="outline"
+        ></i>
       </button>
     </div>
-    <div class="grid-section-content" [class.collapsed]="isGridCollapsed(grids[3].id)">
-      <div
-        class="grid-container-12"
-        [attr.data-grid-id]="grids[3].id"
-      >
+    <div
+      class="grid-section-content"
+      [class.collapsed]="isGridCollapsed(grids[3].id)"
+    >
+      <div class="grid-container-12" [attr.data-grid-id]="grids[3].id">
         <gridster [options]="grids[3].options">
           <gridster-item *ngFor="let item of grids[3]?.items" [item]="item">
             <div class="panel-container">
@@ -433,7 +642,66 @@
                   </app-query-control>
                 </div>
                 <div *ngIf="item.panelType === 'picker'">
+                  <!-- NEW: BasePickerComponent (Configuration-Driven) -->
+                  <div
+                    style="
+                      margin-bottom: 8px;
+                      padding: 8px;
+                      background: #e6f7ff;
+                      border: 1px solid #91d5ff;
+                      border-radius: 4px;
+                    "
+                  >
+                    <strong style="color: #1890ff"
+                      >✨ NEW: BasePickerComponent</strong
+                    >
+                    <span style="margin-left: 8px; font-size: 12px; color: #666"
+                      >(Configuration-driven)</span
+                    >
+                  </div>
+                  <app-base-picker
+                    [configId]="'manufacturer-model'"
+                  ></app-base-picker>
+
+                  <!-- ORIGINAL: TablePickerComponent (For comparison) -->
+                  <div
+                    style="
+                      margin: 24px 0 8px 0;
+                      padding: 8px;
+                      background: #f0f0f0;
+                      border: 1px solid #d9d9d9;
+                      border-radius: 4px;
+                    "
+                  >
+                    <strong style="color: #666"
+                      >🔹 ORIGINAL: TablePickerComponent</strong
+                    >
+                    <span style="margin-left: 8px; font-size: 12px; color: #999"
+                      >(Legacy, for comparison)</span
+                    >
+                  </div>
                   <app-table-picker></app-table-picker>
+
+                  <!-- NEW: VIN Browser (Browse ALL 1,835 VINs) -->
+                  <div
+                    style="
+                      margin: 24px 0 8px 0;
+                      padding: 8px;
+                      background: #fff7e6;
+                      border: 1px solid #ffd591;
+                      border-radius: 4px;
+                    "
+                  >
+                    <strong style="color: #d46b08"
+                      >🚗 NEW: VIN Browser</strong
+                    >
+                    <span style="margin-left: 8px; font-size: 12px; color: #666"
+                      >(Browse ALL VINs with filtering: Mfr, Model, Year, Body Class, Mileage, Value)</span
+                    >
+                  </div>
+                  <app-base-picker
+                    [configId]="'vin-browser'"
+                  ></app-base-picker>
                 </div>
                 <div *ngIf="item.panelType === 'results'">
                   <app-results-table></app-results-table>

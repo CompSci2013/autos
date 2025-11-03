@@ -1,0 +1,85 @@
+<!--
+  Base Picker Component Template
+
+  Displays a data table with selection checkboxes and action buttons.
+  Uses BaseDataTableComponent for table display.
+-->
+
+<div class="base-picker-container">
+  <!-- Header with selection info and actions -->
+  <div class="picker-header">
+    <div class="selection-info">
+      <span class="selection-count">
+        {{ selectionCount }} item{{ selectionCount === 1 ? '' : 's' }} selected
+      </span>
+    </div>
+
+    <div class="picker-actions">
+      <button
+        nz-button
+        nzType="default"
+        (click)="onClear()"
+        [disabled]="selectionCount === 0"
+      >
+        Clear
+      </button>
+
+      <button
+        nz-button
+        nzType="primary"
+        (click)="onApply()"
+        [disabled]="selectionCount === 0"
+      >
+        Apply Selection
+      </button>
+    </div>
+  </div>
+
+  <!-- Data table -->
+  <app-base-data-table
+    [tableId]="config.id + '-picker'"
+    [dataSource]="dataSource"
+    [columns]="columns"
+    [queryParams]="tableQueryParams"
+    (queryParamsChange)="onTableQueryChange($event)"
+    (dataLoaded)="onDataLoaded()"
+  >
+    <!-- Cell template: renders selection checkbox for __selection column, data for other columns -->
+    <ng-template #cellTemplate let-row="row" let-column="column">
+      <!-- Selection checkbox column -->
+      <ng-container *ngIf="column.key === '__selection'">
+        <ng-container *ngIf="row">
+          <label
+            nz-checkbox
+            [ngModel]="isRowSelected(row)"
+            (ngModelChange)="onRowSelectionChange(row, $event)"
+          >
+          </label>
+        </ng-container>
+      </ng-container>
+
+      <!-- Data columns (use default rendering) -->
+      <ng-container *ngIf="column.key !== '__selection'">
+        <ng-container *ngIf="row; else emptyCell">
+          {{ column.formatter ? column.formatter(row[column.key], row) : row[column.key] }}
+        </ng-container>
+        <ng-template #emptyCell>-</ng-template>
+      </ng-container>
+    </ng-template>
+  </app-base-data-table>
+
+  <!-- Selection summary (chips) -->
+  <div class="selection-summary" *ngIf="selectionCount > 0">
+    <span class="summary-label">Selected:</span>
+    <nz-tag
+      *ngFor="let label of selectedItemsDisplay.slice(0, 10)"
+      [nzColor]="'blue'"
+      class="selection-chip"
+    >
+      {{ label }}
+    </nz-tag>
+    <nz-tag *ngIf="selectionCount > 10" [nzColor]="'default'">
+      +{{ selectionCount - 10 }} more
+    </nz-tag>
+  </div>
+</div>

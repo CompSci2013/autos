@@ -36,8 +36,13 @@ export class ApiService {
     page: number = 1,
     size: number = 20,
     filters?: {
-      search?: string;        // Pattern 2: Table column filters (partial matching)
-      manufacturer?: string;  // Query Control selections (exact matching)
+      // Pattern 2: Field-specific search parameters (table column filters - partial matching)
+      manufacturerSearch?: string;
+      modelSearch?: string;
+      bodyClassSearch?: string;
+      dataSourceSearch?: string;
+      // Query Control selections (exact matching)
+      manufacturer?: string;
       model?: string;
       yearMin?: number;
       yearMax?: number;
@@ -58,9 +63,18 @@ export class ApiService {
 
     // Add filter parameters if provided
     if (filters) {
-      // Pattern 2: Search parameter for table column filters (partial matching)
-      if (filters.search) {
-        params = params.set('search', filters.search);
+      // Pattern 2: Field-specific search parameters (table column filters - partial matching)
+      if (filters.manufacturerSearch) {
+        params = params.set('manufacturerSearch', filters.manufacturerSearch);
+      }
+      if (filters.modelSearch) {
+        params = params.set('modelSearch', filters.modelSearch);
+      }
+      if (filters.bodyClassSearch) {
+        params = params.set('bodyClassSearch', filters.bodyClassSearch);
+      }
+      if (filters.dataSourceSearch) {
+        params = params.set('dataSourceSearch', filters.dataSourceSearch);
       }
 
       // Query Control filters (exact matching)
@@ -108,6 +122,61 @@ export class ApiService {
       `${this.apiUrl}/vehicles/${vehicleId}/instances`,
       { params }
     );
+  }
+
+  /**
+   * Get all VINs with filtering and pagination
+   *
+   * @param page - Page number (1-indexed)
+   * @param size - Results per page
+   * @param filters - Optional filters (manufacturer, model, yearMin/Max, bodyClass, mileageMin/Max, valueMin/Max)
+   * @param sortBy - Field to sort by (default: vin)
+   * @param sortOrder - Sort order (asc/desc, default: asc)
+   */
+  getAllVins(
+    page: number = 1,
+    size: number = 20,
+    filters?: {
+      manufacturer?: string;
+      model?: string;
+      yearMin?: number;
+      yearMax?: number;
+      bodyClass?: string;
+      mileageMin?: number;
+      mileageMax?: number;
+      valueMin?: number;
+      valueMax?: number;
+      vin?: string;
+      conditionDescription?: string;
+      registeredState?: string;
+      exteriorColor?: string;
+    },
+    sortBy: string = 'vin',
+    sortOrder: 'asc' | 'desc' = 'asc'
+  ): Observable<any> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('sortBy', sortBy)
+      .set('sortOrder', sortOrder);
+
+    if (filters) {
+      if (filters.manufacturer) params = params.set('manufacturer', filters.manufacturer);
+      if (filters.model) params = params.set('model', filters.model);
+      if (filters.yearMin) params = params.set('yearMin', filters.yearMin.toString());
+      if (filters.yearMax) params = params.set('yearMax', filters.yearMax.toString());
+      if (filters.bodyClass) params = params.set('bodyClass', filters.bodyClass);
+      if (filters.mileageMin) params = params.set('mileageMin', filters.mileageMin.toString());
+      if (filters.mileageMax) params = params.set('mileageMax', filters.mileageMax.toString());
+      if (filters.valueMin) params = params.set('valueMin', filters.valueMin.toString());
+      if (filters.valueMax) params = params.set('valueMax', filters.valueMax.toString());
+      if (filters.vin) params = params.set('vin', filters.vin);
+      if (filters.conditionDescription) params = params.set('conditionDescription', filters.conditionDescription);
+      if (filters.registeredState) params = params.set('registeredState', filters.registeredState);
+      if (filters.exteriorColor) params = params.set('exteriorColor', filters.exteriorColor);
+    }
+
+    return this.http.get<any>(`${this.apiUrl}/vins`, { params });
   }
 
   // ========== FILTER ENDPOINTS ==========

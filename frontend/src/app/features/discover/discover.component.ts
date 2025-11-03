@@ -42,6 +42,9 @@ export class DiscoverComponent implements OnInit, OnDestroy {
   // Current filters from state
   currentFilters: SearchFilters = {};
 
+  // Demo vehicle ID for VIN picker (context-aware demo)
+  demoVehicleId = 'synth-buick-enclave-2008';
+
   constructor(
     private stateService: StateManagementService,
     private gridTransfer: GridTransferService,
