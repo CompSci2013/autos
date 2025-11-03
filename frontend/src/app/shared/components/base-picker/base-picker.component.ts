@@ -320,32 +320,43 @@ export class BasePickerComponent<T = any> implements OnInit, OnDestroy {
    */
   onApply(): void {
     console.log('[BasePickerComponent] Apply clicked');
+    console.log('[BasePickerComponent] Selected rows (keys):', Array.from(this.selectedRows));
     console.log('[BasePickerComponent] Selected items:', this.selectedItems);
 
-    // Emit selection change event
-    this.selectionChange.emit({
-      pickerId: this.config.id,
-      selections: this.selectedItems,
-      keys: Array.from(this.selectedRows),
-    });
-
-    // Update state based on context (pop-out vs normal)
-    if (this.popOutContext.isInPopOut()) {
-      // Pop-out mode: send message to main window
-      this.popOutContext.sendMessage({
-        type: 'PICKER_SELECTION_CHANGE',
-        payload: {
-          configId: this.config.id,
-          urlParam: this.config.selection.urlParam,
-          urlValue: this.config.selection.serializer(this.selectedItems),
-        },
+    try {
+      // Emit selection change event
+      this.selectionChange.emit({
+        pickerId: this.config.id,
+        selections: this.selectedItems,
+        keys: Array.from(this.selectedRows),
       });
-    } else {
-      // Normal mode: update state directly
-      const urlValue = this.config.selection.serializer(this.selectedItems);
-      this.stateService.updateFilters({
-        [this.config.selection.urlParam]: urlValue,
-      } as any);
+
+      // Update state based on context (pop-out vs normal)
+      if (this.popOutContext.isInPopOut()) {
+        // Pop-out mode: send message to main window
+        console.log('[BasePickerComponent] Pop-out mode: Sending message to main window');
+        const urlValue = this.config.selection.serializer(this.selectedItems);
+        console.log('[BasePickerComponent] Serialized URL value:', urlValue);
+        this.popOutContext.sendMessage({
+          type: 'PICKER_SELECTION_CHANGE',
+          payload: {
+            configId: this.config.id,
+            urlParam: this.config.selection.urlParam,
+            urlValue,
+          },
+        });
+      } else {
+        // Normal mode: update state directly
+        console.log('[BasePickerComponent] Normal mode: Updating state directly');
+        const urlValue = this.config.selection.serializer(this.selectedItems);
+        console.log('[BasePickerComponent] Serialized URL value:', urlValue);
+        this.stateService.updateFilters({
+          [this.config.selection.urlParam]: urlValue,
+        } as any);
+      }
+    } catch (error) {
+      console.error('[BasePickerComponent] Error in onApply():', error);
+      throw error;
     }
   }
 
