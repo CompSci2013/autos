@@ -43,7 +43,7 @@ import { BaseDataTableComponent } from '../base-data-table/base-data-table.compo
 import { BasePickerDataSource } from '../../services/base-picker-data-source';
 import { PickerConfigService } from '../../../core/services/picker-config.service';
 import { PopOutContextService } from '../../../core/services/popout-context.service';
-import { StateManagementService } from '../../../core/services/state-management.service';
+import { UrlParamService } from '../../../core/services/url-param.service';
 import { RouteStateService } from '../../../core/services/route-state.service';
 import { ApiService } from '../../../services/api.service';
 
@@ -116,7 +116,7 @@ export class BasePickerComponent<T = any> implements OnInit, OnDestroy {
     private apiService: ApiService,
     private cdr: ChangeDetectorRef,
     private popOutContext: PopOutContextService,
-    private stateService: StateManagementService,
+    private urlParamService: UrlParamService,
     private routeState: RouteStateService
   ) {}
 
@@ -346,14 +346,15 @@ export class BasePickerComponent<T = any> implements OnInit, OnDestroy {
           },
         });
       } else {
-        // Normal mode: update state directly
-        console.log('[BasePickerComponent] Normal mode: Updating state directly');
-        // Serialize selections before passing to updateFilters
+        // Normal mode: update URL directly
+        console.log('[BasePickerComponent] Normal mode: Updating URL directly');
+        // Serialize selections before passing to URL service
         const serialized = this.config.selection.serializer(this.selectedItems);
         console.log('[BasePickerComponent] Serialized selections:', serialized);
-        this.stateService.updateFilters({
-          [this.config.selection.urlParam]: serialized,
-        } as any);
+        this.urlParamService.updateParam(
+          this.config.selection.urlParam,
+          serialized
+        );
       }
     } catch (error) {
       console.error('[BasePickerComponent] Error in onApply():', error);
@@ -389,10 +390,8 @@ export class BasePickerComponent<T = any> implements OnInit, OnDestroy {
         },
       });
     } else {
-      // Normal mode: update state directly
-      this.stateService.updateFilters({
-        [this.config.selection.urlParam]: '',
-      } as any);
+      // Normal mode: remove URL parameter
+      this.urlParamService.removeParam(this.config.selection.urlParam);
     }
   }
 
