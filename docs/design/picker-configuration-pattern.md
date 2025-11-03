@@ -290,6 +290,22 @@ export interface PickerConfig<T = any> {
     /** TTL in milliseconds (0 = cache forever until reset) */
     ttl: number;
   };
+
+  /** Pagination mode */
+  pagination: {
+    /**
+     * Mode: 'client' or 'server'
+     * - 'client': Load all data once, paginate in memory (fast, good for <1000 rows)
+     * - 'server': Request each page from API (scalable, required for large datasets)
+     */
+    mode: 'client' | 'server';
+
+    /** Default page size */
+    defaultPageSize: number;
+
+    /** Available page size options */
+    pageSizeOptions: number[];
+  };
 }
 
 /**
@@ -449,6 +465,12 @@ export const MANUFACTURER_MODEL_PICKER_CONFIG: PickerConfig<PickerFlatRow> = {
   caching: {
     enabled: true,
     ttl: 0, // Cache forever (manufacturer-model data rarely changes)
+  },
+
+  pagination: {
+    mode: 'client', // ✅ Client-side: Load all ~200 manufacturer-model combos once
+    defaultPageSize: 20,
+    pageSizeOptions: [10, 20, 50, 100],
   },
 };
 ```
@@ -640,7 +662,57 @@ export const VIN_PICKER_CONFIG: PickerConfig<VinPickerRow> = {
     enabled: false, // VIN instances are context-specific, don't cache
     ttl: 0,
   },
+
+  pagination: {
+    mode: 'server', // ✅ Server-side: Could be thousands of VINs, don't load all at once
+    defaultPageSize: 20,
+    pageSizeOptions: [10, 20, 50, 100],
+  },
 };
+```
+
+### Server-Side vs Client-Side Pagination
+
+**When to use Client-Side Pagination:**
+- Small datasets (<1,000 rows)
+- Data rarely changes (can cache effectively)
+- Fast initial load acceptable
+- Example: Manufacturer-Model picker (~200 combinations)
+
+**When to use Server-Side Pagination:**
+- Large datasets (>1,000 rows)
+- Data context-specific (can't cache effectively)
+- Need immediate initial response
+- Example: VIN picker (potentially 10,000+ VINs per vehicle)
+
+**Implementation Difference:**
+
+```typescript
+// Client-side pagination
+api: {
+  method: 'getManufacturerModelCombinations',
+  paramMapper: () => ({ page: 1, size: 100 }), // Load all at once
+  responseTransformer: (response) => {
+    // Return all data, BasePickerDataSource will paginate in memory
+    return { results: allRows, total: allRows.length, ... };
+  },
+},
+pagination: { mode: 'client' }
+
+// Server-side pagination
+api: {
+  method: 'getVehicleInstances',
+  paramMapper: (params) => ({
+    vehicleId: params.filters?.['vehicleId'],
+    page: params.page,        // ✅ Pass page to API
+    size: params.size,        // ✅ Pass size to API
+  }),
+  responseTransformer: (response) => {
+    // Return only requested page
+    return { results: response.instances, total: response.instance_count, ... };
+  },
+},
+pagination: { mode: 'server' }
 ```
 
 ### Example Configuration (Deeply Nested Data)
