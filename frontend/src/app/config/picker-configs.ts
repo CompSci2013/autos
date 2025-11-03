@@ -124,7 +124,13 @@ export const MANUFACTURER_MODEL_PICKER_CONFIG: PickerConfig<ManufacturerModelPic
   },
 
   row: {
-    keyGenerator: (row) => `${row.manufacturer}|${row.model}`,
+    keyGenerator: (row) => {
+      if (!row || !row.manufacturer || !row.model) {
+        console.warn('[PICKER CONFIG] keyGenerator called with invalid row:', row);
+        return 'invalid-key';
+      }
+      return `${row.manufacturer}|${row.model}`;
+    },
     keyParser: (key) => {
       const [manufacturer, model] = key.split('|');
       return { manufacturer, model, key } as Partial<ManufacturerModelPickerRow>;
@@ -140,15 +146,24 @@ export const MANUFACTURER_MODEL_PICKER_CONFIG: PickerConfig<ManufacturerModelPic
     },
     deserializer: (urlValue) => {
       if (!urlValue) return [];
-      return urlValue.split(',').map((combo) => {
-        const [manufacturer, model] = combo.split(':');
-        return {
-          manufacturer,
-          model,
-          count: 0,
-          key: `${manufacturer}|${model}`,
-        } as ManufacturerModelPickerRow;
-      });
+      return urlValue
+        .split(',')
+        .filter((combo) => combo && combo.includes(':')) // Filter out empty/invalid combos
+        .map((combo) => {
+          const [manufacturer, model] = combo.split(':');
+          // Skip if either is missing
+          if (!manufacturer || !model) {
+            console.warn('[PICKER CONFIG] Invalid combo in URL:', combo);
+            return null;
+          }
+          return {
+            manufacturer,
+            model,
+            count: 0,
+            key: `${manufacturer}|${model}`,
+          } as ManufacturerModelPickerRow;
+        })
+        .filter((item) => item !== null) as ManufacturerModelPickerRow[]; // Remove nulls
     },
   },
 
