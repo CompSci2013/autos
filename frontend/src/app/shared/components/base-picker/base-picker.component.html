@@ -45,7 +45,7 @@
     (dataLoaded)="onDataLoaded()"
   >
     <!-- Cell template: renders selection checkbox for __selection column, data for other columns -->
-    <ng-template #cellTemplate let-row let-column="column">
+    <ng-template #cellTemplate let-row="row" let-column="column">
       <!-- Selection checkbox column -->
       <ng-container *ngIf="column.key === '__selection'">
         <ng-container *ngIf="row">
