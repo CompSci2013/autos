@@ -36,8 +36,13 @@ export class ApiService {
     page: number = 1,
     size: number = 20,
     filters?: {
-      search?: string;        // Pattern 2: Table column filters (partial matching)
-      manufacturer?: string;  // Query Control selections (exact matching)
+      // Pattern 2: Field-specific search parameters (table column filters - partial matching)
+      manufacturerSearch?: string;
+      modelSearch?: string;
+      bodyClassSearch?: string;
+      dataSourceSearch?: string;
+      // Query Control selections (exact matching)
+      manufacturer?: string;
       model?: string;
       yearMin?: number;
       yearMax?: number;
@@ -58,9 +63,18 @@ export class ApiService {
 
     // Add filter parameters if provided
     if (filters) {
-      // Pattern 2: Search parameter for table column filters (partial matching)
-      if (filters.search) {
-        params = params.set('search', filters.search);
+      // Pattern 2: Field-specific search parameters (table column filters - partial matching)
+      if (filters.manufacturerSearch) {
+        params = params.set('manufacturerSearch', filters.manufacturerSearch);
+      }
+      if (filters.modelSearch) {
+        params = params.set('modelSearch', filters.modelSearch);
+      }
+      if (filters.bodyClassSearch) {
+        params = params.set('bodyClassSearch', filters.bodyClassSearch);
+      }
+      if (filters.dataSourceSearch) {
+        params = params.set('dataSourceSearch', filters.dataSourceSearch);
       }
 
       // Query Control filters (exact matching)

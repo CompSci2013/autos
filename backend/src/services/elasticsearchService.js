@@ -168,15 +168,55 @@ async function getVehicleDetails(options = {}) {
       };
     }
 
-    // Apply search parameter (partial matching across multiple fields)
-    // Used by table column filters for free-text search
-    if (filters.search) {
+    // Pattern 2: Field-specific search parameters (partial matching on individual fields)
+    // Used by table column filters - each column searches ONLY its own field
+
+    // Manufacturer search (partial matching on manufacturer field only)
+    if (filters.manufacturerSearch) {
       query.bool.filter.push({
-        multi_match: {
-          query: filters.search,
-          fields: ['manufacturer', 'model', 'body_class', 'data_source'],
-          type: 'phrase_prefix',
-          max_expansions: 50
+        match_phrase_prefix: {
+          manufacturer: {
+            query: filters.manufacturerSearch,
+            max_expansions: 50
+          }
+        }
+      });
+    }
+
+    // Model search (partial matching on model field only)
+    if (filters.modelSearch) {
+      query.bool.filter.push({
+        match_phrase_prefix: {
+          model: {
+            query: filters.modelSearch,
+            max_expansions: 50
+          }
+        }
+      });
+    }
+
+    // Body class search (partial matching on body_class field only)
+    if (filters.bodyClassSearch) {
+      const searchTerm = filters.bodyClassSearch.toLowerCase();
+      query.bool.filter.push({
+        wildcard: {
+          'body_class': {
+            value: `*${searchTerm}*`,
+            case_insensitive: true
+          }
+        }
+      });
+    }
+
+    // Data source search (partial matching on data_source field only)
+    if (filters.dataSourceSearch) {
+      const searchTerm = filters.dataSourceSearch.toLowerCase();
+      query.bool.filter.push({
+        wildcard: {
+          'data_source': {
+            value: `*${searchTerm}*`,
+            case_insensitive: true
+          }
         }
       });
     }
@@ -250,7 +290,7 @@ async function getVehicleDetails(options = {}) {
       // Exact match using term query (Query Control selections)
       query.bool.filter.push({
         term: {
-          'body_class.keyword': filters.bodyClass
+          'body_class': filters.bodyClass
         }
       });
     }
@@ -259,7 +299,7 @@ async function getVehicleDetails(options = {}) {
       // Exact match using term query (Query Control selections)
       query.bool.filter.push({
         term: {
-          'data_source.keyword': filters.dataSource
+          'data_source': filters.dataSource
         }
       });
     }

@@ -69,6 +69,12 @@ async function getVehicleDetailsHandler(req, res, next) {
       models = '',
       page = 1,
       size = 20,
+      // Pattern 2: Field-specific search parameters (table column filters - partial matching)
+      manufacturerSearch = '',
+      modelSearch = '',
+      bodyClassSearch = '',
+      dataSourceSearch = '',
+      // Query Control filters (exact matching)
       manufacturer = '',
       model = '',
       yearMin = '',
@@ -135,6 +141,14 @@ async function getVehicleDetailsHandler(req, res, next) {
 
     // Build filters object
     const filters = {};
+
+    // Pattern 2: Field-specific search parameters (table column filters - partial matching)
+    if (manufacturerSearch) filters.manufacturerSearch = manufacturerSearch.trim();
+    if (modelSearch) filters.modelSearch = modelSearch.trim();
+    if (bodyClassSearch) filters.bodyClassSearch = bodyClassSearch.trim();
+    if (dataSourceSearch) filters.dataSourceSearch = dataSourceSearch.trim();
+
+    // Query Control filters (exact matching)
     if (manufacturer) filters.manufacturer = manufacturer.trim();
     if (model) filters.model = model.trim();
     if (yearMin) filters.yearMin = parseInt(yearMin);

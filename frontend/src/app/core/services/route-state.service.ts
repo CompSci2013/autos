@@ -93,7 +93,10 @@ export class RouteStateService {
         .join(',');
     }
 
-    // Column filters
+    // NOTE: Table column filters (manufacturerSearch, modelSearch, etc.) are NOT in URL
+    // They are ephemeral and handled via fetchWithEphemeralFilters()
+
+    // Column filters (Query Control - exact matching)
     if (filters.manufacturer) params['manufacturer'] = filters.manufacturer;
     if (filters.model) params['model'] = filters.model;
     if (filters.bodyClass) params['bodyClass'] = filters.bodyClass;
@@ -140,7 +143,10 @@ export class RouteStateService {
       filters.modelCombos = modelsArray;
     }
 
-    // Column filters
+    // NOTE: Table column filters (manufacturerSearch, modelSearch, etc.) are NOT in URL
+    // They are ephemeral and handled separately
+
+    // Column filters (Query Control - exact matching)
     if (params['manufacturer']) filters.manufacturer = params['manufacturer'];
     if (params['model']) filters.model = params['model'];
     if (params['bodyClass']) filters.bodyClass = params['bodyClass'];

@@ -6,9 +6,11 @@ export interface SearchFilters {
   // Text search
   q?: string;
 
-  // Table column filters (Pattern 2: Search vs Filter Separation)
-  // Partial matching across all fields (manufacturer, model, body_class, data_source)
-  search?: string;
+  // Table column filters (Pattern 2: Field-specific partial matching)
+  manufacturerSearch?: string;  // Partial match on manufacturer field only
+  modelSearch?: string;          // Partial match on model field only
+  bodyClassSearch?: string;      // Partial match on body_class field only
+  dataSourceSearch?: string;     // Partial match on data_source field only
 
   // Manufacturer-Model combinations (from picker)
   modelCombos?: ManufacturerModelSelection[];
