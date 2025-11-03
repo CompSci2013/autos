@@ -35,6 +35,33 @@
     </nz-tag>
   </div>
 
+  <!-- Active Highlight Chips (distinct from filters) -->
+  <div class="highlight-chips" *ngIf="activeHighlightChips.length > 0">
+    <span class="chips-label">Active Highlights:</span>
+    <nz-tag
+      *ngFor="let chip of activeHighlightChips"
+      [nzColor]="chip.color"
+      nzMode="closeable"
+      (nzOnClose)="removeHighlight(chip.field)"
+      class="highlight-chip"
+      nz-tooltip
+      nzTooltipTitle="Data highlighting for charts (non-filtering)"
+    >
+      <span class="chip-content">
+        <strong>{{ chip.label }}:</strong> {{ chip.displayValue }}
+      </span>
+    </nz-tag>
+    <button
+      nz-button
+      nzType="link"
+      nzSize="small"
+      (click)="onClearAllHighlights()"
+      class="clear-highlights-btn"
+    >
+      Clear All Highlights
+    </button>
+  </div>
+
   <!-- Year Range Dialog (using NG-ZORRO Year Picker) -->
   <nz-modal
     [(nzVisible)]="rangeDialogVisible"

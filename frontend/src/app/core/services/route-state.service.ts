@@ -69,8 +69,9 @@ export class RouteStateService {
 
   removeParam(key: string): void {
     const current = this.getCurrentParams();
-    delete current[key];
-    this.setParams(current);
+    // Create new object without the key (params object is read-only)
+    const { [key]: removed, ...remaining } = current;
+    this.setParams(remaining);
   }
 
   clearAllParams(): void {

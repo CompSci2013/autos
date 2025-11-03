@@ -147,7 +147,7 @@ export class StateManagementService implements OnDestroy {
         const baseFiltersChanged =
           JSON.stringify(baseFilters) !== JSON.stringify(currentState.filters);
 
-        // Check if highlights changed (UI update only)
+        // Check if highlights changed (triggers API call for segmented statistics)
         const highlightsChanged =
           JSON.stringify(highlights) !== JSON.stringify(currentState.highlights || {});
 
@@ -169,11 +169,19 @@ export class StateManagementService implements OnDestroy {
 
         if (highlightsChanged) {
           console.log(
-            '🟦 watchUrlChanges: Highlights changed (UI only):',
+            '🟦 watchUrlChanges: Highlights changed:',
             highlights
           );
           this.updateState({ highlights });
-          // No API call for highlights - they're UI-only
+
+          // Highlights now require API call to get segmented statistics
+          // Backend returns {total, highlighted} format when h_* params present
+          console.log('🟦 watchUrlChanges: Triggering fetchVehicleData() for segmented statistics');
+          this.fetchVehicleData().subscribe({
+            next: () => console.log('🟢 watchUrlChanges: Segmented statistics fetched'),
+            error: (err) =>
+              console.error('🔴 watchUrlChanges: Fetch failed:', err),
+          });
         }
       });
   }
@@ -410,17 +418,17 @@ export class StateManagementService implements OnDestroy {
       ? this.buildModelsParam(combinedFilters.modelCombos)
       : '';
 
-    // Build cache key from combined filters
-    const cacheKey = this.buildCacheKey('vehicle-details', combinedFilters);
-
     console.log('🔵 StateManagement: Fetching with ephemeral filters:', ephemeralFilters);
     console.log('🔵 Combined filters:', combinedFilters);
-    console.log('🔵 Cache key:', cacheKey);
 
     // Extract highlights from URL (not from state, which may not be updated yet)
     const params = this.routeState.getCurrentParams();
     const currentHighlights = this.extractHighlights(params);
     console.log('🔵 Extracted highlights for API call:', currentHighlights);
+
+    // Build cache key from combined filters AND highlights
+    const cacheKey = this.buildCacheKey('vehicle-details', combinedFilters, currentHighlights);
+    console.log('🔵 Cache key:', cacheKey);
 
     // Execute through coordinator
     return this.requestCoordinator
@@ -490,15 +498,15 @@ export class StateManagementService implements OnDestroy {
       ? this.buildModelsParam(filters.modelCombos)
       : '';
 
-    // Build unique cache key from filters
-    const cacheKey = this.buildCacheKey('vehicle-details', filters);
-
-    console.log('🔵 StateManagement: Fetching via RequestCoordinator, key:', cacheKey);
-
     // Extract highlights from URL (not from state, which may not be updated yet)
     const params = this.routeState.getCurrentParams();
     const currentHighlights = this.extractHighlights(params);
     console.log('🔵 Extracted highlights for API call:', currentHighlights);
+
+    // Build unique cache key from filters AND highlights
+    const cacheKey = this.buildCacheKey('vehicle-details', filters, currentHighlights);
+
+    console.log('🔵 StateManagement: Fetching via RequestCoordinator, key:', cacheKey);
 
     // Execute through coordinator
     return this.requestCoordinator
@@ -551,11 +559,12 @@ export class StateManagementService implements OnDestroy {
 
   /**
    * Get loading state for vehicle data
-   * Returns observable of loading state for the current filters
+   * Returns observable of loading state for the current filters AND highlights
    */
   getVehicleDataLoadingState$(): Observable<RequestState> {
     const filters = this.getCurrentFilters();
-    const cacheKey = this.buildCacheKey('vehicle-details', filters);
+    const highlights = this.stateSubject.value.highlights || {};
+    const cacheKey = this.buildCacheKey('vehicle-details', filters, highlights);
     return this.requestCoordinator.getLoadingState$(cacheKey);
   }
 
@@ -586,11 +595,12 @@ export class StateManagementService implements OnDestroy {
   // ========== PRIVATE HELPER METHODS ==========
 
   /**
-   * Build unique cache key from filter state
+   * Build unique cache key from filter state AND highlights
    * Creates deterministic key for request deduplication and caching
+   * IMPORTANT: Highlights must be included to ensure correct cache behavior
    */
-  private buildCacheKey(prefix: string, filters: SearchFilters): string {
-    // Create deterministic key from filters
+  private buildCacheKey(prefix: string, filters: SearchFilters, highlights: HighlightFilters = {}): string {
+    // Create deterministic key from filters AND highlights
     const filterString = JSON.stringify({
       modelCombos: filters.modelCombos?.sort((a, b) =>
         `${a.manufacturer}:${a.model}`.localeCompare(
@@ -615,6 +625,11 @@ export class StateManagementService implements OnDestroy {
       model: filters.model,
       bodyClass: filters.bodyClass,
       dataSource: filters.dataSource,
+      // HIGHLIGHTS: Must be included for correct cache invalidation
+      h_yearMin: highlights.yearMin,
+      h_yearMax: highlights.yearMax,
+      h_manufacturer: highlights.manufacturer,
+      h_bodyClass: highlights.bodyClass,
     });
 
     // Use base64 encoding for URL-safe key

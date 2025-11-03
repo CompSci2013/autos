@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { StateManagementService } from '../../core/services/state-management.service';
+import { UrlParamService } from '../../core/services/url-param.service';
 import { GridTransferService } from '../../core/services/grid-transfer.service';
 import { PanelPopoutService } from '../../core/services/panel-popout.service';
 import { ManufacturerModelSelection } from '../../models';
@@ -47,6 +48,7 @@ export class DiscoverComponent implements OnInit, OnDestroy {
 
   constructor(
     private stateService: StateManagementService,
+    private urlParams: UrlParamService,
     private gridTransfer: GridTransferService,
     private popoutService: PanelPopoutService,
     private cdr: ChangeDetectorRef
@@ -436,6 +438,38 @@ export class DiscoverComponent implements OnInit, OnDestroy {
   }): void {
     console.log('Discover: Query filter removed:', event.field);
     this.stateService.updateFilters(event.updates);
+  }
+
+  /**
+   * Handle highlight removal from Query Control
+   * Removes h_* URL parameters based on field
+   */
+  onHighlightRemove(field: string): void {
+    console.log('Discover: Highlight removed:', field);
+
+    const paramsToRemove: string[] = [];
+
+    if (field === 'h_year') {
+      paramsToRemove.push('h_yearMin', 'h_yearMax');
+    } else if (field === 'h_manufacturer') {
+      paramsToRemove.push('h_manufacturer');
+    } else if (field === 'h_bodyClass') {
+      paramsToRemove.push('h_bodyClass');
+    }
+
+    // Remove h_* parameters from URL using UrlParamService
+    this.urlParams.removeParams(paramsToRemove);
+  }
+
+  /**
+   * Clear all highlights
+   * Removes all h_* URL parameters
+   */
+  onClearHighlights(): void {
+    console.log('Discover: Clearing all highlights');
+
+    // UrlParamService has a dedicated method for this
+    this.urlParams.clearAllHighlights();
   }
 
   get hasActiveFilters(): boolean {
