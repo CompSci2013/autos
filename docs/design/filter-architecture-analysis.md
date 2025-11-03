@@ -978,6 +978,141 @@ This distinction is common in professional applications and provides the cleares
 
 ---
 
-**Document Status:** Ready for review and decision
-**Next Steps:** Review with team, select solution, implement Phase 1
-**Estimated Effort:** Option 2: 2-3 hours | Option 1: 1-2 days
+## Implementation Status
+
+### ✅ IMPLEMENTED: Pattern 2 - Search vs Filter Separation
+
+**Decision Date:** 2025-11-02
+**Implementation:** Backend v1.4.3, Frontend (ResultsTableComponent, StateManagementService, ApiService)
+**Status:** Deployed to production
+
+### Implementation Summary
+
+**Pattern Selected:** Pattern 2 (Search vs Filter Separation)
+- User requested this pattern explicitly (Amazon, eBay, Airbnb style)
+- Clearest separation between exact matching (Query Control) and partial matching (table filters)
+
+**URL Structure:**
+```
+# Table column filters (partial matching)
+?search=corve
+
+# Query Control selections (exact matching)
+?manufacturer=Ford&model=F-150&bodyClass=Pickup
+```
+
+**Backend Changes (elasticsearchService.js):**
+```javascript
+// NEW: Search parameter (multi_match across all fields)
+if (filters.search) {
+  query.bool.filter.push({
+    multi_match: {
+      query: filters.search,
+      fields: ['manufacturer', 'model', 'body_class', 'data_source'],
+      type: 'phrase_prefix',
+      max_expansions: 50
+    }
+  });
+}
+
+// REVERTED: Field filters now use exact matching (term queries)
+if (filters.manufacturer) {
+  query.bool.filter.push({
+    term: { 'manufacturer.keyword': filters.manufacturer }
+  });
+}
+```
+
+**Frontend Changes:**
+
+1. **ResultsTableComponent** ([results-table.component.ts:191-254](frontend/src/app/features/results/results-table/results-table.component.ts#L191-L254))
+   - Combines all table column filters into single `search` parameter
+   - Joins multiple filter values with space: `"ford corvette"`
+   - Year filter handled separately (range filter)
+
+2. **SearchFilters Model** ([search-filters.model.ts:9-11](frontend/src/app/models/search-filters.model.ts#L9-L11))
+   - Added `search?: string` property with documentation
+
+3. **ApiService** ([api.service.ts:39](frontend/src/app/services/api.service.ts#L39))
+   - Added `search` parameter to filters interface
+   - Passes to backend as query parameter
+
+4. **StateManagementService** ([state-management.service.ts:452-455](frontend/src/app/core/services/state-management.service.ts#L452-L455))
+   - Includes `search` in buildFilterParams()
+
+**Deployment:**
+- Backend: v1.4.3 deployed to K3s cluster (2 replicas running)
+- Deployment file updated: [k8s/backend-deployment.yaml](k8s/backend-deployment.yaml)
+
+### Benefits Realized
+
+1. **Clear Semantic Separation:**
+   - `?search=corve` always means partial matching
+   - `?model=Corvette` always means exact matching
+   - No ambiguity in URL parameters
+
+2. **Component Responsibilities Aligned:**
+   - Query Control owns filter selection → updates URL with exact match params
+   - Results Table sends search queries → updates URL with search param only
+   - Both components can coexist without conflict
+
+3. **Improved UX:**
+   - Query Control Active Filters shows correct state (no more "Model: corve")
+   - Table filters work as expected (autocomplete-style)
+   - URL remains bookmarkable/shareable with clear intent
+
+### Testing Scenarios
+
+**Scenario 1: Table filter only**
+- User types "corve" in Model column filter
+- URL: `?search=corve&page=1&size=20`
+- Backend: multi_match query across all fields
+- Result: Finds Corvette vehicles ✅
+
+**Scenario 2: Query Control only**
+- User selects Ford:F-150 from picker
+- URL: `?modelCombos=Ford:F-150&page=1&size=20`
+- Backend: term query for exact match
+- Result: Only Ford F-150 vehicles ✅
+
+**Scenario 3: Combined filters**
+- User selects manufacturer=Ford from Query Control
+- User types "f-1" in table Model filter
+- URL: `?manufacturer=Ford&search=f-1&page=1&size=20`
+- Backend: term query for Ford AND multi_match for "f-1"
+- Result: Ford vehicles with "f-1" in any field (likely F-150) ✅
+
+### Alternative Considered but Not Implemented
+
+**Option 2 (Transient Client-Side Filters)** was the document's primary recommendation, but user explicitly requested Pattern 2 instead. This was the correct choice because:
+- User familiar with Amazon/eBay pattern
+- AUTOS dataset size (100K records) requires backend filtering for performance
+- Table filters should be bookmarkable/shareable in this application
+
+### Future Enhancements (Optional)
+
+1. **Field-Specific Search Parameters** (if needed):
+   - `?searchManufacturer=ford&searchModel=corve`
+   - Would allow targeting specific fields while maintaining partial matching
+   - Only implement if users request more precise control
+
+2. **Search Syntax** (if needed):
+   - Support boolean operators: `?search=ford AND (f-150 OR ranger)`
+   - Support field prefixes: `?search=manufacturer:ford model:corvette`
+   - Only implement if users request advanced query capabilities
+
+### Lessons Learned
+
+1. **User Input Matters:** Despite analysis recommending Option 2, Pattern 2 better fit user expectations and application requirements
+2. **Explicit Parameter Naming:** `search` vs field name clearly signals intent
+3. **Multi-Match Queries:** Elasticsearch `multi_match` with `phrase_prefix` type perfect for autocomplete across fields
+4. **Documentation Value:** Analysis document helped user understand trade-offs and make informed decision
+
+---
+
+**Document Status:** IMPLEMENTED
+**Implementation Date:** 2025-11-02
+**Backend Version:** v1.4.3
+**Commits:**
+- Analysis: `8931d0d` (2025-11-02)
+- Implementation: `8e1d58d` (2025-11-02)
