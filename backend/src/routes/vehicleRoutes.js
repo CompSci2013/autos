@@ -3,6 +3,7 @@ const router = express.Router();
 const {
   getManufacturerModelCombinationsHandler,
   getVehicleDetailsHandler,
+  getAllVinsHandler,
   getVehicleInstancesHandler,
   getFilterOptionsHandler,
 } = require('../controllers/vehicleController');
@@ -43,14 +44,36 @@ router.get('/manufacturer-model-combinations', getManufacturerModelCombinationsH
 router.get('/vehicles/details', getVehicleDetailsHandler);
 
 /**
+ * GET /api/v1/vins
+ * Returns all VINs with pagination, filtering, and sorting
+ *
+ * Query parameters:
+ *   - page: Page number (default: 1)
+ *   - size: Results per page (default: 20, max: 100)
+ *   - manufacturer: Filter by manufacturer
+ *   - model: Filter by model
+ *   - yearMin: Minimum year
+ *   - yearMax: Maximum year
+ *   - bodyClass: Filter by body class
+ *   - mileageMin: Minimum mileage
+ *   - mileageMax: Maximum mileage
+ *   - valueMin: Minimum estimated value
+ *   - valueMax: Maximum estimated value
+ *   - sortBy: Field to sort by (default: vin)
+ *   - sortOrder: Sort order (asc/desc, default: asc)
+ */
+router.get('/vins', getAllVinsHandler);
+
+/**
  * GET /api/v1/vehicles/:vehicleId/instances
- * Returns synthetic VIN-level data for a specific vehicle specification
+ * Returns VINs for a specific vehicle specification
  *
  * Path parameters:
  *   - vehicleId: Vehicle specification ID (e.g., nhtsa-ford-mustang-1967)
  *
  * Query parameters:
- *   - count: Number of VIN instances to generate (default: 8, max: 20)
+ *   - page: Page number (default: 1)
+ *   - pageSize: Results per page (default: 20, max: 100)
  */
 router.get('/vehicles/:vehicleId/instances', getVehicleInstancesHandler);
 

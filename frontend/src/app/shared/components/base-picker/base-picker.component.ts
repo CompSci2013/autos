@@ -348,9 +348,11 @@ export class BasePickerComponent<T = any> implements OnInit, OnDestroy {
       } else {
         // Normal mode: update state directly
         console.log('[BasePickerComponent] Normal mode: Updating state directly');
-        // Pass raw array to updateFilters - serialization happens in RouteStateService
+        // Serialize selections before passing to updateFilters
+        const serialized = this.config.selection.serializer(this.selectedItems);
+        console.log('[BasePickerComponent] Serialized selections:', serialized);
         this.stateService.updateFilters({
-          [this.config.selection.urlParam]: this.selectedItems,
+          [this.config.selection.urlParam]: serialized,
         } as any);
       }
     } catch (error) {
