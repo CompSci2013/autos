@@ -37,11 +37,10 @@
 
   <!-- Data table -->
   <app-base-data-table
+    [tableId]="config.id + '-picker'"
     [dataSource]="dataSource"
     [columns]="columns"
     [queryParams]="tableQueryParams"
-    [showPagination]="true"
-    [pageSizeOptions]="config.pagination.pageSizeOptions"
     (queryParamsChange)="onTableQueryChange($event)"
     (dataLoaded)="onDataLoaded()"
   >

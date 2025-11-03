@@ -204,6 +204,7 @@ export const VIN_PICKER_CONFIG: PickerConfig<VinPickerRow> = {
       sortable: true,
       filterable: true,
       filterType: 'text',
+      hideable: true,
       valuePath: 'registered_state',
     },
     {
@@ -213,6 +214,7 @@ export const VIN_PICKER_CONFIG: PickerConfig<VinPickerRow> = {
       sortable: true,
       filterable: true,
       filterType: 'text',
+      hideable: true,
       valuePath: 'exterior_color',
     },
     {
@@ -221,6 +223,7 @@ export const VIN_PICKER_CONFIG: PickerConfig<VinPickerRow> = {
       width: '10%',
       sortable: true,
       filterable: false,
+      hideable: true,
       valuePath: 'mileage',
     },
     {
@@ -230,6 +233,7 @@ export const VIN_PICKER_CONFIG: PickerConfig<VinPickerRow> = {
       sortable: true,
       filterable: true,
       filterType: 'text',
+      hideable: true,
       valuePath: 'condition_description',
     },
     {
@@ -239,6 +243,7 @@ export const VIN_PICKER_CONFIG: PickerConfig<VinPickerRow> = {
       sortable: true,
       filterable: true,
       filterType: 'text',
+      hideable: true,
       valuePath: 'title_status',
     },
     {
@@ -247,6 +252,7 @@ export const VIN_PICKER_CONFIG: PickerConfig<VinPickerRow> = {
       width: '12%',
       sortable: true,
       filterable: false,
+      hideable: true,
       valuePath: 'estimated_value',
     },
   ],

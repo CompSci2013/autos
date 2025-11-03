@@ -16,7 +16,6 @@
  *   dataSource.fetch(params).subscribe(response => { ... });
  */
 
-import { Injectable } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
 import {
@@ -33,8 +32,9 @@ import { ApiService } from '../../services/api.service';
 /**
  * Base Picker Data Source
  * Generic implementation of TableDataSource driven by PickerConfig
+ *
+ * Note: This class is NOT injectable. It's instantiated manually with `new BasePickerDataSource(apiService, config)`
  */
-@Injectable()
 export class BasePickerDataSource<T> implements TableDataSource<T> {
   /**
    * Cached data (for client-side pagination mode)

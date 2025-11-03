@@ -10,7 +10,8 @@
  * Follows BaseDataTable pattern from Milestone 003.
  */
 
-import { TableColumn, TableQueryParams, TableResponse } from './table-data-source.model';
+import { TableColumn } from './table-column.model';
+import { TableQueryParams, TableResponse } from './table-data-source.model';
 
 /**
  * Extended TableColumn with valuePath support for nested data access
