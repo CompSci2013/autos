@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { StateManagementService } from '../../../core/services/state-management.service';
@@ -115,7 +115,8 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
   constructor(
     private stateService: StateManagementService,
     private popOutContext: PopOutContextService,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private cdr: ChangeDetectorRef
   ) {
     // Initialize tableQueryParams from current state BEFORE template renders
     const currentFilters = this.stateService.getCurrentFilters();
@@ -129,8 +130,19 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
     this.stateService.results$
       .pipe(takeUntil(this.destroy$))
       .subscribe((results) => {
-        console.log('ResultsTable: Results updated from StateManagement:', results.length);
-        this.results = results;
+        const oldLength = this.results.length;
+        const oldReference = this.results;
+
+        console.log('📥 ResultsTable: Results updated from StateManagement:', results.length);
+        // Create new array reference to ensure OnPush child detects change
+        this.results = [...results];
+
+        console.log(`📥 Array reference changed: ${oldReference === this.results ? 'NO ❌' : 'YES ✅'}`);
+        console.log(`📥 Length changed: ${oldLength} → ${this.results.length}`);
+
+        // Force immediate change detection (not just schedule it)
+        this.cdr.detectChanges();
+        console.log('📥 detectChanges() called');
       });
 
     // Subscribe to total results count
@@ -139,6 +151,7 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
       .subscribe((total) => {
         console.log('ResultsTable: Total results updated:', total);
         this.totalResults = total;
+        this.cdr.detectChanges();
       });
 
     // Subscribe to loading state
@@ -147,6 +160,7 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
       .subscribe((loading) => {
         console.log('ResultsTable: Loading state updated:', loading);
         this.isLoading = loading;
+        this.cdr.detectChanges();
       });
 
     // Subscribe to filters to update tableQueryParams (for pagination/sort state)
@@ -155,6 +169,7 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
       .subscribe((filters) => {
         console.log('ResultsTable: Filters updated from URL:', filters);
         this.tableQueryParams = this.convertToTableParams(filters);
+        this.cdr.detectChanges();
       });
   }
 
@@ -192,64 +207,78 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
    * Handle table query changes (user interactions)
    *
    * Pattern 2: Search vs Filter Separation
-   * - Table column filters → ?search=corve (partial matching across all fields)
-   * - Query Control selections → ?manufacturer=Ford&model=F-150 (exact matching)
+   * - Table column filters → Ephemeral (NOT in URL), partial matching
+   * - Pagination/Sort → Shareable (in URL)
+   * - Query Control selections → Shareable (in URL), exact matching
    */
   onTableQueryChange(params: TableQueryParams): void {
     console.log('[ResultsTable] Table query changed:', params);
 
-    const updates: any = {
-      page: params.page,
-      size: params.size,
-      sort: params.sortBy || undefined,
-      sortDirection: params.sortOrder || undefined,
-    };
-
-    // Combine all table column filters into a single search parameter
-    // This uses multi_match query on backend for partial matching across fields
+    // Extract ephemeral filters (table column searches)
+    const ephemeralFilters: any = {};
     if (params.filters) {
-      const searchTerms: string[] = [];
-
-      // Collect all non-empty filter values
       if (params.filters['manufacturer']) {
-        searchTerms.push(params.filters['manufacturer']);
+        ephemeralFilters.manufacturerSearch = params.filters['manufacturer'];
       }
       if (params.filters['model']) {
-        searchTerms.push(params.filters['model']);
+        ephemeralFilters.modelSearch = params.filters['model'];
       }
       if (params.filters['body_class']) {
-        searchTerms.push(params.filters['body_class']);
+        ephemeralFilters.bodyClassSearch = params.filters['body_class'];
       }
       if (params.filters['data_source']) {
-        searchTerms.push(params.filters['data_source']);
+        ephemeralFilters.dataSourceSearch = params.filters['data_source'];
       }
-
-      // Join all search terms into a single search parameter
-      if (searchTerms.length > 0) {
-        updates.search = searchTerms.join(' ');
-      } else {
-        updates.search = undefined; // Clear search if no filters
-      }
-
-      // Handle year filter separately (it's a range, not a text search)
       if (params.filters['year']) {
-        updates.yearMin = params.filters['year'];
-        updates.yearMax = params.filters['year'];
-      } else {
-        updates.yearMin = undefined;
-        updates.yearMax = undefined;
+        ephemeralFilters.yearMin = params.filters['year'];
+        ephemeralFilters.yearMax = params.filters['year'];
       }
     }
 
+    // Check if pagination or sort changed (these should update URL)
+    const currentFilters = this.stateService.getCurrentFilters();
+    const urlUpdates: any = {};
+
+    if (params.page !== currentFilters.page) urlUpdates.page = params.page;
+    if (params.size !== currentFilters.size) urlUpdates.size = params.size;
+    if (params.sortBy !== currentFilters.sort) urlUpdates.sort = params.sortBy || undefined;
+    if (params.sortOrder !== currentFilters.sortDirection) urlUpdates.sortDirection = params.sortOrder || undefined;
+
+    const hasUrlUpdates = Object.keys(urlUpdates).length > 0;
+    const hasEphemeralFilters = Object.keys(ephemeralFilters).length > 0;
+
     if (this.popOutContext.isInPopOut()) {
       // Pop-out mode: send message to main window
-      this.popOutContext.sendMessage({
-        type: 'PAGINATION_SORT_CHANGE',
-        payload: updates
-      });
+      if (hasUrlUpdates) {
+        this.popOutContext.sendMessage({
+          type: 'PAGINATION_SORT_CHANGE',
+          payload: urlUpdates
+        });
+      }
+      if (hasEphemeralFilters) {
+        this.popOutContext.sendMessage({
+          type: 'EPHEMERAL_FILTER_CHANGE',
+          payload: ephemeralFilters
+        });
+      }
     } else {
-      // Normal mode: update state directly
-      this.stateService.updateFilters(updates);
+      // Normal mode: update URL if needed, then fetch with ephemeral filters
+      if (hasUrlUpdates) {
+        console.log('[ResultsTable] Updating URL (pagination/sort):', urlUpdates);
+        // Update URL first (synchronously)
+        this.stateService.updateFilters(urlUpdates);
+      }
+
+      if (hasEphemeralFilters) {
+        console.log('[ResultsTable] Fetching with ephemeral filters:', ephemeralFilters);
+        // Fetch with ephemeral filters (does NOT update URL)
+        this.stateService.fetchWithEphemeralFilters(ephemeralFilters).subscribe();
+      } else if (!hasUrlUpdates) {
+        // Filters were cleared - fetch unfiltered data
+        console.log('[ResultsTable] Filters cleared, fetching unfiltered data');
+        this.stateService.fetchVehicleData().subscribe();
+      }
+      // If hasUrlUpdates but NO ephemeralFilters, updateFilters() already triggered fetch
     }
   }
 

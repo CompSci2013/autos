@@ -300,6 +300,95 @@ export class StateManagementService implements OnDestroy {
   // ========== NEW: API INTEGRATION WITH REQUEST COORDINATION ==========
 
   /**
+   * Fetch vehicle data with ephemeral filters (table column searches)
+   * Does NOT update URL - filters are temporary and lost on page refresh
+   * Combines current URL state with ephemeral table filters
+   *
+   * @param ephemeralFilters - Table column search filters (manufacturerSearch, etc.)
+   */
+  fetchWithEphemeralFilters(ephemeralFilters: {
+    manufacturerSearch?: string;
+    modelSearch?: string;
+    bodyClassSearch?: string;
+    dataSourceSearch?: string;
+  }): Observable<VehicleDetailsResponse> {
+    // Get current URL-based filters (shareable state)
+    const urlFilters = this.getCurrentFilters();
+
+    // Combine URL filters with ephemeral table filters
+    const combinedFilters = {
+      ...urlFilters,
+      ...ephemeralFilters
+    };
+
+    // Build models param
+    const modelsParam = combinedFilters.modelCombos && combinedFilters.modelCombos.length > 0
+      ? this.buildModelsParam(combinedFilters.modelCombos)
+      : '';
+
+    // Build cache key from combined filters
+    const cacheKey = this.buildCacheKey('vehicle-details', combinedFilters);
+
+    console.log('🔵 StateManagement: Fetching with ephemeral filters:', ephemeralFilters);
+    console.log('🔵 Combined filters:', combinedFilters);
+    console.log('🔵 Cache key:', cacheKey);
+
+    // Execute through coordinator
+    return this.requestCoordinator
+      .execute(
+        cacheKey,
+        () =>
+          this.apiService.getVehicleDetails(
+            modelsParam,
+            combinedFilters.page || 1,
+            combinedFilters.size || 20,
+            this.buildFilterParams(combinedFilters),
+            combinedFilters.sort,
+            combinedFilters.sortDirection
+          ),
+        {
+          cacheTime: 0, // TEMPORARILY DISABLED for debugging
+          deduplication: true,
+          retryAttempts: 2,
+          retryDelay: 1000,
+        }
+      )
+      .pipe(
+        tap((response) => {
+          console.log(`🔵 API Response: ${response.results.length} results (total: ${response.total})`);
+          console.log('🔵 First 3 results:', response.results.slice(0, 3).map(r => ({
+            manufacturer: r.manufacturer,
+            model: r.model,
+            body_class: r.body_class
+          })));
+
+          // Update state on success
+          this.updateState({
+            results: response.results,
+            totalResults: response.total,
+            loading: false,
+            error: null,
+            statistics: response.statistics,
+          });
+        }),
+        catchError((error) => {
+          // Update state on error
+          this.updateState({
+            results: [],
+            totalResults: 0,
+            loading: false,
+            error: this.formatError(error),
+          });
+          console.error(
+            'StateManagementService: Failed to load vehicle data:',
+            error
+          );
+          return throwError(() => error);
+        })
+      );
+  }
+
+  /**
    * Fetch vehicle data with request coordination
    * Uses RequestCoordinatorService for deduplication, caching, and retry
    */
@@ -420,7 +509,12 @@ export class StateManagementService implements OnDestroy {
       yearMax: filters.yearMax,
       bodyStyle: filters.bodyStyle,
       q: filters.q,
-      // ✅ ADD MISSING COLUMN FILTERS:
+      // Pattern 2: Field-specific search parameters (table column filters - partial matching)
+      manufacturerSearch: filters.manufacturerSearch,
+      modelSearch: filters.modelSearch,
+      bodyClassSearch: filters.bodyClassSearch,
+      dataSourceSearch: filters.dataSourceSearch,
+      // Column filters (Query Control - exact matching)
       manufacturer: filters.manufacturer,
       model: filters.model,
       bodyClass: filters.bodyClass,
@@ -449,9 +543,18 @@ export class StateManagementService implements OnDestroy {
   private buildFilterParams(filters: SearchFilters): any {
     const params: any = {};
 
-    // Pattern 2: Search parameter (table column filters - partial matching)
-    if (filters.search) {
-      params.search = filters.search;
+    // Pattern 2: Field-specific search parameters (table column filters - partial matching)
+    if (filters.manufacturerSearch) {
+      params.manufacturerSearch = filters.manufacturerSearch;
+    }
+    if (filters.modelSearch) {
+      params.modelSearch = filters.modelSearch;
+    }
+    if (filters.bodyClassSearch) {
+      params.bodyClassSearch = filters.bodyClassSearch;
+    }
+    if (filters.dataSourceSearch) {
+      params.dataSourceSearch = filters.dataSourceSearch;
     }
 
     // Column filters (Query Control - exact matching)

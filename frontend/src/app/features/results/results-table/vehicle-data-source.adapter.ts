@@ -110,13 +110,18 @@ export class VehicleDataSourceAdapter implements TableDataSource<VehicleResult> 
       size: params.size,
       sort: params.sortBy,
       sortDirection: params.sortOrder,
-      // Column filters
+      // Query Control filters (exact matching)
       manufacturer: filters['manufacturer'],
       model: filters['model'],
       yearMin: filters['yearMin'],
       yearMax: filters['yearMax'],
       bodyClass: filters['bodyClass'],
       dataSource: filters['dataSource'],
+      // Pattern 2: Ephemeral table column search filters (partial matching)
+      manufacturerSearch: filters['manufacturerSearch'],
+      modelSearch: filters['modelSearch'],
+      bodyClassSearch: filters['bodyClassSearch'],
+      dataSourceSearch: filters['dataSourceSearch'],
     };
 
     const filterString = JSON.stringify(filterObject);

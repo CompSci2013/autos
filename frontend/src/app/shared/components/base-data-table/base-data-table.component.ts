@@ -185,9 +185,23 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
 
     // Handle data input changes (pre-fetched data mode)
     if (changes['data']) {
-      console.log('📊 Data input changed, updating tableData');
+      const prev = changes['data'].previousValue;
+      const curr = changes['data'].currentValue;
+      console.log('📊 Data input changed');
+      console.log(`   Previous: ${prev?.length || 0} items, Current: ${curr?.length || 0} items`);
+      console.log(`   Reference changed: ${prev !== curr ? 'YES' : 'NO'}`);
+
       this.tableData = this.data || [];
-      this.cdr.markForCheck();
+      this.cdr.detectChanges(); // Force immediate change detection
+    } else {
+      // CRITICAL FIX: Update tableData even if ngOnChanges didn't detect a change
+      // This handles cases where array reference changes but Angular doesn't detect it
+      if (this.data !== undefined && this.data !== this.tableData) {
+        console.log('📊 Data input NOT in changes, but data property differs from tableData');
+        console.log(`   tableData: ${this.tableData?.length || 0} items, data: ${this.data?.length || 0} items`);
+        this.tableData = this.data || [];
+        this.cdr.detectChanges();
+      }
     }
 
     // Handle totalCount input changes (pre-fetched data mode)
