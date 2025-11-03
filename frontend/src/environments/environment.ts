@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://autos.minilab/api/v1'
+  apiUrl: '/api/v1'  // Proxied through Angular dev server
 };
