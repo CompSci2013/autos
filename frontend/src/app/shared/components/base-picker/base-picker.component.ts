@@ -32,6 +32,7 @@ import {
   ChangeDetectorRef,
   ChangeDetectionStrategy,
 } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import {
@@ -114,6 +115,7 @@ export class BasePickerComponent<T = any> implements OnInit, OnDestroy {
   constructor(
     private pickerConfigService: PickerConfigService,
     private apiService: ApiService,
+    private http: HttpClient,
     private cdr: ChangeDetectorRef,
     private popOutContext: PopOutContextService,
     private urlParamService: UrlParamService,
@@ -138,7 +140,7 @@ export class BasePickerComponent<T = any> implements OnInit, OnDestroy {
     }
 
     // Create data source
-    this.dataSource = new BasePickerDataSource<T>(this.apiService, this.config);
+    this.dataSource = new BasePickerDataSource<T>(this.apiService, this.config, this.http);
 
     // Set up columns (convert PickerColumnConfig to TableColumn)
     // Add selection column first

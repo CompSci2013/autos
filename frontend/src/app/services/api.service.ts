@@ -15,7 +15,8 @@ export class ApiService {
   getManufacturerModelCombinations(
     page: number = 1,
     size: number = 20,
-    search: string = ''
+    search: string = '',
+    baseUrl?: string
   ): Observable<ManufacturerModelResponse> {
     let params = new HttpParams()
       .set('page', page.toString())
@@ -25,8 +26,9 @@ export class ApiService {
       params = params.set('search', search);
     }
 
+    const apiBase = baseUrl || this.apiUrl;
     return this.http.get<ManufacturerModelResponse>(
-      `${this.apiUrl}/manufacturer-model-combinations`,
+      `${apiBase}/manufacturer-model-combinations`,
       { params }
     );
   }
@@ -57,7 +59,8 @@ export class ApiService {
       bodyClass?: string;
     },
     sortBy?: string,
-    sortOrder?: 'asc' | 'desc'
+    sortOrder?: 'asc' | 'desc',
+    baseUrl?: string
   ): Observable<VehicleDetailsResponse> {
     let params = new HttpParams()
       .set('page', page.toString())
@@ -129,20 +132,23 @@ export class ApiService {
       params = params.set('sortOrder', sortOrder);
     }
 
+    const apiBase = baseUrl || this.apiUrl;
     return this.http.get<VehicleDetailsResponse>(
-      `${this.apiUrl}/vehicles/details`,
+      `${apiBase}/vehicles/details`,
       { params }
     );
   }
 
   getVehicleInstances(
     vehicleId: string,
-    count: number = 8
+    count: number = 8,
+    baseUrl?: string
   ): Observable<VehicleInstancesResponse> {
     let params = new HttpParams().set('count', count.toString());
 
+    const apiBase = baseUrl || this.apiUrl;
     return this.http.get<VehicleInstancesResponse>(
-      `${this.apiUrl}/vehicles/${vehicleId}/instances`,
+      `${apiBase}/vehicles/${vehicleId}/instances`,
       { params }
     );
   }
@@ -175,7 +181,8 @@ export class ApiService {
       exteriorColor?: string;
     },
     sortBy: string = 'vin',
-    sortOrder: 'asc' | 'desc' = 'asc'
+    sortOrder: 'asc' | 'desc' = 'asc',
+    baseUrl?: string
   ): Observable<any> {
     let params = new HttpParams()
       .set('page', page.toString())
@@ -199,7 +206,8 @@ export class ApiService {
       if (filters.exteriorColor) params = params.set('exteriorColor', filters.exteriorColor);
     }
 
-    return this.http.get<any>(`${this.apiUrl}/vins`, { params });
+    const apiBase = baseUrl || this.apiUrl;
+    return this.http.get<any>(`${apiBase}/vins`, { params });
   }
 
   // ========== FILTER ENDPOINTS ==========

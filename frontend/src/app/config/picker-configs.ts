@@ -507,7 +507,11 @@ export const VIN_BROWSER_CONFIG: PickerConfig<VinPickerRow> = {
   ],
 
   api: {
-    method: 'getAllVins',
+    // PLUGIN ARCHITECTURE: Direct HTTP mode (no ApiService method needed!)
+    http: {
+      method: 'GET',
+      endpoint: '/vins',
+    },
     paramMapper: (params) => {
       // Map column filter keys (snake_case) to API parameters (camelCase)
       const mappedFilters: any = {};

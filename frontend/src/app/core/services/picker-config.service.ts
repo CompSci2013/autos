@@ -165,9 +165,39 @@ export class PickerConfigService {
     if (!config.api || typeof config.api !== 'object') {
       errors.push('api configuration is required');
     } else {
-      if (!config.api.method || typeof config.api.method !== 'string') {
-        errors.push('api.method is required and must be a string');
+      // Must have EITHER method OR http
+      if (!config.api.method && !config.api.http) {
+        errors.push('api.method or api.http must be specified');
       }
+
+      // Validate api.method (if present)
+      if (config.api.method !== undefined && typeof config.api.method !== 'string') {
+        errors.push('api.method must be a string if provided');
+      }
+
+      // Validate api.http (if present)
+      if (config.api.http !== undefined) {
+        if (typeof config.api.http !== 'object') {
+          errors.push('api.http must be an object if provided');
+        } else {
+          if (!config.api.http.method || !['GET', 'POST', 'PUT', 'DELETE'].includes(config.api.http.method)) {
+            errors.push('api.http.method must be GET, POST, PUT, or DELETE');
+          }
+          if (!config.api.http.endpoint || typeof config.api.http.endpoint !== 'string') {
+            errors.push('api.http.endpoint is required and must be a string');
+          }
+          if (config.api.http.headers !== undefined && typeof config.api.http.headers !== 'object') {
+            errors.push('api.http.headers must be an object if provided');
+          }
+        }
+      }
+
+      // Validate baseUrl (optional, works with both modes)
+      if (config.api.baseUrl !== undefined && typeof config.api.baseUrl !== 'string') {
+        errors.push('api.baseUrl must be a string if provided');
+      }
+
+      // Validate responseTransformer (required for both modes)
       if (
         !config.api.responseTransformer ||
         typeof config.api.responseTransformer !== 'function'

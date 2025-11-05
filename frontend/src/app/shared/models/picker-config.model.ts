@@ -39,13 +39,57 @@ export interface PickerColumnConfig<T = any> extends Omit<TableColumn<T>, 'key'>
 
 /**
  * API configuration for picker data fetching
+ *
+ * Supports two modes:
+ * - Mode A: ApiService method (backward compatible)
+ * - Mode B: Direct HTTP (new, preferred for plugin architecture)
  */
 export interface PickerApiConfig<T = any> {
   /**
-   * Method name on ApiService (e.g., "getManufacturerModelCombinations")
-   * The method will be invoked dynamically via ApiService[method](...)
+   * OPTION A: Use ApiService method (backward compatible)
+   * Dynamically calls apiService[method](...args)
+   *
+   * Example: method: 'getAllVins'
    */
-  method: string;
+  method?: string;
+
+  /**
+   * Optional custom API base URL
+   * Works with both modes (method and http)
+   * If not specified, defaults to environment.apiUrl
+   *
+   * Examples:
+   * - undefined (default): Uses environment.apiUrl
+   * - 'http://localhost:4000/api': Custom local API
+   * - 'https://external-service.com/api': External service
+   */
+  baseUrl?: string;
+
+  /**
+   * OPTION B: Direct HTTP call (new, preferred)
+   * Makes HTTP request directly without ApiService
+   *
+   * Example:
+   * http: {
+   *   method: 'GET',
+   *   endpoint: '/engines',
+   *   headers: { 'X-API-Key': 'secret' }
+   * }
+   */
+  http?: {
+    /** HTTP method (GET, POST, PUT, DELETE) */
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE';
+
+    /**
+     * Endpoint path (relative or full URL)
+     * - Relative: '/engines' → combined with baseUrl
+     * - Full URL: 'https://api.example.com/engines' → used as-is
+     */
+    endpoint: string;
+
+    /** Optional custom headers (e.g., authentication) */
+    headers?: Record<string, string>;
+  };
 
   /**
    * Optional parameter mapping function

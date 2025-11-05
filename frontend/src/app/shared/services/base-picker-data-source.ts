@@ -18,6 +18,7 @@
 
 import { Observable, of, throwError } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import {
   TableDataSource,
   TableQueryParams,
@@ -28,6 +29,7 @@ import {
   resolveColumnValue,
 } from '../models/picker-config.model';
 import { ApiService } from '../../services/api.service';
+import { environment } from '../../../environments/environment';
 
 /**
  * Base Picker Data Source
@@ -54,7 +56,8 @@ export class BasePickerDataSource<T> implements TableDataSource<T> {
 
   constructor(
     private apiService: ApiService,
-    private config: PickerConfig<T>
+    private config: PickerConfig<T>,
+    private http: HttpClient
   ) {
     console.log(
       `[BasePickerDataSource] Initialized for '${config.id}' (${config.pagination.mode} mode)`
@@ -213,9 +216,123 @@ export class BasePickerDataSource<T> implements TableDataSource<T> {
 
   /**
    * Call API method dynamically based on configuration
+   * Supports two modes:
+   * - HTTP mode (api.http) - Direct HTTP call
+   * - ApiService mode (api.method) - Dynamic method call
    */
   private callApiMethod(params: TableQueryParams): Observable<TableResponse<T>> {
-    const methodName = this.config.api.method;
+    // MODE B: Direct HTTP call (new, preferred)
+    if (this.config.api.http) {
+      return this.makeDirectHttpCall(params);
+    }
+
+    // MODE A: ApiService method call (backward compatible)
+    if (this.config.api.method) {
+      return this.callApiServiceMethod(params);
+    }
+
+    throw new Error(
+      `[BasePickerDataSource] api.http or api.method must be specified in config '${this.config.id}'`
+    );
+  }
+
+  /**
+   * Make direct HTTP call (MODE B - Plugin Architecture)
+   */
+  private makeDirectHttpCall(params: TableQueryParams): Observable<TableResponse<T>> {
+    const httpConfig = this.config.api.http!;
+
+    // Transform params using paramMapper
+    const apiParams = this.config.api.paramMapper
+      ? this.config.api.paramMapper(params)
+      : params;
+
+    // Build URL (relative or absolute)
+    const endpoint = httpConfig.endpoint;
+    const isFullUrl = endpoint.startsWith('http://') || endpoint.startsWith('https://');
+    const baseUrl = this.config.api.baseUrl || environment.apiUrl;
+    const url = isFullUrl ? endpoint : `${baseUrl}${endpoint}`;
+
+    // Build HttpParams from apiParams (flatten nested objects)
+    let httpParams = new HttpParams();
+    this.flattenParams(apiParams).forEach(([key, value]) => {
+      httpParams = httpParams.set(key, value);
+    });
+
+    console.log(
+      `[BasePickerDataSource] HTTP ${httpConfig.method} ${url}`,
+      { params: apiParams }
+    );
+
+    // Build request options
+    const options: any = {
+      params: httpParams,
+      headers: httpConfig.headers || {},
+    };
+
+    // Make HTTP request
+    let request$: Observable<any>;
+    switch (httpConfig.method) {
+      case 'GET':
+        request$ = this.http.get(url, options);
+        break;
+      case 'POST':
+        request$ = this.http.post(url, apiParams, options);
+        break;
+      case 'PUT':
+        request$ = this.http.put(url, apiParams, options);
+        break;
+      case 'DELETE':
+        request$ = this.http.delete(url, options);
+        break;
+      default:
+        throw new Error(
+          `[BasePickerDataSource] Unsupported HTTP method: ${httpConfig.method}`
+        );
+    }
+
+    // Transform response
+    return request$.pipe(
+      map((response: any) => {
+        console.log(
+          `[BasePickerDataSource] HTTP response for '${this.config.id}':`,
+          response
+        );
+        return this.config.api.responseTransformer(response);
+      })
+    );
+  }
+
+  /**
+   * Flatten nested params object to key-value pairs for query string
+   * Example: { filters: { manufacturer: 'Ford' } } → [['manufacturer', 'Ford']]
+   */
+  private flattenParams(obj: any, prefix = ''): [string, string][] {
+    const result: [string, string][] = [];
+
+    for (const key in obj) {
+      if (obj[key] === undefined || obj[key] === null) {
+        continue;
+      }
+
+      const fullKey = prefix ? `${prefix}.${key}` : key;
+
+      if (typeof obj[key] === 'object' && !Array.isArray(obj[key])) {
+        // Recursively flatten nested objects
+        result.push(...this.flattenParams(obj[key], fullKey));
+      } else {
+        result.push([fullKey, obj[key].toString()]);
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Call ApiService method (MODE A - Backward Compatible)
+   */
+  private callApiServiceMethod(params: TableQueryParams): Observable<TableResponse<T>> {
+    const methodName = this.config.api.method!;
 
     // Check if method exists on ApiService
     if (!(methodName in this.apiService)) {
@@ -242,8 +359,19 @@ export class BasePickerDataSource<T> implements TableDataSource<T> {
       apiParams
     );
 
+    // Prepare method arguments (spread params + optional baseUrl)
+    const methodArgs = [...Object.values(apiParams)];
+
+    // Append custom baseUrl if configured
+    if (this.config.api.baseUrl) {
+      methodArgs.push(this.config.api.baseUrl);
+      console.log(
+        `[BasePickerDataSource] Using custom API base URL: ${this.config.api.baseUrl}`
+      );
+    }
+
     // Call the method and transform response
-    return method.call(this.apiService, ...Object.values(apiParams)).pipe(
+    return method.call(this.apiService, ...methodArgs).pipe(
       map((response: any) => {
         console.log(
           `[BasePickerDataSource] Raw API response for '${this.config.id}':`,

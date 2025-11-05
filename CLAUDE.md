@@ -567,6 +567,7 @@ docs/
 ├── design/                                    # Design documents
 │   ├── milestone-003-base-table-design.md     # BaseDataTable specification
 │   ├── panel-popout-architecture.md           # Pop-out panels with state sync
+│   ├── plugin-picker-architecture.md          # Plugin-based picker system (DRAFT)
 │   └── [future milestones]
 ├── snapshots/                                 # Point-in-time analysis
 │   └── [analysis snapshots]
@@ -716,7 +717,55 @@ docs/
 - Extending pop-out functionality to other panels
 - Onboarding developers to multi-window features
 
-#### 5. Analysis Snapshots
+#### 5. Plugin Picker Architecture
+
+**File:** `docs/design/plugin-picker-architecture.md`
+
+**Purpose:** Design specification for true plugin-based picker system
+
+**Current Status:** ✅ **DESIGN COMPLETE** (DRAFT - awaiting implementation approval)
+
+**Topics Covered:**
+
+- Problem statement (ApiService coupling)
+- Dual-mode API configuration (ApiService method vs Direct HTTP)
+- Direct HTTP call support for external APIs
+- Backward compatibility strategy
+- Implementation plan (4 phases)
+- Examples (Engine picker, Sound System picker, External API picker)
+- Migration path from ApiService to HTTP mode
+- Testing strategy
+
+**Key Innovation:**
+
+Add new picker = Create ONE config file (no ApiService changes needed!)
+
+```typescript
+// New approach: Direct HTTP in config
+api: {
+  http: {
+    method: 'GET',
+    endpoint: '/engines',
+    baseUrl: 'https://parts-api.com/api'  // Optional external API
+  },
+  paramMapper: (params) => ({ /* ... */ }),
+  responseTransformer: (response) => ({ /* ... */ })
+}
+```
+
+**Backward Compatible:**
+
+Existing pickers using `api.method` continue to work unchanged.
+
+**When to Reference:**
+
+- Adding new pickers to the application
+- Integrating external APIs
+- Understanding picker configuration system
+- Migrating from ApiService-based to HTTP-based pickers
+- Planning multi-domain picker implementations (engines, sound systems, wheels, etc.)
+
+#### 6. Analysis Snapshots
 
 **Directory:** `docs/snapshots/`
 
