@@ -84,8 +84,6 @@ import { PickerConfigService } from './core/services/picker-config.service';
 import { ALL_PICKER_CONFIGS } from './config/picker-configs';
 
 // Feature components
-import { TablePickerComponent } from './features/picker/table-picker/table-picker.component';
-import { SelectedItemsChipsComponent } from './features/picker/table-picker/selected-items-chips/selected-items-chips.component';
 import { DiscoverComponent } from './features/discover/discover.component';
 import { ResultsTableComponent } from './features/results/results-table/results-table.component';
 import { WorkshopComponent } from './features/workshop/workshop.component';
@@ -112,8 +110,6 @@ export function initializePickerConfigs(pickerConfigService: PickerConfigService
 @NgModule({
   declarations: [
     AppComponent,
-    TablePickerComponent,
-    SelectedItemsChipsComponent,
     DiscoverComponent,
     ResultsTableComponent,
     WorkshopComponent,

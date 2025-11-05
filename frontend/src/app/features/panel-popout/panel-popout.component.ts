@@ -4,6 +4,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { PopOutContextService } from '../../core/services/popout-context.service';
 import { StateManagementService } from '../../core/services/state-management.service';
+import { SearchFilters } from '../../models/search-filters.model';
 
 /**
  * Generic pop-out window container component
@@ -29,6 +30,9 @@ export class PanelPopoutComponent implements OnInit, OnDestroy {
   gridId!: string;
   panelId!: string;
   panelType!: string;
+
+  // Current filters from state (for passing to picker)
+  currentFilters: SearchFilters = {};
 
   constructor(
     private route: ActivatedRoute,
@@ -56,6 +60,14 @@ export class PanelPopoutComponent implements OnInit, OnDestroy {
       ).subscribe(message => {
         this.handleMessage(message);
       });
+    });
+
+    // Subscribe to state filters for passing to picker
+    this.stateService.filters$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(filters => {
+      console.log('[PanelPopout] Filters updated:', filters);
+      this.currentFilters = filters;
     });
   }
 

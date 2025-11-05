@@ -422,6 +422,49 @@ async function getVehicleDetails(options = {}) {
     // Extract hits
     const results = response.hits.hits.map((hit) => hit._source);
 
+    // Query autos-vins index to get instance counts for each vehicle_id
+    // Only query if we have results to avoid unnecessary calls
+    if (results.length > 0) {
+      try {
+        const vehicleIds = results.map(v => v.vehicle_id);
+
+        const vinCountResponse = await esClient.search({
+          index: 'autos-vins',
+          size: 0,  // We only need aggregations, not individual documents
+          query: {
+            terms: { vehicle_id: vehicleIds }  // Match any of the vehicle_ids from results
+          },
+          aggs: {
+            instance_counts: {
+              terms: {
+                field: 'vehicle_id',
+                size: vehicleIds.length  // Get counts for all vehicles in this page
+              }
+            }
+          }
+        });
+
+        // Build a map of vehicle_id -> instance_count for fast lookup
+        const instanceCountMap = {};
+        if (vinCountResponse.aggregations && vinCountResponse.aggregations.instance_counts) {
+          vinCountResponse.aggregations.instance_counts.buckets.forEach(bucket => {
+            instanceCountMap[bucket.key] = bucket.doc_count;
+          });
+        }
+
+        // Add instance_count to each result
+        results.forEach(vehicle => {
+          vehicle.instance_count = instanceCountMap[vehicle.vehicle_id] || 0;
+        });
+      } catch (vinError) {
+        console.error('Error fetching VIN instance counts:', vinError);
+        // Don't fail the entire request - just set instance_count to null
+        results.forEach(vehicle => {
+          vehicle.instance_count = null;
+        });
+      }
+    }
+
     // Transform aggregations into statistics object
     const statistics = {
       byManufacturer: transformTermsAgg(response.aggregations.by_manufacturer),

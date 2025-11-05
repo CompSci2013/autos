@@ -12,6 +12,9 @@ export interface TableColumn<T = any> {
   /** Whether column supports server-side sorting */
   sortable: boolean;
 
+  /** Whether to use client-side sorting (sorts current page data in-place) */
+  clientSideSort?: boolean;
+
   /** Whether column supports filtering */
   filterable: boolean;
 

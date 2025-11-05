@@ -13,7 +13,10 @@
 
       <!-- Manufacturer-Model Picker Panel -->
       <div *ngSwitchCase="'picker'" class="panel-wrapper">
-        <app-table-picker></app-table-picker>
+        <app-base-picker
+          [configId]="'manufacturer-model'"
+          [externalFilters]="currentFilters"
+        ></app-base-picker>
       </div>
 
       <!-- Vehicle Results Table Panel -->

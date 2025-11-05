@@ -50,6 +50,7 @@ Thor: /home/odin/projects/autos/
 └── docs/                 # Project documentation
     ├── design/           # Design documents (milestones)
     ├── snapshots/        # Analysis snapshots
+    ├── technical-debt/   # Known limitations and future work
     ├── state-management-guide.md
     └── state-management-refactoring-plan-part1.md
 ```
@@ -571,6 +572,8 @@ docs/
 │   └── [future milestones]
 ├── snapshots/                                 # Point-in-time analysis
 │   └── [analysis snapshots]
+├── technical-debt/                            # Known limitations and future work
+│   └── vin-count-sorting.md                   # VIN Count client-side sort limitation
 ├── state-management-guide.md                  # State management patterns
 └── state-management-refactoring-plan-part1.md # Professional-grade patterns
 ```
@@ -786,6 +789,40 @@ Existing pickers using `api.method` continue to work unchanged.
 - To document lessons learned
 - For future reference and onboarding
 
+#### 7. Technical Debt
+
+**Directory:** `docs/technical-debt/`
+
+**Purpose:** Document known limitations, workarounds, and proper solutions for future implementation
+
+**VIN Count Sorting (vin-count-sorting.md):**
+
+**Status:** Known Limitation - Client-side sort workaround implemented (v1.6.2)
+
+**Current Behavior:**
+- VIN Count column displays and sorts correctly
+- Sorting only affects current page (20 results), not all 4,887 vehicles
+- Sort state persists in URL but data doesn't reflect global sort
+
+**Root Cause:**
+- `instance_count` is computed after main query from separate `autos-vins` index
+- Cannot sort server-side without fetching all vehicles (expensive)
+- Client-side sort implemented as temporary solution
+
+**Proper Solutions (documented in file):**
+1. **Precompute counts** - Add `instance_count` to `autos-unified` documents during data loading
+2. **Include VIN arrays** - Embed VIN instances in API response, eliminate lazy-loading
+3. **Hybrid approach** - Combine both for optimal UX
+
+**When to Address:**
+- Planning data pipeline work
+- User requests improved sorting functionality
+- Optimizing API response patterns
+
+**Related Code:**
+- Backend: `elasticsearchService.js:422-466`, `vehicleController.js:124-142`
+- Frontend: `base-data-table.component.ts:569-596`, `results-table.component.ts:107-119`
+
 ### Documentation Best Practices
 
 1. **Version Control:** All documentation lives in Git alongside code
@@ -924,6 +961,24 @@ kubectl get deployment autos-frontend -n autos -o yaml | grep image
 
 ## Changelog
 
+### 2025-11-05 (v1.6.2)
+
+- **VIN Count Column Implementation** - Added VIN instance counts to results table
+  - Backend v1.6.2: VIN count aggregation from `autos-vins` index
+  - Frontend prod-v1.1.3: VIN Count column with client-side sorting
+  - New field: `instance_count` in VehicleResult model
+  - Client-side sort workaround for computed fields
+- **Technical Debt Documentation** - Established technical debt tracking
+  - Created `docs/technical-debt/` directory
+  - Added `vin-count-sorting.md` documenting client-side sort limitation
+  - Updated CLAUDE.md Documentation section with Technical Debt reference
+  - Documented proper solutions for future implementation (precompute counts, embed VIN arrays)
+- **BaseDataTable Enhancement** - Added client-side sorting capability
+  - New `clientSideSort?: boolean` field in TableColumn model
+  - `sortTableDataClientSide()` method for in-place sorting
+  - Auto re-applies sort on data load/hydration for persistence
+  - URL state sync for client-side sorts
+
 ### 2025-11-02 (v1.6.1)
 
 - **Container Versioning Documentation** - Clarified frontend/backend versioning schemes
@@ -1031,9 +1086,9 @@ kubectl get deployment autos-frontend -n autos -o yaml | grep image
 
 ---
 
-**Last Updated:** 2025-11-02
+**Last Updated:** 2025-11-05
 **Maintained By:** Claude (with odin)
-**Version:** 1.6.1
+**Version:** 1.6.2
 
 ---
 

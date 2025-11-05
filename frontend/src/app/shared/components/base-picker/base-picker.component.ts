@@ -25,6 +25,8 @@ import {
   Component,
   OnInit,
   OnDestroy,
+  OnChanges,
+  SimpleChanges,
   Input,
   Output,
   EventEmitter,
@@ -47,6 +49,8 @@ import { PopOutContextService } from '../../../core/services/popout-context.serv
 import { UrlParamService } from '../../../core/services/url-param.service';
 import { RouteStateService } from '../../../core/services/route-state.service';
 import { ApiService } from '../../../services/api.service';
+import { SearchFilters } from '../../../models/search-filters.model';
+import { TableStatePersistenceService } from '../../services/table-state-persistence.service';
 
 /**
  * Base Picker Component
@@ -58,7 +62,7 @@ import { ApiService } from '../../../services/api.service';
   styleUrls: ['./base-picker.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BasePickerComponent<T = any> implements OnInit, OnDestroy {
+export class BasePickerComponent<T = any> implements OnInit, OnDestroy, OnChanges {
   /**
    * Configuration ID (required)
    * Example: 'manufacturer-model', 'vin-picker'
@@ -70,6 +74,13 @@ export class BasePickerComponent<T = any> implements OnInit, OnDestroy {
    * Example: { vehicleId: '123' } for VIN picker
    */
   @Input() context?: Record<string, any>;
+
+  /**
+   * External filters from parent component (e.g., Query Control)
+   * Used to auto-select rows that match these filters
+   * Example: { manufacturer: 'Ford,Chevrolet', model: 'F-150' }
+   */
+  @Input() externalFilters?: SearchFilters;
 
   /**
    * Selection change event
@@ -119,7 +130,8 @@ export class BasePickerComponent<T = any> implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private popOutContext: PopOutContextService,
     private urlParamService: UrlParamService,
-    private routeState: RouteStateService
+    private routeState: RouteStateService,
+    private tablePersistence: TableStatePersistenceService
   ) {}
 
   ngOnInit(): void {
@@ -160,10 +172,14 @@ export class BasePickerComponent<T = any> implements OnInit, OnDestroy {
       })) as TableColumn<T>[],
     ];
 
+    // Load saved page size from localStorage
+    const savedPrefs = this.tablePersistence.loadPreferences(this.config.id);
+    const pageSize = savedPrefs?.pageSize || this.config.pagination.defaultPageSize;
+
     // Set up initial query params
     this.tableQueryParams = {
       page: 1,
-      size: this.config.pagination.defaultPageSize,
+      size: pageSize,
       filters: { ...this.context }, // Add context to filters (e.g., vehicleId)
     };
 
@@ -178,6 +194,23 @@ export class BasePickerComponent<T = any> implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  /**
+   * Handle input changes (externalFilters)
+   * Applies external filters to auto-select matching rows
+   */
+  ngOnChanges(changes: SimpleChanges): void {
+    // Only react to externalFilters changes
+    if (changes['externalFilters'] && !changes['externalFilters'].firstChange) {
+      console.log('[BasePickerComponent] externalFilters changed:', this.externalFilters);
+
+      // Only apply if data is loaded (client-side mode only)
+      if (this.dataLoaded && this.config.pagination.mode === 'client') {
+        this.applyExternalFilters();
+        this.cdr.markForCheck();
+      }
+    }
   }
 
   /**
@@ -241,6 +274,103 @@ export class BasePickerComponent<T = any> implements OnInit, OnDestroy {
   }
 
   /**
+   * Apply external filters to auto-select matching rows
+   * Called when externalFilters input changes or when data loads with externalFilters set
+   *
+   * Note: Only works for client-side pagination mode where all data is loaded
+   * IMPORTANT: URL selections always take precedence over external filters
+   */
+  private applyExternalFilters(): void {
+    // Only works for client-side mode
+    if (this.config.pagination.mode !== 'client') {
+      console.log('[BasePickerComponent] External filters only supported for client-side mode');
+      return;
+    }
+
+    if (!this.externalFilters) {
+      return;
+    }
+
+    // Check if URL has selections - if so, URL takes precedence (don't apply external filters)
+    const urlParam = this.config.selection.urlParam;
+    const urlValue = this.routeState.getParam(urlParam);
+    if (urlValue) {
+      console.log('[BasePickerComponent] URL has selections, skipping external filters (URL takes precedence)');
+      return;
+    }
+
+    // Get cached data (client-side mode)
+    const data = this.dataSource.getCachedData();
+    if (!data || data.length === 0) {
+      console.log('[BasePickerComponent] No cached data available for external filters');
+      return;
+    }
+
+    // Clear existing selections (safe because we checked URL above)
+    this.selectedRows.clear();
+
+    // Extract manufacturer and model filters (comma-separated lists)
+    const manufacturerFilter = this.externalFilters.manufacturer;
+    const modelFilter = this.externalFilters.model;
+
+    // If no filters, nothing to select
+    if (!manufacturerFilter && !modelFilter) {
+      this.updateSelectedItemsDisplay();
+      console.log('[BasePickerComponent] No external filters to apply');
+      return;
+    }
+
+    // Split into arrays
+    const manufacturers = manufacturerFilter
+      ? manufacturerFilter.split(',').map((m) => m.trim().toLowerCase())
+      : [];
+    const models = modelFilter
+      ? modelFilter.split(',').map((m) => m.trim().toLowerCase())
+      : [];
+
+    console.log('[BasePickerComponent] Applying external filters:', {
+      manufacturers,
+      models,
+    });
+
+    // Iterate through data and select matching rows
+    let matchCount = 0;
+    data.forEach((row: any) => {
+      let matches = false;
+
+      // Check manufacturer match
+      if (manufacturers.length > 0 && row.manufacturer) {
+        const rowManufacturer = row.manufacturer.toLowerCase();
+        if (manufacturers.includes(rowManufacturer)) {
+          matches = true;
+        }
+      }
+
+      // Check model match
+      if (models.length > 0 && row.model) {
+        const rowModel = row.model.toLowerCase();
+        if (models.includes(rowModel)) {
+          matches = true;
+        }
+      }
+
+      // If matches, add to selection
+      if (matches) {
+        const key = this.config.row.keyGenerator(row);
+        this.selectedRows.add(key);
+        matchCount++;
+      }
+    });
+
+    // Update display cache
+    this.updateSelectedItemsDisplay();
+
+    console.log(
+      `[BasePickerComponent] Auto-selected ${matchCount} rows based on external filters`
+    );
+  }
+
+  /**
    * Handle data loaded event from BaseDataTable
    * Called when data fetch completes successfully
    */
@@ -248,9 +378,14 @@ export class BasePickerComponent<T = any> implements OnInit, OnDestroy {
     this.dataLoaded = true;
     console.log('[BasePickerComponent] Data loaded event received');
 
-    // Apply any pending hydration
+    // Priority 1: Apply URL state hydration (pendingHydration takes precedence)
     if (this.pendingHydration.length > 0) {
       this.hydrateSelections();
+      this.cdr.markForCheck();
+    }
+    // Priority 2: Apply external filters if no URL selections
+    else if (this.externalFilters) {
+      this.applyExternalFilters();
       this.cdr.markForCheck();
     }
   }
@@ -260,6 +395,24 @@ export class BasePickerComponent<T = any> implements OnInit, OnDestroy {
    */
   onTableQueryChange(params: TableQueryParams): void {
     console.log('[BasePickerComponent] Table query changed:', params);
+
+    // Check if page size changed - if so, save to localStorage
+    if (params.size !== this.tableQueryParams.size) {
+      console.log(`[BasePickerComponent] Page size changed: ${this.tableQueryParams.size} → ${params.size}`);
+
+      // Load existing preferences or create new
+      const prefs = this.tablePersistence.loadPreferences(this.config.id) || {
+        columnOrder: [],
+        visibleColumns: [],
+      };
+
+      // Update page size and save
+      prefs.pageSize = params.size;
+      prefs.lastUpdated = Date.now();
+      this.tablePersistence.savePreferences(this.config.id, prefs);
+
+      console.log(`[BasePickerComponent] Saved page size ${params.size} to localStorage for '${this.config.id}'`);
+    }
 
     // Merge context into filters
     this.tableQueryParams = {

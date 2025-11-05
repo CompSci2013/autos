@@ -129,6 +129,7 @@ async function getVehicleDetailsHandler(req, res, next) {
       'body_class',
       'data_source',
       'vehicle_id',
+      'instance_count',  // Allowed but ignored (computed field)
     ];
     if (sortBy && !validSortFields.includes(sortBy)) {
       return res.status(400).json({
@@ -136,6 +137,9 @@ async function getVehicleDetailsHandler(req, res, next) {
         message: `sortBy must be one of: ${validSortFields.join(', ')}`,
       });
     }
+
+    // instance_count is computed after main query, so ignore it for ES sorting
+    const actualSortBy = sortBy === 'instance_count' ? null : sortBy;
 
     if (sortOrder && !['asc', 'desc'].includes(sortOrder)) {
       return res.status(400).json({
@@ -175,7 +179,7 @@ async function getVehicleDetailsHandler(req, res, next) {
       size: sizeNum,
       filters,
       highlights,  // NEW: Pass highlights to service
-      sortBy: sortBy || null,
+      sortBy: actualSortBy || null,  // Use actualSortBy (null if instance_count)
       sortOrder: sortOrder || 'asc',
     });
 

@@ -82,14 +82,14 @@ export class RouteStateService {
 
   /**
    * Convert SearchFilters to URL params
-   * Format: ?models=Ford:F-150,Ford:Mustang,Chevrolet:Corvette
+   * Format: ?modelCombos=Ford:F-150,Ford:Mustang,Chevrolet:Corvette
    */
   filtersToParams(filters: SearchFilters): Params {
     const params: Params = {};
 
     // Handle manufacturer-model combinations
     if (filters.modelCombos && filters.modelCombos.length > 0) {
-      params['models'] = filters.modelCombos
+      params['modelCombos'] = filters.modelCombos
         .map((c) => `${c.manufacturer}:${c.model}`)
         .join(',');
     }
@@ -130,14 +130,14 @@ export class RouteStateService {
 
   /**
    * Convert URL params to SearchFilters
-   * Parse: ?models=Ford:F-150,Ford:Mustang
+   * Parse: ?modelCombos=Ford:F-150,Ford:Mustang
    */
   paramsToFilters(params: Params): SearchFilters {
     const filters: SearchFilters = {};
 
     // Handle manufacturer-model combinations from URL
-    if (params['models']) {
-      const modelsArray = params['models'].split(',').map((combo: string) => {
+    if (params['modelCombos']) {
+      const modelsArray = params['modelCombos'].split(',').map((combo: string) => {
         const [manufacturer, model] = combo.split(':');
         return { manufacturer, model };
       });

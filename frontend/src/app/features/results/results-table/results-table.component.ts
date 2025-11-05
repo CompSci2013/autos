@@ -103,6 +103,20 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
       filterable: false,
       hideable: true,
     },
+    {
+      key: 'instance_count',
+      label: 'VIN Count',
+      width: '120px',
+      sortable: true,         // Sorting enabled
+      clientSideSort: true,   // Client-side only: sorts current page in-place
+      filterable: false,
+      hideable: true,
+      formatter: (value: number | null | undefined) => {
+        if (value === null || value === undefined) return '-';
+        if (value === 0) return '0';
+        return value.toLocaleString();
+      },
+    },
   ];
 
   // Query params for BaseDataTable (initialized from current state)

@@ -16,6 +16,9 @@ export interface VehicleResult {
   // Metadata
   data_source: string;
   ingested_at: string;
+
+  // VIN instance count (populated by backend via autos-vins index aggregation)
+  instance_count?: number | null;
 }
 
 /**

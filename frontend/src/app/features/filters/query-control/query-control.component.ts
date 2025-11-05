@@ -858,22 +858,39 @@ export class QueryControlComponent implements OnInit, OnDestroy {
   private buildFilterChips(filters: SearchFilters): FilterChip[] {
     const chips: FilterChip[] = [];
 
-    // Manufacturer filter
-    if (filters.manufacturer) {
+    // Extract manufacturers and models from modelCombos (if present)
+    let manufacturersFromCombos = new Set<string>();
+    let modelsFromCombos = new Set<string>();
+
+    if (filters.modelCombos && filters.modelCombos.length > 0) {
+      filters.modelCombos.forEach((combo) => {
+        if (combo.manufacturer) manufacturersFromCombos.add(combo.manufacturer);
+        if (combo.model) modelsFromCombos.add(combo.model);
+      });
+    }
+
+    // Manufacturer filter (from explicit filter OR modelCombos)
+    const manufacturerValue = filters.manufacturer ||
+      (manufacturersFromCombos.size > 0 ? Array.from(manufacturersFromCombos).join(', ') : null);
+
+    if (manufacturerValue) {
       chips.push({
         field: 'manufacturer',
         label: 'Manufacturer',
-        displayValue: filters.manufacturer,
+        displayValue: manufacturerValue,
         color: 'blue',
       });
     }
 
-    // Model filter
-    if (filters.model) {
+    // Model filter (from explicit filter OR modelCombos)
+    const modelValue = filters.model ||
+      (modelsFromCombos.size > 0 ? Array.from(modelsFromCombos).join(', ') : null);
+
+    if (modelValue) {
       chips.push({
         field: 'model',
         label: 'Model',
-        displayValue: filters.model,
+        displayValue: modelValue,
         color: 'cyan',
       });
     }

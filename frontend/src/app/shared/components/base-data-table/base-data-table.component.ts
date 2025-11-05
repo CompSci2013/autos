@@ -192,6 +192,17 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
       console.log(`   Reference changed: ${prev !== curr ? 'YES' : 'NO'}`);
 
       this.tableData = this.data || [];
+
+      // Check if current sort column uses client-side sorting
+      // If so, re-apply the sort after data loads
+      if (this.sortBy && this.sortOrder) {
+        const column = this.columns.find((col) => col.key === this.sortBy);
+        if (column && column.clientSideSort) {
+          console.log(`🔄 Re-applying client-side sort on data change: ${this.sortBy} ${this.sortOrder}`);
+          this.sortTableDataClientSide(this.sortBy, this.sortOrder);
+        }
+      }
+
       this.cdr.detectChanges(); // Force immediate change detection
     } else {
       // CRITICAL FIX: Update tableData even if ngOnChanges didn't detect a change
@@ -200,6 +211,16 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
         console.log('📊 Data input NOT in changes, but data property differs from tableData');
         console.log(`   tableData: ${this.tableData?.length || 0} items, data: ${this.data?.length || 0} items`);
         this.tableData = this.data || [];
+
+        // Re-apply client-side sort if needed
+        if (this.sortBy && this.sortOrder) {
+          const column = this.columns.find((col) => col.key === this.sortBy);
+          if (column && column.clientSideSort) {
+            console.log(`🔄 Re-applying client-side sort on data property change: ${this.sortBy} ${this.sortOrder}`);
+            this.sortTableDataClientSide(this.sortBy, this.sortOrder);
+          }
+        }
+
         this.cdr.detectChanges();
       }
     }
@@ -361,6 +382,16 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
           this.tableData = response.results;
           this.totalCount = response.total;
           this.isLoading = false;
+
+          // Check if current sort column uses client-side sorting
+          // If so, re-apply the sort after data loads (for hydration from URL)
+          if (this.sortBy && this.sortOrder) {
+            const column = this.columns.find((col) => col.key === this.sortBy);
+            if (column && column.clientSideSort) {
+              console.log(`🔄 Re-applying client-side sort on hydration: ${this.sortBy} ${this.sortOrder}`);
+              this.sortTableDataClientSide(this.sortBy, this.sortOrder);
+            }
+          }
 
           // Trigger change detection (required for OnPush strategy)
           this.cdr.markForCheck();
@@ -524,7 +555,28 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
       this.sortOrder = 'asc';
     }
 
-    // In data mode, emit event to parent instead of fetching
+    // Check if this column uses client-side sorting
+    const column = this.columns.find((col) => col.key === columnKey);
+    if (column && column.clientSideSort) {
+      console.log(`🔄 Client-side sorting by ${columnKey} (${this.sortOrder})`);
+      this.sortTableDataClientSide(columnKey, this.sortOrder || 'asc');
+
+      // Still emit state change to update URL (but don't fetch from server)
+      if (this.data !== undefined) {
+        const params: TableQueryParams = {
+          page: this.currentPage,
+          size: this.pageSize,
+          sortBy: this.sortBy,
+          sortOrder: this.sortOrder,
+          filters: this.filters,
+        };
+        console.log('📄 Client-side sort: Emitting queryParamsChange to update URL:', params);
+        this.queryParamsChange.emit(params);
+      }
+      return; // Don't fetch from server
+    }
+
+    // Server-side sorting: In data mode, emit event to parent instead of fetching
     if (this.data !== undefined) {
       const params: TableQueryParams = {
         page: this.currentPage,
@@ -539,6 +591,39 @@ export class BaseDataTableComponent<T> implements OnInit, OnDestroy, OnChanges {
       // dataSource mode: fetch directly
       this.fetchData(true); // User-initiated: clicked column header
     }
+  }
+
+  /**
+   * Sort the current page of data client-side
+   * Used for computed fields that can't be sorted server-side
+   */
+  private sortTableDataClientSide(columnKey: string, sortOrder: 'asc' | 'desc'): void {
+    this.tableData.sort((a: any, b: any) => {
+      const aValue = a[columnKey];
+      const bValue = b[columnKey];
+
+      // Handle null/undefined values (always sort to end)
+      if (aValue === null || aValue === undefined) return 1;
+      if (bValue === null || bValue === undefined) return -1;
+
+      // Numeric comparison
+      if (typeof aValue === 'number' && typeof bValue === 'number') {
+        return sortOrder === 'asc' ? aValue - bValue : bValue - aValue;
+      }
+
+      // String comparison
+      const aStr = String(aValue).toLowerCase();
+      const bStr = String(bValue).toLowerCase();
+      if (sortOrder === 'asc') {
+        return aStr < bStr ? -1 : aStr > bStr ? 1 : 0;
+      } else {
+        return aStr > bStr ? -1 : aStr < bStr ? 1 : 0;
+      }
+    });
+
+    // Trigger change detection
+    this.cdr.markForCheck();
+    console.log(`✅ Sorted ${this.tableData.length} rows by ${columnKey} ${sortOrder}`);
   }
 
   // ========== FILTERING ==========
