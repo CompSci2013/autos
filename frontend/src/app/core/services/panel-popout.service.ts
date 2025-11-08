@@ -262,10 +262,20 @@ export class PanelPopoutService implements OnDestroy {
           payload
         );
         // BasePicker sends { configId, urlParam, urlValue }
-        // For manufacturer-model picker: urlParam = 'models', urlValue = 'Ford:F-150,Chevy:Corvette'
+        // For manufacturer-model picker: urlParam = 'modelCombos', urlValue = 'Ford:F-150,Chevy:Corvette'
         if (payload && payload.urlParam && payload.urlValue !== undefined) {
           const updates: any = {};
-          updates[payload.urlParam] = payload.urlValue || undefined;
+          const urlParam = payload.urlParam;
+          const urlValue = payload.urlValue;
+
+          // Parse URL value based on param type
+          // modelCombos needs to be an array, not a comma-separated string
+          if (urlParam === 'modelCombos' && urlValue) {
+            updates[urlParam] = urlValue.split(',');
+          } else {
+            updates[urlParam] = urlValue || undefined;
+          }
+
           this.stateService.updateFilters(updates);
         }
         // State change will automatically broadcast back to pop-out via subscription
