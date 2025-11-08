@@ -255,10 +255,26 @@ export class PanelPopoutService implements OnDestroy {
     const payload = message.payload ?? message.data;
 
     switch (message.type) {
-      case 'SELECTION_CHANGE':
-        // Pop-out sent selection change - update MAIN window state
+      case 'PICKER_SELECTION_CHANGE':
+        // BasePickerComponent sends this new message type with URL param info
         console.log(
-          '[PanelPopoutService] Selection changed in pop-out:',
+          '[PanelPopoutService] Picker selection changed in pop-out:',
+          payload
+        );
+        // BasePicker sends { configId, urlParam, urlValue }
+        // For manufacturer-model picker: urlParam = 'models', urlValue = 'Ford:F-150,Chevy:Corvette'
+        if (payload && payload.urlParam && payload.urlValue !== undefined) {
+          const updates: any = {};
+          updates[payload.urlParam] = payload.urlValue || undefined;
+          this.stateService.updateFilters(updates);
+        }
+        // State change will automatically broadcast back to pop-out via subscription
+        break;
+
+      case 'SELECTION_CHANGE':
+        // Legacy: Pop-out sent selection change - update MAIN window state
+        console.log(
+          '[PanelPopoutService] Selection changed in pop-out (legacy):',
           payload
         );
         this.stateService.updateFilters({
