@@ -269,9 +269,14 @@ export class PanelPopoutService implements OnDestroy {
           const urlValue = payload.urlValue;
 
           // Parse URL value based on param type
-          // modelCombos needs to be an array, not a comma-separated string
+          // modelCombos needs to be an array of objects {manufacturer, model}
           if (urlParam === 'modelCombos' && urlValue) {
-            updates[urlParam] = urlValue.split(',');
+            // Parse comma-separated string: 'Ford:F-150,Chevy:Corvette'
+            // Into array of objects: [{manufacturer: 'Ford', model: 'F-150'}, ...]
+            updates[urlParam] = urlValue.split(',').map((combo: string) => {
+              const [manufacturer, model] = combo.split(':');
+              return { manufacturer, model };
+            });
           } else {
             updates[urlParam] = urlValue || undefined;
           }
