@@ -378,7 +378,8 @@ async function getAllVinsHandler(req, res, next) {
       size: sizeNum,
       sort: [
         { [sortBy]: sortOrder }
-      ]
+      ],
+      track_total_hits: true  // Count all hits (not just first 10,000)
     });
 
     // Get total count
